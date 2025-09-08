@@ -192,11 +192,11 @@ COELELC100,TIMES process: COELELC100
 COELELC101,TIMES process: COELELC101
 COENMIX100,TIMES process: COENMIX100
 COENMIX101,TIMES process: COENMIX101
-COMBDL00,Commercial process using CO2
+COMBDL00,Commercial process using Carbon Dioxide
 COMBGS00,Commercial process using Biogas
 COMCPS00,Commercial process using Solid biomass
 COMELC00,Commercial process using Electricity
-COMGEO00,Commercial process using CO2
+COMGEO00,Commercial process using Carbon Dioxide
 COMGMX00,Commercial process using Biogas
 COMGSL00,Commercial process using biomasse
 COMHET00,Commercial process using Central heat
@@ -204,21 +204,21 @@ COMLPG00,Commercial process using Oil
 COMOIL00,Commercial process using Oil
 COMPEL00,Commercial process using Solid biomass
 COMPVELC,Commercial process using Electricity
-COMSOL00,Commercial process using CO2
-COM_CBAT_BA,Commercial process using CO2
-COM_CBAT_BP,Commercial process using CO2
-COM_CBAT_CO,Commercial process using CO2
-COM_CBAT_CS,Commercial process using CO2
-COM_CBAT_DATA,Commercial process using CO2
-COM_CBAT_EN,Commercial process using CO2
-COM_CBAT_SA,Commercial process using CO2
-COM_CNBAT_BA,Commercial process using CO2
-COM_CNBAT_BP,Commercial process using CO2
-COM_CNBAT_CO,Commercial process using CO2
-COM_CNBAT_CS,Commercial process using CO2
-COM_CNBAT_DATA,Commercial process using CO2
-COM_CNBAT_EN,Commercial process using CO2
-COM_CNBAT_SA,Commercial process using CO2
+COMSOL00,Commercial process using Carbon Dioxide
+COM_CBAT_BA,Commercial process using Carbon Dioxide
+COM_CBAT_BP,Commercial process using Carbon Dioxide
+COM_CBAT_CO,Commercial process using Carbon Dioxide
+COM_CBAT_CS,Commercial process using Carbon Dioxide
+COM_CBAT_DATA,Commercial process using Carbon Dioxide
+COM_CBAT_EN,Commercial process using Carbon Dioxide
+COM_CBAT_SA,Commercial process using Carbon Dioxide
+COM_CNBAT_BA,Commercial process using Carbon Dioxide
+COM_CNBAT_BP,Commercial process using Carbon Dioxide
+COM_CNBAT_CO,Commercial process using Carbon Dioxide
+COM_CNBAT_CS,Commercial process using Carbon Dioxide
+COM_CNBAT_DATA,Commercial process using Carbon Dioxide
+COM_CNBAT_EN,Commercial process using Carbon Dioxide
+COM_CNBAT_SA,Commercial process using Carbon Dioxide
 COSEELC100,TIMES process: COSEELC100
 COSEELC101,TIMES process: COSEELC101
 CPLIELC100,TIMES process: CPLIELC100
@@ -352,9 +352,9 @@ EVTRANS_M-L,TIMES process: EVTRANS_M-L
 EXPBIOLOG,Export of Solid biomass
 EXPBIOPEL,Export of Solid biomass
 EXPELCHIG,Export of HV Electricity (AC / DC)
-IAMADVPRO10,TIMES process: IAMADVPRO10
-IAMSTDPRO00,TIMES process: IAMSTDPRO00
-IAMSTDPRO01,TIMES process: IAMSTDPRO01
+IAMADVPRO10,Chemicals: Ammonia - Advanced production process
+IAMSTDPRO00,Chemicals: Ammonia - Standard production process
+IAMSTDPRO01,Chemicals: Ammonia - Standard production process (variant)
 IBKSTDPRO00,TIMES process: IBKSTDPRO00
 IBKSTDPRO01,TIMES process: IBKSTDPRO01
 IBOBIOPEL00,TIMES process: IBOBIOPEL00
@@ -367,7 +367,7 @@ IBOSTMOIL00,TIMES process: IBOSTMOIL00
 IBOSTMSOLID00,TIMES process: IBOSTMSOLID00
 ICESTDPRO00,TIMES process: ICESTDPRO00
 ICESTDPRO01,TIMES process: ICESTDPRO01
-ICHDEMAND00,TIMES process: ICHDEMAND00
+ICHDEMAND00,Chemicals: Other - Demand process
 ICHELEELC00,TIMES process: ICHELEELC00
 ICHELEELC01,TIMES process: ICHELEELC01
 ICHMCHELC00,TIMES process: ICHMCHELC00
@@ -395,7 +395,7 @@ ICHSTMLFO00,TIMES process: ICHSTMLFO00
 ICHSTMLPG00,TIMES process: ICHSTMLPG00
 ICMDRYPRD00,TIMES process: ICMDRYPRD00
 ICMDRYPRD10,TIMES process: ICMDRYPRD10
-ICMFINPRO00,TIMES process: ICMFINPRO00
+ICMFINPRO00,Non metal minerals: Cement - Final production process
 ICMFINPRO01,TIMES process: ICMFINPRO01
 ICMPRC20,TIMES process: ICMPRC20
 ICMPRC21,TIMES process: ICMPRC21
@@ -407,10 +407,10 @@ ICMPRCHFO00,TIMES process: ICMPRCHFO00
 ICMPRCSLU00,TIMES process: ICMPRCSLU00
 ICMPRDCC_02,TIMES process: ICMPRDCC_02
 ICMWETPRD00,TIMES process: ICMWETPRD00
-IGFFLATGL00,TIMES process: IGFFLATGL00
+IGFFLATGL00,Non metal minerals: Glass flat - Production process
 IGFFLATGL01,TIMES process: IGFFLATGL01
 IGFFLATOXYCC01,TIMES process: IGFFLATOXYCC01
-IGHHOLLOW00,TIMES process: IGHHOLLOW00
+IGHHOLLOW00,Non metal minerals: Glass hollow - Production process
 IGHHOLLOW01,TIMES process: IGHHOLLOW01
 IGHHOLLOWOXYCC01,TIMES process: IGHHOLLOWOXYCC01
 IGHOTOCC01,TIMES process: IGHOTOCC01
@@ -422,7 +422,7 @@ IISDRIEAF01,TIMES process: IISDRIEAF01
 IISDRISPN01,TIMES process: IISDRISPN01
 IISELAFUR00,TIMES process: IISELAFUR00
 IISELAFUR01,TIMES process: IISELAFUR01
-IISFINPRO00,TIMES process: IISFINPRO00
+IISFINPRO00,Industry: Iron and steel - Final production process
 IISFINPRO02,TIMES process: IISFINPRO02
 IISPELLET01,TIMES process: IISPELLET01
 IISSINTER01,TIMES process: IISSINTER01
@@ -436,7 +436,7 @@ ILMPRCLFO00,TIMES process: ILMPRCLFO00
 ILMPRCLPG00,TIMES process: ILMPRCLPG00
 ILMPRCSLU00,TIMES process: ILMPRCSLU00
 ILMQLMPRCC02,TIMES process: ILMQLMPRCC02
-ILMQLMPRO00,TIMES process: ILMQLMPRO00
+ILMQLMPRO00,Non metal minerals: Lime - Production process
 ILMQLMPRO01,TIMES process: ILMQLMPRO01
 IMLEVA00,TIMES process: IMLEVA00
 IMLEVA03,TIMES process: IMLEVA03
@@ -572,7 +572,7 @@ IPOPREPA03,TIMES process: IPOPREPA03
 IPOPREPA04,TIMES process: IPOPREPA04
 IPOSTMGAS00,TIMES process: IPOSTMGAS00
 IPOSTMOIL00,TIMES process: IPOSTMOIL00
-IPPHIGQUA00,TIMES process: IPPHIGQUA00
+IPPHIGQUA00,Industry: Pulp and paper - High quality production
 IPPHIGQUA05,TIMES process: IPPHIGQUA05
 IPPHIGQUA55,TIMES process: IPPHIGQUA55
 IPPPACELC01,TIMES process: IPPPACELC01
@@ -609,7 +609,7 @@ MINBIOSLU,Extraction of -
 MINBIOSLUH,Extraction of -
 MINCETGAS,Extraction of Natural Gas
 MINMBOWOO1,Extraction of Unknown
-MINMCOWIM1,Extraction of CO2
+MINMCOWIM1,Extraction of Carbon Dioxide
 MINMCUPDT,Extraction of Unknown
 MINMGHRYC1,Extraction of Hydrogen
 MINMISGBE1,Extraction of Unknown
@@ -626,8 +626,8 @@ MINRENGEO,Extraction of Unknown
 MINRENHYD,Extraction of Unknown
 MINRENSOL,Extraction of Unknown
 MINRENWIN,Extraction of Unknown
-NECDEMAND00,TIMES process: NECDEMAND00
-NEODEMAND00,TIMES process: NEODEMAND00
+NECDEMAND00,Non Energy Uses in Chemical sector - Demand process
+NEODEMAND00,Other Non Energy Uses - Demand process
 RCDRELC100,TIMES process: RCDRELC100
 RCDRELC201,TIMES process: RCDRELC201
 RCOKCOA100,TIMES process: RCOKCOA100

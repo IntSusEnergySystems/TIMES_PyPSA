@@ -5,7 +5,7 @@ AGRBGS,Commodity for Agriculture sector (BGS)
 AGRCH4,Methane for Agriculture sector
 AGRCO2N,CO2 from combustion for Agriculture sector
 AGRCO2b,CO2 for Agriculture sector
-AGRCOV,VOCs for Agriculture sector
+AGRCOV,Volatile Organic Compounds for Agriculture sector
 AGRCPS,Wood Chips for Agriculture sector
 AGRELC,Electricity for Agriculture sector
 AGRGHG,Greenhouse Gas for Agriculture sector
@@ -15,11 +15,11 @@ AGRHET,Heat for Agriculture sector
 AGRHH,Commodity for Agriculture sector (HH)
 AGRN2O,Nitrous Oxide for Agriculture sector
 AGRNH3,Ammonia for Agriculture sector
-AGRNOX,NOx for Agriculture sector
+AGRNOX,Nitrogen Oxides for Agriculture sector
 AGROF,Commodity for Agriculture sector (OF)
 AGROIL,Oil for Agriculture sector
-AGRPM2,PM2.5 for Agriculture sector
-AGRSOX,SOx for Agriculture sector
+AGRPM2,Particulate matter 2.5 for Agriculture sector
+AGRSOX,Sulphur oxides for Agriculture sector
 BATELCIN,Electricity
 BATELCOUT,Electricity
 BIOBOU,Biomass
@@ -108,7 +108,7 @@ COMBGS,Commodity for Commercial sector (BGS)
 COMCH4,Methane for Commercial sector
 COMCO2N,CO2 from combustion for Commercial sector
 COMCO2b,CO2 for Commercial sector
-COMCOV,VOCs for Commercial sector
+COMCOV,Volatile Organic Compounds for Commercial sector
 COMCPS,Wood Chips for Commercial sector
 COMELC,Electricity for Commercial sector
 COMGEO,Geothermal for Commercial sector
@@ -120,12 +120,12 @@ COMHET,Heat for Commercial sector
 COMLPG,LPG for Commercial sector
 COMN2O,Nitrous Oxide for Commercial sector
 COMNH3,Ammonia for Commercial sector
-COMNOX,NOx for Commercial sector
+COMNOX,Nitrogen Oxides for Commercial sector
 COMOIL,Oil for Commercial sector
 COMPEL,Pellets for Commercial sector
-COMPM2,PM2.5 for Commercial sector
+COMPM2,Particulate matter 2.5 for Commercial sector
 COMSOL,Solar for Commercial sector
-COMSOX,SOx for Commercial sector
+COMSOX,Sulphur oxides for Commercial sector
 COSE,Commodity: COSE
 CPLI,Commodity: CPLI
 CREF,Commodity: CREF
@@ -255,7 +255,7 @@ ELCCH4,Methane for Electricity sector
 ELCCO2N,CO2 from combustion for Electricity sector
 ELCCO2b,CO2 for Electricity sector
 ELCCO2c,CO2 for Electricity sector
-ELCCOV,VOCs for Electricity sector
+ELCCOV,Volatile Organic Compounds for Electricity sector
 ELCCPS,Wood Chips for Electricity sector
 ELCGAS,Gas for Electricity sector
 ELCGHG,Greenhouse Gas for Electricity sector
@@ -268,14 +268,14 @@ ELCLOW,Commodity for Electricity sector (LOW)
 ELCMED,Commodity for Electricity sector (MED)
 ELCN2O,Nitrous Oxide for Electricity sector
 ELCNH3,Ammonia for Electricity sector
-ELCNOX,NOx for Electricity sector
+ELCNOX,Nitrogen Oxides for Electricity sector
 ELCNUC,Nuclear for Electricity sector
 ELCOIL,Oil for Electricity sector
 ELCPEL,Pellets for Electricity sector
-ELCPM2,PM2.5 for Electricity sector
+ELCPM2,Particulate matter 2.5 for Electricity sector
 ELCSLU,Sludge for Electricity sector
 ELCSOL,Solar for Electricity sector
-ELCSOX,SOx for Electricity sector
+ELCSOX,Sulphur oxides for Electricity sector
 ELCWIN,Wind for Electricity sector
 ELCWST,Waste for Electricity sector
 ETSCO2N,CO2 from combustion for Emissions Trading System sector
@@ -286,25 +286,25 @@ ETSNO2N,Commodity for Emissions Trading System sector (NO2N)
 GASBFT,Gas
 GASIIS,Gas
 GASNAT,Gas
-IAM,Commodity: IAM
+IAM,Chemicals: Ammonia (Mega tonnes)
 IBK,Commodity: IBK
 IBO,Commodity: IBO
 IBOHTH,Commodity: IBOHTH
 ICE,Commodity: ICE
-ICH,Commodity: ICH
+ICH,Chemicals: Other (PJ)
 ICHELE,Commodity: ICHELE
 ICHHTH,Commodity: ICHHTH
 ICHMCH,Commodity: ICHMCH
 ICHOTH,Commodity: ICHOTH
 ICHPRC,Commodity: ICHPRC
-ICM,Commodity: ICM
+ICM,Non metal minerals: Cement (Mega tonnes)
 ICMPRC,Commodity: ICMPRC
-IGF,Commodity: IGF
-IGH,Commodity: IGH
+IGF,Non metal minerals: Glass flat (Mega tonnes)
+IGH,Non metal minerals: Glass hollow (Mega tonnes)
 IGO,Commodity: IGO
-IIS,Commodity: IIS
+IIS,Industry: Iron and steel (Mega tonnes)
 IISHTH,Commodity: IISHTH
-ILM,Commodity: ILM
+ILM,Non metal minerals: Lime (Mega tonnes)
 ILMPRC,Commodity: ILMPRC
 IML,Commodity: IML
 IMLHTH,Commodity: IMLHTH
@@ -319,7 +319,7 @@ INDCO2c,CO2 for Industry sector
 INDCOA,Coal for Industry sector
 INDCOK,Coke for Industry sector
 INDCOL,Commodity for Industry sector (COL)
-INDCOVn,VOCs for Industry sector
+INDCOVn,Volatile Organic Compounds for Industry sector
 INDCPS,Wood Chips for Industry sector
 INDELC,Electricity for Industry sector
 INDGAS,Gas for Industry sector
@@ -337,18 +337,18 @@ INDLFO,Light Fuel Oil for Industry sector
 INDLPG,LPG for Industry sector
 INDN2O,Nitrous Oxide for Industry sector
 INDNH3n,Ammonia for Industry sector
-INDNOXn,NOx for Industry sector
-INDPM2n,PM2.5 for Industry sector
+INDNOXn,Nitrogen Oxides for Industry sector
+INDPM2n,Particulate matter 2.5 for Industry sector
 INDSLU,Sludge for Industry sector
 INDSOL,Solar for Industry sector
-INDSOXn,SOx for Industry sector
+INDSOXn,Sulphur oxides for Industry sector
 INDWST,Waste for Industry sector
-INF,Commodity: INF
+INF,Non ferrous metals: Other (PJ)
 INFELE,Commodity: INFELE
 INFHTH,Commodity: INFHTH
 INFMCH,Commodity: INFMCH
 INFPRC,Commodity: INFPRC
-INM,Commodity: INM
+INM,Non metal minerals: Other (PJ)
 INMELE,Commodity: INMELE
 INMHTH,Commodity: INMHTH
 INMMCH,Commodity: INMMCH
@@ -361,15 +361,15 @@ IOFHTH,Commodity: IOFHTH
 IOFMCH,Commodity: IOFMCH
 IOFOTH,Commodity: IOFOTH
 IOFPRC,Commodity: IOFPRC
-IOI,Commodity: IOI
-IOIELE,Commodity: IOIELE
+IOI,Other industries: Transport Equipment, Machinery, Mining and Quarrying, Food and Tobacco, Wood and Wood Products, Construction, Textile and Leather (PJ)
+IOIELE,End use category: Electro-chemical (PJ)
 IOIHTH,Commodity: IOIHTH
-IOIMCH,Commodity: IOIMCH
-IOIOTH,Commodity: IOIOTH
-IOIPRC,Commodity: IOIPRC
+IOIMCH,End use category: Machine drive (PJ)
+IOIOTH,End use category: Other (PJ)
+IOIPRC,End use category: Process heat (PJ)
 IPO,Commodity: IPO
 IPOHTH,Commodity: IPOHTH
-IPP,Commodity: IPP
+IPP,Industry: Pulp and paper (Mega tonnes)
 IPPHTH,Commodity: IPPHTH
 IPPPRC,Commodity: IPPPRC
 ISG,Commodity: ISG
@@ -377,7 +377,7 @@ ISGHTH,Commodity: ISGHTH
 MBORES,Commodity: MBORES
 MBOWOO,Commodity: MBOWOO
 MBRWOO,Commodity: MBRWOO
-MCMCLK,Commodity: MCMCLK
+MCMCLK,Cement: Clinker
 MCOWIM,Commodity: MCOWIM
 MCUPDT,Commodity: MCUPDT
 MEOOXY,Commodity: MEOOXY
@@ -388,19 +388,19 @@ MISDIR,Commodity: MISDIR
 MISGBE,Commodity: MISGBE
 MISGJU,Commodity: MISGJU
 MISORE,Commodity: MISORE
-MISOXY,SOx
+MISOXY,Sulphur oxides
 MISPLT,Commodity: MISPLT
 MISQLI,Commodity: MISQLI
 MISRIR,Commodity: MISRIR
 MISSCR,Commodity: MISSCR
 MISSNT,Commodity: MISSNT
-MLMSTN,Commodity: MLMSTN
+MLMSTN,Lime: Limestone
 MPPNOH,Commodity: MPPNOH
 MPPOXY,Commodity: MPPOXY
 MPPPUP,Commodity: MPPPUP
 MPPWOO,Commodity: MPPWOO
-NEC,Commodity: NEC
-NEO,Commodity: NEO
+NEC,Non Energy Uses in the Chemical sector (PJ)
+NEO,Other Non Energy Uses (PJ)
 NETSCH4N,Methane
 NETSCO2N,CO2 from combustion
 NETSGHG,Greenhouse Gas
@@ -443,7 +443,7 @@ RSDCH4,Methane for Residential sector
 RSDCO2N,CO2 from combustion for Residential sector
 RSDCO2b,CO2 for Residential sector
 RSDCOA,Coal for Residential sector
-RSDCOV,VOCs for Residential sector
+RSDCOV,Volatile Organic Compounds for Residential sector
 RSDELC,Electricity for Residential sector
 RSDGEO,Geothermal for Residential sector
 RSDGHG,Greenhouse Gas for Residential sector
@@ -455,12 +455,12 @@ RSDLOG,Wood Logs for Residential sector
 RSDLPG,LPG for Residential sector
 RSDN2O,Nitrous Oxide for Residential sector
 RSDNH3,Ammonia for Residential sector
-RSDNOX,NOx for Residential sector
+RSDNOX,Nitrogen Oxides for Residential sector
 RSDOIL,Oil for Residential sector
 RSDPEL,Pellets for Residential sector
-RSDPM2,PM2.5 for Residential sector
+RSDPM2,Particulate matter 2.5 for Residential sector
 RSDSOL,Solar for Residential sector
-RSDSOX,SOx for Residential sector
+RSDSOX,Sulphur oxides for Residential sector
 RW2F,Commodity: RW2F
 RW3F,Commodity: RW3F
 RW4F,Commodity: RW4F
@@ -480,7 +480,7 @@ R_NAppa,Commodity: R_NAppa
 SUPBGS,Commodity for Supply sector (BGS)
 SUPCH4,Methane for Supply sector
 SUPCO2N,CO2 from combustion for Supply sector
-SUPCOV,VOCs for Supply sector
+SUPCOV,Volatile Organic Compounds for Supply sector
 SUPDST,Diesel for Supply sector
 SUPELC,Electricity for Supply sector
 SUPGAS,Gas for Supply sector
@@ -490,9 +490,9 @@ SUPHET,Heat for Supply sector
 SUPIMPH2,Hydrogen for Supply sector
 SUPN2O,Nitrous Oxide for Supply sector
 SUPNH3,Ammonia for Supply sector
-SUPNOX,NOx for Supply sector
-SUPPM2,PM2.5 for Supply sector
-SUPSOX,SOx for Supply sector
+SUPNOX,Nitrogen Oxides for Supply sector
+SUPPM2,Particulate matter 2.5 for Supply sector
+SUPSOX,Sulphur oxides for Supply sector
 SYNH2CT,Hydrogen
 SYNH2CU,Hydrogen
 TADF,Commodity: TADF
@@ -508,12 +508,12 @@ TMOP,Commodity: TMOP
 TMOT,Commodity: TMOT
 TNDF,Commodity: TNDF
 TOTCO2N,CO2 from combustion
-TOTCOV,VOCs
+TOTCOV,Volatile Organic Compounds
 TOTGHG,Greenhouse Gas
 TOTNH3,Ammonia
-TOTNOX,NOx
-TOTPM2,PM2.5
-TOTSOX,SOx
+TOTNOX,Nitrogen Oxides
+TOTPM2,Particulate matter 2.5
+TOTSOX,Sulphur oxides
 TRABDL,Biodiesel for Transport sector
 TRABGS,Commodity for Transport sector (BGS)
 TRACH4,Methane for Transport sector
@@ -521,7 +521,7 @@ TRACH4-I,Methane for Transport sector
 TRACO2N,CO2 from combustion for Transport sector
 TRACO2N-I,CO2 from combustion for Transport sector
 TRACO2b,CO2 for Transport sector
-TRACOV,VOCs for Transport sector
+TRACOV,Volatile Organic Compounds for Transport sector
 TRADST,Diesel for Transport sector
 TRAELC,Electricity for Transport sector
 TRAETH,Ethanol for Transport sector
@@ -536,8 +536,8 @@ TRALPG,LPG for Transport sector
 TRAN2O,Nitrous Oxide for Transport sector
 TRAN2O-I,Nitrous Oxide for Transport sector
 TRANH3,Ammonia for Transport sector
-TRANOX,NOx for Transport sector
-TRAPM2,PM2.5 for Transport sector
-TRASOX,SOx for Transport sector
+TRANOX,Nitrogen Oxides for Transport sector
+TRAPM2,Particulate matter 2.5 for Transport sector
+TRASOX,Sulphur oxides for Transport sector
 TTF,Commodity: TTF
 TTP,Commodity: TTP
