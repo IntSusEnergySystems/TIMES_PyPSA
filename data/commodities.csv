@@ -495,18 +495,18 @@ SUPPM2,Particulate matter 2.5 for Supply sector
 SUPSOX,Sulphur oxides for Supply sector
 SYNH2CT,Hydrogen
 SYNH2CU,Hydrogen
-TADF,Commodity: TADF
-TADP,Commodity: TADP
-TAIF,Commodity: TAIF
-TAIP,Commodity: TAIP
+TADF,Transportation: Aviation - Domestic freight
+TADP,Transportation: Aviation - Domestic passenger
+TAIF,Transportation: Aviation - International freight
+TAIP,Transportation: Aviation - International passenger
 TBC,Commodity: TBC
-TBU,Commodity: TBU
-TCAR,Commodity: TCAR
-THDT,Commodity: THDT
-TLCV,Commodity: TLCV
-TMOP,Commodity: TMOP
-TMOT,Commodity: TMOT
-TNDF,Commodity: TNDF
+TBU,Transportation: Buses, Urban (10E9 passenger-kms)
+TCAR,Transportation: Cars (10E9 passenger-kms)
+THDT,Transportation: Heavy duty trucks
+TLCV,Transportation: Light commercial vehicles
+TMOP,Transportation: Motos/other (10E9 passenger-kms)
+TMOT,Transportation: Motos/other (10E9 passenger-kms)
+TNDF,Transportation: Non-domestic freight
 TOTCO2N,CO2 from combustion
 TOTCOV,Volatile Organic Compounds
 TOTGHG,Greenhouse Gas

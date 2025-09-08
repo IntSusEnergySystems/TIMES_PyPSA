@@ -828,15 +828,15 @@ TADFKER00,TIMES process: TADFKER00
 TADPKER00,TIMES process: TADPKER00
 TAIFKER00,TIMES process: TAIFKER00
 TAIPKER00,TIMES process: TAIPKER00
-TAVDOMBDLFN01,TIMES process: TAVDOMBDLFN01
-TAVDOMBDLPN01,TIMES process: TAVDOMBDLPN01
-TAVINTHH2PN01,TIMES process: TAVINTHH2PN01
-TBUSBDLU00,TIMES process: TBUSBDLU00
-TBUSDSTC00,TIMES process: TBUSDSTC00
-TBUSDSTU00,TIMES process: TBUSDSTU00
+TAVDOMBDLFN01,Transportation: Aviation - Domestic biodiesel freight
+TAVDOMBDLPN01,Transportation: Aviation - Domestic biodiesel passenger
+TAVINTHH2PN01,Transportation: Aviation - International hydrogen passenger
+TBUSBDLU00,Transportation: Buses - Biodiesel urban
+TBUSDSTC00,Transportation: Buses - Diesel city
+TBUSDSTU00,Transportation: Buses - Diesel urban
 TBUSDSTUN01,TIMES process: TBUSDSTUN01
 TBUSETHCN01,TIMES process: TBUSETHCN01
-TBUSGMXU00,TIMES process: TBUSGMXU00
+TBUSGMXU00,Transportation: Buses - Gas urban
 TBUSHDSTU00,TIMES process: TBUSHDSTU00
 TCARDSTEX00,TIMES process: TCARDSTEX00
 TCARDSTHEV4EXN01,TIMES process: TCARDSTHEV4EXN01
@@ -896,14 +896,14 @@ TLCVDSTLC00,TIMES process: TLCVDSTLC00
 TLCVDSTLCN01,TIMES process: TLCVDSTLCN01
 TLCVELCLC00,TIMES process: TLCVELCLC00
 TLCVGSLLC00,TIMES process: TLCVGSLLC00
-TMOPELC00,TIMES process: TMOPELC00
+TMOPELC00,Transportation: Motos/other - Electric
 TMOPELCN01,TIMES process: TMOPELCN01
-TMOPGSL00,TIMES process: TMOPGSL00
+TMOPGSL00,Transportation: Motos/other - Gasoline
 TMOPGSLN01,TIMES process: TMOPGSLN01
 TMOTELCN01,TIMES process: TMOTELCN01
-TMOTGSL00,TIMES process: TMOTGSL00
+TMOTGSL00,Transportation: Motos/other - Gasoline
 TMOTGSLN01,TIMES process: TMOTGSLN01
-TNDFDST00,TIMES process: TNDFDST00
+TNDFDST00,Transportation: Non-domestic freight - Diesel
 TRABDL00,Transport process using -
 TRABGS00,Transport process using Biogas
 TRADST00,Transport process using biomasse
