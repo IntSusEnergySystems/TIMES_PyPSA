@@ -1,0 +1,89 @@
+﻿Energy Carrier - PYPSA;commodities TIMES ;uspstream_commodity;upstream_process;Sector (com_in);Comment
+HV Electricity (AC / DC) ;ELCHIG;;;;Produced by the public power station or imports
+HV Electricity (AC / DC) ;ELCHIGG;;;;High voltage electricity
+;ELCMED;;;;Medium voltage electricity
+LV Electricity ;ELCLOW;;;;low voltage electricity
+LV Electricity ;RSDELC;ELCLOW;RSDELC00;RSD;
+-;INDELC;ELCHIGG;INDELC00;IND;
+-;INDELC;ELCMED;INDELC00;IND;
+-;INDELC;ELCLOW;INDELC00;IND;
+-;COMELC;ELCMED;COMELC00;COM;
+-;COMELC;ELCLOW;COMELC00;COM;
+LV Electricity ;TRAELC;ELCLOW;TRAELC00;TRA;
+Uranium ;ELCNUC;;;ELC;
+Oil ;RSDOIL;;;RSD;
+Oil ;INDLFO;;;IND;light fuel oil
+Oil ;INDHFO;;;IND;heavy fuel oil
+Oil ;AGROIL;;;AGR;
+Oil ;COMOIL;;;COM;
+Oil ;TRADST;OILDST;TRADST00;TRA;diesel
+biomasse;TRADST;TRABDL;TRADST00;TRA;
+Oil ;TRAGSL;OILGSL;TRAGSL00;TRA;gasoline
+biomasse;TRAGSL;BIOETH;TRAGSL00;TRA;
+Oil ;TRAKER;;;TRA;kerozene
+Oil ;RSDLPG;;;RSD;Propane butane
+Oil ;COMLPG;;;COM;Propane butane
+Oil ;TRALPG;;;TRA;Propane butane
+Oil ;INDLPG;;;IND;Propane butane
+Naphtha ;;;;;not use in Wallonia
+Coal ;INDCOA;;;IND;
+Coal ;RSDCOA;;;RSD;
+Coal ;COMCOA;;;COM;
+Lignite ;INDCOL;;;IND;
+Lignite ;ELCCOL;;;ELC;
+ - ;INDCOK;;;IND;Coke  in cement and lime industry
+Gas ;ELCGAS;GASNAT;;ELC;
+Gas ;INDGAS;GASNAT;;IND;
+Biogas ;INDGMX;BIOGZH;SUPGMX00;IND;Injected biomethane (after upgrading/concentration) + imported biomethane
+Gas ;INDGMX;SUPGAS;SUPGMX00;IND;
+ - ;INDGMX;MOLECH4;SUPGMX00;IND;e-methane
+Biogas ;RSDGMX;BIOGZH;SUPGMX00;RSD;Injected biomethane (after upgrading/concentration) + imported biomethane
+Gas ;RSDGMX;SUPGAS;SUPGMX00;RSD;
+ - ;RSDGMX;MOLECH4;SUPGMX00;RSD;e-methane
+Biogas ;COMGMX;BIOGZH;SUPGMX00;COM;Injected biomethane (after upgrading/concentration) + imported biomethane
+Gas ;COMGMX;SUPGAS;SUPGMX00;COM;
+ - ;COMGMX;MOLECH4;SUPGMX00;COM;e-methan
+Biogas ;TRAGMX;BIOGZH;SUPGMX00;TRA;Injected biomethane (after upgrading/concentration) 
+Gas ;TRAGMX;SUPGAS;SUPGMX00;TRA;
+ - ;TRAGMX;MOLECH4;SUPGMX00;TRA;e-methan
+Biogas ;AGRGMX;BIOGZH;SUPGMX00;AGR;Injected biomethane (after upgrading/concentration) 
+Gas ;AGRGMX;SUPGAS;SUPGMX00;AGR;
+ - ;AGRGMX;MOLECH4;SUPGMX00;AGR;e-methane
+Solid biomass ;ELCCPS;;;ELC;
+Solid biomass ;ELCPEL;;;ELC;
+Solid biomass ;INDCPS;;;IND;
+Solid biomass ;INDPEL;;;IND;
+Solid biomass ;RSDLOG;;;RSD;logs
+Solid biomass ;RSDPEL;;;RSD;
+ - ;INDBLQ;;;IND;black liquor (biomass)
+Biogas ;INDBGS;;;IND;
+Biogas ;COMBGS;;;COM;
+Biogas ;TRABGS;;;TRA;
+Biogas ;AGRBGS;;;AGR;
+Biogas ;ELCBGS;;;ELC;
+Municipal waste (optional) ;INDWST;;;IND;Cement kilns and lime kilns are “major” consumers
+Municipal waste (optional) ;ELCWST;;;ELC;incinerator
+Central heat ;INDHET;;;IND;District heating network with centralized CHP (ELCHET) and/or recovered excess heat from industry (INDHWT)
+Central heat ;RSDHET;;;RSD;District heating network with centralized CHP (ELCHET) and/or recovered excess heat from industry (INDHWT)
+Central heat ;COMHET;;;COM;District heating network with centralized CHP (ELCHET) and/or recovered excess heat from industry (INDHWT)
+Decentral heat ;;;;;???
+Hydrogen ;INDHH2;;;IND;Hydrogen (H₂) imported or produced locally (several possible technologies)
+Hydrogen ;TRAGH2;;;TRA;
+Hydrogen ;TRALH2;;;TRA;
+Ammonia ;;;;;Not yet included as an energy carrier (produced in the “IAM” sector)
+Methanol ;;;;;Not yet included as an energy carrier
+CO2 ;RSDCO2N;;;RSD;"*CO2N = CO₂ from combustion (Note: these are not CO₂-eq; CH₄ and N₂O emissions are accounted for separately and subsequently converted into GHG equivalents"
+CO2 ;COMCO2N;;;COM;"*CO2N = CO₂ from combustion (Note: these are not CO₂-eq; CH₄ and N₂O emissions are accounted for separately and subsequently converted into GHG equivalents"
+CO2 ;ELCCO2N;;;ELC;"*CO2N = CO₂ from combustion (Note: these are not CO₂-eq; CH₄ and N₂O emissions are accounted for separately and subsequently converted into GHG equivalents"
+CO2 ;ELCCO2c;;;ELC;CO2c = Captured CO₂ (can be sent for permanent storage – associated potential – or used in methanation for e-fuel production)
+CO2 ;TRACO2N;;;TRA;"*CO2N = CO₂ from combustion (Note: these are not CO₂-eq; CH₄ and N₂O emissions are accounted for separately and subsequently converted into GHG equivalents"
+CO2 ;INDCO2p;;;IND;CO2p  = co2 process
+CO2 ;INDCO2c;;;IND;CO2c = Captured CO₂ (can be sent for permanent storage – associated potential – or used in methanation for e-fuel production)
+CO2 ;INDCO2N;;;IND;"*CO2N = CO₂ from combustion (Note: these are not CO₂-eq; CH₄ and N₂O emissions are accounted for separately and subsequently converted into GHG equivalents"
+CO2 ;SUPCO2N;;;SUP;"*CO2N = CO₂ from combustion (Note: these are not CO₂-eq; CH₄ and N₂O emissions are accounted for separately and subsequently converted into GHG equivalents"
+CO2 ;TRACO2N;;;TRA;"*CO2N = CO₂ from combustion (Note: these are not CO₂-eq; CH₄ and N₂O emissions are accounted for separately and subsequently converted into GHG equivalents"
+CO2 ;TRACO2N-I;;;TRA;Originating from international aviation
+ - ;INDSLU;;;IND;Renewable waste used as fuel in cement kilns and lime production kilns
+ - ;ELCSLU;;;ELC;Renewable waste incinerated
+ - ;TRAETH;;;TRA;pure bioethanol
+ -;TRABDL;;;TRA;pure biodiesiel
