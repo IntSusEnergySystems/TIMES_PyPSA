@@ -1,0 +1,11 @@
+sector_code,sector_name,sector_description
+AGR,Agriculture,Processes related to agricultural activities.
+COM,Commercial,Processes related to the commercial and services sector.
+ELC,Electricity,"Processes related to electricity generation, transmission, and distribution."
+EXP,Export,Processes for exporting energy carriers.
+IMP,Import,Processes for importing energy carriers.
+IND,Industry,Processes related to industrial manufacturing and production.
+MIN,Mining,Processes for the extraction of raw materials.
+RSD,Residential,Processes related to residential energy consumption.
+TRA,Transport,Processes related to the transportation of goods and people.
+UNC,Uncategorized,Process not categorized.
