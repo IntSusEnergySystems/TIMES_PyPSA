@@ -1,0 +1,543 @@
+Commodity,Description
+AGRAP,Commodity for Agriculture sector (AP)
+AGRBDL,Biodiesel for Agriculture sector
+AGRBGS,Commodity for Agriculture sector (BGS)
+AGRCH4,Methane for Agriculture sector
+AGRCO2N,CO2 from combustion for Agriculture sector
+AGRCO2b,CO2 for Agriculture sector
+AGRCOV,VOCs for Agriculture sector
+AGRCPS,Wood Chips for Agriculture sector
+AGRELC,Electricity for Agriculture sector
+AGRGHG,Greenhouse Gas for Agriculture sector
+AGRGHGb,Greenhouse Gas for Agriculture sector
+AGRGMX,Commodity for Agriculture sector (GMX)
+AGRHET,Heat for Agriculture sector
+AGRHH,Commodity for Agriculture sector (HH)
+AGRN2O,Nitrous Oxide for Agriculture sector
+AGRNH3,Ammonia for Agriculture sector
+AGRNOX,NOx for Agriculture sector
+AGROF,Commodity for Agriculture sector (OF)
+AGROIL,Oil for Agriculture sector
+AGRPM2,PM2.5 for Agriculture sector
+AGRSOX,SOx for Agriculture sector
+BATELCIN,Electricity
+BATELCOUT,Electricity
+BIOBOU,Biomass
+BIOCPS,Biomass
+BIOCRP1,Biomass
+BIOCUL,Biomass
+BIODST,Biomass
+BIOEFF,Biomass
+BIOETH,Biomass
+BIOGAS,Gas
+BIOGLY,Biomass
+BIOGZH,Biomass
+BIOLOG,Biomass
+BIOPEL,Biomass
+BIOPLPOIL,Oil
+BIORME,Biomass
+BIORPOIL,Oil
+BIORPS,Biomass
+BIOSLU,Biomass
+BIOSLUH,Biomass
+BIOSTIL,Biomass
+CBATBA,Commodity: CBATBA
+CBATBP,Commodity: CBATBP
+CBATCO,Commodity: CBATCO
+CBATCS,Commodity: CBATCS
+CBATDATA,Commodity: CBATDATA
+CBATEN,Commodity: CBATEN
+CBATSA,Commodity: CBATSA
+CCBA,Commodity: CCBA
+CCBP,Commodity: CCBP
+CCCO,Commodity: CCCO
+CCCS,Commodity: CCCS
+CCDATA,Commodity: CCDATA
+CCEN,Commodity: CCEN
+CCNBA,Commodity: CCNBA
+CCNBP,Commodity: CCNBP
+CCNCO,Commodity: CCNCO
+CCNCS,Commodity: CCNCS
+CCNDATA,Commodity: CCNDATA
+CCNEN,Commodity: CCNEN
+CCNSA,Commodity: CCNSA
+CCOK,Coke
+CCSA,Commodity: CCSA
+CHBA,Commodity: CHBA
+CHBP,Commodity: CHBP
+CHCO,Commodity: CHCO
+CHCS,Commodity: CHCS
+CHEN,Commodity: CHEN
+CHNBA,Commodity: CHNBA
+CHNBP,Commodity: CHNBP
+CHNCO,Commodity: CHNCO
+CHNCS,Commodity: CHNCS
+CHNEN,Commodity: CHNEN
+CHNSA,Commodity: CHNSA
+CHSA,Commodity: CHSA
+CHSADUM,Commodity: CHSADUM
+CLIGBA,Lignite
+CLIGBP,Lignite
+CLIGCO,Lignite
+CLIGCS,Lignite
+CLIGDATA,Lignite
+CLIGEN,Lignite
+CLIGNBA,Lignite
+CLIGNBP,Lignite
+CLIGNCO,Lignite
+CLIGNCS,Lignite
+CLIGNDATA,Lignite
+CLIGNEN,Lignite
+CLIGNSA,Lignite
+CLIGSA,Lignite
+CNBATBA,Commodity: CNBATBA
+CNBATBP,Commodity: CNBATBP
+CNBATCO,Commodity: CNBATCO
+CNBATCS,Commodity: CNBATCS
+CNBATDATA,Commodity: CNBATDATA
+CNBATEN,Commodity: CNBATEN
+CNBATSA,Commodity: CNBATSA
+CO2STOCK,CO2
+COACOK,Coal
+COAHAR,Coal
+COALIG,Coal
+COEL,Commodity: COEL
+COEN,Commodity: COEN
+COMBDL,Biodiesel for Commercial sector
+COMBGS,Commodity for Commercial sector (BGS)
+COMCH4,Methane for Commercial sector
+COMCO2N,CO2 from combustion for Commercial sector
+COMCO2b,CO2 for Commercial sector
+COMCOV,VOCs for Commercial sector
+COMCPS,Wood Chips for Commercial sector
+COMELC,Electricity for Commercial sector
+COMGEO,Geothermal for Commercial sector
+COMGHG,Greenhouse Gas for Commercial sector
+COMGHGb,Greenhouse Gas for Commercial sector
+COMGMX,Commodity for Commercial sector (GMX)
+COMGSL,Gasoline for Commercial sector
+COMHET,Heat for Commercial sector
+COMLPG,LPG for Commercial sector
+COMN2O,Nitrous Oxide for Commercial sector
+COMNH3,Ammonia for Commercial sector
+COMNOX,NOx for Commercial sector
+COMOIL,Oil for Commercial sector
+COMPEL,Pellets for Commercial sector
+COMPM2,PM2.5 for Commercial sector
+COMSOL,Solar for Commercial sector
+COMSOX,SOx for Commercial sector
+COSE,Commodity: COSE
+CPLI,Commodity: CPLI
+CREF,Commodity: CREF
+CWBA,Commodity: CWBA
+CWBP,Commodity: CWBP
+CWCO,Commodity: CWCO
+CWCS,Commodity: CWCS
+CWEN,Commodity: CWEN
+CWNBA,Commodity: CWNBA
+CWNBP,Commodity: CWNBP
+CWNCO,Commodity: CWNCO
+CWNCS,Commodity: CWNCS
+CWNEN,Commodity: CWNEN
+CWNSA,Commodity: CWNSA
+CWSA,Commodity: CWSA
+DJ2F,Commodity: DJ2F
+DJ3F,Commodity: DJ3F
+DJ4F,Commodity: DJ4F
+DJAP,Commodity: DJAP
+Dum-Retrofit-F_C_BA,Commodity: Dum-Retrofit-F_C_BA
+Dum-Retrofit-F_C_BP,Commodity: Dum-Retrofit-F_C_BP
+Dum-Retrofit-F_C_CO,Commodity: Dum-Retrofit-F_C_CO
+Dum-Retrofit-F_C_CS,Commodity: Dum-Retrofit-F_C_CS
+Dum-Retrofit-F_C_EN,Commodity: Dum-Retrofit-F_C_EN
+Dum-Retrofit-F_C_SA,Commodity: Dum-Retrofit-F_C_SA
+Dum-Retrofit-F_R_2Fac1945,Commodity: Dum-Retrofit-F_R_2Fac1945
+Dum-Retrofit-F_R_2Fac1958,Commodity: Dum-Retrofit-F_R_2Fac1958
+Dum-Retrofit-F_R_2Fac1976,Commodity: Dum-Retrofit-F_R_2Fac1976
+Dum-Retrofit-F_R_2Fac1989,Commodity: Dum-Retrofit-F_R_2Fac1989
+Dum-Retrofit-F_R_2Fac2005,Commodity: Dum-Retrofit-F_R_2Fac2005
+Dum-Retrofit-F_R_3Fac1945,Commodity: Dum-Retrofit-F_R_3Fac1945
+Dum-Retrofit-F_R_3Fac1958,Commodity: Dum-Retrofit-F_R_3Fac1958
+Dum-Retrofit-F_R_3Fac1976,Commodity: Dum-Retrofit-F_R_3Fac1976
+Dum-Retrofit-F_R_3Fac1989,Commodity: Dum-Retrofit-F_R_3Fac1989
+Dum-Retrofit-F_R_3Fac2005,Commodity: Dum-Retrofit-F_R_3Fac2005
+Dum-Retrofit-F_R_4Fac1945,Commodity: Dum-Retrofit-F_R_4Fac1945
+Dum-Retrofit-F_R_4Fac1958,Commodity: Dum-Retrofit-F_R_4Fac1958
+Dum-Retrofit-F_R_4Fac1976,Commodity: Dum-Retrofit-F_R_4Fac1976
+Dum-Retrofit-F_R_4Fac1989,Commodity: Dum-Retrofit-F_R_4Fac1989
+Dum-Retrofit-F_R_4Fac2005,Commodity: Dum-Retrofit-F_R_4Fac2005
+Dum-Retrofit-F_R_Appa1945,Commodity: Dum-Retrofit-F_R_Appa1945
+Dum-Retrofit-F_R_Appa1958,Commodity: Dum-Retrofit-F_R_Appa1958
+Dum-Retrofit-F_R_Appa1976,Commodity: Dum-Retrofit-F_R_Appa1976
+Dum-Retrofit-F_R_Appa1989,Commodity: Dum-Retrofit-F_R_Appa1989
+Dum-Retrofit-F_R_Appa2005,Commodity: Dum-Retrofit-F_R_Appa2005
+Dum-Retrofit-M_C_BA,Commodity: Dum-Retrofit-M_C_BA
+Dum-Retrofit-M_C_BP,Commodity: Dum-Retrofit-M_C_BP
+Dum-Retrofit-M_C_CO,Commodity: Dum-Retrofit-M_C_CO
+Dum-Retrofit-M_C_CS,Commodity: Dum-Retrofit-M_C_CS
+Dum-Retrofit-M_C_EN,Commodity: Dum-Retrofit-M_C_EN
+Dum-Retrofit-M_C_SA,Commodity: Dum-Retrofit-M_C_SA
+Dum-Retrofit-M_R_2Fac1945,Commodity: Dum-Retrofit-M_R_2Fac1945
+Dum-Retrofit-M_R_2Fac1958,Commodity: Dum-Retrofit-M_R_2Fac1958
+Dum-Retrofit-M_R_2Fac1976,Commodity: Dum-Retrofit-M_R_2Fac1976
+Dum-Retrofit-M_R_2Fac1989,Commodity: Dum-Retrofit-M_R_2Fac1989
+Dum-Retrofit-M_R_2Fac2005,Commodity: Dum-Retrofit-M_R_2Fac2005
+Dum-Retrofit-M_R_3Fac1945,Commodity: Dum-Retrofit-M_R_3Fac1945
+Dum-Retrofit-M_R_3Fac1958,Commodity: Dum-Retrofit-M_R_3Fac1958
+Dum-Retrofit-M_R_3Fac1976,Commodity: Dum-Retrofit-M_R_3Fac1976
+Dum-Retrofit-M_R_3Fac1989,Commodity: Dum-Retrofit-M_R_3Fac1989
+Dum-Retrofit-M_R_3Fac2005,Commodity: Dum-Retrofit-M_R_3Fac2005
+Dum-Retrofit-M_R_4Fac1945,Commodity: Dum-Retrofit-M_R_4Fac1945
+Dum-Retrofit-M_R_4Fac1958,Commodity: Dum-Retrofit-M_R_4Fac1958
+Dum-Retrofit-M_R_4Fac1976,Commodity: Dum-Retrofit-M_R_4Fac1976
+Dum-Retrofit-M_R_4Fac1989,Commodity: Dum-Retrofit-M_R_4Fac1989
+Dum-Retrofit-M_R_4Fac2005,Commodity: Dum-Retrofit-M_R_4Fac2005
+Dum-Retrofit-M_R_Appa1945,Commodity: Dum-Retrofit-M_R_Appa1945
+Dum-Retrofit-M_R_Appa1958,Commodity: Dum-Retrofit-M_R_Appa1958
+Dum-Retrofit-M_R_Appa1976,Commodity: Dum-Retrofit-M_R_Appa1976
+Dum-Retrofit-M_R_Appa1989,Commodity: Dum-Retrofit-M_R_Appa1989
+Dum-Retrofit-M_R_Appa2005,Commodity: Dum-Retrofit-M_R_Appa2005
+Dum-Retrofit-S_C_BA,Commodity: Dum-Retrofit-S_C_BA
+Dum-Retrofit-S_C_BP,Commodity: Dum-Retrofit-S_C_BP
+Dum-Retrofit-S_C_CO,Commodity: Dum-Retrofit-S_C_CO
+Dum-Retrofit-S_C_CS,Commodity: Dum-Retrofit-S_C_CS
+Dum-Retrofit-S_C_EN,Commodity: Dum-Retrofit-S_C_EN
+Dum-Retrofit-S_C_SA,Commodity: Dum-Retrofit-S_C_SA
+Dum-Retrofit-S_R_2Fac1945,Commodity: Dum-Retrofit-S_R_2Fac1945
+Dum-Retrofit-S_R_2Fac1958,Commodity: Dum-Retrofit-S_R_2Fac1958
+Dum-Retrofit-S_R_2Fac1976,Commodity: Dum-Retrofit-S_R_2Fac1976
+Dum-Retrofit-S_R_2Fac1989,Commodity: Dum-Retrofit-S_R_2Fac1989
+Dum-Retrofit-S_R_2Fac2005,Commodity: Dum-Retrofit-S_R_2Fac2005
+Dum-Retrofit-S_R_3Fac1945,Commodity: Dum-Retrofit-S_R_3Fac1945
+Dum-Retrofit-S_R_3Fac1958,Commodity: Dum-Retrofit-S_R_3Fac1958
+Dum-Retrofit-S_R_3Fac1976,Commodity: Dum-Retrofit-S_R_3Fac1976
+Dum-Retrofit-S_R_3Fac1989,Commodity: Dum-Retrofit-S_R_3Fac1989
+Dum-Retrofit-S_R_3Fac2005,Commodity: Dum-Retrofit-S_R_3Fac2005
+Dum-Retrofit-S_R_4Fac1945,Commodity: Dum-Retrofit-S_R_4Fac1945
+Dum-Retrofit-S_R_4Fac1958,Commodity: Dum-Retrofit-S_R_4Fac1958
+Dum-Retrofit-S_R_4Fac1976,Commodity: Dum-Retrofit-S_R_4Fac1976
+Dum-Retrofit-S_R_4Fac1989,Commodity: Dum-Retrofit-S_R_4Fac1989
+Dum-Retrofit-S_R_4Fac2005,Commodity: Dum-Retrofit-S_R_4Fac2005
+Dum-Retrofit-S_R_Appa1945,Commodity: Dum-Retrofit-S_R_Appa1945
+Dum-Retrofit-S_R_Appa1958,Commodity: Dum-Retrofit-S_R_Appa1958
+Dum-Retrofit-S_R_Appa1976,Commodity: Dum-Retrofit-S_R_Appa1976
+Dum-Retrofit-S_R_Appa1989,Commodity: Dum-Retrofit-S_R_Appa1989
+Dum-Retrofit-S_R_Appa2005,Commodity: Dum-Retrofit-S_R_Appa2005
+Dum-Retrofit-T_C_BA,Commodity: Dum-Retrofit-T_C_BA
+Dum-Retrofit-T_C_BP,Commodity: Dum-Retrofit-T_C_BP
+Dum-Retrofit-T_C_CO,Commodity: Dum-Retrofit-T_C_CO
+Dum-Retrofit-T_C_CS,Commodity: Dum-Retrofit-T_C_CS
+Dum-Retrofit-T_C_EN,Commodity: Dum-Retrofit-T_C_EN
+Dum-Retrofit-T_C_SA,Commodity: Dum-Retrofit-T_C_SA
+Dum-Retrofit-T_R_2Fac1945,Commodity: Dum-Retrofit-T_R_2Fac1945
+Dum-Retrofit-T_R_2Fac1958,Commodity: Dum-Retrofit-T_R_2Fac1958
+Dum-Retrofit-T_R_2Fac1976,Commodity: Dum-Retrofit-T_R_2Fac1976
+Dum-Retrofit-T_R_2Fac1989,Commodity: Dum-Retrofit-T_R_2Fac1989
+Dum-Retrofit-T_R_2Fac2005,Commodity: Dum-Retrofit-T_R_2Fac2005
+Dum-Retrofit-T_R_3Fac1945,Commodity: Dum-Retrofit-T_R_3Fac1945
+Dum-Retrofit-T_R_3Fac1958,Commodity: Dum-Retrofit-T_R_3Fac1958
+Dum-Retrofit-T_R_3Fac1976,Commodity: Dum-Retrofit-T_R_3Fac1976
+Dum-Retrofit-T_R_3Fac1989,Commodity: Dum-Retrofit-T_R_3Fac1989
+Dum-Retrofit-T_R_3Fac2005,Commodity: Dum-Retrofit-T_R_3Fac2005
+Dum-Retrofit-T_R_4Fac1945,Commodity: Dum-Retrofit-T_R_4Fac1945
+Dum-Retrofit-T_R_4Fac1958,Commodity: Dum-Retrofit-T_R_4Fac1958
+Dum-Retrofit-T_R_4Fac1976,Commodity: Dum-Retrofit-T_R_4Fac1976
+Dum-Retrofit-T_R_4Fac1989,Commodity: Dum-Retrofit-T_R_4Fac1989
+Dum-Retrofit-T_R_4Fac2005,Commodity: Dum-Retrofit-T_R_4Fac2005
+Dum-Retrofit-T_R_Appa1945,Commodity: Dum-Retrofit-T_R_Appa1945
+Dum-Retrofit-T_R_Appa1958,Commodity: Dum-Retrofit-T_R_Appa1958
+Dum-Retrofit-T_R_Appa1976,Commodity: Dum-Retrofit-T_R_Appa1976
+Dum-Retrofit-T_R_Appa1989,Commodity: Dum-Retrofit-T_R_Appa1989
+Dum-Retrofit-T_R_Appa2005,Commodity: Dum-Retrofit-T_R_Appa2005
+ELCBGS,Commodity for Electricity sector (BGS)
+ELCBIO,Biomass for Electricity sector
+ELCCH4,Methane for Electricity sector
+ELCCO2N,CO2 from combustion for Electricity sector
+ELCCO2b,CO2 for Electricity sector
+ELCCO2c,CO2 for Electricity sector
+ELCCOV,VOCs for Electricity sector
+ELCCPS,Wood Chips for Electricity sector
+ELCGAS,Gas for Electricity sector
+ELCGHG,Greenhouse Gas for Electricity sector
+ELCGHGb,Greenhouse Gas for Electricity sector
+ELCHET,Heat for Electricity sector
+ELCHIG,Commodity for Electricity sector (HIG)
+ELCHIGG,Commodity for Electricity sector (HIGG)
+ELCHYD,Hydro for Electricity sector
+ELCLOW,Commodity for Electricity sector (LOW)
+ELCMED,Commodity for Electricity sector (MED)
+ELCN2O,Nitrous Oxide for Electricity sector
+ELCNH3,Ammonia for Electricity sector
+ELCNOX,NOx for Electricity sector
+ELCNUC,Nuclear for Electricity sector
+ELCOIL,Oil for Electricity sector
+ELCPEL,Pellets for Electricity sector
+ELCPM2,PM2.5 for Electricity sector
+ELCSLU,Sludge for Electricity sector
+ELCSOL,Solar for Electricity sector
+ELCSOX,SOx for Electricity sector
+ELCWIN,Wind for Electricity sector
+ELCWST,Waste for Electricity sector
+ETSCO2N,CO2 from combustion for Emissions Trading System sector
+ETSGHG,Greenhouse Gas for Emissions Trading System sector
+ETSICO2N,CO2 from combustion for Emissions Trading System sector
+ETSINO2N,Commodity for Emissions Trading System sector (INO2N)
+ETSNO2N,Commodity for Emissions Trading System sector (NO2N)
+GASBFT,Gas
+GASIIS,Gas
+GASNAT,Gas
+IAM,Commodity: IAM
+IBK,Commodity: IBK
+IBO,Commodity: IBO
+IBOHTH,Commodity: IBOHTH
+ICE,Commodity: ICE
+ICH,Commodity: ICH
+ICHELE,Commodity: ICHELE
+ICHHTH,Commodity: ICHHTH
+ICHMCH,Commodity: ICHMCH
+ICHOTH,Commodity: ICHOTH
+ICHPRC,Commodity: ICHPRC
+ICM,Commodity: ICM
+ICMPRC,Commodity: ICMPRC
+IGF,Commodity: IGF
+IGH,Commodity: IGH
+IGO,Commodity: IGO
+IIS,Commodity: IIS
+IISHTH,Commodity: IISHTH
+ILM,Commodity: ILM
+ILMPRC,Commodity: ILMPRC
+IML,Commodity: IML
+IMLHTH,Commodity: IMLHTH
+INDBGS,Commodity for Industry sector (BGS)
+INDBIO,Biomass for Industry sector
+INDBLQ,Black Liquor for Industry sector
+INDCH4,Methane for Industry sector
+INDCO2N,CO2 from combustion for Industry sector
+INDCO2P,CO2 from process for Industry sector
+INDCO2b,CO2 for Industry sector
+INDCO2c,CO2 for Industry sector
+INDCOA,Coal for Industry sector
+INDCOK,Coke for Industry sector
+INDCOL,Commodity for Industry sector (COL)
+INDCOVn,VOCs for Industry sector
+INDCPS,Wood Chips for Industry sector
+INDELC,Electricity for Industry sector
+INDGAS,Gas for Industry sector
+INDGASCOG,Gas for Industry sector
+INDGEO,Geothermal for Industry sector
+INDGHG,Greenhouse Gas for Industry sector
+INDGMX,Commodity for Industry sector (GMX)
+INDHET,Heat for Industry sector
+INDHFO,Heavy Fuel Oil for Industry sector
+INDHH2,Hydrogen for Industry sector
+INDHTH,Commodity for Industry sector (HTH)
+INDHWT,Waste Heat for Industry sector
+INDIIS,Commodity for Industry sector (IIS)
+INDLFO,Light Fuel Oil for Industry sector
+INDLPG,LPG for Industry sector
+INDN2O,Nitrous Oxide for Industry sector
+INDNH3n,Ammonia for Industry sector
+INDNOXn,NOx for Industry sector
+INDPM2n,PM2.5 for Industry sector
+INDSLU,Sludge for Industry sector
+INDSOL,Solar for Industry sector
+INDSOXn,SOx for Industry sector
+INDWST,Waste for Industry sector
+INF,Commodity: INF
+INFELE,Commodity: INFELE
+INFHTH,Commodity: INFHTH
+INFMCH,Commodity: INFMCH
+INFPRC,Commodity: INFPRC
+INM,Commodity: INM
+INMELE,Commodity: INMELE
+INMHTH,Commodity: INMHTH
+INMMCH,Commodity: INMMCH
+INMOTH,Commodity: INMOTH
+INMPRC,Commodity: INMPRC
+IOF,Commodity: IOF
+IOFELE,Commodity: IOFELE
+IOFFRO,Commodity: IOFFRO
+IOFHTH,Commodity: IOFHTH
+IOFMCH,Commodity: IOFMCH
+IOFOTH,Commodity: IOFOTH
+IOFPRC,Commodity: IOFPRC
+IOI,Commodity: IOI
+IOIELE,Commodity: IOIELE
+IOIHTH,Commodity: IOIHTH
+IOIMCH,Commodity: IOIMCH
+IOIOTH,Commodity: IOIOTH
+IOIPRC,Commodity: IOIPRC
+IPO,Commodity: IPO
+IPOHTH,Commodity: IPOHTH
+IPP,Commodity: IPP
+IPPHTH,Commodity: IPPHTH
+IPPPRC,Commodity: IPPPRC
+ISG,Commodity: ISG
+ISGHTH,Commodity: ISGHTH
+MBORES,Commodity: MBORES
+MBOWOO,Commodity: MBOWOO
+MBRWOO,Commodity: MBRWOO
+MCMCLK,Commodity: MCMCLK
+MCOWIM,Commodity: MCOWIM
+MCUPDT,Commodity: MCUPDT
+MEOOXY,Commodity: MEOOXY
+MGHRYC,Commodity: MGHRYC
+MISBFS,Commodity: MISBFS
+MISCST,Commodity: MISCST
+MISDIR,Commodity: MISDIR
+MISGBE,Commodity: MISGBE
+MISGJU,Commodity: MISGJU
+MISORE,Commodity: MISORE
+MISOXY,SOx
+MISPLT,Commodity: MISPLT
+MISQLI,Commodity: MISQLI
+MISRIR,Commodity: MISRIR
+MISSCR,Commodity: MISSCR
+MISSNT,Commodity: MISSNT
+MLMSTN,Commodity: MLMSTN
+MPPNOH,Commodity: MPPNOH
+MPPOXY,Commodity: MPPOXY
+MPPPUP,Commodity: MPPPUP
+MPPWOO,Commodity: MPPWOO
+NEC,Commodity: NEC
+NEO,Commodity: NEO
+NETSCH4N,Methane
+NETSCO2N,CO2 from combustion
+NETSGHG,Greenhouse Gas
+NETSICO2N,CO2 from combustion
+NETSINO2N,Commodity: NETSINO2N
+NETSNO2N,Commodity: NETSNO2N
+NREWST,Waste
+NUCRSV,Nuclear
+OILDST,Oil
+OILGSL,Oil
+OILHFO,Oil
+OILKER,Oil
+OILLPG,Oil
+OILOTH,Oil
+RCDR,Commodity: RCDR
+RCOK,Coke
+RCWA,Commodity: RCWA
+RDWA,Commodity: RDWA
+RENGEO,Geothermal
+RENHYD,Hydro
+RENSOL,Solar
+RENWIN,Wind
+RH2F,Hydrogen
+RH3F,Commodity: RH3F
+RH4F,Commodity: RH4F
+RHAP,Commodity: RHAP
+RHDJ2F_2021,Commodity: RHDJ2F_2021
+RHDJ3F_2021,Commodity: RHDJ3F_2021
+RHDJ4F_2021,Commodity: RHDJ4F_2021
+RHDJAP_2021,Commodity: RHDJAP_2021
+RHN2F,Commodity: RHN2F
+RHN3F,Commodity: RHN3F
+RHN4F,Commodity: RHN4F
+RHNAP,Commodity: RHNAP
+RLIG,Lignite
+ROEL,Commodity: ROEL
+ROEN,Commodity: ROEN
+RREF,Commodity: RREF
+RSDCH4,Methane for Residential sector
+RSDCO2N,CO2 from combustion for Residential sector
+RSDCO2b,CO2 for Residential sector
+RSDCOA,Coal for Residential sector
+RSDCOV,VOCs for Residential sector
+RSDELC,Electricity for Residential sector
+RSDGEO,Geothermal for Residential sector
+RSDGHG,Greenhouse Gas for Residential sector
+RSDGHGb,Greenhouse Gas for Residential sector
+RSDGMX,Commodity for Residential sector (GMX)
+RSDGSL,Gasoline for Residential sector
+RSDHET,Heat for Residential sector
+RSDLOG,Wood Logs for Residential sector
+RSDLPG,LPG for Residential sector
+RSDN2O,Nitrous Oxide for Residential sector
+RSDNH3,Ammonia for Residential sector
+RSDNOX,NOx for Residential sector
+RSDOIL,Oil for Residential sector
+RSDPEL,Pellets for Residential sector
+RSDPM2,PM2.5 for Residential sector
+RSDSOL,Solar for Residential sector
+RSDSOX,SOx for Residential sector
+RW2F,Commodity: RW2F
+RW3F,Commodity: RW3F
+RW4F,Commodity: RW4F
+RWAP,Commodity: RWAP
+RWN2F,Commodity: RWN2F
+RWN3F,Commodity: RWN3F
+RWN4F,Commodity: RWN4F
+RWNAP,Commodity: RWNAP
+R_2Fac,Commodity: R_2Fac
+R_3Fac,Commodity: R_3Fac
+R_4Fac,Commodity: R_4Fac
+R_Appa,Commodity: R_Appa
+R_N2Fac,Commodity: R_N2Fac
+R_N3Fac,Commodity: R_N3Fac
+R_N4Fac,Commodity: R_N4Fac
+R_NAppa,Commodity: R_NAppa
+SUPBGS,Commodity for Supply sector (BGS)
+SUPCH4,Methane for Supply sector
+SUPCO2N,CO2 from combustion for Supply sector
+SUPCOV,VOCs for Supply sector
+SUPDST,Diesel for Supply sector
+SUPELC,Electricity for Supply sector
+SUPGAS,Gas for Supply sector
+SUPGHG,Greenhouse Gas for Supply sector
+SUPGMX,Commodity for Supply sector (GMX)
+SUPHET,Heat for Supply sector
+SUPIMPH2,Hydrogen for Supply sector
+SUPN2O,Nitrous Oxide for Supply sector
+SUPNH3,Ammonia for Supply sector
+SUPNOX,NOx for Supply sector
+SUPPM2,PM2.5 for Supply sector
+SUPSOX,SOx for Supply sector
+SYNH2CT,Hydrogen
+SYNH2CU,Hydrogen
+TADF,Commodity: TADF
+TADP,Commodity: TADP
+TAIF,Commodity: TAIF
+TAIP,Commodity: TAIP
+TBC,Commodity: TBC
+TBU,Commodity: TBU
+TCAR,Commodity: TCAR
+THDT,Commodity: THDT
+TLCV,Commodity: TLCV
+TMOP,Commodity: TMOP
+TMOT,Commodity: TMOT
+TNDF,Commodity: TNDF
+TOTCO2N,CO2 from combustion
+TOTCOV,VOCs
+TOTGHG,Greenhouse Gas
+TOTNH3,Ammonia
+TOTNOX,NOx
+TOTPM2,PM2.5
+TOTSOX,SOx
+TRABDL,Biodiesel for Transport sector
+TRABGS,Commodity for Transport sector (BGS)
+TRACH4,Methane for Transport sector
+TRACH4-I,Methane for Transport sector
+TRACO2N,CO2 from combustion for Transport sector
+TRACO2N-I,CO2 from combustion for Transport sector
+TRACO2b,CO2 for Transport sector
+TRACOV,VOCs for Transport sector
+TRADST,Diesel for Transport sector
+TRAELC,Electricity for Transport sector
+TRAETH,Ethanol for Transport sector
+TRAGH2,Hydrogen for Transport sector
+TRAGHG,Greenhouse Gas for Transport sector
+TRAGHGb,Greenhouse Gas for Transport sector
+TRAGMX,Commodity for Transport sector (GMX)
+TRAGSL,Gasoline for Transport sector
+TRAKER,Kerosene for Transport sector
+TRALH2,Hydrogen for Transport sector
+TRALPG,LPG for Transport sector
+TRAN2O,Nitrous Oxide for Transport sector
+TRAN2O-I,Nitrous Oxide for Transport sector
+TRANH3,Ammonia for Transport sector
+TRANOX,NOx for Transport sector
+TRAPM2,PM2.5 for Transport sector
+TRASOX,SOx for Transport sector
+TTF,Commodity: TTF
+TTP,Commodity: TTP
