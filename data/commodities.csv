@@ -61,7 +61,7 @@ CCNCS,Commodity: CCNCS
 CCNDATA,Commodity: CCNDATA
 CCNEN,Commodity: CCNEN
 CCNSA,Commodity: CCNSA
-CCOK,Coke
+CCOK,Commercial: Cooking (PJ)
 CCSA,Commodity: CCSA
 CHBA,Commodity: CHBA
 CHBP,Commodity: CHBP
@@ -101,7 +101,7 @@ CO2STOCK,CO2
 COACOK,Coal
 COAHAR,Coal
 COALIG,Coal
-COEL,Commodity: COEL
+COEL,Commercial: Electric Appliances (PJ)
 COEN,Commodity: COEN
 COMBDL,Biodiesel for Commercial sector
 COMBGS,Commodity for Commercial sector (BGS)
@@ -127,7 +127,7 @@ COMPM2,Particulate matter 2.5 for Commercial sector
 COMSOL,Solar for Commercial sector
 COMSOX,Sulphur oxides for Commercial sector
 COSE,Commodity: COSE
-CPLI,Commodity: CPLI
+CPLI,Commercial: Public lighting (PJ)
 CREF,Commodity: CREF
 CWBA,Commodity: CWBA
 CWBP,Commodity: CWBP
@@ -416,17 +416,17 @@ OILKER,Oil
 OILLPG,Oil
 OILOTH,Oil
 RCDR,Commodity: RCDR
-RCOK,Coke
+RCOK,Residential: Cooking (PJ)
 RCWA,Commodity: RCWA
 RDWA,Commodity: RDWA
 RENGEO,Geothermal
 RENHYD,Hydro
 RENSOL,Solar
 RENWIN,Wind
-RH2F,Hydrogen
-RH3F,Commodity: RH3F
-RH4F,Commodity: RH4F
-RHAP,Commodity: RHAP
+RH2F,Residential: Space heating - 2-family building
+RH3F,Residential: Space heating - 3-family building
+RH4F,Residential: Space heating - 4+ family building
+RHAP,Residential: Space heating - Apartment building
 RHDJ2F_2021,Commodity: RHDJ2F_2021
 RHDJ3F_2021,Commodity: RHDJ3F_2021
 RHDJ4F_2021,Commodity: RHDJ4F_2021
@@ -435,8 +435,8 @@ RHN2F,Commodity: RHN2F
 RHN3F,Commodity: RHN3F
 RHN4F,Commodity: RHN4F
 RHNAP,Commodity: RHNAP
-RLIG,Lignite
-ROEL,Commodity: ROEL
+RLIG,Residential: Lighting (PJ)
+ROEL,Residential: Electric Appliances (PJ)
 ROEN,Commodity: ROEN
 RREF,Commodity: RREF
 RSDCH4,Methane for Residential sector
@@ -461,10 +461,10 @@ RSDPEL,Pellets for Residential sector
 RSDPM2,Particulate matter 2.5 for Residential sector
 RSDSOL,Solar for Residential sector
 RSDSOX,Sulphur oxides for Residential sector
-RW2F,Commodity: RW2F
-RW3F,Commodity: RW3F
-RW4F,Commodity: RW4F
-RWAP,Commodity: RWAP
+RW2F,Residential: Water heating - 2-family building
+RW3F,Residential: Water heating - 3-family building
+RW4F,Residential: Water heating - 4+ family building
+RWAP,Residential: Water heating - Apartment building
 RWN2F,Commodity: RWN2F
 RWN3F,Commodity: RWN3F
 RWN4F,Commodity: RWN4F
