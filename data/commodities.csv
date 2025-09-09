@@ -17,30 +17,30 @@ AGRN2O,Nitrous Oxide for Agriculture sector
 AGRNH3,Ammonia for Agriculture sector
 AGRNOX,Nitrogen Oxides for Agriculture sector
 AGROF,Commodity for Agriculture sector (OF)
-AGROIL,Oil for Agriculture sector
+AGROIL,Agriculture: Oil
 AGRPM2,Particulate matter 2.5 for Agriculture sector
 AGRSOX,Sulphur oxides for Agriculture sector
 BATELCIN,Electricity
 BATELCOUT,Electricity
-BIOBOU,Biomass
-BIOCPS,Biomass
-BIOCRP1,Biomass
-BIOCUL,Biomass
-BIODST,Biomass
-BIOEFF,Biomass
-BIOETH,Biomass
-BIOGAS,Gas
-BIOGLY,Biomass
-BIOGZH,Biomass
-BIOLOG,Biomass
-BIOPEL,Biomass
-BIOPLPOIL,Oil
-BIORME,Biomass
-BIORPOIL,Oil
-BIORPS,Biomass
-BIOSLU,Biomass
-BIOSLUH,Biomass
-BIOSTIL,Biomass
+BIOBOU,"Biomass: Wood logs (certainty: 60%)"
+BIOCPS,"Biomass: Wood chips (certainty: 70%)"
+BIOCRP1,"Biomass: Energy crops (variant 1) (certainty: 80%)"
+BIOCUL,"Biomass: Cultivated energy crops (certainty: 40%)"
+BIODST,"Biomass: Digestate (certainty: 50%)"
+BIOEFF,"Biomass: Processing effluent (certainty: 30%)"
+BIOETH,Biofuel: Ethanol
+BIOGAS,Biofuel: Biogas (Methane)
+BIOGLY,"Biofuel: Glycerol (certainty: 85%)"
+BIOGZH,"Biomass: Gasification residue (certainty: 25%)"
+BIOLOG,"Biomass: Wood logs (certainty: 90%)"
+BIOPEL,Biomass: Pellets (separated from wood)
+BIOPLPOIL,"Biofuel: Pyrolysis oil (certainty: 75%)"
+BIORME,"Biomass: Residual matter (certainty: 40%)"
+BIORPOIL,"Biofuel: Rapeseed oil (certainty: 60%)"
+BIORPS,"Biomass: Rapeseed solids (certainty: 70%)"
+BIOSLU,Waste: Sludge (industrial waste)
+BIOSLUH,"Waste: Sludge (high moisture) (certainty: 60%)"
+BIOSTIL,"Biomass: Stillage (certainty: 50%)"
 CBATBA,Commodity: CBATBA
 CBATBP,Commodity: CBATBP
 CBATCO,Commodity: CBATCO
@@ -98,9 +98,9 @@ CNBATDATA,Commodity: CNBATDATA
 CNBATEN,Commodity: CNBATEN
 CNBATSA,Commodity: CNBATSA
 CO2STOCK,CO2
-COACOK,Coal
-COAHAR,Coal
-COALIG,Coal
+COACOK,Fuel: Coke
+COAHAR,Fuel: Hard Coal
+COALIG,Fuel: Black Lignite
 COEL,Commercial: Electric Appliances (PJ)
 COEN,Commodity: COEN
 COMBDL,Biodiesel for Commercial sector
@@ -111,20 +111,20 @@ COMCO2b,CO2 for Commercial sector
 COMCOV,Volatile Organic Compounds for Commercial sector
 COMCPS,Wood Chips for Commercial sector
 COMELC,Electricity for Commercial sector
-COMGEO,Geothermal for Commercial sector
+COMGEO,Commercial: Geothermal
 COMGHG,Greenhouse Gas for Commercial sector
 COMGHGb,Greenhouse Gas for Commercial sector
 COMGMX,Commodity for Commercial sector (GMX)
 COMGSL,Gasoline for Commercial sector
 COMHET,Heat for Commercial sector
-COMLPG,LPG for Commercial sector
+COMLPG,Commercial: LPG
 COMN2O,Nitrous Oxide for Commercial sector
 COMNH3,Ammonia for Commercial sector
 COMNOX,Nitrogen Oxides for Commercial sector
-COMOIL,Oil for Commercial sector
+COMOIL,Commercial: Oil
 COMPEL,Pellets for Commercial sector
 COMPM2,Particulate matter 2.5 for Commercial sector
-COMSOL,Solar for Commercial sector
+COMSOL,Commercial: Solar
 COMSOX,Sulphur oxides for Commercial sector
 COSE,Commodity: COSE
 CPLI,Commercial: Public lighting (PJ)
@@ -257,26 +257,26 @@ ELCCO2b,CO2 for Electricity sector
 ELCCO2c,CO2 for Electricity sector
 ELCCOV,Volatile Organic Compounds for Electricity sector
 ELCCPS,Wood Chips for Electricity sector
-ELCGAS,Gas for Electricity sector
+ELCGAS,Electricity: Natural Gas
 ELCGHG,Greenhouse Gas for Electricity sector
 ELCGHGb,Greenhouse Gas for Electricity sector
 ELCHET,Heat for Electricity sector
 ELCHIG,Commodity for Electricity sector (HIG)
 ELCHIGG,Commodity for Electricity sector (HIGG)
-ELCHYD,Hydro for Electricity sector
+ELCHYD,Electricity: Hydro
 ELCLOW,Commodity for Electricity sector (LOW)
 ELCMED,Commodity for Electricity sector (MED)
 ELCN2O,Nitrous Oxide for Electricity sector
 ELCNH3,Ammonia for Electricity sector
 ELCNOX,Nitrogen Oxides for Electricity sector
 ELCNUC,Nuclear for Electricity sector
-ELCOIL,Oil for Electricity sector
+ELCOIL,Electricity: Oil
 ELCPEL,Pellets for Electricity sector
 ELCPM2,Particulate matter 2.5 for Electricity sector
 ELCSLU,Sludge for Electricity sector
-ELCSOL,Solar for Electricity sector
+ELCSOL,Electricity: Solar
 ELCSOX,Sulphur oxides for Electricity sector
-ELCWIN,Wind for Electricity sector
+ELCWIN,Electricity: Wind
 ELCWST,Waste for Electricity sector
 ETSCO2N,CO2 from combustion for Emissions Trading System sector
 ETSGHG,Greenhouse Gas for Emissions Trading System sector
@@ -285,7 +285,7 @@ ETSINO2N,Commodity for Emissions Trading System sector (INO2N)
 ETSNO2N,Commodity for Emissions Trading System sector (NO2N)
 GASBFT,Gas
 GASIIS,Gas
-GASNAT,Gas
+GASNAT,Fuel: Natural Gas
 IAM,Chemicals: Ammonia (Mega tonnes)
 IBK,Commodity: IBK
 IBO,Commodity: IBO
@@ -309,38 +309,38 @@ ILMPRC,Commodity: ILMPRC
 IML,Commodity: IML
 IMLHTH,Commodity: IMLHTH
 INDBGS,Commodity for Industry sector (BGS)
-INDBIO,Biomass for Industry sector
+INDBIO,Industry: Biomass
 INDBLQ,Black Liquor for Industry sector
 INDCH4,Methane for Industry sector
 INDCO2N,CO2 from combustion for Industry sector
 INDCO2P,CO2 from process for Industry sector
 INDCO2b,CO2 for Industry sector
 INDCO2c,CO2 for Industry sector
-INDCOA,Coal for Industry sector
+INDCOA,Industry: Coal
 INDCOK,Coke for Industry sector
 INDCOL,Commodity for Industry sector (COL)
 INDCOVn,Volatile Organic Compounds for Industry sector
 INDCPS,Wood Chips for Industry sector
 INDELC,Electricity for Industry sector
-INDGAS,Gas for Industry sector
-INDGASCOG,Gas for Industry sector
-INDGEO,Geothermal for Industry sector
+INDGAS,Industry: Natural Gas
+INDGASCOG,Industry: Coke oven gas
+INDGEO,Industry: Geothermal
 INDGHG,Greenhouse Gas for Industry sector
 INDGMX,Commodity for Industry sector (GMX)
 INDHET,Heat for Industry sector
-INDHFO,Heavy Fuel Oil for Industry sector
+INDHFO,Industry: Heavy fuel oil
 INDHH2,Hydrogen for Industry sector
 INDHTH,Commodity for Industry sector (HTH)
 INDHWT,Waste Heat for Industry sector
 INDIIS,Commodity for Industry sector (IIS)
-INDLFO,Light Fuel Oil for Industry sector
-INDLPG,LPG for Industry sector
+INDLFO,Industry: Light fuel oil
+INDLPG,Industry: LPG
 INDN2O,Nitrous Oxide for Industry sector
 INDNH3n,Ammonia for Industry sector
 INDNOXn,Nitrogen Oxides for Industry sector
 INDPM2n,Particulate matter 2.5 for Industry sector
 INDSLU,Sludge for Industry sector
-INDSOL,Solar for Industry sector
+INDSOL,Industry: Solar
 INDSOXn,Sulphur oxides for Industry sector
 INDWST,Waste for Industry sector
 INF,Non ferrous metals: Other (PJ)
@@ -382,23 +382,23 @@ MCOWIM,Commodity: MCOWIM
 MCUPDT,Commodity: MCUPDT
 MEOOXY,Commodity: MEOOXY
 MGHRYC,Commodity: MGHRYC
-MISBFS,Commodity: MISBFS
-MISCST,Commodity: MISCST
-MISDIR,Commodity: MISDIR
+MISBFS,Iron and Steel: Blast Furnace Slag
+MISCST,Iron and Steel: Crude Steel
+MISDIR,Iron and Steel: DRI Iron
 MISGBE,Commodity: MISGBE
 MISGJU,Commodity: MISGJU
-MISORE,Commodity: MISORE
-MISOXY,Sulphur oxides
-MISPLT,Commodity: MISPLT
-MISQLI,Commodity: MISQLI
-MISRIR,Commodity: MISRIR
-MISSCR,Commodity: MISSCR
-MISSNT,Commodity: MISSNT
+MISORE,Iron and Steel: Ore
+MISOXY,Iron and Steel: Oxygen
+MISPLT,Iron and Steel: Pellet
+MISQLI,Iron and Steel: Quick Lime
+MISRIR,Iron and Steel: Raw Iron
+MISSCR,Iron and Steel: Scrap Iron
+MISSNT,Iron and Steel: Sinter
 MLMSTN,Lime: Limestone
-MPPNOH,Commodity: MPPNOH
-MPPOXY,Commodity: MPPOXY
-MPPPUP,Commodity: MPPPUP
-MPPWOO,Commodity: MPPWOO
+MPPNOH,Paper: Sodium Hydroxide
+MPPOXY,Paper: Oxygen
+MPPPUP,Paper: Pulp
+MPPWOO,Paper: Wood
 NEC,Non Energy Uses in the Chemical sector (PJ)
 NEO,Other Non Energy Uses (PJ)
 NETSCH4N,Methane
@@ -408,21 +408,21 @@ NETSICO2N,CO2 from combustion
 NETSINO2N,Commodity: NETSINO2N
 NETSNO2N,Commodity: NETSNO2N
 NREWST,Waste
-NUCRSV,Nuclear
-OILDST,Oil
-OILGSL,Oil
-OILHFO,Oil
-OILKER,Oil
-OILLPG,Oil
-OILOTH,Oil
+NUCRSV,Nuclear: Nuclear fuel
+OILDST,Fuel: Diesel
+OILGSL,Fuel: Gasoline
+OILHFO,Fuel: Heavy fuel oil
+OILKER,Fuel: Kerosene
+OILLPG,Fuel: Light Petroleum Gas (LPG)
+OILOTH,Fuel: Other petroleum products
 RCDR,Commodity: RCDR
 RCOK,Residential: Cooking (PJ)
 RCWA,Commodity: RCWA
 RDWA,Commodity: RDWA
-RENGEO,Geothermal
-RENHYD,Hydro
-RENSOL,Solar
-RENWIN,Wind
+RENGEO,Renewable: Geothermal
+RENHYD,Renewable: Hydro
+RENSOL,Renewable: Solar
+RENWIN,Renewable: Wind
 RH2F,Residential: Space heating - 2-family building
 RH3F,Residential: Space heating - 3-family building
 RH4F,Residential: Space heating - 4+ family building
@@ -442,24 +442,24 @@ RREF,Commodity: RREF
 RSDCH4,Methane for Residential sector
 RSDCO2N,CO2 from combustion for Residential sector
 RSDCO2b,CO2 for Residential sector
-RSDCOA,Coal for Residential sector
+RSDCOA,Residential: Coal
 RSDCOV,Volatile Organic Compounds for Residential sector
 RSDELC,Electricity for Residential sector
-RSDGEO,Geothermal for Residential sector
+RSDGEO,Residential: Geothermal
 RSDGHG,Greenhouse Gas for Residential sector
 RSDGHGb,Greenhouse Gas for Residential sector
 RSDGMX,Commodity for Residential sector (GMX)
 RSDGSL,Gasoline for Residential sector
 RSDHET,Heat for Residential sector
 RSDLOG,Wood Logs for Residential sector
-RSDLPG,LPG for Residential sector
+RSDLPG,Residential: LPG
 RSDN2O,Nitrous Oxide for Residential sector
 RSDNH3,Ammonia for Residential sector
 RSDNOX,Nitrogen Oxides for Residential sector
-RSDOIL,Oil for Residential sector
+RSDOIL,Residential: Oil
 RSDPEL,Pellets for Residential sector
 RSDPM2,Particulate matter 2.5 for Residential sector
-RSDSOL,Solar for Residential sector
+RSDSOL,Residential: Solar
 RSDSOX,Sulphur oxides for Residential sector
 RW2F,Residential: Water heating - 2-family building
 RW3F,Residential: Water heating - 3-family building
@@ -483,7 +483,7 @@ SUPCO2N,CO2 from combustion for Supply sector
 SUPCOV,Volatile Organic Compounds for Supply sector
 SUPDST,Diesel for Supply sector
 SUPELC,Electricity for Supply sector
-SUPGAS,Gas for Supply sector
+SUPGAS,Supply: Natural Gas
 SUPGHG,Greenhouse Gas for Supply sector
 SUPGMX,Commodity for Supply sector (GMX)
 SUPHET,Heat for Supply sector
@@ -522,17 +522,17 @@ TRACO2N,CO2 from combustion for Transport sector
 TRACO2N-I,CO2 from combustion for Transport sector
 TRACO2b,CO2 for Transport sector
 TRACOV,Volatile Organic Compounds for Transport sector
-TRADST,Diesel for Transport sector
+TRADST,Transport: Diesel
 TRAELC,Electricity for Transport sector
 TRAETH,Ethanol for Transport sector
 TRAGH2,Hydrogen for Transport sector
 TRAGHG,Greenhouse Gas for Transport sector
 TRAGHGb,Greenhouse Gas for Transport sector
 TRAGMX,Commodity for Transport sector (GMX)
-TRAGSL,Gasoline for Transport sector
-TRAKER,Kerosene for Transport sector
+TRAGSL,Transport: Gasoline
+TRAKER,Transport: Kerosene
 TRALH2,Hydrogen for Transport sector
-TRALPG,LPG for Transport sector
+TRALPG,Transport: LPG
 TRAN2O,Nitrous Oxide for Transport sector
 TRAN2O-I,Nitrous Oxide for Transport sector
 TRANH3,Ammonia for Transport sector

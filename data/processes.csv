@@ -325,18 +325,18 @@ ELCSOL00,Electricity process using Electricity
 ELCWIN00,Electricity process using Electricity
 ELCWST00,Electricity process using Electricity
 ENUC_Thiange,TIMES process: ENUC_Thiange
-ERNW_Eolien_Big_E1,TIMES process: ERNW_Eolien_Big_E1
-ERNW_Eolien_Medium_E3,TIMES process: ERNW_Eolien_Medium_E3
-ERNW_Eolien_Small_E4,TIMES process: ERNW_Eolien_Small_E4
-ERNW_HYD_HYD_N,TIMES process: ERNW_HYD_HYD_N
-ERNW_Hydro_Big_E5,TIMES process: ERNW_Hydro_Big_E5
-ERNW_Hydro_Medium_E6,TIMES process: ERNW_Hydro_Medium_E6
-ERNW_Hydro_Pompage_E8,TIMES process: ERNW_Hydro_Pompage_E8
-ERNW_Hydro_Small_E7,TIMES process: ERNW_Hydro_Small_E7
-ERNW_PV-Buildings_SOL_N,TIMES process: ERNW_PV-Buildings_SOL_N
-ERNW_PV-GreenField_SOL_N,TIMES process: ERNW_PV-GreenField_SOL_N
-ERNW_PV-Large_Roof_SOL_N,TIMES process: ERNW_PV-Large_Roof_SOL_N
-ERNW_WINON_WIN_N,TIMES process: ERNW_WINON_WIN_N
+ERNW_Eolien_Big_E1,Renewable: Wind - Large onshore
+ERNW_Eolien_Medium_E3,Renewable: Wind - Medium onshore
+ERNW_Eolien_Small_E4,Renewable: Wind - Small onshore
+ERNW_HYD_HYD_N,Renewable: Hydro - Run-of-river
+ERNW_Hydro_Big_E5,Renewable: Hydro - Large reservoir
+ERNW_Hydro_Medium_E6,Renewable: Hydro - Medium reservoir
+ERNW_Hydro_Pompage_E8,Renewable: Hydro - Pumped storage
+ERNW_Hydro_Small_E7,Renewable: Hydro - Small reservoir
+ERNW_PV-Buildings_SOL_N,Renewable: Solar PV - Buildings
+ERNW_PV-GreenField_SOL_N,Renewable: Solar PV - Ground-mounted
+ERNW_PV-Large_Roof_SOL_N,Renewable: Solar PV - Large rooftop
+ERNW_WINON_WIN_N,Renewable: Wind - Onshore
 ETSTP_CCGT-CCS_PostC_GAS_N,TIMES process: ETSTP_CCGT-CCS_PostC_GAS_N
 ETSTP_CCGT_GAS_N,TIMES process: ETSTP_CCGT_GAS_N
 ETSTP_MOT_BGS_E09,TIMES process: ETSTP_MOT_BGS_E09
@@ -349,8 +349,8 @@ ETSTP_TVC_WST_E11,TIMES process: ETSTP_TVC_WST_E11
 EVTRANS_H-H,TIMES process: EVTRANS_H-H
 EVTRANS_H-M,TIMES process: EVTRANS_H-M
 EVTRANS_M-L,TIMES process: EVTRANS_M-L
-EXPBIOLOG,Export of Solid biomass
-EXPBIOPEL,Export of Solid biomass
+EXPBIOLOG,Export: Wood logs
+EXPBIOPEL,Export: Pellets
 EXPELCHIG,Export of HV Electricity (AC / DC)
 IAMADVPRO10,Chemicals: Ammonia - Advanced production process
 IAMSTDPRO00,Chemicals: Ammonia - Standard production process
@@ -449,19 +449,19 @@ IMPBIOEFF,Import of Unknown
 IMPBIOETH,Import of -
 IMPBIOLOG,Import of Solid biomass
 IMPBIORME,Import of Unknown
-IMPCOACOK,Import of Coal
-IMPCOAHAR,Import of Coal
-IMPCOALIG,Import of Coal
+IMPCOACOK,Import: Coke
+IMPCOAHAR,Import: Hard Coal
+IMPCOALIG,Import: Black Lignite
 IMPELCHIG,Import of HV Electricity (AC / DC)
-IMPGASNAT,Import of Natural Gas
+IMPGASNAT,Import: Natural Gas
 IMPH2,Import of Unknown
 IMPNUCRSV,Import of Nuclear
-IMPOILDST,Import of Oil
-IMPOILGSL,Import of Oil
-IMPOILHFO,Import of Oil
-IMPOILKER,Import of Oil
-IMPOILLPG,Import of Oil
-IMPOILOTH,Import of Oil
+IMPOILDST,Import: Diesel
+IMPOILGSL,Import: Gasoline
+IMPOILHFO,Import: Heavy fuel oil
+IMPOILKER,Import: Kerosene
+IMPOILLPG,Import: LPG
+IMPOILOTH,Import: Other petroleum products
 INDBGS00,Industry process using Biogas
 INDBIO00,TIMES process: INDBIO00
 INDCOA00,Industry process using Coal
@@ -597,13 +597,13 @@ ISGSTMGAS00,TIMES process: ISGSTMGAS00
 ISGSTMOIL00,TIMES process: ISGSTMOIL00
 ISGSTMSOLID00,TIMES process: ISGSTMSOLID00
 MINBIOBOU,Extraction of Unknown
-MINBIOCPS,Extraction of Solid biomass
+MINBIOCPS,Mining: Wood chips extraction
 MINBIOCRP11,Extraction of Unknown
 MINBIOCUL,Extraction of Unknown
 MINBIOEFF,Extraction of Unknown
-MINBIOGAS,Extraction of Natural Gas
+MINBIOGAS,Mining: Biogas extraction
 MINBIOGZH,Extraction of Unknown
-MINBIOLOG,Extraction of Solid biomass
+MINBIOLOG,Mining: Wood logs extraction
 MINBIORPS1,Extraction of Unknown
 MINBIOSLU,Extraction of -
 MINBIOSLUH,Extraction of -
@@ -613,19 +613,19 @@ MINMCOWIM1,Extraction of Carbon Dioxide
 MINMCUPDT,Extraction of Unknown
 MINMGHRYC1,Extraction of Hydrogen
 MINMISGBE1,Extraction of Unknown
-MINMISORE1,Extraction of Unknown
-MINMISOXY1,Extraction of Unknown
-MINMISQLI1,Extraction of Unknown
-MINMISSCR1,Extraction of Unknown
-MINMLMSTN1,Extraction of Unknown
-MINMPPNOH1,Extraction of Unknown
-MINMPPOXY1,Extraction of Unknown
-MINMPPWOO1,Extraction of Unknown
+MINMISORE1,Mining: Iron and Steel ore extraction
+MINMISOXY1,Mining: Oxygen extraction (Iron and Steel)
+MINMISQLI1,Mining: Quick lime extraction (Iron and Steel)
+MINMISSCR1,Mining: Scrap iron extraction
+MINMLMSTN1,Mining: Limestone extraction
+MINMPPNOH1,Mining: Sodium hydroxide extraction (Paper)
+MINMPPOXY1,Mining: Oxygen extraction (Paper)
+MINMPPWOO1,Mining: Wood extraction (Paper)
 MINNREWST,Extraction of Municipal waste (optional)
-MINRENGEO,Extraction of Unknown
-MINRENHYD,Extraction of Unknown
-MINRENSOL,Extraction of Unknown
-MINRENWIN,Extraction of Unknown
+MINRENGEO,Mining: Geothermal extraction
+MINRENHYD,Mining: Hydro resource extraction
+MINRENSOL,Mining: Solar resource extraction
+MINRENWIN,Mining: Wind resource extraction
 NECDEMAND00,Non Energy Uses in Chemical sector - Demand process
 NEODEMAND00,Other Non Energy Uses - Demand process
 RCDRELC100,TIMES process: RCDRELC100
