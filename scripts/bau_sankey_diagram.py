@@ -55,24 +55,21 @@ def parse_times_line(line):
     parts.append(current_part.strip('"'))
     return parts
 
-def load_raw_flows(vd_file_path, energy_commodities_set, start_year=2021):
+def load_raw_records(vd_file_path, start_year=2021):
     """
-    Stream and collect raw VAR_Fin/VAR_Fout records with timeslice from the
-    TIMES .vd file.
+    Stream and collect raw records with timeslice from the TIMES .vd file
+    without filtering by variable type or commodity. Filtering can be
+    applied later on the returned DataFrame.
 
     Returns a DataFrame with columns:
     [year, region, timeslice, variable, commodity_code, process_code, value]
     """
     flows = []
-    print(f"Processing {vd_file_path} using VAR_Fin and VAR_Fout...")
+    print(f"Processing {vd_file_path} (all variables, all commodities)...")
 
     # --- Debugging counters ---
     line_count = 0
-    flow_line_count = 0
-    dash_commodity_count = 0
-    energy_commodity_count = 0
-    other_commodity_count = 0
-    other_examples = []
+    kept_record_count = 0
 
     with open(vd_file_path, 'r') as f:
         for line in f:
@@ -85,17 +82,7 @@ def load_raw_flows(vd_file_path, energy_commodities_set, start_year=2021):
                 if len(parts) < 9:
                     continue
 
-                variable_raw = parts[0]
-                variable_upper = variable_raw.upper()
-                if not variable_upper.startswith("VAR_F"):
-                    continue
-
-                # Normalize variable name casing to one of {VAR_Fin, VAR_Fout}
-                variable = 'VAR_Fin' if 'IN' in variable_upper else ('VAR_Fout' if 'OUT' in variable_upper else None)
-                if variable is None:
-                    continue
-
-                flow_line_count += 1
+                variable = parts[0]
                 year = int(parts[3])
                 if year < start_year:
                     continue
@@ -109,37 +96,23 @@ def load_raw_flows(vd_file_path, energy_commodities_set, start_year=2021):
                 region = parts[4]
                 timeslice = parts[6]
 
-                if commodity == '-':
-                    dash_commodity_count += 1
-                    continue
-
-                if commodity in energy_commodities_set:
-                    energy_commodity_count += 1
-                    flows.append({
-                        'year': year,
-                        'region': region,
-                        'timeslice': timeslice,
-                        'variable': variable,
-                        'commodity_code': commodity,
-                        'process_code': process,
-                        'value': value
-                    })
-                else:
-                    other_commodity_count += 1
-                    if len(other_examples) < 10:
-                        other_examples.append(commodity)
+                kept_record_count += 1
+                flows.append({
+                    'year': year,
+                    'region': region,
+                    'timeslice': timeslice,
+                    'variable': variable,
+                    'commodity_code': commodity,
+                    'process_code': process,
+                    'value': value
+                })
 
             except (ValueError, IndexError):
                 continue
 
     print("\n--- Processing Debug Info ---")
     print(f"Total lines scanned: {line_count}")
-    print(f"Total VAR_F* lines found: {flow_line_count}")
-    print(f"Flows with '-' as commodity (skipped): {dash_commodity_count}")
-    print(f"Flows with a non-energy commodity (skipped): {other_commodity_count}")
-    if other_examples:
-        print(f"Examples of non-energy commodities found: {list(set(other_examples))}")
-    print(f"Flows with a valid energy commodity (processed): {energy_commodity_count}")
+    print(f"Total records kept (year >= {start_year} and non-zero): {kept_record_count}")
     print("---------------------------\n")
 
     return pd.DataFrame(flows)
@@ -241,13 +214,8 @@ def main():
     commodities_df = pd.DataFrame(list(commodities_map.items()), columns=['Commodity', 'Description'])
     processes_df = pd.DataFrame(list(processes_map.items()), columns=['Process', 'Description'])
 
-    # Build energy commodity filter
-    energy_commodities = get_energy_commodities(commodities_df)
-    energy_commodities_set = set(energy_commodities)
-    print(f"Found {len(energy_commodities)} energy commodities.")
-
-    # --- Load raw flows ---
-    raw_flows_df = load_raw_flows(vd_file, energy_commodities_set, start_year=start_year)
+    # --- Load raw records (no filtering by variable or commodity) ---
+    raw_flows_df = load_raw_records(vd_file, start_year=start_year)
 
     if raw_flows_df.empty:
         print("No valid energy flow data was processed. Exiting.")
