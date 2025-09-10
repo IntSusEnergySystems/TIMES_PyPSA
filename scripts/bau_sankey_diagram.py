@@ -175,9 +175,130 @@ def infer_flow_direction(process_name, commodities_df):
     # Default case
     return "Unknown Source", process_name
 
-def create_sankey_diagram(*args, **kwargs):
-    """Placeholder retained for future use. Sankey generation is paused for now."""
-    return None
+def filter_for_sankey(annual_df, commodities_df, year):
+    """
+    Filter annual aggregated flows for a given year, keeping only VAR_FIn and
+    VAR_FOut variables and restricting to energy commodities.
+    Returns the filtered DataFrame and the set of energy commodity codes.
+    """
+    if annual_df.empty:
+        return annual_df, set()
+
+    energy_codes = set(get_energy_commodities(commodities_df))
+
+    df = annual_df.copy()
+    df = df[df['year'] == year]
+
+    var_upper = df['variable'].str.upper()
+    df = df[var_upper.isin(['VAR_FIN', 'VAR_FOUT'])]
+
+    if 'commodity_code' in df.columns:
+        df = df[df['commodity_code'].isin(energy_codes)]
+
+    return df, energy_codes
+
+
+def analyze_process_connectivity(df):
+    """
+    Inspect which processes have both inflows (VAR_FIn) and outflows (VAR_FOut).
+    Print warnings for isolated processes that have only inflows or only outflows.
+    Returns a tuple of (both_io, only_in, only_out) as sets of process codes.
+    """
+    if df.empty:
+        print("Filtered data is empty; cannot analyze connectivity.")
+        return set(), set(), set()
+
+    var_by_process = df.groupby('process_code')['variable'].apply(lambda s: set(v.upper() for v in s)).to_dict()
+    both_io = set()
+    only_in = set()
+    only_out = set()
+
+    for proc, vars_set in var_by_process.items():
+        has_in = 'VAR_FIN' in vars_set
+        has_out = 'VAR_FOUT' in vars_set
+        if has_in and has_out:
+            both_io.add(proc)
+        elif has_in and not has_out:
+            only_in.add(proc)
+        elif has_out and not has_in:
+            only_out.add(proc)
+
+    print("\n--- Process Connectivity ---")
+    print(f"Processes with both inflows and outflows: {len(both_io)}")
+    if only_in:
+        print(f"Warning: Processes with inflows only (potentially isolated): {len(only_in)}")
+    if only_out:
+        print(f"Warning: Processes with outflows only (potentially isolated): {len(only_out)}")
+    print("--------------------------------\n")
+
+    return both_io, only_in, only_out
+
+
+def build_sankey(df, output_html_file, flow_threshold=0.0):
+    """
+    Build and save a Sankey diagram from filtered annual flows.
+    Uses variable type to set direction:
+    - VAR_FIn: commodity -> process
+    - VAR_FOut: process -> commodity
+    """
+    if df.empty:
+        print("No data to plot after filtering.")
+        return None
+
+    df = df.copy()
+    var_upper = df['variable'].str.upper()
+    df['source'] = df.apply(lambda r: r['commodity_code'] if r['variable'].upper() == 'VAR_FIN' else r['process_code'], axis=1)
+    df['target'] = df.apply(lambda r: r['process_code'] if r['variable'].upper() == 'VAR_FIN' else r['commodity_code'], axis=1)
+
+    # Aggregate duplicate links
+    links_df = df.groupby(['source', 'target'], as_index=False)['value'].sum()
+
+    if flow_threshold is not None and flow_threshold > 0:
+        links_df = links_df[links_df['value'] > flow_threshold]
+
+    if links_df.empty:
+        print("No links above the threshold to plot.")
+        return None
+
+    nodes = pd.concat([links_df['source'], links_df['target']]).unique().tolist()
+    node_index = {n: i for i, n in enumerate(nodes)}
+
+    # Prepare labels using descriptions from the filtered data
+    commodity_desc = df[['commodity_code', 'commodity']].dropna().drop_duplicates().set_index('commodity_code')['commodity'].to_dict()
+    process_desc = df[['process_code', 'process']].dropna().drop_duplicates().set_index('process_code')['process'].to_dict()
+
+    labels = []
+    for n in nodes:
+        if n in commodity_desc:
+            labels.append(commodity_desc[n])
+        elif n in process_desc:
+            labels.append(process_desc[n])
+        else:
+            labels.append(n)
+
+    sankey_links = {
+        'source': links_df['source'].map(node_index).tolist(),
+        'target': links_df['target'].map(node_index).tolist(),
+        'value': links_df['value'].tolist(),
+    }
+
+    fig = go.Figure(data=[go.Sankey(
+        node=dict(
+            pad=15,
+            thickness=20,
+            line=dict(color="black", width=0.5),
+            label=labels,
+        ),
+        link=sankey_links
+    )])
+
+    fig.update_layout(
+        title_text="Energy Flow Diagram - 2021 (PJ)",
+        font_size=10
+    )
+    fig.write_html(output_html_file)
+    print(f"Saved Sankey diagram to {output_html_file}")
+    return fig
 
 def parse_metadata_file(file_path):
     """
@@ -203,6 +324,8 @@ def main():
     commodities_file = "data/commodities.csv"
     processes_file = "data/processes.csv"
     output_csv_file = "output/aggregated_flows_annual.csv"
+    output_filtered_csv = "output/aggregated_flows_2021_energy_VARF.csv"
+    output_html_file = "output/bau_sankey_2021_pj.html"
     start_year = 2021
 
     os.makedirs("output", exist_ok=True)
@@ -244,6 +367,26 @@ def main():
     print(f"Writing annual aggregated flows to {output_csv_file} ...")
     annual_flows_df.to_csv(output_csv_file, index=False)
     print("Done.")
+
+    # --- Filter for Sankey (year=2021, VAR_F*, energy commodities) ---
+    filtered_df, energy_codes = filter_for_sankey(annual_flows_df, commodities_df, year=2021)
+    if filtered_df.empty:
+        print("Filtered dataset for Sankey is empty; skipping Sankey generation.")
+        return
+
+    print(f"Writing filtered flows to {output_filtered_csv} ...")
+    filtered_df.to_csv(output_filtered_csv, index=False)
+    print("Done.")
+
+    # --- Analyze connectivity and warn isolated processes ---
+    both_io, only_in, only_out = analyze_process_connectivity(filtered_df)
+    if only_in:
+        print(f"Warning: {len(only_in)} processes have inflows only. Examples: {list(sorted(only_in))[:10]}")
+    if only_out:
+        print(f"Warning: {len(only_out)} processes have outflows only. Examples: {list(sorted(only_out))[:10]}")
+
+    # --- Build Sankey ---
+    _ = build_sankey(filtered_df, output_html_file, flow_threshold=0.0)
 
 if __name__ == "__main__":
     main()
