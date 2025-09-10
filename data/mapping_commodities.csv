@@ -1,89 +1,156 @@
-﻿Energy Carrier - PYPSA;commodities TIMES ;uspstream_commodity;upstream_process;Sector (com_in);Comment
-HV Electricity (AC / DC) ;ELCHIG;;;;Produced by the public power station or imports
-HV Electricity (AC / DC) ;ELCHIGG;;;;High voltage electricity
-;ELCMED;;;;Medium voltage electricity
-LV Electricity ;ELCLOW;;;;low voltage electricity
-LV Electricity ;RSDELC;ELCLOW;RSDELC00;RSD;
--;INDELC;ELCHIGG;INDELC00;IND;
--;INDELC;ELCMED;INDELC00;IND;
--;INDELC;ELCLOW;INDELC00;IND;
--;COMELC;ELCMED;COMELC00;COM;
--;COMELC;ELCLOW;COMELC00;COM;
-LV Electricity ;TRAELC;ELCLOW;TRAELC00;TRA;
-Uranium ;ELCNUC;;;ELC;
-Oil ;RSDOIL;;;RSD;
-Oil ;INDLFO;;;IND;light fuel oil
-Oil ;INDHFO;;;IND;heavy fuel oil
-Oil ;AGROIL;;;AGR;
-Oil ;COMOIL;;;COM;
-Oil ;TRADST;OILDST;TRADST00;TRA;diesel
-biomasse;TRADST;TRABDL;TRADST00;TRA;
-Oil ;TRAGSL;OILGSL;TRAGSL00;TRA;gasoline
-biomasse;TRAGSL;BIOETH;TRAGSL00;TRA;
-Oil ;TRAKER;;;TRA;kerozene
-Oil ;RSDLPG;;;RSD;Propane butane
-Oil ;COMLPG;;;COM;Propane butane
-Oil ;TRALPG;;;TRA;Propane butane
-Oil ;INDLPG;;;IND;Propane butane
-Naphtha ;;;;;not use in Wallonia
-Coal ;INDCOA;;;IND;
-Coal ;RSDCOA;;;RSD;
-Coal ;COMCOA;;;COM;
-Lignite ;INDCOL;;;IND;
-Lignite ;ELCCOL;;;ELC;
- - ;INDCOK;;;IND;Coke  in cement and lime industry
-Gas ;ELCGAS;GASNAT;;ELC;
-Gas ;INDGAS;GASNAT;;IND;
-Biogas ;INDGMX;BIOGZH;SUPGMX00;IND;Injected biomethane (after upgrading/concentration) + imported biomethane
-Gas ;INDGMX;SUPGAS;SUPGMX00;IND;
- - ;INDGMX;MOLECH4;SUPGMX00;IND;e-methane
-Biogas ;RSDGMX;BIOGZH;SUPGMX00;RSD;Injected biomethane (after upgrading/concentration) + imported biomethane
-Gas ;RSDGMX;SUPGAS;SUPGMX00;RSD;
- - ;RSDGMX;MOLECH4;SUPGMX00;RSD;e-methane
-Biogas ;COMGMX;BIOGZH;SUPGMX00;COM;Injected biomethane (after upgrading/concentration) + imported biomethane
-Gas ;COMGMX;SUPGAS;SUPGMX00;COM;
- - ;COMGMX;MOLECH4;SUPGMX00;COM;e-methan
-Biogas ;TRAGMX;BIOGZH;SUPGMX00;TRA;Injected biomethane (after upgrading/concentration) 
-Gas ;TRAGMX;SUPGAS;SUPGMX00;TRA;
- - ;TRAGMX;MOLECH4;SUPGMX00;TRA;e-methan
-Biogas ;AGRGMX;BIOGZH;SUPGMX00;AGR;Injected biomethane (after upgrading/concentration) 
-Gas ;AGRGMX;SUPGAS;SUPGMX00;AGR;
- - ;AGRGMX;MOLECH4;SUPGMX00;AGR;e-methane
-Solid biomass ;ELCCPS;;;ELC;
-Solid biomass ;ELCPEL;;;ELC;
-Solid biomass ;INDCPS;;;IND;
-Solid biomass ;INDPEL;;;IND;
-Solid biomass ;RSDLOG;;;RSD;logs
-Solid biomass ;RSDPEL;;;RSD;
- - ;INDBLQ;;;IND;black liquor (biomass)
-Biogas ;INDBGS;;;IND;
-Biogas ;COMBGS;;;COM;
-Biogas ;TRABGS;;;TRA;
-Biogas ;AGRBGS;;;AGR;
-Biogas ;ELCBGS;;;ELC;
-Municipal waste (optional) ;INDWST;;;IND;Cement kilns and lime kilns are “major” consumers
-Municipal waste (optional) ;ELCWST;;;ELC;incinerator
-Central heat ;INDHET;;;IND;District heating network with centralized CHP (ELCHET) and/or recovered excess heat from industry (INDHWT)
-Central heat ;RSDHET;;;RSD;District heating network with centralized CHP (ELCHET) and/or recovered excess heat from industry (INDHWT)
-Central heat ;COMHET;;;COM;District heating network with centralized CHP (ELCHET) and/or recovered excess heat from industry (INDHWT)
-Decentral heat ;;;;;???
-Hydrogen ;INDHH2;;;IND;Hydrogen (H₂) imported or produced locally (several possible technologies)
-Hydrogen ;TRAGH2;;;TRA;
-Hydrogen ;TRALH2;;;TRA;
-Ammonia ;;;;;Not yet included as an energy carrier (produced in the “IAM” sector)
-Methanol ;;;;;Not yet included as an energy carrier
-CO2 ;RSDCO2N;;;RSD;"*CO2N = CO₂ from combustion (Note: these are not CO₂-eq; CH₄ and N₂O emissions are accounted for separately and subsequently converted into GHG equivalents"
-CO2 ;COMCO2N;;;COM;"*CO2N = CO₂ from combustion (Note: these are not CO₂-eq; CH₄ and N₂O emissions are accounted for separately and subsequently converted into GHG equivalents"
-CO2 ;ELCCO2N;;;ELC;"*CO2N = CO₂ from combustion (Note: these are not CO₂-eq; CH₄ and N₂O emissions are accounted for separately and subsequently converted into GHG equivalents"
-CO2 ;ELCCO2c;;;ELC;CO2c = Captured CO₂ (can be sent for permanent storage – associated potential – or used in methanation for e-fuel production)
-CO2 ;TRACO2N;;;TRA;"*CO2N = CO₂ from combustion (Note: these are not CO₂-eq; CH₄ and N₂O emissions are accounted for separately and subsequently converted into GHG equivalents"
-CO2 ;INDCO2p;;;IND;CO2p  = co2 process
-CO2 ;INDCO2c;;;IND;CO2c = Captured CO₂ (can be sent for permanent storage – associated potential – or used in methanation for e-fuel production)
-CO2 ;INDCO2N;;;IND;"*CO2N = CO₂ from combustion (Note: these are not CO₂-eq; CH₄ and N₂O emissions are accounted for separately and subsequently converted into GHG equivalents"
-CO2 ;SUPCO2N;;;SUP;"*CO2N = CO₂ from combustion (Note: these are not CO₂-eq; CH₄ and N₂O emissions are accounted for separately and subsequently converted into GHG equivalents"
-CO2 ;TRACO2N;;;TRA;"*CO2N = CO₂ from combustion (Note: these are not CO₂-eq; CH₄ and N₂O emissions are accounted for separately and subsequently converted into GHG equivalents"
-CO2 ;TRACO2N-I;;;TRA;Originating from international aviation
- - ;INDSLU;;;IND;Renewable waste used as fuel in cement kilns and lime production kilns
- - ;ELCSLU;;;ELC;Renewable waste incinerated
- - ;TRAETH;;;TRA;pure bioethanol
- -;TRABDL;;;TRA;pure biodiesiel
+Energy Carrier - PYPSA,commodities TIMES ,uspstream_commodity,upstream_process,Sector (com_in),Comment
+HV Electricity (AC / DC),ELCHIG,nan,nan,nan,Produced by the public power station or imports
+HV Electricity (AC / DC),ELCHIGG,nan,nan,nan,High voltage electricity
+HV Electricity (AC / DC),ELCMED,nan,nan,nan,Medium voltage electricity
+LV Electricity,ELCLOW,nan,nan,nan,low voltage electricity
+LV Electricity,RSDELC,ELCLOW,RSDELC00,RSD,nan
+HV Electricity (AC / DC),INDELC,ELCHIGG,INDELC00,IND,nan
+HV Electricity (AC / DC),INDELC,ELCMED,INDELC00,IND,nan
+LV Electricity,INDELC,ELCLOW,INDELC00,IND,nan
+HV Electricity (AC / DC),COMELC,ELCMED,COMELC00,COM,nan
+LV Electricity,COMELC,ELCLOW,COMELC00,COM,nan
+LV Electricity,TRAELC,ELCLOW,TRAELC00,TRA,nan
+Uranium,ELCNUC,nan,nan,ELC,nan
+Oil,RSDOIL,nan,nan,RSD,nan
+Oil,INDLFO,nan,nan,IND,light fuel oil
+Oil,INDHFO,nan,nan,IND,heavy fuel oil
+Oil,AGROIL,nan,nan,AGR,nan
+Oil,COMOIL,nan,nan,COM,nan
+Oil,TRADST,OILDST,TRADST00,TRA,diesel
+Biofuels,TRADST,TRABDL,TRADST00,TRA,nan
+Oil,TRAGSL,OILGSL,TRAGSL00,TRA,gasoline
+Biofuels,TRAGSL,BIOETH,TRAGSL00,TRA,nan
+Oil,TRAKER,nan,nan,TRA,kerozene
+Oil,RSDLPG,nan,nan,RSD,Propane butane
+Oil,COMLPG,nan,nan,COM,Propane butane
+Oil,TRALPG,nan,nan,TRA,Propane butane
+Oil,INDLPG,nan,nan,IND,Propane butane
+Naphtha,nan,nan,nan,nan,not use in Wallonia
+Coal,INDCOA,nan,nan,IND,nan
+Coal,RSDCOA,nan,nan,RSD,nan
+Coal,COMCOA,nan,nan,COM,nan
+Lignite,INDCOL,nan,nan,IND,nan
+Lignite,ELCCOL,nan,nan,ELC,nan
+Coal,INDCOK,nan,nan,IND,Coke  in cement and lime industry
+Gas,ELCGAS,GASNAT,nan,ELC,nan
+Gas,INDGAS,GASNAT,nan,IND,nan
+Biogas,INDGMX,BIOGZH,SUPGMX00,IND,Injected biomethane (after upgrading/concentration) + imported biomethane
+Gas,INDGMX,SUPGAS,SUPGMX00,IND,nan
+Gas,INDGMX,MOLECH4,SUPGMX00,IND,e-methane
+Biogas,RSDGMX,BIOGZH,SUPGMX00,RSD,Injected biomethane (after upgrading/concentration) + imported biomethane
+Gas,RSDGMX,SUPGAS,SUPGMX00,RSD,nan
+Gas,RSDGMX,MOLECH4,SUPGMX00,RSD,e-methane
+Biogas,COMGMX,BIOGZH,SUPGMX00,COM,Injected biomethane (after upgrading/concentration) + imported biomethane
+Gas,COMGMX,SUPGAS,SUPGMX00,COM,nan
+Gas,COMGMX,MOLECH4,SUPGMX00,COM,e-methan
+Biogas,TRAGMX,BIOGZH,SUPGMX00,TRA,Injected biomethane (after upgrading/concentration)
+Gas,TRAGMX,SUPGAS,SUPGMX00,TRA,nan
+Gas,TRAGMX,MOLECH4,SUPGMX00,TRA,e-methan
+Biogas,AGRGMX,BIOGZH,SUPGMX00,AGR,Injected biomethane (after upgrading/concentration)
+Gas,AGRGMX,SUPGAS,SUPGMX00,AGR,nan
+Gas,AGRGMX,MOLECH4,SUPGMX00,AGR,e-methane
+Solid biomass,ELCCPS,nan,nan,ELC,nan
+Solid biomass,ELCPEL,nan,nan,ELC,nan
+Solid biomass,INDCPS,nan,nan,IND,nan
+Solid biomass,INDPEL,nan,nan,IND,nan
+Solid biomass,RSDLOG,nan,nan,RSD,logs
+Solid biomass,RSDPEL,nan,nan,RSD,nan
+Solid biomass,INDBLQ,nan,nan,IND,black liquor (biomass)
+Biogas,INDBGS,nan,nan,IND,nan
+Biogas,COMBGS,nan,nan,COM,nan
+Biogas,TRABGS,nan,nan,TRA,nan
+Biogas,AGRBGS,nan,nan,AGR,nan
+Biogas,ELCBGS,nan,nan,ELC,nan
+Municipal waste (optional),INDWST,nan,nan,IND,Cement kilns and lime kilns are “major” consumers
+Municipal waste (optional),ELCWST,nan,nan,ELC,incinerator
+Central heat,INDHET,nan,nan,IND,District heating network with centralized CHP (ELCHET) and/or recovered excess heat from industry (INDHWT)
+Central heat,RSDHET,nan,nan,RSD,District heating network with centralized CHP (ELCHET) and/or recovered excess heat from industry (INDHWT)
+Central heat,COMHET,nan,nan,COM,District heating network with centralized CHP (ELCHET) and/or recovered excess heat from industry (INDHWT)
+Decentral heat,nan,nan,nan,nan,???
+Hydrogen,INDHH2,nan,nan,IND,Hydrogen (H₂) imported or produced locally (several possible technologies)
+Hydrogen,TRAGH2,nan,nan,TRA,nan
+Hydrogen,TRALH2,nan,nan,TRA,nan
+Ammonia,nan,nan,nan,nan,Not yet included as an energy carrier (produced in the “IAM” sector)
+Methanol,nan,nan,nan,nan,Not yet included as an energy carrier
+CO2,RSDCO2N,nan,nan,RSD,*CO2N = CO₂ from combustion (Note: these are not CO₂-eq; CH₄ and N₂O emissions are accounted for separately and subsequently converted into GHG equivalents
+CO2,COMCO2N,nan,nan,COM,*CO2N = CO₂ from combustion (Note: these are not CO₂-eq; CH₄ and N₂O emissions are accounted for separately and subsequently converted into GHG equivalents
+CO2,ELCCO2N,nan,nan,ELC,*CO2N = CO₂ from combustion (Note: these are not CO₂-eq; CH₄ and N₂O emissions are accounted for separately and subsequently converted into GHG equivalents
+CO2,ELCCO2c,nan,nan,ELC,CO2c = Captured CO₂ (can be sent for permanent storage – associated potential – or used in methanation for e-fuel production)
+CO2,TRACO2N,nan,nan,TRA,*CO2N = CO₂ from combustion (Note: these are not CO₂-eq; CH₄ and N₂O emissions are accounted for separately and subsequently converted into GHG equivalents
+CO2,INDCO2p,nan,nan,IND,CO2p  = co2 process
+CO2,INDCO2c,nan,nan,IND,CO2c = Captured CO₂ (can be sent for permanent storage – associated potential – or used in methanation for e-fuel production)
+CO2,INDCO2N,nan,nan,IND,*CO2N = CO₂ from combustion (Note: these are not CO₂-eq; CH₄ and N₂O emissions are accounted for separately and subsequently converted into GHG equivalents
+CO2,SUPCO2N,nan,nan,SUP,*CO2N = CO₂ from combustion (Note: these are not CO₂-eq; CH₄ and N₂O emissions are accounted for separately and subsequently converted into GHG equivalents
+CO2,TRACO2N,nan,nan,TRA,*CO2N = CO₂ from combustion (Note: these are not CO₂-eq; CH₄ and N₂O emissions are accounted for separately and subsequently converted into GHG equivalents
+CO2,TRACO2N-I,nan,nan,TRA,Originating from international aviation
+-,INDSLU,nan,nan,IND,Renewable waste used as fuel in cement kilns and lime production kilns
+-,ELCSLU,nan,nan,ELC,Renewable waste incinerated
+-,TRAETH,nan,nan,TRA,pure bioethanol
+-,TRABDL,nan,nan,TRA,pure biodiesiel
+Oil Products,OILKER,,,,auto-added
+Biomass & Biofuels,BIORME,,,,auto-added
+Biomass & Biofuels,BIOPEL,,,,auto-added
+Heat/Steam,RW3F,,,,auto-added
+Natural Gas,RSDGSL,,,,auto-added
+Biomass & Biofuels,BIOCRP1,,,,auto-added
+Renewables,RENHYD,,,,auto-added
+Oil Products,BIORPOIL,,,,auto-added
+Heat/Steam,RH4F,,,,auto-added
+Biomass & Biofuels,BIODST,,,,auto-added
+Biomass & Biofuels,BIORPS,,,,auto-added
+Other,BATELCOUT,,,,auto-added
+Renewables,ELCWIN,,,,auto-added
+Renewables,ELCSOL,,,,auto-added
+Heat/Steam,RWAP,,,,auto-added
+Biomass & Biofuels,BIOSTIL,,,,auto-added
+Natural Gas,COMGSL,,,,auto-added
+Natural Gas,GASBFT,,,,auto-added
+Natural Gas,OILGSL,,,,auto-added
+Natural Gas,OILLPG,,,,auto-added
+Heat/Steam,RW4F,,,,auto-added
+Oil Products,COMBDL,,,,auto-added
+Renewables,COMSOL,,,,auto-added
+Biomass & Biofuels,BIOLOG,,,,auto-added
+Hydrogen,SYNH2CU,,,,auto-added
+Biomass & Biofuels,SUPELC,,,,auto-added
+Renewables,RENWIN,,,,auto-added
+Biomass & Biofuels,BIOEFF,,,,auto-added
+Oil Products,AGRBDL,,,,auto-added
+Renewables,RSDSOL,,,,auto-added
+Hydrogen,RH2F,,,,auto-added
+Coal,COACOK,,,,auto-added
+Oil Products,OILDST,,,,auto-added
+Natural Gas,BIOGAS,,,,auto-added
+Heat/Steam,RHAP,,,,auto-added
+Biomass & Biofuels,BIOBOU,,,,auto-added
+Other,AGRELC,,,,auto-added
+Coal,COALIG,,,,auto-added
+Renewables,MPPNOH,,,,auto-added
+Nuclear Fuel,NUCRSV,,,,auto-added
+Biomass & Biofuels,COMPEL,,,,auto-added
+Natural Gas,GASNAT,,,,auto-added
+Oil Products,OILHFO,,,,auto-added
+Electricity,ELCHET,,,,auto-added
+Heat/Steam,AGRHET,,,,auto-added
+Coal,COAHAR,,,,auto-added
+Other,BATELCIN,,,,auto-added
+Oil Products,OILOTH,,,,auto-added
+Oil Products,BIOPLPOIL,,,,auto-added
+Natural Gas,SUPGAS,,,,auto-added
+Natural Gas,GASIIS,,,,auto-added
+Heat/Steam,RH3F,,,,auto-added
+Biomass & Biofuels,BIOETH,,,,auto-added
+Hydrogen,SYNH2CT,,,,auto-added
+Heat/Steam,RW2F,,,,auto-added
+Oil Products,SUPDST,,,,auto-added
+Heat/Steam,IOIPRC,,,,auto-added
+Biomass & Biofuels,BIOCPS,,,,auto-added
+Renewables,RENSOL,,,,auto-added
+Biomass & Biofuels,MISPLT,,,,auto-added
+Biomass & Biofuels,BIOCUL,,,,auto-added
+Heat/Steam,SUPHET,,,,auto-added
+Biomass & Biofuels,BIOGLY,,,,auto-added
+Biomass & Biofuels,ELCBIO,,,,auto-added
+Renewables,ELCHYD,,,,auto-added
+Oil Products,ELCOIL,,,,auto-added
+Hydrogen,SUPIMPH2,,,,auto-added

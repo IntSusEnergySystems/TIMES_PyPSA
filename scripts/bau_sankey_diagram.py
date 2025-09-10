@@ -536,6 +536,144 @@ def net_bidirectional_links(df):
 # -----------------------------
 # Commodity grouping utilities
 # -----------------------------
+def _slugify(name):
+    s = (name or '').strip().lower()
+    out = []
+    for ch in s:
+        if ch.isalnum():
+            out.append(ch)
+        elif ch in [' ', '-', '/', '(', ')', '&']:
+            out.append('_')
+    slug = ''.join(out)
+    while '__' in slug:
+        slug = slug.replace('__', '_')
+    return slug.strip('_') or 'other'
+
+
+def read_commodity_mapping_table(mapping_file):
+    """
+    Read mapping table from CSV and normalize column names.
+    Expected columns (case/spacing-insensitive):
+      - Energy Carrier - PYPSA
+      - commodities TIMES
+      - uspstream_commodity (optional)
+      - upstream_process (optional)
+      - Sector (com_in) (optional)
+      - Comment (optional)
+    """
+    if not os.path.exists(mapping_file):
+        return pd.DataFrame(columns=[
+            'pypsa', 'times', 'upstream_commodity', 'upstream_process', 'sector', 'comment'
+        ])
+
+    df = pd.read_csv(mapping_file, engine='python')
+    # Normalize columns
+    cols_map = {}
+    for c in df.columns:
+        key = c.strip().lower().replace('\ufeff', '')
+        cols_map[c] = key
+    df = df.rename(columns=cols_map)
+
+    def get(col_candidates):
+        for c in col_candidates:
+            if c in df.columns:
+                return c
+        return None
+
+    pypsa_col = get(['energy carrier - pypsa', 'pypsa', 'energy_carrier_pypsa'])
+    times_col = get(['commodities times', 'commodities times ', 'times', 'commodity'])
+    upst_comm_col = get(['uspstream_commodity', 'upstream_commodity'])
+    upst_proc_col = get(['upstream_process'])
+    sector_col = get(['sector (com_in)', 'sector'])
+    comment_col = get(['comment', 'comments'])
+
+    out = pd.DataFrame({
+        'pypsa': df[pypsa_col] if pypsa_col in df else [],
+        'times': df[times_col] if times_col in df else [],
+        'upstream_commodity': df[upst_comm_col] if upst_comm_col in df else [],
+        'upstream_process': df[upst_proc_col] if upst_proc_col in df else [],
+        'sector': df[sector_col] if sector_col in df else [],
+        'comment': df[comment_col] if comment_col in df else [],
+    })
+    # Strip whitespace
+    for c in out.columns:
+        out[c] = out[c].astype(str).map(lambda x: x.strip())
+    # Drop empty times codes
+    out = out[out['times'] != '']
+    return out
+
+
+def write_commodity_mapping_table(mapping_file, mapping_df):
+    cols = ['Energy Carrier - PYPSA', 'commodities TIMES ', 'uspstream_commodity', 'upstream_process', 'Sector (com_in)', 'Comment']
+    df = pd.DataFrame({
+        cols[0]: mapping_df['pypsa'],
+        cols[1]: mapping_df['times'],
+        cols[2]: mapping_df.get('upstream_commodity', ''),
+        cols[3]: mapping_df.get('upstream_process', ''),
+        cols[4]: mapping_df.get('sector', ''),
+        cols[5]: mapping_df.get('comment', ''),
+    })
+    df.to_csv(mapping_file, index=False)
+
+
+def build_commodity_groups_from_mapping(mapping_df, energy_commodity_codes, commodities_df, mapping_file):
+    """
+    Use mapping table to group TIMES commodity codes into PYPSA carriers.
+    Adds missing energy commodities to mapping (auto-added) using heuristics
+    for their PYPSA label and persists back to file.
+    Returns (commodity_to_group, groups_info)
+    """
+    mapping_df = mapping_df.copy()
+    mapping_df['pypsa'] = mapping_df['pypsa'].astype(str).map(lambda s: s.strip())
+    mapping_df['times'] = mapping_df['times'].astype(str).map(lambda s: s.strip())
+
+    # Build initial map from file
+    times_to_pypsa = {row['times']: row['pypsa'] for _, row in mapping_df.iterrows() if row['times']}
+
+    # Add missing energy commodities
+    missing = [c for c in energy_commodity_codes if c not in times_to_pypsa]
+    if missing:
+        comm_desc = commodities_df.set_index('Commodity')['Description'].to_dict()
+        new_rows = []
+        for code in missing:
+            gid, gname = _categorize_commodity(code, comm_desc.get(code, ''))
+            # Map heuristic name to a PYPSA label best-effort
+            # Keep it simple: use the readable name as PYPSA label
+            pypsa_name = gname
+            new_rows.append({
+                'pypsa': pypsa_name,
+                'times': code,
+                'upstream_commodity': '',
+                'upstream_process': '',
+                'sector': '',
+                'comment': 'auto-added'
+            })
+            times_to_pypsa[code] = pypsa_name
+
+        if new_rows:
+            mapping_df = pd.concat([mapping_df, pd.DataFrame(new_rows)], ignore_index=True)
+            # Persist mapping back to CSV
+            write_commodity_mapping_table(mapping_file, mapping_df)
+
+    # Build groups
+    groups = {}
+    for code, pypsa_name in times_to_pypsa.items():
+        gid = f"PYPSA_{_slugify(pypsa_name)}"
+        if gid not in groups:
+            groups[gid] = {'name': pypsa_name, 'type': 'commodity_group_pypsa', 'members': []}
+        groups[gid]['members'].append(code)
+
+    commodity_to_group = {}
+    for gid, info in groups.items():
+        for m in info['members']:
+            commodity_to_group[m] = gid
+
+    groups_info = {
+        gid: {'name': info['name'], 'type': info['type'], 'members': sorted(info['members'])}
+        for gid, info in groups.items()
+    }
+    return commodity_to_group, groups_info
+
 def _categorize_commodity(code, desc):
     """
     Map raw TIMES commodity code/description to a small set of readable
@@ -715,10 +853,33 @@ def build_sankey(df, output_html_file, flow_threshold=0.0):
         else:
             labels.append(n)
 
+    # Build tooltips that include source → target, commodity/cluster name and value
+    node_label_map = {n: lbl for n, lbl in zip(nodes, labels)}
+    tooltips = []
+    for _, row in links_df.iterrows():
+        s = row['source']
+        t = row['target']
+        v = float(row['value'])
+        src = node_label_map.get(s, str(s))
+        tgt = node_label_map.get(t, str(t))
+        # Try to infer the commodity/cluster on the link
+        comm_label = None
+        if s in commodity_desc:
+            comm_label = commodity_desc[s]
+        elif t in commodity_desc:
+            comm_label = commodity_desc[t]
+        if comm_label:
+            tooltip = f"{src} → {tgt}<br>Commodity: {comm_label}<br>Value: {v:.2f} PJ"
+        else:
+            tooltip = f"{src} → {tgt}<br>Value: {v:.2f} PJ"
+        tooltips.append(tooltip)
+
     sankey_links = {
         'source': links_df['source'].map(node_index).tolist(),
         'target': links_df['target'].map(node_index).tolist(),
         'value': links_df['value'].tolist(),
+        'customdata': tooltips,
+        'hovertemplate': '%{customdata}<extra></extra>',
     }
 
     fig = go.Figure(data=[go.Sankey(
@@ -838,7 +999,9 @@ def main():
 
     # --- Optional: Group commodities to reduce node count ---
     if group_commodities:
-        commodity_to_group, groups_info = build_commodity_groups(commodities_df, energy_codes)
+        mapping_file = "data/mapping_commodities.csv"
+        mapping_df = read_commodity_mapping_table(mapping_file)
+        commodity_to_group, groups_info = build_commodity_groups_from_mapping(mapping_df, energy_codes, commodities_df, mapping_file)
         if groups_info:
             import json
             groups_json_file = "output/sankey_commodity_groups_2021.json"
