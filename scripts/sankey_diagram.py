@@ -9,7 +9,7 @@ to visualize ENERGY flows only (in PJ or TWh units).
 import pandas as pd
 import plotly.graph_objects as go
 from collections import defaultdict
-from scripts.read_times_output import TIMESOutputReader
+from read_times_output import TIMESOutputReader
 
 
 class TIMESEnergyFlowProcessor(TIMESOutputReader):
@@ -815,8 +815,9 @@ def main():
     """Main function to run the energy Sankey diagram generation"""
     
     # File paths
-    vd_file = "../data/bau_080925_0809.vd"
-    cache_file = "../output/bau_cache.pkl"
+    filename="demos_004_0209.vd"
+    vd_file = "./data/"+filename
+    cache_file = "./output/"+filename+".pkl"
     
     print("TIMES Energy Flow Sankey Diagram Generator")
     print("=" * 50)
