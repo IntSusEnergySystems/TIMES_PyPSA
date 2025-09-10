@@ -312,19 +312,19 @@ ECHPP_MOT_BGS_E01,TIMES process: ECHPP_MOT_BGS_E01
 ECHPP_MOT_BIO_E02,TIMES process: ECHPP_MOT_BIO_E02
 ECHPP_MOT_GAS_E04,TIMES process: ECHPP_MOT_GAS_E04
 ECHPP_MOT_OIL_E03,TIMES process: ECHPP_MOT_OIL_E03
-ELCBGS00,Electricity process using Electricity
-ELCBIO00,Electricity process using Electricity
-ELCCPS00,Electricity process using Electricity
-ELCGAS00,Electricity process using Electricity
-ELCHYD00,Electricity process using Electricity
-ELCNUC00,Electricity process using Electricity
-ELCOIL00,Electricity process using Electricity
-ELCPEL00,Electricity process using Electricity
-ELCSLU00,Electricity process using Electricity
-ELCSOL00,Electricity process using Electricity
-ELCWIN00,Electricity process using Electricity
-ELCWST00,Electricity process using Electricity
-ENUC_Thiange,TIMES process: ENUC_Thiange
+ELCBGS00,Biogas for electricity generation
+ELCBIO00,Biomass for electricity generation
+ELCCPS00,Wood chips for electricity generation
+ELCGAS00,Natural gas for electricity generation
+ELCHYD00,Hydropower for electricity generation
+ELCNUC00,Nuclear fuel for electricity generation
+ELCOIL00,Oil for electricity generation
+ELCPEL00,Pellets for electricity generation
+ELCSLU00,Sludge for electricity generation
+ELCSOL00,Solar energy for electricity generation
+ELCWIN00,Wind energy for electricity generation
+ELCWST00,Waste for electricity generation
+ENUC_Thiange,Tihange Nuclear Power Plant
 ERNW_Eolien_Big_E1,Renewable: Wind - Large onshore
 ERNW_Eolien_Medium_E3,Renewable: Wind - Medium onshore
 ERNW_Eolien_Small_E4,Renewable: Wind - Small onshore

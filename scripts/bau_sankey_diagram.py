@@ -640,6 +640,7 @@ def build_commodity_groups_from_mapping(mapping_df, energy_commodity_codes, comm
             # Map heuristic name to a PYPSA label best-effort
             # Keep it simple: use the readable name as PYPSA label
             pypsa_name = gname
+            print(f"[WARN] Commodity '{code}' missing from mapping table; inferred PYPSA='{pypsa_name}' and appended to {mapping_file} (comment=auto-added).")
             new_rows.append({
                 'pypsa': pypsa_name,
                 'times': code,
@@ -676,7 +677,10 @@ def build_commodity_groups_from_mapping(mapping_df, energy_commodity_codes, comm
 
 def _categorize_commodity(code, desc):
     """
-    Map raw TIMES commodity code/description to a small set of readable
+    Fallback heuristic used ONLY when a TIMES commodity has no explicit
+    mapping in data/mapping_commodities.csv.
+
+    Maps raw TIMES commodity code/description to a small set of readable
     energy carrier categories to reduce Sankey node count.
 
     Returns a tuple (group_id, group_name).
