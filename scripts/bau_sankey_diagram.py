@@ -11,7 +11,7 @@ def get_energy_commodities(commodities_df):
     energy_keywords = [
         'electricity', 'elc', 'coal', 'gas', 'oil', 'diesel', 'gasoline', 'petrol',
         'lpg', 'hfo', 'kerosene', 'biofuel', 'biomass', 'pellet', 'heat', 'steam',
-        'solar', 'wind', 'hydro', 'nuclear', 'fuel', 'hydrogen'
+        'solar', 'wind', 'hydro', 'nuclear', 'nuc', 'uran', 'uranium', 'fuel', 'hydrogen'
     ]
 
     pollutant_or_material_keywords = [
@@ -165,11 +165,23 @@ def infer_flow_direction(process_name, commodities_df):
         return "Transport Sector", f"Demand_{process_name}"
 
     # Heuristic 4: Electricity Generation
-    if 'ELC' in process_upper:
-        # Try to find input fuel
+    if 'ELC' in process_upper or 'ENUC' in process_upper:
+        # Try to find input fuel among common carriers
         for c in ['COA', 'GAS', 'OIL', 'NUC', 'BIO', 'HYD', 'WIN', 'SOL']:
-             if c in process_upper:
-                return c, "Electricity"
+            if c in process_upper:
+                # Map commodity-like code to readable source node
+                fuel_map = {
+                    'COA': 'Coal',
+                    'GAS': 'Natural Gas',
+                    'OIL': 'Oil',
+                    'NUC': 'Nuclear Fuel',
+                    'BIO': 'Biomass & Biofuels',
+                    'HYD': 'Hydro',
+                    'WIN': 'Wind',
+                    'SOL': 'Solar',
+                }
+                return fuel_map.get(c, c), "Electricity"
+        # If we cannot detect explicit fuel, default to generic generation
         return "Power Generation", "Electricity"
 
     # Default case
@@ -234,6 +246,430 @@ def analyze_process_connectivity(df):
     return both_io, only_in, only_out
 
 
+# -----------------------------
+# Process clustering utilities
+# -----------------------------
+def compute_process_metrics(df):
+    """
+    Compute per-process metrics: inflow sum, outflow sum, and counts of
+    distinct commodities on in/out. Returns a DataFrame indexed by process.
+    """
+    if df.empty:
+        return pd.DataFrame(columns=['process_code', 'in_sum', 'out_sum', 'num_in', 'num_out'])
+
+    dfc = df.copy()
+    dfc['var_u'] = dfc['variable'].str.upper()
+
+    fin = dfc[dfc['var_u'] == 'VAR_FIN']
+    fout = dfc[dfc['var_u'] == 'VAR_FOUT']
+
+    in_sum = fin.groupby('process_code', as_index=False)['value'].sum().rename(columns={'value': 'in_sum'})
+    out_sum = fout.groupby('process_code', as_index=False)['value'].sum().rename(columns={'value': 'out_sum'})
+    num_in = fin.groupby('process_code', as_index=False)['commodity_code'].nunique().rename(columns={'commodity_code': 'num_in'})
+    num_out = fout.groupby('process_code', as_index=False)['commodity_code'].nunique().rename(columns={'commodity_code': 'num_out'})
+
+    metrics = (
+        pd.DataFrame({'process_code': pd.concat([in_sum['process_code'], out_sum['process_code']]).unique()})
+        .merge(in_sum, on='process_code', how='left')
+        .merge(out_sum, on='process_code', how='left')
+        .merge(num_in, on='process_code', how='left')
+        .merge(num_out, on='process_code', how='left')
+    )
+    for c in ['in_sum', 'out_sum', 'num_in', 'num_out']:
+        metrics[c] = metrics[c].fillna(0)
+    return metrics
+
+
+def detect_series_clusters(df, metrics, tolerance=1e-3):
+    """
+    Detect chains of processes with single in and single out, and near-zero
+    losses, which can be merged as series clusters.
+    Returns a list of clusters, each an ordered list of process codes.
+    """
+    if df.empty or metrics.empty:
+        return []
+
+    dfx = df.copy()
+    dfx['var_u'] = dfx['variable'].str.upper()
+    fin = dfx[dfx['var_u'] == 'VAR_FIN']
+    fout = dfx[dfx['var_u'] == 'VAR_FOUT']
+
+    candidates = metrics[(metrics['num_in'] == 1) & (metrics['num_out'] == 1)].copy()
+    candidates = candidates[(candidates['in_sum'] + candidates['out_sum']) > 0]
+    candidates = candidates[(abs(candidates['in_sum'] - candidates['out_sum']) <= tolerance * candidates[['in_sum', 'out_sum']].max(axis=1))]
+    candidate_set = set(candidates['process_code'])
+    if not candidate_set:
+        return []
+
+    fin_pc = fin.groupby(['process_code', 'commodity_code'], as_index=False)['value'].sum()
+    fout_pc = fout.groupby(['process_code', 'commodity_code'], as_index=False)['value'].sum()
+    fin_map = {(r['process_code'], r['commodity_code']): r['value'] for _, r in fin_pc.iterrows()}
+    fout_map = {(r['process_code'], r['commodity_code']): r['value'] for _, r in fout_pc.iterrows()}
+
+    in_comm = fin.groupby('process_code')['commodity_code'].first().to_dict()
+    out_comm = fout.groupby('process_code')['commodity_code'].first().to_dict()
+
+    prod_by_comm = fout.groupby('commodity_code')['process_code'].apply(set).to_dict()
+    cons_by_comm = fin.groupby('commodity_code')['process_code'].apply(set).to_dict()
+
+    next_proc = {}
+    indeg = {p: 0 for p in candidate_set}
+    for p in candidate_set:
+        c_out = out_comm.get(p)
+        if c_out is None:
+            continue
+        cons = cons_by_comm.get(c_out, set()) & candidate_set
+        if len(cons) == 1:
+            q = list(cons)[0]
+            if p != q:
+                v_out = fout_map.get((p, c_out), 0.0)
+                v_in = fin_map.get((q, c_out), 0.0)
+                denom = max(v_out, v_in, 1e-12)
+                if abs(v_out - v_in) <= tolerance * denom:
+                    next_proc[p] = q
+                    indeg[q] = indeg.get(q, 0) + 1
+
+    visited = set()
+    clusters = []
+    for p in candidate_set:
+        if p in visited:
+            continue
+        if indeg.get(p, 0) == 0:
+            chain = [p]
+            visited.add(p)
+            cur = p
+            while cur in next_proc and next_proc[cur] not in visited:
+                cur = next_proc[cur]
+                chain.append(cur)
+                visited.add(cur)
+            if len(chain) > 1:
+                clusters.append(chain)
+
+    return clusters
+
+
+def longest_common_substring(strings):
+    if not strings:
+        return ''
+    base = strings[0]
+    others = strings[1:]
+    longest = ''
+    n = len(base)
+    for i in range(n):
+        for j in range(i + 1, n + 1):
+            sub = base[i:j]
+            if len(sub) <= len(longest):
+                continue
+            if all(sub in s for s in others):
+                longest = sub
+    return longest if len(longest) >= 3 else ''
+
+
+def build_process_clusters(df, processes_df, both_io, only_in, only_out, max_cluster_pct=0.1, tolerance=1e-3):
+    """
+    Build clustering for processes: merges series chains and packs small
+    processes into capped 'Others' buckets by level (source/middle/sink).
+
+    Returns (process_to_cluster, clusters_info)
+    where clusters_info maps cluster_id -> {name, type, members, throughput, level}.
+    """
+    metrics = compute_process_metrics(df)
+    series_clusters = detect_series_clusters(df, metrics, tolerance=tolerance)
+
+    proc_to_series = {}
+    clusters_info = {}
+    cluster_id_seq = 1
+    proc_desc_map = processes_df.set_index('Process')['Description'].to_dict()
+
+    for chain in series_clusters:
+        cid = f"CL_SER_{cluster_id_seq:03d}"
+        cluster_id_seq += 1
+        for p in chain:
+            proc_to_series[p] = cid
+        names = [proc_desc_map.get(p, p) for p in chain]
+        common = longest_common_substring(names)
+        if common:
+            cname = f"Series: {common.strip()}"
+        elif len(names) <= 3:
+            cname = f"Series: {' → '.join(names)}"
+        else:
+            cname = f"Series: {names[0]} → … → {names[-1]}"
+        tp = metrics[metrics['process_code'].isin(chain)]
+        thr = float(tp[['in_sum', 'out_sum']].max(axis=1).sum())
+        clusters_info[cid] = {"name": cname, "type": "series", "members": chain, "throughput": thr, "level": "middle"}
+
+    def throughput_of(pcode):
+        row = metrics[metrics['process_code'] == pcode]
+        if row.empty:
+            return 0.0
+        return float(max(row['in_sum'].iloc[0], row['out_sum'].iloc[0]))
+
+    process_to_cluster = {}
+
+    level_by_process = {}
+    for p in only_out:
+        level_by_process[p] = 'source'
+    for p in only_in:
+        level_by_process[p] = 'sink'
+    for p in both_io:
+        level_by_process[p] = 'middle'
+
+    for p in both_io:
+        process_to_cluster[p] = proc_to_series.get(p, p)
+
+    dfx = df.copy()
+    dfx['var_u'] = dfx['variable'].str.upper()
+    sink_fin = dfx[(dfx['var_u'] == 'VAR_FIN') & (dfx['process_code'].isin(only_in))]
+    total_final_energy = float(sink_fin['value'].sum())
+    cap = max_cluster_pct * total_final_energy if total_final_energy > 0 else float('inf')
+
+    def others_cluster_for_level(proc_list, level_name, cluster_code):
+        nonlocal cluster_id_seq
+        if not proc_list:
+            return
+        items = [(p, throughput_of(p)) for p in proc_list]
+        if level_name == 'source':
+            items = [(p, float(metrics.loc[metrics['process_code'] == p, 'out_sum'].iloc[0] if not metrics.loc[metrics['process_code'] == p].empty else 0.0)) for p, _ in items]
+        elif level_name == 'sink':
+            items = [(p, float(metrics.loc[metrics['process_code'] == p, 'in_sum'].iloc[0] if not metrics.loc[metrics['process_code'] == p].empty else 0.0)) for p, _ in items]
+        else:
+            items = [(p, throughput_of(p)) for p, _ in items]
+
+        items.sort(key=lambda x: x[1], reverse=True)
+        tail = []
+        tail_sum = 0.0
+        for p, v in reversed(items):
+            if tail_sum + v <= cap:
+                tail.append((p, v))
+                tail_sum += v
+            else:
+                break
+        if not tail:
+            for p, _ in items:
+                process_to_cluster[p] = proc_to_series.get(p, p) if level_name == 'middle' else p
+            return
+
+        tail_members = {p for p, _ in tail}
+        for p, _ in items:
+            if p in tail_members:
+                continue
+            process_to_cluster[p] = proc_to_series.get(p, p) if level_name == 'middle' else p
+
+        cid = cluster_code
+        members = sorted(list(tail_members))
+        thr = float(tail_sum)
+        names = [proc_desc_map.get(p, p) for p in members]
+        common = longest_common_substring(names)
+        cname = f"Others ({level_name})" + (f": {common.strip()}" if common else "")
+        clusters_info[cid] = {"name": cname, "type": f"others_{level_name}", "members": members, "throughput": thr, "level": level_name}
+        for p in members:
+            process_to_cluster[p] = cid
+
+    others_cluster_for_level(sorted(list(only_out)), 'source', 'CL_OTHERS_SRC')
+    others_cluster_for_level(sorted(list(both_io)), 'middle', 'CL_OTHERS_MID')
+    others_cluster_for_level(sorted(list(only_in)), 'sink', 'CL_OTHERS_SINK')
+
+    return process_to_cluster, clusters_info
+
+
+def apply_process_clustering(df, process_to_cluster, clusters_info, processes_df):
+    """
+    Replace process codes in DataFrame according to clustering and attach
+    readable names for cluster nodes.
+    """
+    if df.empty:
+        return df
+    dfc = df.copy()
+    dfc['process_code'] = dfc['process_code'].map(lambda p: process_to_cluster.get(p, p))
+    proc_desc = processes_df.set_index('Process')['Description'].to_dict()
+    name_map = {**{k: v for k, v in proc_desc.items()}, **{cid: info['name'] for cid, info in clusters_info.items()}}
+    dfc['process'] = dfc['process_code'].map(lambda p: name_map.get(p, p))
+    return dfc
+
+
+def net_bidirectional_links(df):
+    """
+    Net out bidirectional links between the same process (or cluster) and
+    commodity, so that internal hand-offs within clusters do not create
+    artificial loops. This is general and applies whether clustering is used
+    or not.
+
+    For each (year, region, process_code, commodity_code):
+      net = sum(VAR_FOut values) - sum(VAR_FIn values)
+    - If net > 0, keep a single VAR_FOut with 'net'
+    - If net < 0, keep a single VAR_FIn with 'abs(net)'
+    - If net == 0, drop the pair (purely internal transfer)
+    """
+    if df.empty:
+        return df
+
+    d = df.copy()
+    d['var_u'] = d['variable'].str.upper()
+    d['signed'] = d.apply(lambda r: r['value'] if r['var_u'] == 'VAR_FOUT' else (-r['value'] if r['var_u'] == 'VAR_FIN' else 0.0), axis=1)
+
+    agg = (
+        d.groupby(['year', 'region', 'process_code', 'commodity_code'], as_index=False)['signed']
+        .sum()
+    )
+    agg = agg[agg['signed'] != 0]
+    if agg.empty:
+        # All cancelled out; return empty with expected columns
+        cols = ['year', 'region', 'variable', 'commodity_code', 'commodity', 'process_code', 'process', 'value']
+        return pd.DataFrame(columns=cols)
+
+    agg['variable'] = agg['signed'].apply(lambda v: 'VAR_FOut' if v > 0 else 'VAR_FIn')
+    agg['value'] = agg['signed'].abs()
+    agg = agg.drop(columns=['signed'])
+
+    # Attach readable names from the original df
+    comm_map = d[['commodity_code', 'commodity']].dropna().drop_duplicates().set_index('commodity_code')['commodity'].to_dict()
+    proc_map = d[['process_code', 'process']].dropna().drop_duplicates().set_index('process_code')['process'].to_dict()
+
+    agg['commodity'] = agg['commodity_code'].map(lambda c: comm_map.get(c, c))
+    agg['process'] = agg['process_code'].map(lambda p: proc_map.get(p, p))
+
+    # Reorder columns
+    agg = agg[['year', 'region', 'variable', 'commodity_code', 'commodity', 'process_code', 'process', 'value']]
+    return agg
+
+
+# -----------------------------
+# Commodity grouping utilities
+# -----------------------------
+def _categorize_commodity(code, desc):
+    """
+    Map raw TIMES commodity code/description to a small set of readable
+    energy carrier categories to reduce Sankey node count.
+
+    Returns a tuple (group_id, group_name).
+    """
+    c = (code or '').upper()
+    d = (desc or '').upper()
+
+    def has(*tokens):
+        return any(t in c or t in d for t in tokens)
+
+    # Handle ELC-prefixed commodities that actually denote fuels for electricity sector
+    # e.g., ELCCOA, ELCGAS, ELCOIL, ELCNUC, ELCPEL vs ELCHIG/ELCMED/ELCLOW which are electricity
+    code_u = (code or '').upper()
+    if code_u.startswith('ELC'):
+        # Electricity timeslice commodities
+        if any(x in code_u for x in ['LOW', 'MED', 'HIG']):
+            return 'COM_ELECTRICITY', 'Electricity'
+        # Fuel-specific carriers for power sector
+        if 'NUC' in code_u:
+            return 'COM_NUCLEAR_FUEL', 'Nuclear Fuel'
+        if 'COA' in code_u or 'COK' in code_u:
+            return 'COM_COAL', 'Coal'
+        if 'GAS' in code_u:
+            return 'COM_NATURAL_GAS', 'Natural Gas'
+        if 'OIL' in code_u or 'KER' in code_u or 'HFO' in code_u:
+            return 'COM_OIL_PRODUCTS', 'Oil Products'
+        if 'PEL' in code_u or 'BIO' in code_u:
+            return 'COM_BIOMASS', 'Biomass & Biofuels'
+        if any(x in code_u for x in ['RNW', 'SOL', 'WIN', 'HYD']):
+            return 'COM_RENEWABLES', 'Renewables'
+        # Default ELC* fall back to electricity
+        return 'COM_ELECTRICITY', 'Electricity'
+
+    # Nuclear fuel family (non-ELC prefixed)
+    if has('NUC', 'NUCLEAR', 'URAN', 'URANIUM'):
+        return 'COM_NUCLEAR_FUEL', 'Nuclear Fuel'
+
+    # Gas family
+    if has('GAS', 'NATURAL GAS'):
+        return 'COM_NATURAL_GAS', 'Natural Gas'
+
+    # Oil & refined products
+    if has('OIL', 'GASOLINE', 'GSL', 'DIESEL', 'DSL', 'KER', 'HFO', 'PETROL'):
+        return 'COM_OIL_PRODUCTS', 'Oil Products'
+
+    # LPG distinct from general oil/gas where needed
+    if has('LPG'):
+        return 'COM_LPG', 'LPG'
+
+    # Coal
+    if has('COA', 'COAL', 'COK'):
+        return 'COM_COAL', 'Coal'
+
+    # Biomass / biofuels / pellets
+    if has('BIO', 'PELLET', 'PEL', 'BIOFUEL', 'BIOMASS'):
+        return 'COM_BIOMASS', 'Biomass & Biofuels'
+
+    # Hydrogen
+    if has('H2', 'HYDROGEN'):
+        return 'COM_HYDROGEN', 'Hydrogen'
+
+    # Heat / steam
+    if has('HET', 'HEAT', 'STEAM'):
+        return 'COM_HEAT', 'Heat/Steam'
+
+    # Renewables as generic carrier if present as commodity (rare)
+    if has('RNW', 'RENEW', 'SOL', 'WIN', 'WIND', 'HYD'):
+        return 'COM_RENEWABLES', 'Renewables'
+
+    return 'COM_OTHER', 'Other'
+
+
+def build_commodity_groups(commodities_df, energy_commodity_codes):
+    """
+    Build grouping for commodities to reduce node count.
+
+    Returns (commodity_to_group, groups_info) where:
+    - commodity_to_group: dict original_code -> group_id
+    - groups_info: dict group_id -> {name, members}
+    """
+    if commodities_df is None or commodities_df.empty:
+        return {}, {}
+
+    # Restrict to energy commodities
+    subset = commodities_df[commodities_df['Commodity'].isin(energy_commodity_codes)].copy()
+    if subset.empty:
+        return {}, {}
+
+    group_members = {}
+    group_names = {}
+    commodity_to_group = {}
+
+    for _, row in subset.iterrows():
+        code = row['Commodity']
+        desc = row['Description']
+        gid, gname = _categorize_commodity(code, desc)
+        commodity_to_group[code] = gid
+        group_names[gid] = gname
+        group_members.setdefault(gid, []).append(code)
+
+    groups_info = {
+        gid: {
+            'name': group_names.get(gid, gid),
+            'type': 'commodity_group',
+            'members': sorted(members)
+        }
+        for gid, members in group_members.items()
+    }
+
+    return commodity_to_group, groups_info
+
+
+def apply_commodity_grouping(df, commodity_to_group, groups_info, commodities_df):
+    """
+    Replace commodity codes by grouped category ids and attach readable names.
+    """
+    if df.empty or not commodity_to_group:
+        return df
+    dfg = df.copy()
+    # Preserve original for traceability
+    if 'commodity_code_orig' not in dfg.columns:
+        dfg['commodity_code_orig'] = dfg['commodity_code']
+    dfg['commodity_code'] = dfg['commodity_code'].map(lambda c: commodity_to_group.get(c, c))
+
+    # Build name map: base commodity names + group names
+    comm_desc = commodities_df.set_index('Commodity')['Description'].to_dict()
+    name_map = {**{k: v for k, v in comm_desc.items()}, **{gid: info['name'] for gid, info in groups_info.items()}}
+    dfg['commodity'] = dfg['commodity_code'].map(lambda c: name_map.get(c, c))
+    return dfg
+
+
 def build_sankey(df, output_html_file, flow_threshold=0.0):
     """
     Build and save a Sankey diagram from filtered annual flows.
@@ -247,6 +683,8 @@ def build_sankey(df, output_html_file, flow_threshold=0.0):
 
     df = df.copy()
     var_upper = df['variable'].str.upper()
+    # Direction based on variable type. Ensure nuclear fuel (e.g., ELCNUC, NUCRSV)
+    # feeds into nuclear generation processes rather than electricity into ENUC.
     df['source'] = df.apply(lambda r: r['commodity_code'] if r['variable'].upper() == 'VAR_FIN' else r['process_code'], axis=1)
     df['target'] = df.apply(lambda r: r['process_code'] if r['variable'].upper() == 'VAR_FIN' else r['commodity_code'], axis=1)
 
@@ -263,7 +701,8 @@ def build_sankey(df, output_html_file, flow_threshold=0.0):
     nodes = pd.concat([links_df['source'], links_df['target']]).unique().tolist()
     node_index = {n: i for i, n in enumerate(nodes)}
 
-    # Prepare labels using descriptions from the filtered data
+    # Prepare labels using descriptions from the filtered data. Ensure grouped
+    # nuclear commodities keep readable names.
     commodity_desc = df[['commodity_code', 'commodity']].dropna().drop_duplicates().set_index('commodity_code')['commodity'].to_dict()
     process_desc = df[['process_code', 'process']].dropna().drop_duplicates().set_index('process_code')['process'].to_dict()
 
@@ -319,14 +758,33 @@ def parse_metadata_file(file_path):
 
 def main():
     """Main function to generate the Sankey diagram."""
+
+    # --- Simplification options ---
+    cluster = True
+    if cluster:
+        # Set to False to build unclustered Sankey
+        enable_process_clustering = True
+        # Set to False to keep all commodity codes (no grouping)
+        group_commodities = True
+        # Max share of total final energy for the 'Others' buckets (0.10 = 10%)
+        max_cluster_pct = 0.1
+    else:
+        # Set to False to build unclustered Sankey
+        enable_process_clustering = False
+        # Set to False to keep all commodity codes (no grouping)
+        group_commodities = False
+        # Max share of total final energy for the 'Others' buckets (0.10 = 10%)
+        max_cluster_pct = 0  
+
     # --- Configuration ---
     vd_file = "data/bau_080925_0809.vd"
+    start_year = 2021    
     commodities_file = "data/commodities.csv"
     processes_file = "data/processes.csv"
-    output_csv_file = "output/aggregated_flows_annual.csv"
-    output_filtered_csv = "output/aggregated_flows_2021_energy_VARF.csv"
-    output_html_file = "output/bau_sankey_2021_pj.html"
-    start_year = 2021
+    output_csv_file = f"output/annual_values{'_clustered' if cluster else ''}.csv"
+    output_filtered_csv = f"output/annual_flows_{start_year}_energy{'_clustered' if cluster else ''}.csv"
+    output_html_file = f"output/bau_sankey_{start_year}_pj{'_clustered' if cluster else ''}.html"
+  
 
     os.makedirs("output", exist_ok=True)
 
@@ -345,11 +803,11 @@ def main():
         return
 
     # --- Aggregate to annual ---
-    annual_flows_df = aggregate_to_annual(raw_flows_df)
+    annual_values_df = aggregate_to_annual(raw_flows_df)
 
     # --- Join descriptions ---
-    annual_flows_df = (
-        annual_flows_df
+    annual_values_df = (
+        annual_values_df
         .merge(commodities_df.rename(columns={"Commodity": "commodity_code", "Description": "commodity"}), on="commodity_code", how="left")
         .merge(processes_df.rename(columns={"Process": "process_code", "Description": "process"}), on="process_code", how="left")
     )
@@ -359,17 +817,17 @@ def main():
         'year', 'region', 'variable', 'commodity_code', 'commodity', 'process_code', 'process', 'value'
     ]
     for col in ordered_cols:
-        if col not in annual_flows_df.columns:
-            annual_flows_df[col] = None
-    annual_flows_df = annual_flows_df[ordered_cols]
+        if col not in annual_values_df.columns:
+            annual_values_df[col] = None
+    annual_values_df = annual_values_df[ordered_cols]
 
     # --- Save CSV ---
-    print(f"Writing annual aggregated flows to {output_csv_file} ...")
-    annual_flows_df.to_csv(output_csv_file, index=False)
+    print(f"Writing annual aggregated values to {output_csv_file} ...")
+    annual_values_df.to_csv(output_csv_file, index=False)
     print("Done.")
 
     # --- Filter for Sankey (year=2021, VAR_F*, energy commodities) ---
-    filtered_df, energy_codes = filter_for_sankey(annual_flows_df, commodities_df, year=2021)
+    filtered_df, energy_codes = filter_for_sankey(annual_values_df, commodities_df, year=2021)
     if filtered_df.empty:
         print("Filtered dataset for Sankey is empty; skipping Sankey generation.")
         return
@@ -378,6 +836,22 @@ def main():
     filtered_df.to_csv(output_filtered_csv, index=False)
     print("Done.")
 
+    # --- Optional: Group commodities to reduce node count ---
+    if group_commodities:
+        commodity_to_group, groups_info = build_commodity_groups(commodities_df, energy_codes)
+        if groups_info:
+            import json
+            groups_json_file = "output/sankey_commodity_groups_2021.json"
+            groups_csv_file = "output/sankey_commodity_groups_2021.csv"
+            with open(groups_json_file, 'w') as f:
+                json.dump(groups_info, f, indent=2)
+            pd.DataFrame([
+                {"group_id": gid, "name": info['name'], "type": info['type'], "members": ';'.join(info['members'])}
+                for gid, info in groups_info.items()
+            ]).to_csv(groups_csv_file, index=False)
+            print(f"Saved commodity groups to {groups_json_file} and {groups_csv_file}")
+            filtered_df = apply_commodity_grouping(filtered_df, commodity_to_group, groups_info, commodities_df)
+
     # --- Analyze connectivity and warn isolated processes ---
     both_io, only_in, only_out = analyze_process_connectivity(filtered_df)
     if only_in:
@@ -385,8 +859,39 @@ def main():
     if only_out:
         print(f"Warning: {len(only_out)} processes have outflows only. Examples: {list(sorted(only_out))[:10]}")
 
-    # --- Build Sankey ---
-    _ = build_sankey(filtered_df, output_html_file, flow_threshold=0.0)
+    # --- Option: process clustering toggle ---
+    if not enable_process_clustering:
+        print("Process clustering disabled. Building unclustered Sankey.")
+        # Net internal bidirectional links to avoid loops even without clustering
+        netted_df = net_bidirectional_links(filtered_df)
+        _ = build_sankey(netted_df, output_html_file, flow_threshold=0.0)
+    else:
+        # --- Build process clusters to simplify Sankey ---
+        process_to_cluster, clusters_info = build_process_clusters(
+            filtered_df, processes_df, both_io, only_in, only_out,
+            max_cluster_pct=max_cluster_pct,
+            tolerance=1e-3,
+        )
+
+        # Persist cluster definitions
+        import json
+        clusters_json_file = "output/sankey_clusters_2021.json"
+        clusters_csv_file = "output/sankey_clusters_2021.csv"
+        with open(clusters_json_file, 'w') as f:
+            json.dump(clusters_info, f, indent=2)
+        pd.DataFrame([
+            {"cluster_id": cid, "name": info['name'], "type": info['type'], "throughput": info['throughput'], "members": ';'.join(info['members'])}
+            for cid, info in clusters_info.items()
+        ]).to_csv(clusters_csv_file, index=False)
+        print(f"Saved clusters to {clusters_json_file} and {clusters_csv_file}")
+
+        # Apply clustering to data
+        clustered_df = apply_process_clustering(filtered_df, process_to_cluster, clusters_info, processes_df)
+        # Net internal bidirectional links to avoid loops after clustering
+        clustered_df = net_bidirectional_links(clustered_df)
+
+        # --- Build Sankey ---
+        _ = build_sankey(clustered_df, output_html_file, flow_threshold=0.0)
 
 if __name__ == "__main__":
     main()
