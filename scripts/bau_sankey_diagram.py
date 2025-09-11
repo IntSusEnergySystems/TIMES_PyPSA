@@ -886,10 +886,18 @@ def build_sankey(df, output_html_file, year, flow_threshold=0.0):
         'hovertemplate': '%{customdata}<extra></extra>',
     }
 
+    # Dynamically adjust node pad/thickness based on node counts to keep link widths readable
+    left_nodes = set(n for n in nodes if n in commodity_desc)
+    right_or_process_nodes = set(n for n in nodes if n in process_desc)
+    n_max_col = max(len(left_nodes), len(right_or_process_nodes)) or 1
+    # Heuristic: more nodes -> smaller pad/thickness
+    dyn_pad = max(4, min(20, int(300 / n_max_col)))
+    dyn_thickness = max(10, min(30, int(600 / n_max_col)))
+
     fig = go.Figure(data=[go.Sankey(
         node=dict(
-            pad=15,
-            thickness=20,
+            pad=dyn_pad,
+            thickness=dyn_thickness,
             line=dict(color="black", width=0.5),
             label=labels,
         ),
@@ -925,14 +933,14 @@ def main():
     """Main function to generate the Sankey diagram."""
 
     # --- Simplification options ---
-    cluster = True
+    cluster = False
     if cluster:
         # Set to False to build unclustered Sankey
         enable_process_clustering = True
         # Set to False to keep all commodity codes (no grouping)
         group_commodities = True
         # Max share of total final energy for the 'Others' buckets (0.10 = 10%)
-        max_cluster_pct = 0.15
+        max_cluster_pct = 0.1
     else:
         # Set to False to build unclustered Sankey
         enable_process_clustering = False
@@ -943,7 +951,7 @@ def main():
 
     # --- Configuration ---
     vd_file = "data/bau_080925_0809.vd"
-    selected_year = 2035
+    selected_year = 2021
     commodities_file = "data/commodities.csv"
     processes_file = "data/processes.csv"
     output_csv_file = f"output/annual_values{'_clustered' if cluster else ''}.csv"
