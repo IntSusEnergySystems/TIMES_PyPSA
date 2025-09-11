@@ -812,7 +812,7 @@ def apply_commodity_grouping(df, commodity_to_group, groups_info, commodities_df
     return dfg
 
 
-def build_sankey(df, output_html_file, flow_threshold=0.0):
+def build_sankey(df, output_html_file, year, flow_threshold=0.0):
     """
     Build and save a Sankey diagram from filtered annual flows.
     Uses variable type to set direction:
@@ -897,7 +897,7 @@ def build_sankey(df, output_html_file, flow_threshold=0.0):
     )])
 
     fig.update_layout(
-        title_text="Energy Flow Diagram - 2021 (PJ)",
+        title_text=f"Energy Flow Diagram - {year} (PJ)",
         font_size=10
     )
     fig.write_html(output_html_file)
@@ -943,12 +943,12 @@ def main():
 
     # --- Configuration ---
     vd_file = "data/bau_080925_0809.vd"
-    start_year = 2021    
+    selected_year = 2035
     commodities_file = "data/commodities.csv"
     processes_file = "data/processes.csv"
     output_csv_file = f"output/annual_values{'_clustered' if cluster else ''}.csv"
-    output_filtered_csv = f"output/annual_flows_{start_year}_energy{'_clustered' if cluster else ''}.csv"
-    output_html_file = f"output/bau_sankey_{start_year}_pj{'_clustered' if cluster else ''}.html"
+    output_filtered_csv = f"output/annual_flows_{selected_year}_energy{'_clustered' if cluster else ''}.csv"
+    output_html_file = f"output/bau_sankey_{selected_year}_pj{'_clustered' if cluster else ''}.html"
   
 
     os.makedirs("output", exist_ok=True)
@@ -961,7 +961,7 @@ def main():
     processes_df = pd.DataFrame(list(processes_map.items()), columns=['Process', 'Description'])
 
     # --- Load raw records (no filtering by variable or commodity) ---
-    raw_flows_df = load_raw_records(vd_file, start_year=start_year)
+    raw_flows_df = load_raw_records(vd_file)
 
     if raw_flows_df.empty:
         print("No valid energy flow data was processed. Exiting.")
@@ -992,7 +992,7 @@ def main():
     print("Done.")
 
     # --- Filter for Sankey (year=2021, VAR_F*, energy commodities) ---
-    filtered_df, energy_codes = filter_for_sankey(annual_values_df, commodities_df, year=2021)
+    filtered_df, energy_codes = filter_for_sankey(annual_values_df, commodities_df, year=selected_year)
     if filtered_df.empty:
         print("Filtered dataset for Sankey is empty; skipping Sankey generation.")
         return
@@ -1008,8 +1008,8 @@ def main():
         commodity_to_group, groups_info = build_commodity_groups_from_mapping(mapping_df, energy_codes, commodities_df, mapping_file)
         if groups_info:
             import json
-            groups_json_file = "output/sankey_commodity_groups_2021.json"
-            groups_csv_file = "output/sankey_commodity_groups_2021.csv"
+            groups_json_file = f"output/sankey_commodity_groups_{selected_year}.json"
+            groups_csv_file = f"output/sankey_commodity_groups_{selected_year}.csv"
             with open(groups_json_file, 'w') as f:
                 json.dump(groups_info, f, indent=2)
             pd.DataFrame([
@@ -1021,17 +1021,13 @@ def main():
 
     # --- Analyze connectivity and warn isolated processes ---
     both_io, only_in, only_out = analyze_process_connectivity(filtered_df)
-    if only_in:
-        print(f"Warning: {len(only_in)} processes have inflows only. Examples: {list(sorted(only_in))[:10]}")
-    if only_out:
-        print(f"Warning: {len(only_out)} processes have outflows only. Examples: {list(sorted(only_out))[:10]}")
 
     # --- Option: process clustering toggle ---
     if not enable_process_clustering:
         print("Process clustering disabled. Building unclustered Sankey.")
         # Net internal bidirectional links to avoid loops even without clustering
         netted_df = net_bidirectional_links(filtered_df)
-        _ = build_sankey(netted_df, output_html_file, flow_threshold=0.0)
+        _ = build_sankey(netted_df, output_html_file, year=selected_year, flow_threshold=0.0)
     else:
         # --- Build process clusters to simplify Sankey ---
         process_to_cluster, clusters_info = build_process_clusters(
@@ -1042,8 +1038,8 @@ def main():
 
         # Persist cluster definitions
         import json
-        clusters_json_file = "output/sankey_clusters_2021.json"
-        clusters_csv_file = "output/sankey_clusters_2021.csv"
+        clusters_json_file = f"output/sankey_clusters_{selected_year}.json"
+        clusters_csv_file = f"output/sankey_clusters_{selected_year}.csv"
         with open(clusters_json_file, 'w') as f:
             json.dump(clusters_info, f, indent=2)
         pd.DataFrame([
@@ -1058,7 +1054,7 @@ def main():
         clustered_df = net_bidirectional_links(clustered_df)
 
         # --- Build Sankey ---
-        _ = build_sankey(clustered_df, output_html_file, flow_threshold=0.0)
+        _ = build_sankey(clustered_df, output_html_file, year=selected_year, flow_threshold=0.0)
 
 if __name__ == "__main__":
     main()
