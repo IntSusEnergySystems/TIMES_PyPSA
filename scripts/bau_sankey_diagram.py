@@ -580,10 +580,12 @@ def read_commodity_mapping_table(mapping_file):
                 return c
         return None
 
-    pypsa_col = get(['energy carrier - pypsa', 'pypsa', 'energy_carrier_pypsa'])
-    times_col = get(['commodities times', 'commodities times ', 'times', 'commodity'])
-    upst_comm_col = get(['uspstream_commodity', 'upstream_commodity'])
-    upst_proc_col = get(['upstream_process'])
+    # New header names: 'TIMES commodity', 'Description', 'Unit', 'Sector', 'Type',
+    # 'PyPSA Energy Carrier', 'Upstream commodity', 'Upstream process', 'Comment'
+    pypsa_col = get(['pypsa energy carrier', 'pypsa', 'energy_carrier_pypsa'])
+    times_col = get(['times commodity', 'times_commodity', 'times', 'commodity'])
+    upst_comm_col = get(['upstream commodity', 'uspstream_commodity', 'upstream_commodity'])
+    upst_proc_col = get(['upstream process', 'upstream_process'])
     sector_col = get(['sector (com_in)', 'sector'])
     comment_col = get(['comment', 'comments'])
 
@@ -633,7 +635,9 @@ def build_commodity_groups_from_mapping(mapping_df, energy_commodity_codes, comm
     # Add missing energy commodities
     missing = [c for c in energy_commodity_codes if c not in times_to_pypsa]
     if missing:
-        comm_desc = commodities_df.set_index('Commodity')['Description'].to_dict()
+        # If commodities_df is not provided (we are phasing out commodities.csv),
+        # fall back to using mapping_df's Description column when adding new codes.
+        comm_desc = commodities_df.set_index('Commodity')['Description'].to_dict() if commodities_df is not None and not commodities_df.empty else {}
         new_rows = []
         for code in missing:
             gid, gname = _categorize_commodity(code, comm_desc.get(code, ''))
@@ -952,7 +956,7 @@ def main():
     # --- Configuration ---
     vd_file = "data/bau_080925_0809.vd"
     selected_year = 2021
-    commodities_file = "data/commodities.csv"
+    # commodities_file removed in favor of mapping-based metadata
     processes_file = "data/processes.csv"
     output_csv_file = f"output/annual_values{'_clustered' if cluster else ''}.csv"
     output_filtered_csv = f"output/annual_flows_{selected_year}_energy{'_clustered' if cluster else ''}.csv"
@@ -963,9 +967,28 @@ def main():
 
     # --- Load metadata ---
     print("Loading metadata...")
-    commodities_map = parse_metadata_file(commodities_file)
     processes_map = parse_metadata_file(processes_file)
-    commodities_df = pd.DataFrame(list(commodities_map.items()), columns=['Commodity', 'Description'])
+    # Load mapping table and construct commodities_df surrogate from mapping
+    mapping_file = "data/mapping_commodities.csv"
+    mapping_df = read_commodity_mapping_table(mapping_file)
+    # Ensure 'description' column exists from the mapping file (case-normalized)
+    if 'description' not in mapping_df.columns:
+        # Try to fetch from original CSV casing
+        try:
+            raw_map = pd.read_csv(mapping_file, engine='python')
+            if 'Description' in raw_map.columns and 'TIMES commodity' in raw_map.columns:
+                mapping_df = mapping_df.merge(
+                    raw_map[['TIMES commodity', 'Description']].rename(columns={'TIMES commodity': 'times'}),
+                    on='times', how='left'
+                )
+                mapping_df = mapping_df.rename(columns={'Description': 'description'})
+        except Exception:
+            pass
+    # Build commodities DataFrame with code and description from mapping
+    commodities_df = pd.DataFrame({
+        'Commodity': mapping_df['times'],
+        'Description': mapping_df.apply(lambda r: r.get('description', ''), axis=1)
+    })
     processes_df = pd.DataFrame(list(processes_map.items()), columns=['Process', 'Description'])
 
     # --- Load raw records (no filtering by variable or commodity) ---
@@ -1011,8 +1034,6 @@ def main():
 
     # --- Optional: Group commodities to reduce node count ---
     if group_commodities:
-        mapping_file = "data/mapping_commodities.csv"
-        mapping_df = read_commodity_mapping_table(mapping_file)
         commodity_to_group, groups_info = build_commodity_groups_from_mapping(mapping_df, energy_codes, commodities_df, mapping_file)
         if groups_info:
             import json

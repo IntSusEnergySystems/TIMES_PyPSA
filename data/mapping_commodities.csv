@@ -1,174 +1,130 @@
-Energy Carrier - PYPSA,commodities TIMES ,uspstream_commodity,upstream_process,Sector (com_in),Comment
-HV Electricity (AC / DC),ELCHIG,nan,nan,nan,Produced by the public power station or imports
-HV Electricity (AC / DC),ELCHIGG,nan,nan,nan,High voltage electricity
-HV Electricity (AC / DC),ELCMED,nan,nan,nan,Medium voltage electricity
-LV Electricity,ELCLOW,nan,nan,nan,low voltage electricity
-LV Electricity,RSDELC,ELCLOW,RSDELC00,RSD,nan
-HV Electricity (AC / DC),INDELC,ELCHIGG,INDELC00,IND,nan
-HV Electricity (AC / DC),INDELC,ELCMED,INDELC00,IND,nan
-LV Electricity,INDELC,ELCLOW,INDELC00,IND,nan
-HV Electricity (AC / DC),COMELC,ELCMED,COMELC00,COM,nan
-LV Electricity,COMELC,ELCLOW,COMELC00,COM,nan
-LV Electricity,TRAELC,ELCLOW,TRAELC00,TRA,nan
-Uranium,ELCNUC,nan,nan,ELC,nan
-Oil,RSDOIL,nan,nan,RSD,nan
-Oil,INDLFO,nan,nan,IND,light fuel oil
-Oil,INDHFO,nan,nan,IND,heavy fuel oil
-Oil,AGROIL,nan,nan,AGR,nan
-Oil,COMOIL,nan,nan,COM,nan
-Oil,TRADST,OILDST,TRADST00,TRA,diesel
-Biofuels,TRADST,TRABDL,TRADST00,TRA,nan
-Oil,TRAGSL,OILGSL,TRAGSL00,TRA,gasoline
-Biofuels,TRAGSL,BIOETH,TRAGSL00,TRA,nan
-Oil,TRAKER,nan,nan,TRA,kerozene
-Oil,RSDLPG,nan,nan,RSD,Propane butane
-Oil,COMLPG,nan,nan,COM,Propane butane
-Oil,TRALPG,nan,nan,TRA,Propane butane
-Oil,INDLPG,nan,nan,IND,Propane butane
-Naphtha,nan,nan,nan,nan,not use in Wallonia
-Coal,INDCOA,nan,nan,IND,nan
-Coal,RSDCOA,nan,nan,RSD,nan
-Coal,COMCOA,nan,nan,COM,nan
-Lignite,INDCOL,nan,nan,IND,nan
-Lignite,ELCCOL,nan,nan,ELC,nan
-Coal,INDCOK,nan,nan,IND,Coke  in cement and lime industry
-Gas,ELCGAS,GASNAT,nan,ELC,nan
-Gas,INDGAS,GASNAT,nan,IND,nan
-Biogas,INDGMX,BIOGZH,SUPGMX00,IND,Injected biomethane (after upgrading/concentration) + imported biomethane
-Gas,INDGMX,SUPGAS,SUPGMX00,IND,nan
-Gas,INDGMX,MOLECH4,SUPGMX00,IND,e-methane
-Biogas,RSDGMX,BIOGZH,SUPGMX00,RSD,Injected biomethane (after upgrading/concentration) + imported biomethane
-Gas,RSDGMX,SUPGAS,SUPGMX00,RSD,nan
-Gas,RSDGMX,MOLECH4,SUPGMX00,RSD,e-methane
-Biogas,COMGMX,BIOGZH,SUPGMX00,COM,Injected biomethane (after upgrading/concentration) + imported biomethane
-Gas,COMGMX,SUPGAS,SUPGMX00,COM,nan
-Gas,COMGMX,MOLECH4,SUPGMX00,COM,e-methan
-Biogas,TRAGMX,BIOGZH,SUPGMX00,TRA,Injected biomethane (after upgrading/concentration)
-Gas,TRAGMX,SUPGAS,SUPGMX00,TRA,nan
-Gas,TRAGMX,MOLECH4,SUPGMX00,TRA,e-methan
-Biogas,AGRGMX,BIOGZH,SUPGMX00,AGR,Injected biomethane (after upgrading/concentration)
-Gas,AGRGMX,SUPGAS,SUPGMX00,AGR,nan
-Gas,AGRGMX,MOLECH4,SUPGMX00,AGR,e-methane
-Solid biomass,ELCCPS,nan,nan,ELC,nan
-Solid biomass,ELCPEL,nan,nan,ELC,nan
-Solid biomass,INDCPS,nan,nan,IND,nan
-Solid biomass,INDPEL,nan,nan,IND,nan
-Solid biomass,RSDLOG,nan,nan,RSD,logs
-Solid biomass,RSDPEL,nan,nan,RSD,nan
-Solid biomass,INDBLQ,nan,nan,IND,black liquor (biomass)
-Biogas,INDBGS,nan,nan,IND,nan
-Biogas,COMBGS,nan,nan,COM,nan
-Biogas,TRABGS,nan,nan,TRA,nan
-Biogas,AGRBGS,nan,nan,AGR,nan
-Biogas,ELCBGS,nan,nan,ELC,nan
-Municipal waste (optional),INDWST,nan,nan,IND,Cement kilns and lime kilns are “major” consumers
-Municipal waste (optional),ELCWST,nan,nan,ELC,incinerator
-Central heat,INDHET,nan,nan,IND,District heating network with centralized CHP (ELCHET) and/or recovered excess heat from industry (INDHWT)
-Central heat,RSDHET,nan,nan,RSD,District heating network with centralized CHP (ELCHET) and/or recovered excess heat from industry (INDHWT)
-Central heat,COMHET,nan,nan,COM,District heating network with centralized CHP (ELCHET) and/or recovered excess heat from industry (INDHWT)
-Decentral heat,nan,nan,nan,nan,???
-Hydrogen,INDHH2,nan,nan,IND,Hydrogen (H₂) imported or produced locally (several possible technologies)
-Hydrogen,TRAGH2,nan,nan,TRA,nan
-Hydrogen,TRALH2,nan,nan,TRA,nan
-Ammonia,nan,nan,nan,nan,Not yet included as an energy carrier (produced in the “IAM” sector)
-Methanol,nan,nan,nan,nan,Not yet included as an energy carrier
-CO2,RSDCO2N,nan,nan,RSD,*CO2N = CO₂ from combustion (Note: these are not CO₂-eq; CH₄ and N₂O emissions are accounted for separately and subsequently converted into GHG equivalents
-CO2,COMCO2N,nan,nan,COM,*CO2N = CO₂ from combustion (Note: these are not CO₂-eq; CH₄ and N₂O emissions are accounted for separately and subsequently converted into GHG equivalents
-CO2,ELCCO2N,nan,nan,ELC,*CO2N = CO₂ from combustion (Note: these are not CO₂-eq; CH₄ and N₂O emissions are accounted for separately and subsequently converted into GHG equivalents
-CO2,ELCCO2c,nan,nan,ELC,CO2c = Captured CO₂ (can be sent for permanent storage – associated potential – or used in methanation for e-fuel production)
-CO2,TRACO2N,nan,nan,TRA,*CO2N = CO₂ from combustion (Note: these are not CO₂-eq; CH₄ and N₂O emissions are accounted for separately and subsequently converted into GHG equivalents
-CO2,INDCO2p,nan,nan,IND,CO2p  = co2 process
-CO2,INDCO2c,nan,nan,IND,CO2c = Captured CO₂ (can be sent for permanent storage – associated potential – or used in methanation for e-fuel production)
-CO2,INDCO2N,nan,nan,IND,*CO2N = CO₂ from combustion (Note: these are not CO₂-eq; CH₄ and N₂O emissions are accounted for separately and subsequently converted into GHG equivalents
-CO2,SUPCO2N,nan,nan,SUP,*CO2N = CO₂ from combustion (Note: these are not CO₂-eq; CH₄ and N₂O emissions are accounted for separately and subsequently converted into GHG equivalents
-CO2,TRACO2N,nan,nan,TRA,*CO2N = CO₂ from combustion (Note: these are not CO₂-eq; CH₄ and N₂O emissions are accounted for separately and subsequently converted into GHG equivalents
-CO2,TRACO2N-I,nan,nan,TRA,Originating from international aviation
--,INDSLU,nan,nan,IND,Renewable waste used as fuel in cement kilns and lime production kilns
--,ELCSLU,nan,nan,ELC,Renewable waste incinerated
--,TRAETH,nan,nan,TRA,pure bioethanol
--,TRABDL,nan,nan,TRA,pure biodiesiel
-Oil Products,OILKER,nan,nan,nan,auto-added
-Biomass & Biofuels,BIORME,nan,nan,nan,auto-added
-Biomass & Biofuels,BIOPEL,nan,nan,nan,auto-added
-Heat/Steam,RW3F,nan,nan,nan,auto-added
-Natural Gas,RSDGSL,nan,nan,nan,auto-added
-Biomass & Biofuels,BIOCRP1,nan,nan,nan,auto-added
-Renewables,RENHYD,nan,nan,nan,auto-added
-Oil Products,BIORPOIL,nan,nan,nan,auto-added
-Heat/Steam,RH4F,nan,nan,nan,auto-added
-Biomass & Biofuels,BIODST,nan,nan,nan,auto-added
-Biomass & Biofuels,BIORPS,nan,nan,nan,auto-added
-LV Electricity,BATELCOUT,nan,nan,nan,auto-added
-Renewables,ELCWIN,nan,nan,nan,auto-added
-Renewables,ELCSOL,nan,nan,nan,auto-added
-Heat/Steam,RWAP,nan,nan,nan,auto-added
-Biomass & Biofuels,BIOSTIL,nan,nan,nan,auto-added
-Natural Gas,COMGSL,nan,nan,nan,auto-added
-Natural Gas,GASBFT,nan,nan,nan,auto-added
-Natural Gas,OILGSL,nan,nan,nan,auto-added
-Natural Gas,OILLPG,nan,nan,nan,auto-added
-Heat/Steam,RW4F,nan,nan,nan,auto-added
-Oil Products,COMBDL,nan,nan,nan,auto-added
-Renewables,COMSOL,nan,nan,nan,auto-added
-Biomass & Biofuels,BIOLOG,nan,nan,nan,auto-added
-Hydrogen,SYNH2CU,nan,nan,nan,auto-added
-Biomass & Biofuels,SUPELC,nan,nan,nan,auto-added
-Renewables,RENWIN,nan,nan,nan,auto-added
-Biomass & Biofuels,BIOEFF,nan,nan,nan,auto-added
-Oil Products,AGRBDL,nan,nan,nan,auto-added
-Renewables,RSDSOL,nan,nan,nan,auto-added
-Hydrogen,RH2F,nan,nan,nan,auto-added
-Coal,COACOK,nan,nan,nan,auto-added
-Oil Products,OILDST,nan,nan,nan,auto-added
-Natural Gas,BIOGAS,nan,nan,nan,auto-added
-Heat/Steam,RHAP,nan,nan,nan,auto-added
-Biomass & Biofuels,BIOBOU,nan,nan,nan,auto-added
-Other,AGRELC,nan,nan,nan,auto-added
-Coal,COALIG,nan,nan,nan,auto-added
-Renewables,MPPNOH,nan,nan,nan,auto-added
-Nuclear Fuel,NUCRSV,nan,nan,nan,auto-added
-Biomass & Biofuels,COMPEL,nan,nan,nan,auto-added
-Natural Gas,GASNAT,nan,nan,nan,auto-added
-Oil Products,OILHFO,nan,nan,nan,auto-added
-Electricity,ELCHET,nan,nan,nan,auto-added
-Heat/Steam,AGRHET,nan,nan,nan,auto-added
-Coal,COAHAR,nan,nan,nan,auto-added
-LV Electricity,BATELCIN,nan,nan,nan,auto-added
-Oil Products,OILOTH,nan,nan,nan,auto-added
-Oil Products,BIOPLPOIL,nan,nan,nan,auto-added
-Natural Gas,SUPGAS,nan,nan,nan,auto-added
-Natural Gas,GASIIS,nan,nan,nan,auto-added
-Heat/Steam,RH3F,nan,nan,nan,auto-added
-Biomass & Biofuels,BIOETH,nan,nan,nan,auto-added
-Hydrogen,SYNH2CT,nan,nan,nan,auto-added
-Heat/Steam,RW2F,nan,nan,nan,auto-added
-Oil Products,SUPDST,nan,nan,nan,auto-added
-Heat/Steam,IOIPRC,nan,nan,nan,auto-added
-Biomass & Biofuels,BIOCPS,nan,nan,nan,auto-added
-Renewables,RENSOL,nan,nan,nan,auto-added
-Biomass & Biofuels,MISPLT,nan,nan,nan,auto-added
-Biomass & Biofuels,BIOCUL,nan,nan,nan,auto-added
-Heat/Steam,SUPHET,nan,nan,nan,auto-added
-Biomass & Biofuels,BIOGLY,nan,nan,nan,auto-added
-Biomass & Biofuels,ELCBIO,nan,nan,nan,auto-added
-Renewables,ELCHYD,nan,nan,nan,auto-added
-Oil Products,ELCOIL,nan,nan,nan,auto-added
-Hydrogen,SUPIMPH2,nan,nan,nan,auto-added
-Natural Gas,SUPBGS,,,,auto-added
-Heat/Steam,RHDJ4F_2021,,,,auto-added
-Natural Gas,MISGBE,,,,auto-added
-Heat/Steam,RHN4F,,,,auto-added
-Heat/Steam,RWN3F,,,,auto-added
-Heat/Steam,RHNAP,,,,auto-added
-Heat/Steam,RHDJ2F_2021,,,,auto-added
-Heat/Steam,RHN2F,,,,auto-added
-Natural Gas,SUPGMX,,,,auto-added
-Heat/Steam,RWNAP,,,,auto-added
-Heat/Steam,RWN4F,,,,auto-added
-Heat/Steam,RHDJ3F_2021,,,,auto-added
-Natural Gas,MISGJU,,,,auto-added
-Heat/Steam,RHN3F,,,,auto-added
-Heat/Steam,RHDJAP_2021,,,,auto-added
-Biomass & Biofuels,MBRWOO,,,,auto-added
-Biomass & Biofuels,MBOWOO,,,,auto-added
-Heat/Steam,RWN2F,,,,auto-added
+TIMES commodity,Description,Unit,Sector,Type,PyPSA Energy Carrier,Upstream commodity,Upstream process,Comment
+ELCHIG,Electricity - High Voltage WITHOUT grid costs,PJ,ELC,NRG,HV Electricity (AC / DC),,,Produced by the public power station or imports
+ELCHIGG,High Voltage Electricity,PJ,ELC,NRG,HV Electricity (AC / DC),,,High voltage electricity
+ELCMED,Medium Voltage Electricity,PJ,ELC,NRG,HV Electricity (AC / DC),,,Medium voltage electricity
+ELCLOW,Low Voltage Electricity,PJ,ELC,NRG,LV Electricity,,,low voltage electricity
+RSDELC,Electricity for Residential sector,PJ,RSD,NRG,LV Electricity,ELCLOW,RSDELC00,
+INDELC,Electricity for Industry sector,PJ,IND,NRG,HV Electricity (AC / DC),ELCHIGG,INDELC00,
+COMELC,Electricity for Commercial sector,PJ,COM,NRG,HV Electricity (AC / DC),ELCMED,COMELC00,
+TRAELC,Electricity for Transport sector,PJ,TRA,NRG,LV Electricity,ELCLOW,TRAELC00,
+ELCNUC,Nuclear for Electricity sector,PJ,ELC,NRG,Uranium,,,
+RSDOIL,Diesel Oil for the residential sector,PJ,RSD,NRG,Oil,,,
+INDLFO,Industry: Light fuel oil,PJ,IND,NRG,Oil,,,light fuel oil
+INDHFO,Industry: Heavy fuel oil,PJ,IND,NRG,Oil,,,heavy fuel oil
+AGROIL,Oil for agriculture,PJ,AGR,NRG,Oil,,,
+COMOIL,Oil for commercial sector,PJ,COM,NRG,Oil,,,
+TRADST,Diesel for transport,PJ,TRA,NRG,Oil,OILDST,TRADST00,diesel
+TRAGSL,Gasoline for transport,PJ,TRA,NRG,Oil,OILGSL,TRAGSL00,gasoline
+TRAKER,Kerosene - Jet Fuels for transport,PJ,TRA,NRG,Oil,,,kerozene
+RSDLPG,Liquified Petroleum Gas (RSD),PJ,RSD,NRG,Oil,,,Propane butane
+COMLPG,Liquified Petroleum Gas (COM),PJ,COM,NRG,Oil,,,Propane butane
+TRALPG,Liquified Petroleum Gas (TRA),PJ,TRA,NRG,Oil,,,Propane butane
+INDLPG,Liquified Petroleum Gas (IND),PJ,IND,NRG,Oil,,,Propane butane
+INDCOA,Hard Coal for industry,PJ,IND,NRG,Coal,,,
+RSDCOA,Coal for residential sector,PJ,RSD,NRG,Coal,,,
+COMCOA,Coal for commertial sector,PJ,COM,NRG,Coal,,,
+INDCOL,Lignite for industrial sector,PJ,IND,NRG,Lignite,,,
+ELCCOL,Lignite for electricity sector,PJ,ELC,NRG,Lignite,,,
+INDCOK,Coke for Industry sector,PJ,IND,NRG,Coal,,,Coke  in cement and lime industry
+ELCGAS,Natural Gas for Electricity,PJ,ELC,NRG,Gas,GASNAT,,
+INDGAS,Industry: Natural Gas,PJ,IND,NRG,Gas,GASNAT,,
+INDGMX,Network gas for Industry sector,PJ,IND,NRG,Biogas,BIOGZH,SUPGMX00,Injected biomethane (after upgrading/concentration) + imported biomethane
+RSDGMX,Network gas for Residential sector,PJ,RSD,NRG,Biogas,BIOGZH,SUPGMX00,Injected biomethane (after upgrading/concentration) + imported biomethane
+COMGMX,Network gas for Commercial sector,PJ,COM,NRG,Biogas,BIOGZH,SUPGMX00,Injected biomethane (after upgrading/concentration) + imported biomethane
+TRAGMX,Network gas for Transport sector,PJ,TRA,NRG,Biogas,BIOGZH,SUPGMX00,Injected biomethane (after upgrading/concentration)
+AGRGMX,Network gas for Agriculture sector,PJ,AGR,NRG,Biogas,BIOGZH,SUPGMX00,Injected biomethane (after upgrading/concentration)
+ELCCPS,Wood Chips for Electricity sector,PJ,ELC,NRG,Solid biomass,,,
+ELCPEL,Pellets for Electricity sector,PJ,ELC,NRG,Solid biomass,,,
+INDCPS,Wood Chips for Industry sector,PJ,IND,NRG,Solid biomass,,,
+INDPEL,Wood pellets for Industry,PJ,IND,NRG,Solid biomass,,,
+RSDLOG,Wood Logs for Residential sector,PJ,RSD,NRG,Solid biomass,,,logs
+RSDPEL,Pellets for Residential sector,PJ,RSD,NRG,Solid biomass,,,
+INDBLQ,Black Liquor for Industry sector,PJ,IND,NRG,Solid biomass,,,black liquor (biomass)
+INDBGS,Biogas for Industry sector,PJ,IND,NRG,Biogas,,,
+COMBGS,Biogas for Commercial sector,PJ,COM,NRG,Biogas,,,
+TRABGS,Biogas for Transport sector,PJ,TRA,NRG,Biogas,,,
+AGRBGS,Biogas for Agriculture sector,PJ,AGR,NRG,Biogas,,,
+ELCBGS,Biogas for Electricity sector,PJ,ELC,NRG,Biogas,,,
+ELCWST,Waste for Electricity sector,PJ,ELC,NRG,Municipal waste (optional),,,incinerator
+INDHET,HT Heat for Industry sector (distributed),PJ,IND,NRG,Central heat,,,District heating network with centralized CHP (ELCHET) and/or recovered excess heat from industry (INDHWT)
+RSDHET,Heat for Residential sector,PJ,RSD,NRG,Central heat,,,District heating network with centralized CHP (ELCHET) and/or recovered excess heat from industry (INDHWT)
+COMHET,LT Heat for Commercial sector,PJ,COM,NRG,Central heat,,,District heating network with centralized CHP (ELCHET) and/or recovered excess heat from industry (INDHWT)
+INDHH2,Hydrogen for Industry sector,PJ,IND,NRG,Hydrogen,,,Hydrogen (H₂) imported or produced locally (several possible technologies)
+TRAGH2,Gaseous Hydrogen for transport sector,PJ,TRA,NRG,Hydrogen,,,
+TRALH2,Liquid hydrogen for transport sector,PJ,TRA,NRG,Hydrogen,,,
+ELCSLU,Sludge for Electricity sector,PJ,ELC,NRG,Biomass & Biofuels,,,Renewable waste incinerated
+TRAETH,Ethanol for Transport sector,PJ,TRA,NRG,Oil Products,,,pure bioethanol
+TRABDL,Biodiesel for Transport sector,PJ,TRA,NRG,Oil Products,,,pure biodiesiel
+OILKER,Kerosenes - Jet Fuels,PJ,SUP,NRG,Oil Products,,,
+BIORME,Biodiesel rapeseed methyl ester (RME),PJ,SUP,NRG,Biomass & Biofuels,,,
+BIOPEL,Biomass: Pellets (separated from wood),PJ,IND,NRG,Biomass & Biofuels,,,
+RW3F,Residential: Water heating - 3-faces building,PJ,RSD,NRG,Heat/Steam,,,
+RSDGSL,Gasoline for Residential sector,PJ,RSD,NRG,Natural Gas,,,
+BIOCRP1,Starch crops,PJ,SUP,NRG,Biomass & Biofuels,,,
+RENHYD,Hydro,PJ,SUP,NRG,Renewables,,,
+BIORPOIL,Rape seed oil,PJ,SUP,NRG,Oil Products,,,
+RH4F,Residential: Space heating - 4+ faces building,PJ,RSD,NRG,Heat/Steam,,,
+BIODST,Diesel from Biomass,PJ,SUP,NRG,Biomass & Biofuels,,,
+BIORPS,Biomass: Rapeseed,PJ,SUP,NRG,Biomass & Biofuels,,,
+ELCWIN,Electricity: Wind,PJ,ELC,NRG,Renewables,,,
+ELCSOL,Electricity: Solar,PJ,ELC,NRG,Renewables,,,
+RWAP,Residential: Water heating - Apartment building,PJ,RSD,NRG,Heat/Steam,,,
+BIOSTIL,Biomass Stillage,PJ,SUP,NRG,Biomass & Biofuels,,,
+COMGSL,Gasoline for Commercial sector,PJ,COM,NRG,Natural Gas,,,
+GASBFT,GAS from Blast Furnace TGR,PJ,IND,NRG,Natural Gas,,,
+OILGSL,Fuel: Gasoline,PJ,SUP,NRG,Natural Gas,,,
+OILLPG,Liquified Petroleum Gas,PJ,SUP,NRG,Natural Gas,,,
+RW4F,Residential water heating Building_4 façades,PJ,RSD,NRG,Heat/Steam,,,
+COMBDL,Biodiesel for Commercial sector,PJ,COM,NRG,Oil Products,,,
+COMSOL,Commercial: Solar,PJ,COM,NRG,Renewables,,,
+BIOLOG,Wood Logs,PJ,SUP,NRG,Biomass & Biofuels,,,
+SYNH2CU,Centralized hydrogen (Underground storage),PJ,SUP,NRG,Hydrogen,,,
+SUPELC,Electricity (SUP),PJ,SUP,NRG,Biomass & Biofuels,,,
+RENWIN,Renewable: Wind,PJ,SUP,NRG,Renewables,,,
+AGRBDL,Biodiesel for Agriculture sector,PJ,AGR,NRG,Oil Products,,,
+RSDSOL,Residential: Solar,PJ,RSD,NRG,Renewables,,,
+RH2F,Residential: Space heating - 2-faces building,PJ,RSD,NRG,Hydrogen,,,
+COACOK,Coke,PJ,SUP,NRG,Coal,,,
+OILDST,Diesel,PJ,SUP,NRG,Oil Products,,,
+BIOGAS,Biogas,PJ,SUP,NRG,Natural Gas,,,
+RHAP,Residential: Space heating - Apartment building,PJ,RSD,NRG,Heat/Steam,,,
+AGRELC,Electricity for Agriculture sector,PJ,AGR,NRG,Electricity,,,
+COALIG,Lignite,PJ,SUP,NRG,Coal,,,
+NUCRSV,Uranium (Dummy Reserves),PJ,SUP,NRG,Nuclear Fuel,,,
+COMPEL,Pellets for Commercial sector,PJ,COM,NRG,Biomass & Biofuels,,,
+GASNAT,Natural Gas,PJ,SUP,NRG,Natural Gas,,,
+OILHFO,Residual Fuel Oil,PJ,SUP,NRG,Oil Products,,,
+ELCHET,Heat for Electricity sector,PJ,ELC,NRG,Electricity,,,
+AGRHET,Heat for Agriculture sector,PJ,AGR,NRG,Heat/Steam,,,
+COAHAR,Hard Coal,PJ,SUP,NRG,Coal,,,
+OILOTH,Other Petroleum Products,PJ,SUP,NRG,Oil Products,,,
+BIOPLPOIL,Biofuel: Pyrolysis oil (pulp),PJ,SUP,NRG,Oil Products,,,
+SUPGAS,Supply: Natural Gas,PJ,SUP,NRG,Natural Gas,,,
+GASIIS,GAS from Corex and/or Blast Furnace TGR with CCS and/or BOF,PJ,IND,NRG,Natural Gas,,,
+RH3F,Residential: Space heating - 3-faces building,PJ,RSD,NRG,Heat/Steam,,,
+BIOETH,Bioethanol,PJ,SUP,NRG,Biomass & Biofuels,,,
+SYNH2CT,Centralized hydrogen (Tank storage),PJ,SUP,NRG,Hydrogen,,,
+RW2F,Residential: Water heating - 2-faces building,PJ,RSD,NRG,Heat/Steam,,,
+SUPDST,Diesel for Supply sector,PJ,SUP,NRG,Oil Products,,,
+IOIPRC,End use category: Process heat,PJ,IND,NRG,Heat/Steam,,,
+BIOCPS,Wood Chips,PJ,SUP,NRG,Biomass & Biofuels,,,
+RENSOL,Renewable: Solar,PJ,SUP,NRG,Renewables,,,
+SUPHET,Heat for digestor,PJ,SUP,NRG,Heat/Steam,,,
+BIOGLY,Biofuel: Glycerol,PJ,SUP,NRG,Biomass & Biofuels,,,
+ELCBIO,Biomass for Electricity sector,PJ,ELC,NRG,Biomass & Biofuels,,,
+ELCHYD,Hydro for Electricity sector,PJ,ELC,NRG,Renewables,,,
+ELCOIL,Oil for Electricity sector,PJ,ELC,NRG,Oil Products,,,
+SUPIMPH2,imported hydrogen,PJ,IMP,NRG,Hydrogen,,,
+SUPBGS,Biogas for Supply sector,PJ,SUP,NRG,Natural Gas,,,
+RHDJ4F_2021,Residential: Space heating - 4+ faces building (2021),PJ,RSD,NRG,Heat/Steam,,,
+RHN4F,Residential: Space heating - 4+ faces building (new),PJ,RSD,NRG,Heat/Steam,,,
+RWN3F,Residential: Water heating - 3-faces building (new),PJ,RSD,NRG,Heat/Steam,,,
+RHNAP,Residential: Space heating - Apartment building (new),PJ,RSD,NRG,Heat/Steam,,,
+RHDJ2F_2021,Residential: Space heating - 2-faces building (2021),PJ,RSD,NRG,Heat/Steam,,,
+RHN2F,Residential: Space heating - 2-faces building (new),PJ,RSD,NRG,Heat/Steam,,,
+SUPGMX,Network gas (mixed) for Supply sector,PJ,SUP,NRG,Natural Gas,,,
+RWNAP,Residential: Water heating - Apartment building (new),PJ,RSD,NRG,Heat/Steam,,,
+RWN4F,Residential: Water heating - 4+ faces building (new),PJ,RSD,NRG,Heat/Steam,,,
+RHDJ3F_2021,Residential: Space heating - 3-faces building (2021),PJ,RSD,NRG,Heat/Steam,,,
+RHN3F,Residential: Space heating - 3-faces building (new),PJ,RSD,NRG,Heat/Steam,,,
+RWN2F,Residential: Water heating - 2-faces building (new),PJ,RSD,NRG,Heat/Steam,,,
