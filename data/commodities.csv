@@ -1,7 +1,7 @@
 Commodity,Description
 AGRAP,Commodity for Agriculture sector (AP)
 AGRBDL,Biodiesel for Agriculture sector
-AGRBGS,Commodity for Agriculture sector (BGS)
+AGRBGS,Biogas for Agriculture sector
 AGRCH4,Methane for Agriculture sector
 AGRCO2N,CO2 from combustion for Agriculture sector
 AGRCO2b,CO2 for Agriculture sector
@@ -10,7 +10,7 @@ AGRCPS,Wood Chips for Agriculture sector
 AGRELC,Electricity for Agriculture sector
 AGRGHG,Greenhouse Gas for Agriculture sector
 AGRGHGb,Greenhouse Gas for Agriculture sector
-AGRGMX,Commodity for Agriculture sector (GMX)
+AGRGMX,Network gas for Agriculture sector
 AGRHET,Heat for Agriculture sector
 AGRHH,Commodity for Agriculture sector (HH)
 AGRN2O,Nitrous Oxide for Agriculture sector
@@ -20,8 +20,8 @@ AGROF,Commodity for Agriculture sector (OF)
 AGROIL,Agriculture: Oil
 AGRPM2,Particulate matter 2.5 for Agriculture sector
 AGRSOX,Sulphur oxides for Agriculture sector
-BATELCIN,Electricity
-BATELCOUT,Electricity
+BATELCIN,Electricity feeding into battery
+BATELCOUT,Electricity coming out of battery
 BIOBOU,"Biomass: Wood logs (certainty: 60%)"
 BIOCPS,"Biomass: Wood chips (certainty: 70%)"
 BIOCRP1,"Biomass: Energy crops (variant 1) (certainty: 80%)"
@@ -76,20 +76,20 @@ CHNEN,Commodity: CHNEN
 CHNSA,Commodity: CHNSA
 CHSA,Commodity: CHSA
 CHSADUM,Commodity: CHSADUM
-CLIGBA,Lignite
-CLIGBP,Lignite
-CLIGCO,Lignite
-CLIGCS,Lignite
-CLIGDATA,Lignite
-CLIGEN,Lignite
-CLIGNBA,Lignite
-CLIGNBP,Lignite
-CLIGNCO,Lignite
-CLIGNCS,Lignite
-CLIGNDATA,Lignite
-CLIGNEN,Lignite
-CLIGNSA,Lignite
-CLIGSA,Lignite
+CLIGBA,Commercial lighting – Banks (existing)
+CLIGBP,Commercial lighting – Public offices (existing)
+CLIGCO,Commercial lighting – Retail/commerce (existing)
+CLIGCS,Commercial lighting – Services (existing)
+CLIGDATA,Commercial lighting – Data centers (existing)
+CLIGEN,Commercial lighting – Education (existing)
+CLIGNBA,Commercial lighting – Banks (new)
+CLIGNBP,Commercial lighting – Public offices (new)
+CLIGNCO,Commercial lighting – Retail/commerce (new)
+CLIGNCS,Commercial lighting – Services (new)
+CLIGNDATA,Commercial lighting – Data centers (new)
+CLIGNEN,Commercial lighting – Education (new)
+CLIGNSA,Commercial lighting – Health (new)
+CLIGSA,Commercial lighting – Health (existing)
 CNBATBA,Commodity: CNBATBA
 CNBATBP,Commodity: CNBATBP
 CNBATCO,Commodity: CNBATCO
@@ -104,7 +104,7 @@ COALIG,Fuel: Black Lignite
 COEL,Commercial: Electric Appliances (PJ)
 COEN,Commodity: COEN
 COMBDL,Biodiesel for Commercial sector
-COMBGS,Commodity for Commercial sector (BGS)
+COMBGS,Biogas for Commercial sector
 COMCH4,Methane for Commercial sector
 COMCO2N,CO2 from combustion for Commercial sector
 COMCO2b,CO2 for Commercial sector
@@ -114,7 +114,7 @@ COMELC,Electricity for Commercial sector
 COMGEO,Commercial: Geothermal
 COMGHG,Greenhouse Gas for Commercial sector
 COMGHGb,Greenhouse Gas for Commercial sector
-COMGMX,Commodity for Commercial sector (GMX)
+COMGMX,Network gas for Commercial sector
 COMGSL,Gasoline for Commercial sector
 COMHET,Heat for Commercial sector
 COMLPG,Commercial: LPG
@@ -249,7 +249,7 @@ Dum-Retrofit-T_R_Appa1958,Commodity: Dum-Retrofit-T_R_Appa1958
 Dum-Retrofit-T_R_Appa1976,Commodity: Dum-Retrofit-T_R_Appa1976
 Dum-Retrofit-T_R_Appa1989,Commodity: Dum-Retrofit-T_R_Appa1989
 Dum-Retrofit-T_R_Appa2005,Commodity: Dum-Retrofit-T_R_Appa2005
-ELCBGS,Commodity for Electricity sector (BGS)
+ELCBGS,Biogas for Electricity sector
 ELCBIO,Biomass for Electricity sector
 ELCCH4,Methane for Electricity sector
 ELCCO2N,CO2 from combustion for Electricity sector
@@ -257,15 +257,15 @@ ELCCO2b,CO2 for Electricity sector
 ELCCO2c,CO2 for Electricity sector
 ELCCOV,Volatile Organic Compounds for Electricity sector
 ELCCPS,Wood Chips for Electricity sector
-ELCGAS,Electricity: Natural Gas
+ELCGAS,Natural Gas for Electricity
 ELCGHG,Greenhouse Gas for Electricity sector
 ELCGHGb,Greenhouse Gas for Electricity sector
 ELCHET,Heat for Electricity sector
-ELCHIG,Commodity for Electricity sector (HIG)
-ELCHIGG,Commodity for Electricity sector (HIGG)
+ELCHIG,High Voltage Electricity
+ELCHIGG,High Voltage Electricity (HIGG)
 ELCHYD,Electricity: Hydro
-ELCLOW,Commodity for Electricity sector (LOW)
-ELCMED,Commodity for Electricity sector (MED)
+ELCLOW,Low Voltage Electricity
+ELCMED,Medium Voltage Electricity
 ELCN2O,Nitrous Oxide for Electricity sector
 ELCNH3,Ammonia for Electricity sector
 ELCNOX,Nitrogen Oxides for Electricity sector
@@ -308,7 +308,7 @@ ILM,Non metal minerals: Lime (Mega tonnes)
 ILMPRC,Commodity: ILMPRC
 IML,Commodity: IML
 IMLHTH,Commodity: IMLHTH
-INDBGS,Commodity for Industry sector (BGS)
+INDBGS,Biogas for Industry sector
 INDBIO,Industry: Biomass
 INDBLQ,Black Liquor for Industry sector
 INDCH4,Methane for Industry sector
@@ -326,7 +326,7 @@ INDGAS,Industry: Natural Gas
 INDGASCOG,Industry: Coke oven gas
 INDGEO,Industry: Geothermal
 INDGHG,Greenhouse Gas for Industry sector
-INDGMX,Commodity for Industry sector (GMX)
+INDGMX,Network gas for Industry sector
 INDHET,Heat for Industry sector
 INDHFO,Industry: Heavy fuel oil
 INDHH2,Hydrogen for Industry sector
@@ -344,22 +344,22 @@ INDSOL,Industry: Solar
 INDSOXn,Sulphur oxides for Industry sector
 INDWST,Waste for Industry sector
 INF,Non ferrous metals: Other (PJ)
-INFELE,Commodity: INFELE
-INFHTH,Commodity: INFHTH
-INFMCH,Commodity: INFMCH
-INFPRC,Commodity: INFPRC
+INFELE,ELE Commodity for Non ferrous metals
+INFHTH,HTH Commodity for Non ferrous metals
+INFMCH,MCH Commodity for Non ferrous metals
+INFPRC,PRC Commodity for Non ferrous metals
 INM,Non metal minerals: Other (PJ)
-INMELE,Commodity: INMELE
-INMHTH,Commodity: INMHTH
-INMMCH,Commodity: INMMCH
-INMOTH,Commodity: INMOTH
-INMPRC,Commodity: INMPRC
+INMELE,ELE Commodity for Non metal minerals
+INMHTH,HTH Commodity for Non metal minerals
+INMMCH,MCH Commodity for Non metal minerals
+INMOTH,OTH Commodity for Non metal minerals
+INMPRC,PRC Commodity for Non metal minerals
 IOF,Commodity: IOF
-IOFELE,Commodity: IOFELE
-IOFFRO,Commodity: IOFFRO
-IOFHTH,Commodity: IOFHTH
-IOFMCH,Commodity: IOFMCH
-IOFOTH,Commodity: IOFOTH
+IOFELE,ELE Commodity for Other industries
+IOFFRO,FRO Commodity for Other industries
+IOFHTH,HTH Commodity for Other industries
+IOFMCH,MCH Commodity for Other industries
+IOFOTH,OTH Commodity for Other industries
 IOFPRC,Commodity: IOFPRC
 IOI,Other industries: Transport Equipment, Machinery, Mining and Quarrying, Food and Tobacco, Wood and Wood Products, Construction, Textile and Leather (PJ)
 IOIELE,End use category: Electro-chemical (PJ)
@@ -374,19 +374,19 @@ IPPHTH,Commodity: IPPHTH
 IPPPRC,Commodity: IPPPRC
 ISG,Commodity: ISG
 ISGHTH,Commodity: ISGHTH
-MBORES,Commodity: MBORES
-MBOWOO,Commodity: MBOWOO
-MBRWOO,Commodity: MBRWOO
+MBORES,Iron and Steel: Ore (Metallurgical)
+MBOWOO,Wood (Biomass) for Manufacturing
+MBRWOO,Recycled wood (Biomass) for Manufacturing
 MCMCLK,Cement: Clinker
-MCOWIM,Commodity: MCOWIM
-MCUPDT,Commodity: MCUPDT
-MEOOXY,Commodity: MEOOXY
-MGHRYC,Commodity: MGHRYC
+MCOWIM,Cement: Waste imports for co-processing
+MCUPDT,Cement: Clinker production update (internal flow)
+MEOOXY,Metals: Oxygen
+MGHRYC,Metals: Recycled Coking Gas (by-product)
 MISBFS,Iron and Steel: Blast Furnace Slag
 MISCST,Iron and Steel: Crude Steel
 MISDIR,Iron and Steel: DRI Iron
-MISGBE,Commodity: MISGBE
-MISGJU,Commodity: MISGJU
+MISGBE,Iron and Steel: Blast furnace gas (export)
+MISGJU,Iron and Steel: Blast furnace gas (use)
 MISORE,Iron and Steel: Ore
 MISOXY,Iron and Steel: Oxygen
 MISPLT,Iron and Steel: Pellet
@@ -427,14 +427,14 @@ RH2F,Residential: Space heating - 2-family building
 RH3F,Residential: Space heating - 3-family building
 RH4F,Residential: Space heating - 4+ family building
 RHAP,Residential: Space heating - Apartment building
-RHDJ2F_2021,Commodity: RHDJ2F_2021
-RHDJ3F_2021,Commodity: RHDJ3F_2021
-RHDJ4F_2021,Commodity: RHDJ4F_2021
-RHDJAP_2021,Commodity: RHDJAP_2021
-RHN2F,Commodity: RHN2F
-RHN3F,Commodity: RHN3F
-RHN4F,Commodity: RHN4F
-RHNAP,Commodity: RHNAP
+RHDJ2F_2021,Residential: Space heating - 2-family building (2021)
+RHDJ3F_2021,Residential: Space heating - 3-family building (2021)
+RHDJ4F_2021,Residential: Space heating - 4+ family building (2021)
+RHDJAP_2021,Residential: Space heating - Apartment building (2021)
+RHN2F,Residential: Space heating - 2-family building (new)
+RHN3F,Residential: Space heating - 3-family building (new)
+RHN4F,Residential: Space heating - 4+ family building (new)
+RHNAP,Residential: Space heating - Apartment building (new)
 RLIG,Residential: Lighting (PJ)
 ROEL,Residential: Electric Appliances (PJ)
 ROEN,Commodity: ROEN
@@ -448,7 +448,7 @@ RSDELC,Electricity for Residential sector
 RSDGEO,Residential: Geothermal
 RSDGHG,Greenhouse Gas for Residential sector
 RSDGHGb,Greenhouse Gas for Residential sector
-RSDGMX,Commodity for Residential sector (GMX)
+RSDGMX,Network gas for Residential sector
 RSDGSL,Gasoline for Residential sector
 RSDHET,Heat for Residential sector
 RSDLOG,Wood Logs for Residential sector
@@ -465,10 +465,10 @@ RW2F,Residential: Water heating - 2-family building
 RW3F,Residential: Water heating - 3-family building
 RW4F,Residential: Water heating - 4+ family building
 RWAP,Residential: Water heating - Apartment building
-RWN2F,Commodity: RWN2F
-RWN3F,Commodity: RWN3F
-RWN4F,Commodity: RWN4F
-RWNAP,Commodity: RWNAP
+RWN2F,Residential: Water heating - 2-family building (new)
+RWN3F,Residential: Water heating - 3-family building (new)
+RWN4F,Residential: Water heating - 4+ family building (new)
+RWNAP,Residential: Water heating - Apartment building (new)
 R_2Fac,Commodity: R_2Fac
 R_3Fac,Commodity: R_3Fac
 R_4Fac,Commodity: R_4Fac
@@ -477,7 +477,7 @@ R_N2Fac,Commodity: R_N2Fac
 R_N3Fac,Commodity: R_N3Fac
 R_N4Fac,Commodity: R_N4Fac
 R_NAppa,Commodity: R_NAppa
-SUPBGS,Commodity for Supply sector (BGS)
+SUPBGS,Biogas for Supply sector
 SUPCH4,Methane for Supply sector
 SUPCO2N,CO2 from combustion for Supply sector
 SUPCOV,Volatile Organic Compounds for Supply sector
@@ -485,7 +485,7 @@ SUPDST,Diesel for Supply sector
 SUPELC,Electricity for Supply sector
 SUPGAS,Supply: Natural Gas
 SUPGHG,Greenhouse Gas for Supply sector
-SUPGMX,Commodity for Supply sector (GMX)
+SUPGMX,Network gas for Supply sector
 SUPHET,Heat for Supply sector
 SUPIMPH2,Hydrogen for Supply sector
 SUPN2O,Nitrous Oxide for Supply sector
@@ -515,7 +515,7 @@ TOTNOX,Nitrogen Oxides
 TOTPM2,Particulate matter 2.5
 TOTSOX,Sulphur oxides
 TRABDL,Biodiesel for Transport sector
-TRABGS,Commodity for Transport sector (BGS)
+TRABGS,Biogas for Transport sector
 TRACH4,Methane for Transport sector
 TRACH4-I,Methane for Transport sector
 TRACO2N,CO2 from combustion for Transport sector
@@ -528,7 +528,7 @@ TRAETH,Ethanol for Transport sector
 TRAGH2,Hydrogen for Transport sector
 TRAGHG,Greenhouse Gas for Transport sector
 TRAGHGb,Greenhouse Gas for Transport sector
-TRAGMX,Commodity for Transport sector (GMX)
+TRAGMX,Network gas for Transport sector
 TRAGSL,Transport: Gasoline
 TRAKER,Transport: Kerosene
 TRALH2,Hydrogen for Transport sector

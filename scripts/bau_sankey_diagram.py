@@ -932,7 +932,7 @@ def main():
         # Set to False to keep all commodity codes (no grouping)
         group_commodities = True
         # Max share of total final energy for the 'Others' buckets (0.10 = 10%)
-        max_cluster_pct = 0.1
+        max_cluster_pct = 0.15
     else:
         # Set to False to build unclustered Sankey
         enable_process_clustering = False

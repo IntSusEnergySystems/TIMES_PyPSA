@@ -652,69 +652,69 @@ RDW_R_N4F,TIMES process: RDW_R_N4F
 RDW_R_NAP,TIMES process: RDW_R_NAP
 RH2FCOA100,Residential: Space heating - 2-family building (coal)
 RH2FELC100,Residential: Space heating - 2-family building (electricity)
-RH2FELC200,TIMES process: RH2FELC200
+RH2FELC200,Residential: Space heating - 2-family building (electricity)
 RH2FELCHPN2,Residential: Space heating - 2-family building (CHP)
-RH2FELCN1,TIMES process: RH2FELCN1
+RH2FELCN1,Residential: Space heating - 2-family building (electricity, new)
 RH2FGEO100,Residential: Space heating - 2-family building (geothermal)
 RH2FGMX100,Residential: Space heating - 2-family building (gas)
-RH2FGMXN1,TIMES process: RH2FGMXN1
+RH2FGMXN1,Residential: Space heating - 2-family building (gas, new)
 RH2FHETN1,Residential: Space heating - 2-family building (district heat)
 RH2FLOG100,Residential: Space heating - 2-family building (wood logs)
 RH2FLPG100,Residential: Space heating - 2-family building (LPG)
 RH2FOIL100,Residential: Space heating - 2-family building (oil)
-RH2FOILN1,TIMES process: RH2FOILN1
+RH2FOILN1,Residential: Space heating - 2-family building (oil, new)
 RH2FPEL100,Residential: Space heating - 2-family building (pellets)
 RH3FCOA100,Residential: Space heating - 3-family building (coal)
 RH3FELC100,Residential: Space heating - 3-family building (electricity)
-RH3FELC200,TIMES process: RH3FELC200
+RH3FELC200,Residential: Space heating - 3-family building (electricity)
 RH3FELCHPN2,Residential: Space heating - 3-family building (CHP)
-RH3FELCN1,TIMES process: RH3FELCN1
+RH3FELCN1,Residential: Space heating - 3-family building (electricity, new)
 RH3FGEO100,Residential: Space heating - 3-family building (geothermal)
 RH3FGMX100,Residential: Space heating - 3-family building (gas)
-RH3FGMXN1,TIMES process: RH3FGMXN1
+RH3FGMXN1,Residential: Space heating - 3-family building (gas, new)
 RH3FHETN1,Residential: Space heating - 3-family building (district heat)
 RH3FLOG100,Residential: Space heating - 3-family building (wood logs)
 RH3FLPG100,Residential: Space heating - 3-family building (LPG)
 RH3FOIL100,Residential: Space heating - 3-family building (oil)
-RH3FOILN1,TIMES process: RH3FOILN1
+RH3FOILN1,Residential: Space heating - 3-family building (oil, new)
 RH3FPEL100,Residential: Space heating - 3-family building (pellets)
 RH4FCOA100,Residential: Space heating - 4+ family building (coal)
 RH4FELC100,Residential: Space heating - 4+ family building (electricity)
-RH4FELC200,TIMES process: RH4FELC200
+RH4FELC200,Residential: Space heating - 4+ family building (electricity)
 RH4FELCHPN2,Residential: Space heating - 4+ family building (CHP)
-RH4FELCN1,TIMES process: RH4FELCN1
+RH4FELCN1,Residential: Space heating - 4+ family building (electricity, new)
 RH4FGEO100,Residential: Space heating - 4+ family building (geothermal)
 RH4FGMX100,Residential: Space heating - 4+ family building (gas)
-RH4FGMXN1,TIMES process: RH4FGMXN1
+RH4FGMXN1,Residential: Space heating - 4+ family building (gas, new)
 RH4FHETN1,Residential: Space heating - 4+ family building (district heat)
 RH4FLOG100,Residential: Space heating - 4+ family building (wood logs)
 RH4FLPG100,Residential: Space heating - 4+ family building (LPG)
 RH4FOIL100,Residential: Space heating - 4+ family building (oil)
-RH4FOILN1,TIMES process: RH4FOILN1
+RH4FOILN1,Residential: Space heating - 4+ family building (oil, new)
 RH4FPEL100,Residential: Space heating - 4+ family building (pellets)
 RHAPCOA100,Residential: Space heating - Apartment building (coal)
 RHAPELC100,Residential: Space heating - Apartment building (electricity)
-RHAPELC200,TIMES process: RHAPELC200
+RHAPELC200,Residential: Space heating - Apartment building (electricity)
 RHAPELCHPN2,Residential: Space heating - Apartment building (CHP)
-RHAPELCN1,TIMES process: RHAPELCN1
+RHAPELCN1,Residential: Space heating - Apartment building (electricity, new)
 RHAPGEO100,Residential: Space heating - Apartment building (geothermal)
 RHAPGMX100,Residential: Space heating - Apartment building (gas)
-RHAPGMXN2,TIMES process: RHAPGMXN2
+RHAPGMXN2,Residential: Space heating - Apartment building (gas, new)
 RHAPHETN1,Residential: Space heating - Apartment building (district heat)
 RHAPLOG100,Residential: Space heating - Apartment building (wood logs)
 RHAPLPG100,Residential: Space heating - Apartment building (LPG)
 RHAPOIL100,Residential: Space heating - Apartment building (oil)
-RHAPOILN1,TIMES process: RHAPOILN1
+RHAPOILN1,Residential: Space heating - Apartment building (oil, new)
 RHAPPEL100,Residential: Space heating - Apartment building (pellets)
-RHN2FELCHPN2,TIMES process: RHN2FELCHPN2
-RHN3FELCHPN2,TIMES process: RHN3FELCHPN2
-RHN4FELCHPN2,TIMES process: RHN4FELCHPN2
-RHNAPELCHPN2,TIMES process: RHNAPELCHPN2
-RLIGELC200,TIMES process: RLIGELC200
-RLIGELC300,TIMES process: RLIGELC300
-RLIGELC400,TIMES process: RLIGELC400
-RLIGELC401,TIMES process: RLIGELC401
-RLIGELC500,TIMES process: RLIGELC500
+RHN2FELCHPN2,Residential: Space heating - 2-family building (CHP)
+RHN3FELCHPN2,Residential: Space heating - 3-family building (CHP)
+RHN4FELCHPN2,Residential: Space heating - 4+ family building (CHP)
+RHNAPELCHPN2,Residential: Space heating - Apartment building (CHP)
+RLIGELC200,Residential: Lighting - 2-family building (electricity)
+RLIGELC300,Residential: Lighting - 3-family building (electricity)
+RLIGELC400,Residential: Lighting - 4+ family building (electricity)
+RLIGELC401,Residential: Lighting - 4+ family building (electricity)
+RLIGELC500,Residential: Lighting - 5+ family building (electricity)
 ROELELC100,TIMES process: ROELELC100
 ROELELC101,TIMES process: ROELELC101
 ROENGSL100,TIMES process: ROENGSL100

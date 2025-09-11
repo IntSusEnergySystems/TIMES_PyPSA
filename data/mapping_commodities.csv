@@ -87,70 +87,88 @@ CO2,TRACO2N-I,nan,nan,TRA,Originating from international aviation
 -,ELCSLU,nan,nan,ELC,Renewable waste incinerated
 -,TRAETH,nan,nan,TRA,pure bioethanol
 -,TRABDL,nan,nan,TRA,pure biodiesiel
-Oil Products,OILKER,,,,auto-added
-Biomass & Biofuels,BIORME,,,,auto-added
-Biomass & Biofuels,BIOPEL,,,,auto-added
-Heat/Steam,RW3F,,,,auto-added
-Natural Gas,RSDGSL,,,,auto-added
-Biomass & Biofuels,BIOCRP1,,,,auto-added
-Renewables,RENHYD,,,,auto-added
-Oil Products,BIORPOIL,,,,auto-added
-Heat/Steam,RH4F,,,,auto-added
-Biomass & Biofuels,BIODST,,,,auto-added
-Biomass & Biofuels,BIORPS,,,,auto-added
-Other,BATELCOUT,,,,auto-added
-Renewables,ELCWIN,,,,auto-added
-Renewables,ELCSOL,,,,auto-added
-Heat/Steam,RWAP,,,,auto-added
-Biomass & Biofuels,BIOSTIL,,,,auto-added
-Natural Gas,COMGSL,,,,auto-added
-Natural Gas,GASBFT,,,,auto-added
-Natural Gas,OILGSL,,,,auto-added
-Natural Gas,OILLPG,,,,auto-added
-Heat/Steam,RW4F,,,,auto-added
-Oil Products,COMBDL,,,,auto-added
-Renewables,COMSOL,,,,auto-added
-Biomass & Biofuels,BIOLOG,,,,auto-added
-Hydrogen,SYNH2CU,,,,auto-added
-Biomass & Biofuels,SUPELC,,,,auto-added
-Renewables,RENWIN,,,,auto-added
-Biomass & Biofuels,BIOEFF,,,,auto-added
-Oil Products,AGRBDL,,,,auto-added
-Renewables,RSDSOL,,,,auto-added
-Hydrogen,RH2F,,,,auto-added
-Coal,COACOK,,,,auto-added
-Oil Products,OILDST,,,,auto-added
-Natural Gas,BIOGAS,,,,auto-added
-Heat/Steam,RHAP,,,,auto-added
-Biomass & Biofuels,BIOBOU,,,,auto-added
-Other,AGRELC,,,,auto-added
-Coal,COALIG,,,,auto-added
-Renewables,MPPNOH,,,,auto-added
-Nuclear Fuel,NUCRSV,,,,auto-added
-Biomass & Biofuels,COMPEL,,,,auto-added
-Natural Gas,GASNAT,,,,auto-added
-Oil Products,OILHFO,,,,auto-added
-Electricity,ELCHET,,,,auto-added
-Heat/Steam,AGRHET,,,,auto-added
-Coal,COAHAR,,,,auto-added
-Other,BATELCIN,,,,auto-added
-Oil Products,OILOTH,,,,auto-added
-Oil Products,BIOPLPOIL,,,,auto-added
-Natural Gas,SUPGAS,,,,auto-added
-Natural Gas,GASIIS,,,,auto-added
-Heat/Steam,RH3F,,,,auto-added
-Biomass & Biofuels,BIOETH,,,,auto-added
-Hydrogen,SYNH2CT,,,,auto-added
-Heat/Steam,RW2F,,,,auto-added
-Oil Products,SUPDST,,,,auto-added
-Heat/Steam,IOIPRC,,,,auto-added
-Biomass & Biofuels,BIOCPS,,,,auto-added
-Renewables,RENSOL,,,,auto-added
-Biomass & Biofuels,MISPLT,,,,auto-added
-Biomass & Biofuels,BIOCUL,,,,auto-added
-Heat/Steam,SUPHET,,,,auto-added
-Biomass & Biofuels,BIOGLY,,,,auto-added
-Biomass & Biofuels,ELCBIO,,,,auto-added
-Renewables,ELCHYD,,,,auto-added
-Oil Products,ELCOIL,,,,auto-added
-Hydrogen,SUPIMPH2,,,,auto-added
+Oil Products,OILKER,nan,nan,nan,auto-added
+Biomass & Biofuels,BIORME,nan,nan,nan,auto-added
+Biomass & Biofuels,BIOPEL,nan,nan,nan,auto-added
+Heat/Steam,RW3F,nan,nan,nan,auto-added
+Natural Gas,RSDGSL,nan,nan,nan,auto-added
+Biomass & Biofuels,BIOCRP1,nan,nan,nan,auto-added
+Renewables,RENHYD,nan,nan,nan,auto-added
+Oil Products,BIORPOIL,nan,nan,nan,auto-added
+Heat/Steam,RH4F,nan,nan,nan,auto-added
+Biomass & Biofuels,BIODST,nan,nan,nan,auto-added
+Biomass & Biofuels,BIORPS,nan,nan,nan,auto-added
+LV Electricity,BATELCOUT,nan,nan,nan,auto-added
+Renewables,ELCWIN,nan,nan,nan,auto-added
+Renewables,ELCSOL,nan,nan,nan,auto-added
+Heat/Steam,RWAP,nan,nan,nan,auto-added
+Biomass & Biofuels,BIOSTIL,nan,nan,nan,auto-added
+Natural Gas,COMGSL,nan,nan,nan,auto-added
+Natural Gas,GASBFT,nan,nan,nan,auto-added
+Natural Gas,OILGSL,nan,nan,nan,auto-added
+Natural Gas,OILLPG,nan,nan,nan,auto-added
+Heat/Steam,RW4F,nan,nan,nan,auto-added
+Oil Products,COMBDL,nan,nan,nan,auto-added
+Renewables,COMSOL,nan,nan,nan,auto-added
+Biomass & Biofuels,BIOLOG,nan,nan,nan,auto-added
+Hydrogen,SYNH2CU,nan,nan,nan,auto-added
+Biomass & Biofuels,SUPELC,nan,nan,nan,auto-added
+Renewables,RENWIN,nan,nan,nan,auto-added
+Biomass & Biofuels,BIOEFF,nan,nan,nan,auto-added
+Oil Products,AGRBDL,nan,nan,nan,auto-added
+Renewables,RSDSOL,nan,nan,nan,auto-added
+Hydrogen,RH2F,nan,nan,nan,auto-added
+Coal,COACOK,nan,nan,nan,auto-added
+Oil Products,OILDST,nan,nan,nan,auto-added
+Natural Gas,BIOGAS,nan,nan,nan,auto-added
+Heat/Steam,RHAP,nan,nan,nan,auto-added
+Biomass & Biofuels,BIOBOU,nan,nan,nan,auto-added
+Other,AGRELC,nan,nan,nan,auto-added
+Coal,COALIG,nan,nan,nan,auto-added
+Renewables,MPPNOH,nan,nan,nan,auto-added
+Nuclear Fuel,NUCRSV,nan,nan,nan,auto-added
+Biomass & Biofuels,COMPEL,nan,nan,nan,auto-added
+Natural Gas,GASNAT,nan,nan,nan,auto-added
+Oil Products,OILHFO,nan,nan,nan,auto-added
+Electricity,ELCHET,nan,nan,nan,auto-added
+Heat/Steam,AGRHET,nan,nan,nan,auto-added
+Coal,COAHAR,nan,nan,nan,auto-added
+LV Electricity,BATELCIN,nan,nan,nan,auto-added
+Oil Products,OILOTH,nan,nan,nan,auto-added
+Oil Products,BIOPLPOIL,nan,nan,nan,auto-added
+Natural Gas,SUPGAS,nan,nan,nan,auto-added
+Natural Gas,GASIIS,nan,nan,nan,auto-added
+Heat/Steam,RH3F,nan,nan,nan,auto-added
+Biomass & Biofuels,BIOETH,nan,nan,nan,auto-added
+Hydrogen,SYNH2CT,nan,nan,nan,auto-added
+Heat/Steam,RW2F,nan,nan,nan,auto-added
+Oil Products,SUPDST,nan,nan,nan,auto-added
+Heat/Steam,IOIPRC,nan,nan,nan,auto-added
+Biomass & Biofuels,BIOCPS,nan,nan,nan,auto-added
+Renewables,RENSOL,nan,nan,nan,auto-added
+Biomass & Biofuels,MISPLT,nan,nan,nan,auto-added
+Biomass & Biofuels,BIOCUL,nan,nan,nan,auto-added
+Heat/Steam,SUPHET,nan,nan,nan,auto-added
+Biomass & Biofuels,BIOGLY,nan,nan,nan,auto-added
+Biomass & Biofuels,ELCBIO,nan,nan,nan,auto-added
+Renewables,ELCHYD,nan,nan,nan,auto-added
+Oil Products,ELCOIL,nan,nan,nan,auto-added
+Hydrogen,SUPIMPH2,nan,nan,nan,auto-added
+Natural Gas,SUPBGS,,,,auto-added
+Heat/Steam,RHDJ4F_2021,,,,auto-added
+Natural Gas,MISGBE,,,,auto-added
+Heat/Steam,RHN4F,,,,auto-added
+Heat/Steam,RWN3F,,,,auto-added
+Heat/Steam,RHNAP,,,,auto-added
+Heat/Steam,RHDJ2F_2021,,,,auto-added
+Heat/Steam,RHN2F,,,,auto-added
+Natural Gas,SUPGMX,,,,auto-added
+Heat/Steam,RWNAP,,,,auto-added
+Heat/Steam,RWN4F,,,,auto-added
+Heat/Steam,RHDJ3F_2021,,,,auto-added
+Natural Gas,MISGJU,,,,auto-added
+Heat/Steam,RHN3F,,,,auto-added
+Heat/Steam,RHDJAP_2021,,,,auto-added
+Biomass & Biofuels,MBRWOO,,,,auto-added
+Biomass & Biofuels,MBOWOO,,,,auto-added
+Heat/Steam,RWN2F,,,,auto-added
