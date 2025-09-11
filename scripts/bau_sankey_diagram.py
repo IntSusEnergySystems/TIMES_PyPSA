@@ -379,24 +379,71 @@ def build_process_clusters(df, processes_df, both_io, only_in, only_out, max_clu
     proc_to_series = {}
     clusters_info = {}
     cluster_id_seq = 1
-    proc_desc_map = processes_df.set_index('Process')['Description'].to_dict()
+    proc_desc_map = processes_df.set_index('Process')['Description'].to_dict() if 'Process' in processes_df.columns else {}
 
+    # Build metadata key for each process: (Sector, Activity unit, Capacity unit, Type)
+    def normalize_col(df, options):
+        for c in df.columns:
+            if c.strip().lower() in [o.strip().lower() for o in options]:
+                return c
+        return None
+
+    sector_col = normalize_col(processes_df, ['Sector'])
+    act_col = normalize_col(processes_df, ['Activity unit', 'activity unit', 'activity_unit'])
+    cap_col = normalize_col(processes_df, ['Capacity unit', 'capacity unit', 'capacity_unit'])
+    type_col = normalize_col(processes_df, ['Type'])
+
+    def meta_key(p):
+        try:
+            row = processes_df.loc[processes_df['Process'] == p].iloc[0]
+        except Exception:
+            return None
+        return (
+            str(row.get(sector_col, '')).strip() if sector_col else '',
+            str(row.get(act_col, '')).strip() if act_col else '',
+            str(row.get(cap_col, '')).strip() if cap_col else '',
+            str(row.get(type_col, '')).strip() if type_col else ''
+        )
+
+    # Only merge processes into a series if they share the same metadata key
     for chain in series_clusters:
-        cid = f"CL_SER_{cluster_id_seq:03d}"
-        cluster_id_seq += 1
-        for p in chain:
-            proc_to_series[p] = cid
-        names = [proc_desc_map.get(p, p) for p in chain]
-        common = longest_common_substring(names)
-        if common:
-            cname = f"Series: {common.strip()}"
-        elif len(names) <= 3:
-            cname = f"Series: {' → '.join(names)}"
-        else:
-            cname = f"Series: {names[0]} → … → {names[-1]}"
-        tp = metrics[metrics['process_code'].isin(chain)]
-        thr = float(tp[['in_sum', 'out_sum']].max(axis=1).sum())
-        clusters_info[cid] = {"name": cname, "type": "series", "members": chain, "throughput": thr, "level": "middle"}
+        # Split chain into maximal contiguous subchains with the same meta key
+        if not chain:
+            continue
+        current_key = meta_key(chain[0])
+        segment = [chain[0]]
+        segments = []
+        for p in chain[1:]:
+            k = meta_key(p)
+            if k == current_key:
+                segment.append(p)
+            else:
+                if len(segment) > 1 and current_key is not None:
+                    segments.append((current_key, segment))
+                # reset
+                current_key = k
+                segment = [p]
+        # last segment
+        if len(segment) > 1 and current_key is not None:
+            segments.append((current_key, segment))
+
+        # Create clusters for valid segments
+        for k, seg in segments:
+            cid = f"CL_SER_{cluster_id_seq:03d}"
+            cluster_id_seq += 1
+            for p in seg:
+                proc_to_series[p] = cid
+            names = [proc_desc_map.get(p, p) for p in seg]
+            common = longest_common_substring(names)
+            if common:
+                cname = f"Series: {common.strip()}"
+            elif len(names) <= 3:
+                cname = f"Series: {' → '.join(names)}"
+            else:
+                cname = f"Series: {names[0]} → … → {names[-1]}"
+            tp = metrics[metrics['process_code'].isin(seg)]
+            thr = float(tp[['in_sum', 'out_sum']].max(axis=1).sum())
+            clusters_info[cid] = {"name": cname, "type": "series", "members": seg, "throughput": thr, "level": "middle"}
 
     def throughput_of(pcode):
         row = metrics[metrics['process_code'] == pcode]
@@ -831,7 +878,7 @@ def apply_commodity_grouping(df, commodity_to_group, groups_info, commodities_df
     return dfg
 
 
-def build_sankey(df, output_html_file, year, flow_threshold=0.0):
+def build_sankey(df, output_html_file, year, flow_threshold=0.0, process_unit_map=None):
     """
     Build and save a Sankey diagram from filtered annual flows.
     Uses variable type to set direction:
@@ -876,7 +923,7 @@ def build_sankey(df, output_html_file, year, flow_threshold=0.0):
         else:
             labels.append(n)
 
-    # Build tooltips that include source → target, commodity/cluster name and value
+    # Build tooltips that include source → target, commodity/cluster name and value (with process unit)
     node_label_map = {n: lbl for n, lbl in zip(nodes, labels)}
     tooltips = []
     for _, row in links_df.iterrows():
@@ -891,10 +938,16 @@ def build_sankey(df, output_html_file, year, flow_threshold=0.0):
             comm_label = commodity_desc[s]
         elif t in commodity_desc:
             comm_label = commodity_desc[t]
+        # Determine process unit from mapping if available
+        proc_code = s if s in process_desc else (t if t in process_desc else None)
+        unit = None
+        if process_unit_map is not None and proc_code is not None:
+            unit = process_unit_map.get(proc_code)
+        unit_str = unit if unit and isinstance(unit, str) and unit.strip() else 'PJ'
         if comm_label:
-            tooltip = f"{src} → {tgt}<br>Commodity: {comm_label}<br>Value: {v:.2f} PJ"
+            tooltip = f"{src} → {tgt}<br>Commodity: {comm_label}<br>Value: {v:.2f} {unit_str}"
         else:
-            tooltip = f"{src} → {tgt}<br>Value: {v:.2f} PJ"
+            tooltip = f"{src} → {tgt}<br>Value: {v:.2f} {unit_str}"
         tooltips.append(tooltip)
 
     sankey_links = {
@@ -993,6 +1046,15 @@ def main():
             if c.strip().lower() == 'description':
                 processes_df = processes_df.rename(columns={c: 'Description'})
                 break
+    # Build unit lookup map for tooltips
+    process_unit_col = None
+    for c in processes_df.columns:
+        if c.strip().lower() in ['activity unit', 'activity_unit', 'unit']:
+            process_unit_col = c
+            break
+    process_unit_map = {}
+    if process_unit_col is not None:
+        process_unit_map = processes_df.set_index('Process')[process_unit_col].to_dict()
     # Load commodity mapping and construct commodities_df surrogate from mapping
     mapping_file = "data/mapping_commodities.csv"
     mapping_df = read_commodity_mapping_table(mapping_file)
@@ -1080,7 +1142,7 @@ def main():
         print("Process clustering disabled. Building unclustered Sankey.")
         # Net internal bidirectional links to avoid loops even without clustering
         netted_df = net_bidirectional_links(filtered_df)
-        _ = build_sankey(netted_df, output_html_file, year=selected_year, flow_threshold=0.0)
+        _ = build_sankey(netted_df, output_html_file, year=selected_year, flow_threshold=0.0, process_unit_map=process_unit_map)
     else:
         # --- Build process clusters to simplify Sankey ---
         process_to_cluster, clusters_info = build_process_clusters(
@@ -1107,7 +1169,7 @@ def main():
         clustered_df = net_bidirectional_links(clustered_df)
 
     # --- Build Sankey ---
-        _ = build_sankey(clustered_df, output_html_file, year=selected_year, flow_threshold=0.0)
+        _ = build_sankey(clustered_df, output_html_file, year=selected_year, flow_threshold=0.0, process_unit_map=process_unit_map)
 
 if __name__ == "__main__":
     main()
