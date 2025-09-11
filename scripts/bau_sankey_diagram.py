@@ -168,7 +168,7 @@ def infer_flow_direction(process_name, commodities_df):
     if 'ELC' in process_upper or 'ENUC' in process_upper:
         # Try to find input fuel among common carriers
         for c in ['COA', 'GAS', 'OIL', 'NUC', 'BIO', 'HYD', 'WIN', 'SOL']:
-            if c in process_upper:
+             if c in process_upper:
                 # Map commodity-like code to readable source node
                 fuel_map = {
                     'COA': 'Coal',
@@ -618,6 +618,21 @@ def write_commodity_mapping_table(mapping_file, mapping_df):
     df.to_csv(mapping_file, index=False)
 
 
+def read_process_mapping_table(mapping_file):
+    if not os.path.exists(mapping_file):
+        return pd.DataFrame(columns=['Process', 'Description'])
+    df = pd.read_csv(mapping_file)
+    # Expect headers: 'Technology (Process)', 'Description', ...
+    proc_col = 'Technology (Process)' if 'Technology (Process)' in df.columns else df.columns[0]
+    desc_col = 'Description' if 'Description' in df.columns else (df.columns[3] if len(df.columns) > 3 else df.columns[1])
+    out = df[[proc_col, desc_col]].copy()
+    out.columns = ['Process', 'Description']
+    out['Process'] = out['Process'].astype(str).str.strip()
+    out['Description'] = out['Description'].astype(str).str.strip()
+    out = out[out['Process'] != '']
+    return out
+
+
 def build_commodity_groups_from_mapping(mapping_df, energy_commodity_codes, commodities_df, mapping_file):
     """
     Use mapping table to group TIMES commodity codes into PYPSA carriers.
@@ -957,7 +972,7 @@ def main():
     vd_file = "data/bau_080925_0809.vd"
     selected_year = 2021
     # commodities_file removed in favor of mapping-based metadata
-    processes_file = "data/processes.csv"
+    # processes_file removed in favor of mapping-based metadata
     output_csv_file = f"output/annual_values{'_clustered' if cluster else ''}.csv"
     output_filtered_csv = f"output/annual_flows_{selected_year}_energy{'_clustered' if cluster else ''}.csv"
     output_html_file = f"output/bau_sankey_{selected_year}_pj{'_clustered' if cluster else ''}.html"
@@ -967,8 +982,18 @@ def main():
 
     # --- Load metadata ---
     print("Loading metadata...")
-    processes_map = parse_metadata_file(processes_file)
-    # Load mapping table and construct commodities_df surrogate from mapping
+    # Load process mapping and construct processes_df from mapping
+    process_mapping_file = "data/mapping_processes.csv"
+    processes_df = pd.read_csv(process_mapping_file)
+    if 'Process' not in processes_df.columns and 'Technology (Process)' in processes_df.columns:
+        processes_df = processes_df.rename(columns={'Technology (Process)': 'Process'})
+    if 'Description' not in processes_df.columns:
+        # Best-effort: if there is a 'description' in different case
+        for c in processes_df.columns:
+            if c.strip().lower() == 'description':
+                processes_df = processes_df.rename(columns={c: 'Description'})
+                break
+    # Load commodity mapping and construct commodities_df surrogate from mapping
     mapping_file = "data/mapping_commodities.csv"
     mapping_df = read_commodity_mapping_table(mapping_file)
     # Ensure 'description' column exists from the mapping file (case-normalized)
@@ -989,7 +1014,6 @@ def main():
         'Commodity': mapping_df['times'],
         'Description': mapping_df.apply(lambda r: r.get('description', ''), axis=1)
     })
-    processes_df = pd.DataFrame(list(processes_map.items()), columns=['Process', 'Description'])
 
     # --- Load raw records (no filtering by variable or commodity) ---
     raw_flows_df = load_raw_records(vd_file)
@@ -1082,7 +1106,7 @@ def main():
         # Net internal bidirectional links to avoid loops after clustering
         clustered_df = net_bidirectional_links(clustered_df)
 
-        # --- Build Sankey ---
+    # --- Build Sankey ---
         _ = build_sankey(clustered_df, output_html_file, year=selected_year, flow_threshold=0.0)
 
 if __name__ == "__main__":
