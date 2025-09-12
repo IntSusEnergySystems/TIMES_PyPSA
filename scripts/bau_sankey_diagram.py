@@ -3,38 +3,6 @@ import pandas as pd
 import plotly.graph_objects as go
 from collections import defaultdict
 
-def get_energy_commodities(commodities_df):
-    """
-    Return a list of commodity codes that are likely energy carriers based on
-    their code/description. Avoid pollutants and material flows.
-    """
-    energy_keywords = [
-        'electricity', 'elc', 'coal', 'gas', 'oil', 'diesel', 'gasoline', 'petrol',
-        'lpg', 'hfo', 'kerosene', 'biofuel', 'biomass', 'pellet', 'heat', 'steam',
-        'solar', 'wind', 'hydro', 'nuclear', 'nuc', 'uran', 'uranium', 'fuel', 'hydrogen'
-    ]
-
-    pollutant_or_material_keywords = [
-        'co2', 'ch4', 'n2o', 'ghg', 'nox', 'sox', 'pm', 'pm2', 'cov', 'nh3',
-        'ash', 'slag', 'waste', 'residue', 'sludge', 'dust', 'metal', 'ore'
-    ]
-
-    energy_commodities = set()
-
-    for _, row in commodities_df.iterrows():
-        commodity_code = str(row['Commodity'])
-        description_text = str(row['Description'])
-        comm = commodity_code.lower()
-        desc = description_text.lower()
-
-        contains_energy = any(keyword in comm or keyword in desc for keyword in energy_keywords)
-        contains_pollutant_or_material = any(keyword in comm or keyword in desc for keyword in pollutant_or_material_keywords)
-
-        if contains_energy and not contains_pollutant_or_material:
-            energy_commodities.add(commodity_code)
-
-    return list(energy_commodities)
-
 def parse_times_line(line):
     """
     Parses a single line from the TIMES .vd file.
@@ -142,8 +110,6 @@ def filter_for_sankey(annual_df, commodities_df, year, mapping_df=None):
     """
     if annual_df.empty:
         return annual_df, set()
-
-    energy_codes = set(get_energy_commodities(commodities_df))
 
     df = annual_df.copy()
     df = df[df['year'] == year]
