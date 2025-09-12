@@ -187,7 +187,7 @@ def infer_flow_direction(process_name, commodities_df):
     # Default case
     return "Unknown Source", process_name
 
-def filter_for_sankey(annual_df, commodities_df, year):
+def filter_for_sankey(annual_df, commodities_df, year, mapping_df=None):
     """
     Filter annual aggregated flows for a given year, keeping only VAR_FIn and
     VAR_FOut variables and restricting to energy commodities.
@@ -204,10 +204,16 @@ def filter_for_sankey(annual_df, commodities_df, year):
     var_upper = df['variable'].str.upper()
     df = df[var_upper.isin(['VAR_FIN', 'VAR_FOUT'])]
 
-    if 'commodity_code' in df.columns:
-        df = df[df['commodity_code'].isin(energy_codes)]
+    # Determine energy commodity codes strictly from mapping Unit == 'PJ'
+    mapping_energy_codes = set()
+    if mapping_df is not None and not mapping_df.empty and 'unit' in mapping_df.columns and 'times' in mapping_df.columns:
+        mapping_energy_codes = set(mapping_df.loc[mapping_df['unit'].astype(str).str.strip().str.upper() == 'PJ', 'times'].astype(str).str.strip().unique())
 
-    return df, energy_codes
+    # If mapping is present, filter by those codes; otherwise, fall back to all observed
+    if mapping_energy_codes and 'commodity_code' in df.columns:
+        df = df[df['commodity_code'].astype(str).isin(mapping_energy_codes)]
+
+    return df, mapping_energy_codes
 
 
 def analyze_process_connectivity(df):
@@ -713,18 +719,28 @@ def read_commodity_mapping_table(mapping_file):
     # 'PyPSA Energy Carrier', 'Upstream commodity', 'Upstream process', 'Comment'
     pypsa_col = get(['pypsa energy carrier', 'pypsa', 'energy_carrier_pypsa'])
     times_col = get(['times commodity', 'times_commodity', 'times', 'commodity'])
+    desc_col = get(['description', 'desc'])
+    unit_col = get(['unit'])
     upst_comm_col = get(['upstream commodity', 'uspstream_commodity', 'upstream_commodity'])
     upst_proc_col = get(['upstream process', 'upstream_process'])
     sector_col = get(['sector (com_in)', 'sector'])
     comment_col = get(['comment', 'comments'])
 
+    n = len(df)
+    def series_or_empty(col_name):
+        if col_name is not None and col_name in df.columns:
+            return df[col_name]
+        return pd.Series([''] * n)
+
     out = pd.DataFrame({
-        'pypsa': df[pypsa_col] if pypsa_col in df else [],
-        'times': df[times_col] if times_col in df else [],
-        'upstream_commodity': df[upst_comm_col] if upst_comm_col in df else [],
-        'upstream_process': df[upst_proc_col] if upst_proc_col in df else [],
-        'sector': df[sector_col] if sector_col in df else [],
-        'comment': df[comment_col] if comment_col in df else [],
+        'pypsa': series_or_empty(pypsa_col),
+        'times': series_or_empty(times_col),
+        'description': series_or_empty(desc_col),
+        'unit': series_or_empty(unit_col),
+        'upstream_commodity': series_or_empty(upst_comm_col),
+        'upstream_process': series_or_empty(upst_proc_col),
+        'sector': series_or_empty(sector_col),
+        'comment': series_or_empty(comment_col),
     })
     # Strip whitespace
     for c in out.columns:
@@ -1087,7 +1103,7 @@ def main():
     """Main function to generate the Sankey diagram."""
 
     # --- Simplification options ---
-    cluster = False
+    cluster = True
     if cluster:
         # Set to False to build unclustered Sankey
         enable_process_clustering = True
@@ -1159,7 +1175,7 @@ def main():
     # Build commodities DataFrame with code and description from mapping
     commodities_df = pd.DataFrame({
         'Commodity': mapping_df['times'],
-        'Description': mapping_df.apply(lambda r: r.get('description', ''), axis=1)
+        'Description': mapping_df['description'] if 'description' in mapping_df.columns else ''
     })
 
     # --- Load raw records (no filtering by variable or commodity) ---
@@ -1194,7 +1210,7 @@ def main():
     print("Done.")
 
     # --- Filter for Sankey (year=2021, VAR_F*, energy commodities) ---
-    filtered_df, energy_codes = filter_for_sankey(annual_values_df, commodities_df, year=selected_year)
+    filtered_df, energy_codes = filter_for_sankey(annual_values_df, commodities_df, year=selected_year, mapping_df=mapping_df)
     if filtered_df.empty:
         print("Filtered dataset for Sankey is empty; skipping Sankey generation.")
         return
@@ -1247,6 +1263,7 @@ def main():
                 for gid, info in groups_info.items()
             ]).to_csv(groups_csv_file, index=False)
             print(f"Saved commodity groups to {groups_json_file} and {groups_csv_file}")
+            # Apply grouping to the dataset used for Sankey
             filtered_df = apply_commodity_grouping(filtered_df, commodity_to_group, groups_info, commodities_df)
 
     # --- Analyze connectivity and warn isolated processes ---
@@ -1255,9 +1272,8 @@ def main():
     # --- Option: process clustering toggle ---
     if not enable_process_clustering:
         print("Process clustering disabled. Building unclustered Sankey.")
-        # Net internal bidirectional links to avoid loops even without clustering
-        netted_df = net_bidirectional_links(filtered_df)
-        _ = build_sankey(netted_df, output_html_file, year=selected_year, flow_threshold=0.0, process_unit_map=process_unit_map)
+        # Represent all flows without netting
+        _ = build_sankey(filtered_df, output_html_file, year=selected_year, flow_threshold=0.0, process_unit_map=process_unit_map)
     else:
         # --- Apply mapping-based process clustering (no other clustering) ---
         clustered_df, aggregated_unit_map = apply_mapping_based_process_clustering(
@@ -1265,8 +1281,6 @@ def main():
         )
         # Merge unit maps: prefer aggregated units for aggregated codes, fall back to original map
         combined_unit_map = {**(process_unit_map or {}), **(aggregated_unit_map or {})}
-        # Net internal bidirectional links to avoid loops after clustering
-        clustered_df = net_bidirectional_links(clustered_df)
 
         # --- Build Sankey ---
         _ = build_sankey(clustered_df, output_html_file, year=selected_year, flow_threshold=0.0, process_unit_map=combined_unit_map)
