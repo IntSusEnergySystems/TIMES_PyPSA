@@ -581,6 +581,88 @@ def net_bidirectional_links(df):
 
 
 # -----------------------------
+# Mapping-based process clustering (simple aggregation by column)
+# -----------------------------
+def _find_case_insensitive_column(df, target_name):
+    for c in df.columns:
+        if c.strip().lower() == str(target_name).strip().lower():
+            return c
+    return None
+
+
+def _majority_or_first(values):
+    vals = [str(v).strip() for v in values if str(v).strip() and str(v).strip().lower() != 'nan']
+    if not vals:
+        return None
+    # Majority vote
+    counts = {}
+    for v in vals:
+        counts[v] = counts.get(v, 0) + 1
+    vals_sorted = sorted(counts.items(), key=lambda x: (-x[1], x[0]))
+    return vals_sorted[0][0]
+
+
+def apply_mapping_based_process_clustering(df, processes_df, agg_column_name, process_unit_col=None):
+    """
+    Replace each process by an aggregated process according to a column in
+    mapping_processes.csv (e.g., "Aggregation Level 1"). No other clustering
+    is performed. Returns (clustered_df, aggregated_process_unit_map).
+    """
+    if df.empty:
+        return df, {}
+
+    # Resolve the aggregation column name case-insensitively
+    agg_col = _find_case_insensitive_column(processes_df, agg_column_name)
+    if agg_col is None:
+        print(f"[INFO] Aggregation column '{agg_column_name}' not found in process mapping; skipping process clustering.")
+        return df, {}
+
+    # Ensure required columns exist
+    if 'Process' not in processes_df.columns:
+        raise KeyError("Process mapping DataFrame must contain a 'Process' column.")
+
+    # Build mapping: process_code -> (cluster_code, cluster_name)
+    proc_to_cluster_code = {}
+    cluster_code_to_name = {}
+
+    for _, row in processes_df.iterrows():
+        pcode = str(row['Process']).strip()
+        raw_label = str(row.get(agg_col, '')).strip()
+        if raw_label and raw_label.lower() != 'nan':
+            cluster_code = f"AGG_{_slugify(raw_label)}"
+            cluster_name = raw_label
+        else:
+            cluster_code = pcode
+            cluster_name = str(row.get('Description', pcode))
+        proc_to_cluster_code[pcode] = cluster_code
+        # Prefer first encountered non-empty name
+        if cluster_code not in cluster_code_to_name:
+            cluster_code_to_name[cluster_code] = cluster_name
+
+    # Build aggregated unit map for tooltips
+    aggregated_process_unit_map = {}
+    if process_unit_col is not None and process_unit_col in processes_df.columns:
+        # Group by cluster and choose majority/non-empty unit
+        processes_df['_cluster_code_tmp'] = processes_df['Process'].map(lambda p: proc_to_cluster_code.get(str(p).strip(), str(p).strip()))
+        unit_col_real = process_unit_col
+        grouped = processes_df.groupby('_cluster_code_tmp')[unit_col_real].apply(list).to_dict()
+        for cc, vals in grouped.items():
+            chosen = _majority_or_first(vals)
+            if chosen:
+                aggregated_process_unit_map[cc] = chosen
+        processes_df.drop(columns=['_cluster_code_tmp'], inplace=True)
+
+    # Apply mapping to data
+    dfc = df.copy()
+    dfc['process_code'] = dfc['process_code'].astype(str).map(lambda p: proc_to_cluster_code.get(p, p))
+    # Update readable process names to cluster names where applicable; fall back to original names
+    new_names = dfc['process_code'].map(lambda p: cluster_code_to_name.get(p))
+    dfc['process'] = new_names.where(new_names.notna(), dfc['process'])
+
+    return dfc, aggregated_process_unit_map
+
+
+# -----------------------------
 # Commodity grouping utilities
 # -----------------------------
 def _slugify(name):
@@ -1013,6 +1095,8 @@ def main():
         group_commodities = True
         # Max share of total final energy for the 'Others' buckets (0.10 = 10%)
         max_cluster_pct = 0.1
+        # Column in mapping_processes.csv used for process aggregation
+        process_cluster_column = "Aggregation Level 1"
     else:
         # Set to False to build unclustered Sankey
         enable_process_clustering = False
@@ -1020,6 +1104,7 @@ def main():
         group_commodities = False
         # Max share of total final energy for the 'Others' buckets (0.10 = 10%)
         max_cluster_pct = 0  
+        process_cluster_column = None
 
     # --- Configuration ---
     vd_file = "data/bau_080925_0809.vd"
@@ -1114,13 +1199,43 @@ def main():
         print("Filtered dataset for Sankey is empty; skipping Sankey generation.")
         return
 
+    # Before writing the filtered flows, attach columns showing the target clustered flow
+    # - clustered_process_code / clustered_process (based on mapping_processes.csv column)
+    # - grouped_commodity_code / grouped_commodity (based on commodity grouping if enabled)
+    preview_df = filtered_df.copy()
+    # Process clustering preview
+    if enable_process_clustering and process_cluster_column:
+        preview_clustered_df, _ = apply_mapping_based_process_clustering(
+            preview_df, processes_df, agg_column_name=process_cluster_column, process_unit_col=process_unit_col
+        )
+        filtered_df['clustered_process_code'] = preview_clustered_df['process_code']
+        filtered_df['clustered_process'] = preview_clustered_df['process']
+    else:
+        filtered_df['clustered_process_code'] = filtered_df['process_code']
+        filtered_df['clustered_process'] = filtered_df['process']
+
+    # Commodity grouping preview (only compute mapping here; JSON/CSV saving remains in the grouping block below)
+    commodity_to_group = None
+    groups_info = None
+    if group_commodities:
+        commodity_to_group, groups_info = build_commodity_groups_from_mapping(mapping_df, energy_codes, commodities_df, mapping_file)
+        # Build name map for groups
+        group_name_map = {gid: info['name'] for gid, info in groups_info.items()} if groups_info else {}
+        filtered_df['grouped_commodity_code'] = filtered_df['commodity_code'].map(lambda c: commodity_to_group.get(c, c))
+        filtered_df['grouped_commodity'] = filtered_df['grouped_commodity_code'].map(lambda gid: group_name_map.get(gid, filtered_df.set_index('commodity_code')['commodity'].to_dict().get(gid, gid)))
+    else:
+        filtered_df['grouped_commodity_code'] = filtered_df['commodity_code']
+        filtered_df['grouped_commodity'] = filtered_df['commodity']
+
     print(f"Writing filtered flows to {output_filtered_csv} ...")
     filtered_df.to_csv(output_filtered_csv, index=False)
     print("Done.")
 
     # --- Optional: Group commodities to reduce node count ---
     if group_commodities:
-        commodity_to_group, groups_info = build_commodity_groups_from_mapping(mapping_df, energy_codes, commodities_df, mapping_file)
+        # Reuse computed groups if available from preview; else compute
+        if not commodity_to_group or not groups_info:
+            commodity_to_group, groups_info = build_commodity_groups_from_mapping(mapping_df, energy_codes, commodities_df, mapping_file)
         if groups_info:
             import json
             groups_json_file = f"output/sankey_commodity_groups_{selected_year}.json"
@@ -1144,32 +1259,17 @@ def main():
         netted_df = net_bidirectional_links(filtered_df)
         _ = build_sankey(netted_df, output_html_file, year=selected_year, flow_threshold=0.0, process_unit_map=process_unit_map)
     else:
-        # --- Build process clusters to simplify Sankey ---
-        process_to_cluster, clusters_info = build_process_clusters(
-            filtered_df, processes_df, both_io, only_in, only_out,
-            max_cluster_pct=max_cluster_pct,
-            tolerance=1e-3,
+        # --- Apply mapping-based process clustering (no other clustering) ---
+        clustered_df, aggregated_unit_map = apply_mapping_based_process_clustering(
+            filtered_df, processes_df, agg_column_name=process_cluster_column, process_unit_col=process_unit_col
         )
-
-        # Persist cluster definitions
-        import json
-        clusters_json_file = f"output/sankey_clusters_{selected_year}.json"
-        clusters_csv_file = f"output/sankey_clusters_{selected_year}.csv"
-        with open(clusters_json_file, 'w') as f:
-            json.dump(clusters_info, f, indent=2)
-        pd.DataFrame([
-            {"cluster_id": cid, "name": info['name'], "type": info['type'], "throughput": info['throughput'], "members": ';'.join(info['members'])}
-            for cid, info in clusters_info.items()
-        ]).to_csv(clusters_csv_file, index=False)
-        print(f"Saved clusters to {clusters_json_file} and {clusters_csv_file}")
-
-        # Apply clustering to data
-        clustered_df = apply_process_clustering(filtered_df, process_to_cluster, clusters_info, processes_df)
+        # Merge unit maps: prefer aggregated units for aggregated codes, fall back to original map
+        combined_unit_map = {**(process_unit_map or {}), **(aggregated_unit_map or {})}
         # Net internal bidirectional links to avoid loops after clustering
         clustered_df = net_bidirectional_links(clustered_df)
 
-    # --- Build Sankey ---
-        _ = build_sankey(clustered_df, output_html_file, year=selected_year, flow_threshold=0.0, process_unit_map=process_unit_map)
+        # --- Build Sankey ---
+        _ = build_sankey(clustered_df, output_html_file, year=selected_year, flow_threshold=0.0, process_unit_map=combined_unit_map)
 
 if __name__ == "__main__":
     main()
