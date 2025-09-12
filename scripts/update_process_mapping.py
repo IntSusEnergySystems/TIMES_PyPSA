@@ -44,12 +44,17 @@ def update_process_mapping():
     # 6. Drop the temporary CHP column
     df_map.drop(columns=['CHP'], inplace=True)
 
-    # 7. Save the updated dataframe back to the original file
+    # 7. Apply the "Fuel Tech" rule
+    fuel_tech_mask = df_map['Description'].str.startswith('Fuel Tech', na=False)
+    df_map.loc[fuel_tech_mask, 'Aggregation Level 1'] = \
+        df_map.loc[fuel_tech_mask, 'Description'].str.replace(r'\s*\([A-Z]+\)$', '', regex=True).str.strip()
+
+    # 8. Save the updated dataframe back to the original file
     df_map.to_csv(mapping_file, index=False)
 
-    print(f"Successfully updated {mapping_file} with 'Aggregation Level 1' column including CHP info.")
+    print(f"Successfully updated {mapping_file} with 'Aggregation Level 1' column including CHP info and Fuel Tech rule.")
     print("First 5 rows of the updated file:")
-    print(df_map[['Technology (Process)', 'Aggregation Level 1']].head())
+    print(df_map[['Technology (Process)', 'Description', 'Aggregation Level 1']].head())
 
 if __name__ == "__main__":
     update_process_mapping()
