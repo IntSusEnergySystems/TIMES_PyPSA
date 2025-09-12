@@ -1,0 +1,122 @@
+﻿process;Sector;Description;Base;CHP
+CO2DAC-01;SUP;General - DAC Solid Adsorbents(Amine-based);FALSE;FALSE
+STORAGEMINELC;SUP;STORAGEMINELC;FALSE;FALSE
+STORAGEMININD;SUP;STORAGEMININD;FALSE;FALSE
+CO2CTOMETHELC;SUP;CO2CTOMETHELC;FALSE;FALSE
+CO2CTOMETHIND;SUP;CO2CTOMETHIND;FALSE;FALSE
+BBLQDME110;SUP;Gasification_  black liquor to DME;FALSE;FALSE
+BBLQFTST110;SUP;Gasification_ black liquor to FT-diesel;FALSE;FALSE
+BCRPETH201;SUP;Ethanol production from sugar crops;FALSE;FALSE
+BWOOETH110;SUP;Ethanol production from woody biomass;FALSE;FALSE
+BBLQGAS110;SUP;Gasification_ black liquor to methane;FALSE;FALSE
+BRPSME101;SUP;Transesterification of vegetable oils;FALSE;FALSE
+STH2SDT;SUP;Distributed Hydrogen Gas Tank Storage: DayNite/Seasonal;FALSE;FALSE
+SELCH2EC01;SUP;H2 Production-Alkaline Electrolyser, large size, centralized;FALSE;FALSE
+SELCH2EC02;SUP;H2 Production-Alkaline Electrolyser, medium size, centralized;FALSE;FALSE
+SELCH2ED01;SUP;H2 Production-Alkaline Electrolyser, small size, decentralized;FALSE;FALSE
+SELCH2PEM01;SUP;PEM Electrolyzer - Proton Exchange Membrane - Start 2015;FALSE;FALSE
+SETHH2RD01;SUP;H2 Production-Ethanol Steam Reforming, decentralized;FALSE;FALSE
+SGASH2RC01;SUP;H2 Production-Methane Steam Reforming, large size, centralized;FALSE;FALSE
+SGASH2RC02;SUP;H2 Production-Methane Steam Reforming, small size, centralized;FALSE;FALSE
+SGASH2RCC01;SUP;H2 Production-Methane Steam Reforming + Carbon Capture, large size, centralized;FALSE;FALSE
+SGASH2RD01;SUP;H2 Production-Methane Steam Reforming, medium size, decentralized;FALSE;FALSE
+SGASH2RD02;SUP;H2 Production-Methane Steam Reforming, small size, decentralized;FALSE;FALSE
+SHFOH2POC01;SUP;H2 Production-Central PO of Heavy Oil (CPO3);FALSE;FALSE
+SCOAH2GCC02;SUP;H2 Production-Coal Gasification + Carbon Capture, medium size, centralized;FALSE;FALSE
+SCOAH2GC02;SUP;H2 Production-Coal Gasification, medium size, centralized;FALSE;FALSE
+BBLQH2G110;SUP;Gasification_ black liquor to hydrogen;FALSE;FALSE
+SBIOH2GC01;SUP;H2 Production-Biomass Gasification, medium size, centralized;FALSE;FALSE
+SBIOH2GCC01;SUP;H2 Production-Biomass Gasification + Carbon Capture, medium size, centralized;FALSE;FALSE
+SBIOH2GD01;SUP;H2 Production-Biomass Gasification, small size, decentralized;FALSE;FALSE
+SBIOH2RC01;SUP;H2 Production-Biomass Steam Reforming, centralized;FALSE;FALSE
+SCOAH2GC01;SUP;H2 Production-Coal Gasification, large size, centralized;FALSE;FALSE
+SCOAH2GCC01;SUP;H2 Production-Coal Gasification + Carbon Capture, big size, centralized;FALSE;FALSE
+SGASH2KC01;SUP;H2 Production-Kvaerner Process, centralized;FALSE;FALSE
+SELCH2EC01_LowAF;SUP;H2 Production-Alkaline Electrolyser, large size, centralized - Pseudo with LowAF;FALSE;FALSE
+SELCH2EC02_LowAF;SUP;H2 Production-Alkaline Electrolyser, medium size, centralized - Pseudo with LowAF;FALSE;FALSE
+SELCH2ED01_LowAF;SUP;H2 Production-Alkaline Electrolyser, small size, decentralized - Pseudo with LowAF;FALSE;FALSE
+SELCH2PEM01_LowAF;SUP;PEM Electrolyzer - Proton Exchange Membrane - Pseudo with LowAF;FALSE;FALSE
+RSDGH2C01_i;SUP;RSDGH2C01_i;FALSE;FALSE
+SGASH2RCC02;SUP;H2 Production-Methane Steam Reforming + Carbon Capture, small size, centralized;FALSE;FALSE
+TRALH2C02_i;SUP;TRALH2C02_i;FALSE;FALSE
+INDGH2C01_i;SUP;INDGH2C01_i;FALSE;FALSE
+BWBIOGAZ100;SUP;Methanisation Biogas production;FALSE;FALSE
+DIGECPS100;SUP;Chaleur digesteur chips;FALSE;FALSE
+DIGEOIL100;SUP;Chaleur digesteur mazout;FALSE;FALSE
+DIGEPEL100;SUP;Chaleur digesteur pellets;FALSE;FALSE
+BWOOFTDST110;SUP;FT-diesel production from woody biomass;FALSE;FALSE
+BBIORPS101;SUP;Vegetable oil extraction;FALSE;FALSE
+ERNW_PV-Large_Roof_SOL_N;ELC;New Public - Solar PV Large Roofs  1 MW (1-5 MW  IND CCIAL LOGIST PKGS);FALSE;FALSE
+BCRPETH101;SUP;Ethanol production from starch crops;FALSE;FALSE
+P_STH2SDT;SUP;Dummy tech STH2SDT;FALSE;FALSE
+P_STH2SGT;SUP;Dummy tech STH2SGT;FALSE;FALSE
+DIGEGAS100;SUP;Chaleur digesteur biogaz;FALSE;FALSE
+ERNW_PV-Buildings_SOL_N;ELC;New Public - Solar PV Buildings 100 kW (10-500 KW TERT RES AGRI PKGS);FALSE;FALSE
+ERNW_PV-GreenField_SOL_N;ELC;New Public - Solar PV Greenfield 10 MW ( 1-30 MW);FALSE;FALSE
+ERNW_GEO-EGS_GEO_N;ELC;New Public - Geothermy EGS  Elec ORC (4 MW_EL, 8300h);FALSE;FALSE
+ERNW_HYD_HYD_N;ELC;New Public - Hydro new 300 kW;FALSE;FALSE
+ERNW_WINON-Small_WIN_N;ELC;New Public - Wind Onshore Small 100 kW Motorway;FALSE;FALSE
+ERNW_WINON_WIN_N;ELC;New Public - Wind Onshore Large;FALSE;FALSE
+ETSTP_CCGT-CCS_PostC_GAS_N;ELC;New Thermal Public - CCGT advanced CCS post combustion;FALSE;FALSE
+ETSTP_CCGT_GAS_N;ELC;New Thermal Public - Combined Cycle Gas Turbine advanced.;FALSE;FALSE
+ETSTP_FB-CCS_PostC_COL_N;ELC;New Thermal Public - Fluidised bed lignite CCS post combustion;FALSE;FALSE
+ETSTP_FBB_WOO_N;ELC;New Thermal Public - Fluidised bed boiler (circulating or bubbling) plus steam turbine;FALSE;FALSE
+ETSTP_GFST_WOO_N;ELC;New Thermal Public - Biomass grate furnace steam turbine;FALSE;FALSE
+ETSTP_IGCC-CCS_PreC_COH_N;ELC;New Thermal Public - IGCC CCS pre-combustion.;FALSE;FALSE
+BWOODME110;SUP;DME production from woody biomass;FALSE;FALSE
+P_STECH4IMP;SUP;P_STECH4IMP;FALSE;FALSE
+ETSTP_NUC-LWR-SM_NUC_N;ELC;New Thermal Public - Nuclear - Small and Medium sized light water reactor;FALSE;FALSE
+ETSTP_PSC-CCS_PostC_COH_N;ELC;New Thermal Public - Pulverised coal supercritical CCS post-combustion;FALSE;FALSE
+ETSTP_PSC_COH_N;ELC;New Thermal Public - Pulverised coal supercritical.;FALSE;FALSE
+ETSTP_PSC_COL_N;ELC;New Thermal Public - Pulverised lignite supercritical.;FALSE;FALSE
+ETSTP_SCFB_COL_N;ELC;New Thermal Public - Supercritical fluidized bed lignite;FALSE;FALSE
+BWSUPGZH100;SUP;épuration pour injection;FALSE;FALSE
+P_STH2IMP;SUP;P_STH2IMP;FALSE;FALSE
+BWOOGAS110;SUP;Gasification_ biomass (tree salix etc) to methane;FALSE;FALSE
+STH2IMP;SUP;STH2IMP;FALSE;FALSE
+STECH4IMP;SUP;STECH4IMP;FALSE;FALSE
+STH2SGT;SUP;Centralised Hydrogen Gas Tank Storage: DayNite/Seasonal;FALSE;FALSE
+ERNW_PV-RES_Homes_SOL_N;ELC;New Public - Solar PV RES Homes  3kW (1-10kw);FALSE;FALSE
+ETSTP_NUC-SCFR-GEN4_NUC_N;ELC;New Thermal Public - Nuclear - Sodium-cooled fast reactor Gen IV;FALSE;FALSE
+ETSTP_OCGT-A_GAS_N;ELC;New Thermal Public - Open Cycle Gas Turbine advanced;FALSE;FALSE
+ETSTP_OCGT-C_GAS_N;ELC;New Thermal Public - Open-Cycle Gas Turbine conventional;FALSE;FALSE
+ETSTP_PSC-CCS_Oxyf_COH_N;ELC;New Thermal Public - Pulverised coal supercritical CCS oxyfuel.;FALSE;FALSE
+ETSTP_IGCC-CCS_PreC_COL_N;ELC;New Thermal Public - IGCC lignite CCS pre combustion.;FALSE;FALSE
+ETSTP_IGCC_COH_N;ELC;New Thermal Public - Integrated Gasification Combined Cycle coal;FALSE;FALSE
+ETSTP_IGCC_COL_N;ELC;New Thermal Public - Integrated Gasification Combined Cycle lignite;FALSE;FALSE
+ETSTP_IGCC_WOO_N;ELC;New Thermal Public - Biomass IGCC;FALSE;FALSE
+ETSTP_NUC-LCFR_NUC_N;ELC;New Thermal Public - Nuclear - Lead-cooled fast reactor;FALSE;FALSE
+ETSTP_NUC-LWR-GEN3_NUC_N;ELC;New Thermal Public - Nuclear - Generation III light water reactor.;FALSE;FALSE
+TRAGH2C02_I;SUP;TRAGH2C02_I;FALSE;FALSE
+ETSTP_TVC_WST_E11;ELC;Existing Thermal Public - Pure ELC - Turbine vapeur à condensation - E11;TRUE;FALSE
+ENUC_Thiange;ELC;Existing Nuclear Power Plant - 859;TRUE;FALSE
+ERNW_Eolien_Big_E1;ELC;Wind Turbine >2000kW;TRUE;FALSE
+ERNW_Eolien_Medium_E3;ELC;Wind Turbine >100 et <=2000 kW;TRUE;FALSE
+ERNW_Eolien_Small_E4;ELC;Wind Turbine <=100 kW;TRUE;FALSE
+ERNW_Hydro_Big_E5;ELC;Hydro run of river >10000 kW;TRUE;FALSE
+ERNW_Hydro_Medium_E6;ELC;Hydro run of river >1000 et <=10000 kW;TRUE;FALSE
+ERNW_Hydro_Pompage_E8;ELC;Hydro pump storage;TRUE;FALSE
+ERNW_Hydro_Small_E7;ELC;Hydro run of river <=1000 kW;TRUE;FALSE
+ETSTP_MOT_BGS_E09;ELC;Existing Thermal Public - Pure ELC - Moteur  - E09;TRUE;FALSE
+ETSTP_TAG_GAS_E06;ELC;Existing Thermal Public - Pure ELC - Turbine à natural gaz   - E06;TRUE;FALSE
+ETSTP_TBJ_KER_E05;ELC;Existing Thermal Public - Pure ELC - Turbojet - E05;TRUE;FALSE
+ETSTP_TGV_GAS_E01;ELC;Existing Thermal Public - Pure ELC - Turbine gaz à vapeur - E01;TRUE;FALSE
+ETSTP_TGV_GAS_E02;ELC;Existing Thermal Public - Pure ELC - Turbine gaz à vapeur - E02;TRUE;FALSE
+ETSTP_TGV_GAS_E03;ELC;Existing Thermal Public - Pure ELC - Turbine gaz à vapeur - E03;TRUE;FALSE
+ETSTP_TGV_GAS_E04;ELC;Existing Thermal Public - Pure ELC - Turbine gaz à vapeur - E04;TRUE;FALSE
+EVTRANS_H-H;ELC;Grid High Voltage;TRUE;FALSE
+EVTRANS_M-L;ELC;Grid low Voltage and Voltage Transformer: Medium to Low;TRUE;FALSE
+EVTRANS_H-M;ELC;Grid medium Voltage and Voltage Transformer: High to Medium;TRUE;FALSE
+EVTRANS_L-M;ELC;Grid low Voltage and Voltage Transformer: Low to Medium;TRUE;FALSE
+ECHPP_COM_BGS_E05;ELC;Existing thermal - CHP - Commercial - E05;TRUE;TRUE
+ECHPP_COM_CPS_E01;ELC;Existing thermal - CHP - Commercial - E01;TRUE;TRUE
+ECHPP_COM_GAS_E04;ELC;Existing thermal - CHP - Commercial - E04;TRUE;TRUE
+ECHPP_COM_PEL_E03;ELC;Existing thermal - CHP - Commercial - E03;TRUE;TRUE
+ECHPP_MOT_BGS_E01;ELC;Existing Thermal Public - CHP - Moteur  - E01;TRUE;TRUE
+ECHPP_MOT_BIO_E02;ELC;Existing Thermal Public - CHP - Moteur  - E02;TRUE;TRUE
+ECHPP_MOT_GAS_E04;ELC;Existing Thermal Public - CHP - Moteur  - E04;TRUE;TRUE
+ECHPP_MOT_OIL_E03;ELC;Existing Thermal Public - CHP - Moteur  - E03;TRUE;TRUE
+ECHPP_COM_OIL_E06;ELC;Existing thermal - CHP - Commercial - E07;TRUE;TRUE
+ECHPP_AED_BGS_N;ELC;New Thermal Public CHP - Anaerobic digestion;FALSE;TRUE
+ECHPP_CCGT-CHP_GAS_N;ELC;New Public - CCGT advanced CHP;FALSE;TRUE
+ECHPP_CHP_WOO_N;ELC;New Public - Biomass CHP;FALSE;TRUE

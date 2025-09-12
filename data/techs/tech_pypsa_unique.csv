@@ -1,0 +1,273 @@
+﻿technology
+Ammonia cracker
+BEV Bus city
+BEV Coach
+BEV Truck Semi-Trailer max 50 tons
+BEV Truck Solo max 26 tons
+BEV Truck Trailer max 56 tons
+Battery electric (passenger cars)
+Battery electric (trucks)
+BioSNG
+BtL
+CCGT
+CH4 (g) fill compressor station
+CH4 (g) pipeline
+CH4 (g) submarine pipeline
+CH4 (l) transport ship
+CH4 evaporation
+CH4 liquefaction
+CO2 liquefaction
+CO2 pipeline
+CO2 storage tank
+CO2 submarine pipeline
+Charging infrastructure fast (purely) battery electric vehicles passenger cars
+Charging infrastructure fuel cell vehicles passenger cars
+Charging infrastructure fuel cell vehicles trucks
+Charging infrastructure slow (purely) battery electric vehicles passenger cars
+Compressed-Air-Adiabatic-bicharger
+Compressed-Air-Adiabatic-store
+Concrete-charger
+Concrete-discharger
+Concrete-store
+Container feeder, ammonia
+Container feeder, diesel
+Container feeder, methanol
+Container, ammonia
+Container, diesel
+Container, methanol
+Diesel Bus city
+Diesel Coach
+Diesel Truck Semi-Trailer max 50 tons
+Diesel Truck Solo max 26 tons
+Diesel Truck Trailer max 56 tons
+FCV Bus city
+FCV Coach
+FCV Truck Semi-Trailer max 50 tons
+FCV Truck Solo max 26 tons
+FCV Truck Trailer max 56 tons
+FT fuel transport ship
+Fischer-Tropsch
+Gasnetz
+General liquid hydrocarbon storage (crude)
+General liquid hydrocarbon storage (product)
+Gravity-Brick-bicharger
+Gravity-Brick-store
+Gravity-Water-Aboveground-bicharger
+Gravity-Water-Aboveground-store
+Gravity-Water-Underground-bicharger
+Gravity-Water-Underground-store
+H2 (g) fill compressor station
+H2 (g) pipeline
+H2 (g) pipeline repurposed
+H2 (g) submarine pipeline
+H2 (g) submarine pipeline repurposed
+H2 (l) storage tank
+H2 (l) transport ship
+H2 evaporation
+H2 liquefaction
+H2 pipeline
+HVAC overhead
+HVDC inverter pair
+HVDC overhead
+HVDC submarine
+HVDC underground
+Haber-Bosch
+HighT-Molten-Salt-charger
+HighT-Molten-Salt-discharger
+HighT-Molten-Salt-store
+Hydrogen fuel cell (passenger cars)
+Hydrogen fuel cell (trucks)
+Hydrogen-charger
+Hydrogen-discharger
+Hydrogen-store
+LNG storage tank
+LOHC chemical
+LOHC dehydrogenation
+LOHC dehydrogenation (small scale)
+LOHC hydrogenation
+LOHC loaded DBT storage
+LOHC transport ship
+LOHC unloaded DBT storage
+Lead-Acid-bicharger
+Lead-Acid-store
+Liquid fuels ICE (passenger cars)
+Liquid fuels ICE (trucks)
+Liquid-Air-charger
+Liquid-Air-discharger
+Liquid-Air-store
+Lithium-Ion-LFP-bicharger
+Lithium-Ion-LFP-store
+Lithium-Ion-NMC-bicharger
+Lithium-Ion-NMC-store
+LowT-Molten-Salt-charger
+LowT-Molten-Salt-discharger
+LowT-Molten-Salt-store
+MeOH transport ship
+Methanol steam reforming
+NH3 (l) storage tank incl. liquefaction
+NH3 (l) transport ship
+Ni-Zn-bicharger
+Ni-Zn-store
+OCGT
+PHS
+Pumped-Heat-charger
+Pumped-Heat-discharger
+Pumped-Heat-store
+Pumped-Storage-Hydro-bicharger
+Pumped-Storage-Hydro-store
+SMR
+SMR CC
+Sand-charger
+Sand-discharger
+Sand-store
+Steam methane reforming
+Tank&bulk, diesel
+Tank&bulk, methanol
+Tankbulk, ammonia
+Vanadium-Redox-Flow-bicharger
+Vanadium-Redox-Flow-store
+Zn-Air-bicharger
+Zn-Air-store
+Zn-Br-Flow-bicharger
+Zn-Br-Flow-store
+Zn-Br-Nonflow-bicharger
+Zn-Br-Nonflow-store
+air separation unit
+allam
+battery inverter
+battery storage
+biochar pyrolysis
+biodiesel crops
+bioethanol crops
+biogas
+biogas CC
+biogas manure
+biogas plus hydrogen
+biogas upgrading
+biomass
+biomass CHP
+biomass CHP capture
+biomass EOP
+biomass HOP
+biomass boiler
+biomass-to-methanol
+cement capture
+central air-sourced heat pump
+central coal CHP
+central excess-heat-sourced heat pump
+central gas CHP
+central gas CHP CC
+central gas boiler
+central geothermal heat source
+central geothermal-sourced heat pump
+central ground-sourced heat pump
+central hydrogen CHP
+central resistive heater
+central solar thermal
+central solid biomass CHP
+central solid biomass CHP CC
+central solid biomass CHP powerboost CC
+central water pit charger
+central water pit discharger
+central water pit storage
+central water tank charger
+central water tank discharger
+central water tank storage
+central water-sourced heat pump
+clean water tank storage
+coal
+csp-tower
+csp-tower TES
+csp-tower power block
+decentral CHP
+decentral air-sourced heat pump
+decentral gas boiler
+decentral gas boiler connection
+decentral ground-sourced heat pump
+decentral oil boiler
+decentral resistive heater
+decentral solar thermal
+decentral water tank charger
+decentral water tank discharger
+decentral water tank storage
+digestible biomass
+digestible biomass to hydrogen
+direct air capture
+direct firing gas
+direct firing gas CC
+direct firing solid fuels
+direct firing solid fuels CC
+direct iron reduction furnace
+dry bulk carrier Capesize
+electric arc furnace
+electric boiler steam
+electric steam cracker
+electricity distribution grid
+electricity grid connection
+electrobiofuels
+electrolysis
+electrolysis small
+fuel cell
+fuelwood
+gas
+gas boiler steam
+gas storage
+gas storage charger
+gas storage discharger
+geothermal
+helmeth
+home battery inverter
+home battery storage
+hydro
+hydrogen storage compressor
+hydrogen storage tank type 1
+hydrogen storage tank type 1 including compressor
+hydrogen storage underground
+industrial heat pump high temperature
+industrial heat pump medium temperature
+iron ore DRI-ready
+iron-air battery
+iron-air battery charge
+iron-air battery discharge
+lignite
+methanation
+methane storage tank incl. compressor
+methanol
+methanol-to-kerosene
+methanol-to-olefins/aromatics
+methanolisation
+micro CHP
+nuclear
+offwind
+offwind-ac-connection-submarine
+offwind-ac-connection-underground
+offwind-ac-station
+offwind-dc-connection-submarine
+offwind-dc-connection-underground
+offwind-dc-station
+offwind-float
+offwind-float-connection-submarine
+offwind-float-connection-underground
+offwind-float-station
+oil
+onwind
+organic rankine cycle
+ror
+seawater RO desalination
+seawater desalination
+shipping fuel methanol
+solar
+solar-rooftop
+solar-rooftop commercial
+solar-rooftop residential
+solar-utility
+solar-utility single-axis tracking
+solid biomass
+solid biomass boiler steam
+solid biomass boiler steam CC
+solid biomass to hydrogen
+uranium
+waste CHP
+waste CHP CC
+water tank charger
+water tank discharger

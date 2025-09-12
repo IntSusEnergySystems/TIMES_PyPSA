@@ -1,0 +1,389 @@
+﻿technology TIMES-WAL;technology PyPSA;Base year;;;;
+ENUC_Thiange;nuclear;TRUE;;;;
+ERNW_Eolien_Big_E1;onwind;TRUE;;;;
+ERNW_PV-Buildings_SOL_N;solar-rooftop;FALSE;;;;
+ERNW_WINON_WIN_N;onwind;FALSE;;;;
+ETSTP_CCGT_GAS_N;CCGT;FALSE;;;;
+ETSTP_NUC-SCFR-GEN4_NUC_N;nuclear;FALSE;;;;
+ETSTP_TGV_GAS_E01;CCGT;TRUE;;;;
+ETSTP_TGV_GAS_E04;CCGT;TRUE;;;;
+ETSTP_TVC_WST_E11;CCGT;TRUE;;;;
+ERNW_Eolien_Medium_E3;onwind;TRUE;;;;
+ERNW_Eolien_Small_E4;onwind;TRUE;;;;
+ERNW_GEO-EGS_GEO_N;;FALSE;;;;
+ERNW_HYD_HYD_N;hydro;FALSE;;;;
+ERNW_Hydro_Big_E5;hydro;TRUE;;;;
+ERNW_Hydro_Medium_E6;hydro;TRUE;;;;
+ERNW_Hydro_Pompage_E8;Pumped-Storage-Hydro-store;TRUE;;;;
+ERNW_Hydro_Pompage_E8;Pumped-Storage-Hydro-bicharger;TRUE;;;;
+ERNW_Hydro_Small_E7;hydro;TRUE;;;;
+ERNW_PV-Buildings_SOL_N;solar-rooftop commercial;FALSE;;;;
+ERNW_PV-GreenField_SOL_N;;FALSE;;;;
+ERNW_PV-Large_Roof_SOL_N;solar-rooftop commercial;FALSE;;;;
+ERNW_PV-RES_Homes_SOL_N;solar-rooftop residential;FALSE;;;;
+ERNW_WINON_WIN_N;onwind;FALSE;;;;
+ERNW_WINON-Small_WIN_N;onwind;FALSE;;;;
+ETSTP_CCGT_GAS_N;CCGT;FALSE;;;;
+ETSTP_CCGT-CCS_PostC_GAS_N;;FALSE;;;;
+ETSTP_FBB_WOO_N;;FALSE;;;;
+ETSTP_FB-CCS_PostC_COL_N;;FALSE;;;;
+ETSTP_GFST_WOO_N;;FALSE;;;;
+ETSTP_IGCC_COH_N;;FALSE;;;;
+ETSTP_IGCC_COL_N;;FALSE;;;;
+ETSTP_IGCC_WOO_N;;FALSE;;;;
+ETSTP_IGCC-CCS_PreC_COH_N;;FALSE;;;;
+ETSTP_IGCC-CCS_PreC_COL_N;;FALSE;;;;
+ETSTP_MOT_BGS_E09;;TRUE;;;;
+ETSTP_NUC-LCFR_NUC_N;nuclear;FALSE;;;;
+ETSTP_NUC-LWR-GEN3_NUC_N;nuclear;FALSE;;;;
+ETSTP_NUC-LWR-SM_NUC_N;nuclear;FALSE;;;;
+ETSTP_NUC-SCFR-GEN4_NUC_N;nuclear;FALSE;;;;
+ETSTP_OCGT-A_GAS_N;OCGT;FALSE;;;;
+ETSTP_OCGT-C_GAS_N;OCGT;FALSE;;;;
+ETSTP_PSC_COH_N;coal;FALSE;;;;
+ETSTP_PSC_COL_N;;FALSE;;;;
+ETSTP_PSC-CCS_Oxyf_COH_N;;FALSE;;;;
+ETSTP_PSC-CCS_PostC_COH_N;;FALSE;;;;
+ETSTP_TAG_GAS_E06;OCGT;TRUE;;;;
+ETSTP_TBJ_KER_E05;OCGT;TRUE;;;;
+ETSTP_TGV_GAS_E01;CCGT;TRUE;;;;
+ETSTP_TGV_GAS_E02;CCGT;TRUE;;;;
+ETSTP_TGV_GAS_E03;CCGT;TRUE;;;;
+ETSTP_TGV_GAS_E04;CCGT;TRUE;;;;
+ECHPP_COM_BGS_E05;;TRUE;;biogas CHP;;
+ECHPP_COM_CPS_E01;biomass CHP;TRUE;;;;
+ECHPP_COM_GAS_E04;micro CHP;TRUE;;;;
+ECHPP_MOT_BGS_E01;;TRUE;;biogas CHP;;
+ECHPP_MOT_BIO_E02;;TRUE;;moteur pas turbine;;
+ECHPP_MOT_GAS_E04;micro CHP;TRUE;;;;
+ECHPP_MOT_OIL_E03;;TRUE;;;;
+ECHPP_AED_BGS_N;;FALSE;;Biogas chp;;
+CHPINDIBP00;decentral CHP;TRUE;;auto-prod CHP multi-vecteur;;
+CHPINDICH00;decentral CHP;TRUE;;auto-prod CHP multi-vecteur;;
+CHPINDIML00;decentral CHP;TRUE;;auto-prod CHP multi-vecteur;;
+CHPINDINM00;decentral CHP;TRUE;;auto-prod CHP multi-vecteur;;
+CHPINDIOF00;decentral CHP;TRUE;;auto-prod CHP multi-vecteur;;
+CHPINDIOI00;decentral CHP;TRUE;;auto-prod CHP multi-vecteur;;
+CHPINDIPO00;decentral CHP;TRUE;;auto-prod CHP multi-vecteur;;
+CHPINDIPP00;decentral CHP;TRUE;;auto-prod CHP multi-vecteur;;
+CHPINDISG00;decentral CHP;TRUE;;auto-prod CHP multi-vecteur;;
+ECHPP_COM_OIL_E06;;TRUE;;;;
+ECHPP_CCGT-CHP_GAS_N;central gas CHP;FALSE;;;;
+ECHPP_CHP_WOO_N;central solid biomass CHP;FALSE;;;;
+CHPINDLFOIISN00_N;;FALSE;;auto-prod CHP oil product;;a quoi associer les CHP auto-producteur ? Si vecteur difini. 
+CHPINDLFOICHN00_N;;FALSE;;auto-prod CHP oil product;;decentral chp n'a pas d'eff dans la feuille pypsa. Différences entre decentral chp et central chp ici ? Biomasse chp ? Ou central solid biomasse chp ???? 
+CHPINDCPSICHN00_N;;FALSE;;auto-prod CHP solid biomass;;
+CHPINDLFOIPPN00_N;;FALSE;;auto-prod CHP oil product;;
+CHPINDCPSIPPN00_N;;FALSE;;auto-prod CHP solid biomass;;
+CHPINDGMXIMLN00_N;;FALSE;;auto-prod gas CHP;;
+CHPINDPELIMLN00_N;;FALSE;;auto-prod CHP solid biomass;;
+CHPINDGMXISGN00_N;;FALSE;;auto-prod gas CHP;;
+CHPINDBGSISGN00_N;;FALSE;;auto-prod biogas CHP;;
+CHPINDPELISGN00_N;;FALSE;;auto-prod CHP solid biomass;;
+CHPINDBGSIOIN00_N;;FALSE;;auto-prod biogas CHP;;
+CHPINDCPSISGN00_N;;FALSE;;auto-prod CHP solid biomass;;
+CHPINDWSTIOFN00_N;;FALSE;;auto-prod waste chp;;
+CHPINDWSTIOIN00_N;;FALSE;;auto-prod waste chp;;
+CHPINDPELICHN00_N;;FALSE;;auto-prod CHP solid biomass;;
+CHPINDPELICHN00_N;;FALSE;;auto-prod CHP solid biomass;;
+CHPINDPELICHN00_N;;FALSE;;auto-prod CHP solid biomass;;
+CHPINDPELICHN00_N;;FALSE;;auto-prod CHP solid biomass;;
+CHPINDPELIOIN00_N;;FALSE;;auto-prod CHP solid biomass;;
+CHPINDCPSIOFN00_N;;FALSE;;auto-prod CHP solid biomass;;
+CHPINDCPSIBPN00_N;;FALSE;;auto-prod CHP solid biomass;;
+CHPINDHFOIPPN00_N;;FALSE;;auto-prod CHP oil product;;
+CHPINDHFOIISN00_N;;FALSE;;auto-prod CHP oil product;;
+CHPINDWSTIPPN00_N;;FALSE;;auto-prod waste chp;;
+CHPINDGMXIISN00_N;;FALSE;;auto-prod gas CHP;;
+CHPINDCPSIMLN00_N;;FALSE;;auto-prod CHP solid biomass;;
+CHPINDGMXICHN00_N;;FALSE;;auto-prod gas CHP;;
+CHPINDBGSIPON00_N;;FALSE;;auto-prod biogas CHP;;
+CHPINDGMXIPPN00_N;;FALSE;;auto-prod gas CHP;;
+CHPINDGMXIOFN00_N;;FALSE;;auto-prod gas CHP;;
+CHPINDBGSIOFN00_N;;FALSE;;auto-prod biogas CHP;;
+CHPINDLFOIOFN00_N;;FALSE;;auto-prod CHP oil product;;
+CHPINDGMXIOIN00_N;;FALSE;;auto-prod gas CHP;;
+CHPINDBIOIOIN00_N;;FALSE;;auto-prod CHP biomass;;
+CHPINDCPSIOIN00_N;;FALSE;;auto-prod CHP solid biomass;;
+CHPINDCOGIISN00_N;;FALSE;;gas chp;;
+CHPINDBLQIPPN00_N;;FALSE;;auto-prod CHP biomass;;
+CHPINDLFOIOIN00_N;;FALSE;;auto-prod CHP oil product;;
+CHPINDGMXIPON00_N;;FALSE;;auto-prod gas CHP;;
+CHCOOILCHPN01_N;;FALSE;;auto-prod CHP oil product;;
+CHCOCPSCHPN01_N;;FALSE;;auto-prod CHP solid biomass;;
+CHSAPELCHPN01_N;;FALSE;;auto-prod CHP solid biomass;;
+CHCSGMXCHPN01_N;micro CHP;FALSE;;auto-prod gas CHP;;"micro CHP est associé à gaz dans ""further descroption"". Peut on l'associé aux autres combustibles ? "
+CHCSPELCHPN01_N;;FALSE;;auto-prod CHP solid biomass;;
+CHSACPSCHPN01_N;;FALSE;;auto-prod CHP solid biomass;;
+CHCSOILCHPN01_N;;FALSE;;auto-prod CHP oil product;;
+CHCOGMXCHPN01_N;micro CHP;FALSE;;auto-prod gas CHP;;
+CHCSCPSCHPN01_N;;FALSE;;auto-prod CHP solid biomass;;
+CHCOPELCHPN01_N;;FALSE;;auto-prod CHP solid biomass;;
+CHSAOILCHPN01_N;;FALSE;;auto-prod CHP oil product;;
+CHSAGMXCHPN01_N;micro CHP;FALSE;;auto-prod gas CHP;;
+BBIORPS101;;FALSE;;;;Vegetable oil extraction
+BRPSME101;;FALSE;;;;Transesterification of vegetable oils
+BCRPETH201;;FALSE;;;;Ethanol production from sugar crops
+BWOODME110;;FALSE;;;;DME production from woody biomass
+BWOOGAS110;;FALSE;;;;Gasification_ biomass (tree salix etc) to methane
+BWBIOGAZ100;;FALSE;;;;Methanisation Biogas production
+BBLQDME110;;FALSE;;;;Gasification_  black liquor to DME
+DIGEGAS100;;FALSE;;;;Chaleur digesteur biogaz
+DIGECPS100;;FALSE;;;;Chaleur digesteur chips
+DIGEPEL100;;FALSE;;;;Chaleur digesteur pellets
+BCRPETH101;;FALSE;;;;Ethanol production from starch crops
+BWOOFTDST110;;FALSE;;;;FT-diesel production from woody biomass
+BWOOETH110;;FALSE;;;;Ethanol production from woody biomass
+BWSUPGZH100;;FALSE;;;;épuration pour injection
+BBLQGAS110;;FALSE;;;;Gasification_ black liquor to methane
+DIGEOIL100;;FALSE;;;;Chaleur digesteur mazout
+BBLQFTST110;;FALSE;;;;Gasification_ black liquor to FT-diesel
+STH2SGT;;FALSE;;;;Centralised Hydrogen Gas Tank Storage: DayNite/Seasonal
+STH2IMP;;FALSE;;;;STH2IMP
+STH2SDT;;FALSE;;;;Distributed Hydrogen Gas Tank Storage: DayNite/Seasonal
+STECH4IMP;;FALSE;;;;STECH4IMP
+P_STH2SGT;;FALSE;;;;Dummy tech STH2SGT
+INDGH2C01_i;;FALSE;;;;INDGH2C01_i
+RSDGH2C01_i;;FALSE;;;;RSDGH2C01_i
+SCOAH2GCC01;;FALSE;;;;H2 Production-Coal Gasification + Carbon Capture, big size, centralized
+SBIOH2RC01;;FALSE;;;;H2 Production-Biomass Steam Reforming, centralized
+SBIOH2GD01;;FALSE;;;;H2 Production-Biomass Gasification, small size, decentralized
+SGASH2RC01;;FALSE;;;;H2 Production-Methane Steam Reforming, large size, centralized
+SGASH2RCC02;;FALSE;;;;H2 Production-Methane Steam Reforming + Carbon Capture, small size, centralized
+SELCH2ED01;;FALSE;;;;H2 Production-Alkaline Electrolyser, small size, decentralized
+SELCH2EC02_LowAF;;FALSE;;;;H2 Production-Alkaline Electrolyser, medium size, centralized - Pseudo with LowAF
+SGASH2RD01;;FALSE;;;;H2 Production-Methane Steam Reforming, medium size, decentralized
+SHFOH2POC01;;FALSE;;;;H2 Production-Central PO of Heavy Oil (CPO3)
+SELCH2PEM01;;FALSE;;;;PEM Electrolyzer - Proton Exchange Membrane - Start 2015
+SELCH2EC01;;FALSE;;;;H2 Production-Alkaline Electrolyser, large size, centralized
+TRAGH2C02_I;;FALSE;;;;TRAGH2C02_I
+SCOAH2GC02;;FALSE;;;;H2 Production-Coal Gasification, medium size, centralized
+SCOAH2GC01;;FALSE;;;;H2 Production-Coal Gasification, large size, centralized
+SCOAH2GCC02;;FALSE;;;;H2 Production-Coal Gasification + Carbon Capture, medium size, centralized
+SGASH2RC02;;FALSE;;;;H2 Production-Methane Steam Reforming, small size, centralized
+SBIOH2GCC01;;FALSE;;;;H2 Production-Biomass Gasification + Carbon Capture, medium size, centralized
+SGASH2RCC01;;FALSE;;;;H2 Production-Methane Steam Reforming + Carbon Capture, large size, centralized
+SGASH2KC01;;FALSE;;;;H2 Production-Kvaerner Process, centralized
+SGASH2RD02;;FALSE;;;;H2 Production-Methane Steam Reforming, small size, decentralized
+SELCH2EC02;;FALSE;;;;H2 Production-Alkaline Electrolyser, medium size, centralized
+SELCH2PEM01_LowAF;;FALSE;;;;PEM Electrolyzer - Proton Exchange Membrane - Pseudo with LowAF
+SELCH2EC01_LowAF;;FALSE;;;;H2 Production-Alkaline Electrolyser, large size, centralized - Pseudo with LowAF
+P_STH2SDT;;FALSE;;;;Dummy tech STH2SDT
+P_STH2IMP;;FALSE;;;;P_STH2IMP
+P_STECH4IMP;;FALSE;;;;P_STECH4IMP
+BBLQH2G110;;FALSE;;;;Gasification_ black liquor to hydrogen
+SBIOH2GC01;;FALSE;;;;H2 Production-Biomass Gasification, medium size, centralized
+SETHH2RD01;;FALSE;;;;H2 Production-Ethanol Steam Reforming, decentralized
+SELCH2ED01_LowAF;;FALSE;;;;H2 Production-Alkaline Electrolyser, small size, decentralized - Pseudo with LowAF
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
+;;#N/A;;;;
