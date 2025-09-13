@@ -443,7 +443,7 @@ def read_commodity_mapping_table(mapping_file):
 
     # New header names: 'TIMES commodity', 'Description', 'Unit', 'Sector', 'Type',
     # 'PyPSA Energy Carrier', 'Upstream commodity', 'Upstream process', 'Comment'
-    pypsa_col = get(['pypsa energy carrier', 'pypsa', 'energy_carrier_pypsa'])
+    pypsa_col = get(['cluster'])
     times_col = get(['times commodity', 'times_commodity', 'times', 'commodity'])
     desc_col = get(['description', 'desc'])
     unit_col = get(['unit'])
@@ -688,7 +688,7 @@ def main():
         # Max share of total final energy for the 'Others' buckets (0.10 = 10%)
         max_cluster_pct = 0.1
         # Column in mapping_processes.csv used for process aggregation
-        process_cluster_column = "Aggregation Level 1"
+        process_cluster_column = "PyPSA technology"
     else:
         # Set to False to build unclustered Sankey
         enable_process_clustering = False
