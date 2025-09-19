@@ -4,91 +4,91 @@ ELCHIGG,High Voltage Electricity,PJ,ELC,NRG,High Voltage Electricity,High Voltag
 ELCMED,Medium Voltage Electricity,PJ,ELC,NRG,Medium Voltage Electricity,Medium Voltage Electricity,,,Medium voltage electricity
 ELCLOW,Low Voltage Electricity,PJ,ELC,NRG,Low Voltage Electricity,Low Voltage Electricity,,,low voltage electricity
 RSDELC,Electricity for Residential sector,PJ,RSD,NRG,Electricity for Residential sector,Electricity for Residential sector,ELCLOW,RSDELC00,
-INDELC,Electricity for Industry sector,PJ,IND,NRG,Electricity for Industry sector,Electricity for Industry sector,ELCHIGG,INDELC00,
+INDELC,industry electricity,PJ,IND,NRG,total industry,Electricity for Industry sector,ELCHIGG,INDELC00,
 COMELC,Electricity for Commercial sector,PJ,COM,NRG,Electricity for Commercial sector,Electricity for Commercial sector,ELCMED,COMELC00,
-TRAELC,Electricity for Transport sector,PJ,TRA,NRG,Electricity for Transport sector,Electricity for Transport sector,ELCLOW,TRAELC00,
+TRAELC,electricity transport,PJ,TRA,NRG,total transport,Electricity for Transport sector,ELCLOW,TRAELC00,
 ELCNUC,Nuclear for Electricity sector,PJ,ELC,NRG,Nuclear for Electricity sector,Uranium,,,
 RSDOIL,Diesel Oil for the residential sector,PJ,RSD,NRG,Diesel Oil for the residential sector,Oil,,,
-INDLFO,Industry: Light fuel oil,PJ,IND,NRG,Industry: Light fuel oil,Oil,,,light fuel oil
-INDHFO,Industry: Heavy fuel oil,PJ,IND,NRG,Industry: Heavy fuel oil,Oil,,,heavy fuel oil
-AGROIL,Oil for agriculture,PJ,AGR,NRG,Oil for agriculture,Oil,,,
+INDLFO,oil for industry,PJ,IND,NRG,total industry,Oil,,,light fuel oil
+INDHFO,oil for industry,PJ,IND,NRG,total industry,Oil,,,heavy fuel oil
+AGROIL,agriculture oil,PJ,AGR,NRG,total agriculture,Oil,,,
 COMOIL,Oil for commercial sector,PJ,COM,NRG,Oil for commercial sector,Oil,,,
-TRADST,Diesel for transport,PJ,TRA,NRG,Diesel for transport,Oil,OILDST,TRADST00,diesel
-TRAGSL,Gasoline for transport,PJ,TRA,NRG,Gasoline for transport,Gasoline,OILGSL,TRAGSL00,gasoline
+TRADST,Diesel for transport,PJ,TRA,NRG,total transport,Oil,OILDST,TRADST00,diesel
+TRAGSL,Gasoline for transport,PJ,TRA,NRG,total transport,Gasoline,OILGSL,TRAGSL00,gasoline
 TRAKER,Kerosene - Jet Fuels for transport,PJ,TRA,NRG,Kerosene - Jet Fuels for transport,Kerosene,,,kerozene
 RSDLPG,Liquified Petroleum Gas (RSD),PJ,RSD,NRG,Liquified Petroleum Gas (RSD),Oil,,,Propane butane
 COMLPG,Liquified Petroleum Gas (COM),PJ,COM,NRG,Liquified Petroleum Gas (COM),Oil,,,Propane butane
-TRALPG,Liquified Petroleum Gas (TRA),PJ,TRA,NRG,Liquified Petroleum Gas (TRA),Oil,,,Propane butane
-INDLPG,Liquified Petroleum Gas (IND),PJ,IND,NRG,Liquified Petroleum Gas (IND),Oil,,,Propane butane
-INDCOA,Hard Coal for industry,PJ,IND,NRG,Hard Coal for industry,Coal,,,
+TRALPG,Liquified Petroleum Gas (TRA),PJ,TRA,NRG,total transport,Oil,,,Propane butane
+INDLPG,oil for industry,PJ,IND,NRG,total industry,Oil,,,Propane butane
+INDCOA,coal for industry,PJ,IND,NRG,total industry,Coal,,,
 RSDCOA,Coal for residential sector,PJ,RSD,NRG,Coal for residential sector,Coal,,,
 COMCOA,Coal for commertial sector,PJ,COM,NRG,Coal for commertial sector,Coal,,,
-INDCOL,Lignite for industrial sector,PJ,IND,NRG,Lignite for industrial sector,Lignite,,,
+INDCOL,coal for industry,PJ,IND,NRG,total industry,Lignite,,,
 ELCCOL,Lignite for electricity sector,PJ,ELC,NRG,Lignite for electricity sector,Lignite,,,
-INDCOK,Coke for Industry sector,PJ,IND,NRG,Coke for Industry sector,Coal,,,Coke  in cement and lime industry
+INDCOK,coke for industry,PJ,IND,NRG,total industry,Coal,,,Coke  in cement and lime industry
 ELCGAS,Natural Gas for Electricity,PJ,ELC,NRG,Natural Gas for Electricity,Natural Gas,GASNAT,,
-INDGAS,Industry: Natural Gas,PJ,IND,NRG,Industry: Natural Gas,Natural Gas,GASNAT,,
-INDGMX,Network gas for Industry sector,PJ,IND,NRG,Network gas for Industry sector,Network gas,BIOGZH,SUPGMX00,Injected biomethane (after upgrading/concentration) + imported biomethane
+INDGAS,gas for industry,PJ,IND,NRG,total industry,Natural Gas,GASNAT,,
+INDGMX,gas for industry,PJ,IND,NRG,total industry,Network gas,BIOGZH,SUPGMX00,Injected biomethane (after upgrading/concentration) + imported biomethane
 RSDGMX,Network gas for Residential sector,PJ,RSD,NRG,Network gas for Residential sector,Network gas,BIOGZH,SUPGMX00,Injected biomethane (after upgrading/concentration) + imported biomethane
 COMGMX,Network gas for Commercial sector,PJ,COM,NRG,Network gas for Commercial sector,Network gas,BIOGZH,SUPGMX00,Injected biomethane (after upgrading/concentration) + imported biomethane
-TRAGMX,Network gas for Transport sector,PJ,TRA,NRG,Network gas for Transport sector,Network gas,BIOGZH,SUPGMX00,Injected biomethane (after upgrading/concentration)
-AGRGMX,Network gas for Agriculture sector,PJ,AGR,NRG,Network gas for Agriculture sector,Network gas,BIOGZH,SUPGMX00,Injected biomethane (after upgrading/concentration)
+TRAGMX,Network gas for Transport sector,PJ,TRA,NRG,total transport,Network gas,BIOGZH,SUPGMX00,Injected biomethane (after upgrading/concentration)
+AGRGMX,gas for agriculture,PJ,AGR,NRG,total agriculture,Network gas,BIOGZH,SUPGMX00,Injected biomethane (after upgrading/concentration)
 ELCCPS,Wood Chips for Electricity sector,PJ,ELC,NRG,Wood Chips for Electricity sector,Solid biomass,,,
 ELCPEL,Pellets for Electricity sector,PJ,ELC,NRG,Pellets for Electricity sector,Solid biomass,,,
-INDCPS,Wood Chips for Industry sector,PJ,IND,NRG,Wood Chips for Industry sector,Solid biomass,,,
+INDCPS,solid biomass for industry,PJ,IND,NRG,total industry,Solid biomass,,,
 INDPEL,Wood pellets for Industry,PJ,IND,NRG,Wood pellets for Industry,Solid biomass,,,
 RSDLOG,Wood Logs for Residential sector,PJ,RSD,NRG,Wood Logs for Residential sector,Solid biomass,,,logs
 RSDPEL,Pellets for Residential sector,PJ,RSD,NRG,Pellets for Residential sector,Solid biomass,,,
 INDBLQ,Black Liquor for Industry sector,PJ,IND,NRG,Black Liquor for Industry sector,Solid biomass,,,black liquor (biomass)
-INDBGS,Biogas for Industry sector,PJ,IND,NRG,Biogas for Industry sector,Biogas,,,
+INDBGS,gas for industry,PJ,IND,NRG,total industry,Biogas,,,
 COMBGS,Biogas for Commercial sector,PJ,COM,NRG,Biogas for Commercial sector,Biogas,,,
-TRABGS,Biogas for Transport sector,PJ,TRA,NRG,Biogas for Transport sector,Biogas,,,
+TRABGS,Biogas for Transport sector,PJ,TRA,NRG,total transport,Biogas,,,
 AGRBGS,Biogas for Agriculture sector,PJ,AGR,NRG,Biogas for Agriculture sector,Biogas,,,
 ELCBGS,Biogas for Electricity sector,PJ,ELC,NRG,Biogas for Electricity sector,Biogas,,,
 ELCWST,Waste for Electricity sector,PJ,ELC,NRG,Waste for Electricity sector,Municipal waste (optional),,,incinerator
-INDHET,HT Heat for Industry sector (distributed),PJ,IND,NRG,HT Heat for Industry sector (distributed),HT heat,,,District heating network with centralized CHP (ELCHET) and/or recovered excess heat from industry (INDHWT)
+INDHET,industry high temperature heat,PJ,IND,NRG,total industry,HT heat,,,District heating network with centralized CHP (ELCHET) and/or recovered excess heat from industry (INDHWT)
 RSDHET,Heat for Residential sector,PJ,RSD,NRG,Heat for Residential sector,Central heat,,,District heating network with centralized CHP (ELCHET) and/or recovered excess heat from industry (INDHWT)
 COMHET,LT Heat for Commercial sector,PJ,COM,NRG,LT Heat for Commercial sector,Central heat,,,District heating network with centralized CHP (ELCHET) and/or recovered excess heat from industry (INDHWT)
 INDHH2,Hydrogen for Industry sector,PJ,IND,NRG,Hydrogen for Industry sector,Hydrogen,,,Hydrogen (H₂) imported or produced locally (several possible technologies)
-TRAGH2,Gaseous Hydrogen for transport sector,PJ,TRA,NRG,Gaseous Hydrogen for transport sector,Hydrogen,,,
-TRALH2,Liquid hydrogen for transport sector,PJ,TRA,NRG,Liquid hydrogen for transport sector,Hydrogen,,,
+TRAGH2,Fuel: Gasoline,PJ,TRA,NRG,total transport,Hydrogen,,,
+TRALH2,Liquid hydrogen for transport sector,PJ,TRA,NRG,total transport,Hydrogen,,,
 ELCSLU,Sludge for Electricity sector,PJ,ELC,NRG,Sludge for Electricity sector,Biomass & Biofuels,,,Renewable waste incinerated
-TRAETH,Ethanol for Transport sector,PJ,TRA,NRG,Ethanol for Transport sector,Oil Products,,,pure bioethanol
-TRABDL,Biodiesel for Transport sector,PJ,TRA,NRG,Biodiesel for Transport sector,Oil Products,,,pure biodiesiel
+TRAETH,Ethanol for Transport sector,PJ,TRA,NRG,total transport,Oil Products,,,pure bioethanol
+TRABDL,Biodiesel for Transport sector,PJ,TRA,NRG,total transport,Oil Products,,,pure biodiesiel
 OILKER,Kerosenes - Jet Fuels,PJ,SUP,NRG,Kerosenes - Jet Fuels,Oil Products,,,
 BIORME,Biodiesel rapeseed methyl ester (RME),PJ,SUP,NRG,Biodiesel rapeseed methyl ester (RME),Biomass & Biofuels,,,
 BIOPEL,Biomass: Pellets (separated from wood),PJ,IND,NRG,Biomass: Pellets (separated from wood),Biomass & Biofuels,,,
-RW3F,Residential: Water heating - 3-faces building,PJ,RSD,NRG,DHW,Heat/Steam,,,
+RW3F,residential hot water,PJ,RSD,NRG,total residential,Heat/Steam,,,
 RSDGSL,Gasoline for Residential sector,PJ,RSD,NRG,Gasoline for Residential sector,Natural Gas,,,
 BIOCRP1,Starch crops,PJ,SUP,NRG,Starch crops,Biomass & Biofuels,,,
 RENHYD,Hydro,PJ,SUP,NRG,Hydro,Renewables,,,
 BIORPOIL,Rape seed oil,PJ,SUP,NRG,Rape seed oil,Oil Products,,,
-RH4F,Residential: Space heating - 4+ faces building,PJ,RSD,NRG,Residential: Space heating - 4+ faces building,Space heating,,,
+RH4F,space heating residential,PJ,RSD,NRG,total residential,Space heating,,,
 BIODST,Diesel from Biomass,PJ,SUP,NRG,Diesel from Biomass,Biomass & Biofuels,,,
 BIORPS,Biomass: Rapeseed,PJ,SUP,NRG,Biomass: Rapeseed,Biomass & Biofuels,,,
 ELCWIN,Electricity: Wind,PJ,ELC,NRG,Electricity: Wind,Wind electricity,,,
 ELCSOL,Electricity: Solar,PJ,ELC,NRG,Electricity: Solar,Solar electricity,,,
-RWAP,Residential: Water heating - Apartment building,PJ,RSD,NRG,DHW,DHW,,,
+RWAP,residential hot water,PJ,RSD,NRG,total residential,DHW,,,
 BIOSTIL,Biomass Stillage,PJ,SUP,NRG,Biomass Stillage,Biomass & Biofuels,,,
 COMGSL,Gasoline for Commercial sector,PJ,COM,NRG,Gasoline for Commercial sector,Gasoline,,,
 GASBFT,GAS from Blast Furnace TGR,PJ,IND,NRG,GAS from Blast Furnace TGR,Natural Gas,,,
 OILGSL,Fuel: Gasoline,PJ,SUP,NRG,Fuel: Gasoline,Gasoline,,,
 OILLPG,Liquified Petroleum Gas,PJ,SUP,NRG,Liquified Petroleum Gas,Gasoline,,,
-RW4F,Residential water heating Building_4 façades,PJ,RSD,NRG,DHW,DHW,,,
+RW4F,residential hot water,PJ,RSD,NRG,total residential,DHW,,,
 COMBDL,Biodiesel for Commercial sector,PJ,COM,NRG,Biodiesel for Commercial sector,Oil Products,,,
 COMSOL,Commercial: Solar,PJ,COM,NRG,Commercial: Solar,Renewables,,,
 BIOLOG,Wood Logs,PJ,SUP,NRG,Wood Logs,Biomass & Biofuels,,,
 SYNH2CU,Centralized hydrogen (Underground storage),PJ,SUP,NRG,Centralized hydrogen (Underground storage),Hydrogen,,,
 SUPELC,Electricity (SUP),PJ,SUP,NRG,Electricity (SUP),Biomass & Biofuels,,,
 RENWIN,Renewable: Wind,PJ,SUP,NRG,Renewable: Wind,Renewables,,,
-AGRBDL,Biodiesel for Agriculture sector,PJ,AGR,NRG,Biodiesel for Agriculture sector,Oil Products,,,
+AGRBDL,agriculture oil,PJ,AGR,NRG,total agriculture,Oil Products,,,
 RSDSOL,Residential: Solar,PJ,RSD,NRG,Residential: Solar,Renewables,,,
-RH2F,Residential: Space heating - 2-faces building,PJ,RSD,NRG,Residential: Space heating - 2-faces building,Hydrogen,,,
+RH2F,space heating residential,PJ,RSD,NRG,total residential,Hydrogen,,,
 COACOK,Coke,PJ,SUP,NRG,Coke,Coal,,,
 OILDST,Diesel,PJ,SUP,NRG,Diesel,Oil Products,,,
 BIOGAS,Biogas,PJ,SUP,NRG,Biogas,Natural Gas,,,
-RHAP,Residential: Space heating - Apartment building,PJ,RSD,NRG,Residential: Space heating - Apartment building,Heat/Steam,,,
-AGRELC,Electricity for Agriculture sector,PJ,AGR,NRG,Electricity for Agriculture sector,Electricity,,,
+RHAP,space heating residential,PJ,RSD,NRG,total residential,Heat/Steam,,,
+AGRELC,Electricity for Agriculture sector,PJ,AGR,NRG,total agriculture,Electricity,,,
 COALIG,Lignite,PJ,SUP,NRG,Lignite,Coal,,,
 NUCRSV,Uranium (Dummy Reserves),PJ,SUP,NRG,Uranium (Dummy Reserves),Nuclear Fuel,,,
 COMPEL,Pellets for Commercial sector,PJ,COM,NRG,Pellets for Commercial sector,Biomass & Biofuels,,,
@@ -101,10 +101,10 @@ OILOTH,Other Petroleum Products,PJ,SUP,NRG,Other Petroleum Products,Oil Products
 BIOPLPOIL,Biofuel: Pyrolysis oil (pulp),PJ,SUP,NRG,Biofuel: Pyrolysis oil (pulp),Oil Products,,,
 SUPGAS,Supply: Natural Gas,PJ,SUP,NRG,Supply: Natural Gas,Natural Gas,,,
 GASIIS,GAS from Corex and/or Blast Furnace TGR with CCS and/or BOF,PJ,IND,NRG,GAS from Corex and/or Blast Furnace TGR with CCS and/or BOF,Natural Gas,,,
-RH3F,Residential: Space heating - 3-faces building,PJ,RSD,NRG,Residential: Space heating - 3-faces building,Heat/Steam,,,
+RH3F,space heating residential,PJ,RSD,NRG,total residential,Heat/Steam,,,
 BIOETH,Bioethanol,PJ,SUP,NRG,Bioethanol,Biomass & Biofuels,,,
 SYNH2CT,Centralized hydrogen (Tank storage),PJ,SUP,NRG,Centralized hydrogen (Tank storage),Hydrogen,,,
-RW2F,Residential: Water heating - 2-faces building,PJ,RSD,NRG,DHW,Heat/Steam,,,
+RW2F,residential hot water,PJ,RSD,NRG,total residential,Heat/Steam,,,
 SUPDST,Diesel for Supply sector,PJ,SUP,NRG,Diesel for Supply sector,Oil Products,,,
 IOIPRC,End use category: Process heat,PJ,IND,NRG,End use category: Process heat,Heat/Steam,,,
 BIOCPS,Wood Chips,PJ,SUP,NRG,Wood Chips,Biomass & Biofuels,,,
@@ -116,15 +116,29 @@ ELCHYD,Hydro for Electricity sector,PJ,ELC,NRG,Hydro for Electricity sector,Rene
 ELCOIL,Oil for Electricity sector,PJ,ELC,NRG,Oil for Electricity sector,Oil Products,,,
 SUPIMPH2,imported hydrogen,PJ,IMP,NRG,imported hydrogen,Hydrogen,,,
 SUPBGS,Biogas for Supply sector,PJ,SUP,NRG,Biogas for Supply sector,Biogas,,,
-RHDJ4F_2021,Residential: Space heating - 4+ faces building (2021),PJ,RSD,NRG,Space heating,Space heating,,,
-RHN4F,Residential: Space heating - 4+ faces building (new),PJ,RSD,NRG,Space heating,Space heating,,,
-RWN3F,Residential: Water heating - 3-faces building (new),PJ,RSD,NRG,DHW,Space heating,,,
-RHNAP,Residential: Space heating - Apartment building (new),PJ,RSD,NRG,Space heating,Space heating,,,
-RHDJ2F_2021,Residential: Space heating - 2-faces building (2021),PJ,RSD,NRG,Space heating,Space heating,,,
-RHN2F,Residential: Space heating - 2-faces building (new),PJ,RSD,NRG,Space heating,Space heating,,,
+RHDJ4F_2021,space heating residential,PJ,RSD,NRG,total residential,Space heating,,,
+RHN4F,space heating residential,PJ,RSD,NRG,total residential,Space heating,,,
+RWN3F,residential hot water,PJ,RSD,NRG,total residential,Water heating,,,
+RHNAP,space heating residential,PJ,RSD,NRG,total residential,Space heating,,,
+RHDJ2F_2021,space heating residential,PJ,RSD,NRG,total residential,Space heating,,,
+RHN2F,space heating residential,PJ,RSD,NRG,total residential,Space heating,,,
 SUPGMX,Network gas (mixed) for Supply sector,PJ,SUP,NRG,Network gas,Natural Gas,,,
-RWNAP,Residential: Water heating - Apartment building (new),PJ,RSD,NRG,DHW,Space heating,,,
-RWN4F,Residential: Water heating - 4+ faces building (new),PJ,RSD,NRG,DHW,Space heating,,,
-RHDJ3F_2021,Residential: Space heating - 3-faces building (2021),PJ,RSD,NRG,Space heating,Space heating,,,
-RHN3F,Residential: Space heating - 3-faces building (new),PJ,RSD,NRG,Space heating,Space heating,,,
-RWN2F,Residential: Water heating - 2-faces building (new),PJ,RSD,NRG,DHW,Space heating,,,
+RWNAP,residential hot water,PJ,RSD,NRG,total residential,Water heating,,,
+RWN4F,residential hot water,PJ,RSD,NRG,total residential,Water heating,,,
+RHDJ3F_2021,space heating residential,PJ,RSD,NRG,total residential,Space heating,,,
+RHN3F,space heating residential,PJ,RSD,NRG,total residential,Space heating,,,
+RWN2F,residential hot water,PJ,RSD,NRG,total residential,Water heating,,,
+RCDR,residential electrical appliances,PJ,RSD,NRG,total residential,Appliances,,,
+RCOK,residential gas appliances,PJ,RSD,NRG,total residential,Appliances,,,
+RCWA,residential electrical appliances,PJ,RSD,NRG,total residential,Appliances,,,
+RDWA,residential electrical appliances,PJ,RSD,NRG,total residential,Appliances,,,
+RLIG,residential electrical appliances,PJ,RSD,NRG,total residential,Appliances,,,
+RREF,residential electrical appliances,PJ,RSD,NRG,total residential,Appliances,,,
+ROEN,Other residential,PJ,RSD,NRG,total residential,Others,,,
+ROEL,residential electrical appliances,PJ,RSD,NRG,total residential,Others,,,
+TRALPG,Fuel Tech - Liquified Petroleum Gas,PJ,TRA,NRG,total transport,Transport,,,
+IOIHTH,industry high temperature heat,PJ,IND,NRG,total industry,Industry,,,
+IPOHTH,industry high temperature heat,PJ,IND,NRG,total industry,Industry,,,
+TNDF,Navigation Domestic Freight Tech Existing,PJ,TRA,NRG,total navigation,Transport,,,
+AGRCPS,solid biomass for agriculture,PJ,AGR,NRG,total agriculture,Agriculture,,,
+AGROF,agriculture machinery oil,PJ,AGR,NRG,total agriculture,Agriculture,,,
