@@ -715,8 +715,7 @@ def main():
     # Load process mapping and construct processes_df from mapping
     process_mapping_file = "data/mapping_processes.csv"
     processes_df = pd.read_csv(process_mapping_file)
-    processes_df = processes_df[~processes_df["Activity unit"].isin(["MM2", "MM3"])]
-    
+    processes_df = processes_df[processes_df["Activity unit"] == "PJ"]
     if 'Process' not in processes_df.columns and 'Technology (Process)' in processes_df.columns:
         processes_df = processes_df.rename(columns={'Technology (Process)': 'Process'})
     if 'Description' not in processes_df.columns:
@@ -758,8 +757,6 @@ def main():
 
     # --- Load raw records (no filtering by variable or commodity) ---
     raw_flows_df = load_raw_records(vd_file)
-    codes_to_drop = ['RDW_R_2Fac', 'RDW_R_3Fac', 'RDW_R_4Fac', 'RDW_R_Appa']
-    raw_flows_df = raw_flows_df[~raw_flows_df['process_code'].isin(codes_to_drop)]
     if raw_flows_df.empty:
         print("No valid energy flow data was processed. Exiting.")
         return
@@ -770,8 +767,8 @@ def main():
     # --- Join descriptions ---
     annual_values_df = (
         annual_values_df
-        .merge(commodities_df.rename(columns={"Commodity": "commodity_code", "Description": "commodity"}), on="commodity_code", how="left")
-        .merge(processes_df.rename(columns={"Process": "process_code", "Description": "process"}), on="process_code", how="left")
+        .merge(commodities_df.rename(columns={"Commodity": "commodity_code", "Description": "commodity"}), on="commodity_code", how="inner")
+        .merge(processes_df.rename(columns={"Process": "process_code", "Description": "process"}), on="process_code", how="inner")
     )
 
     # Reorder columns for readability
