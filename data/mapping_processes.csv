@@ -1,13 +1,13 @@
 Technology (Process),PyPSA technology,Sector,Set,Description,Activity unit,Capacity unit,Type,Primary commodity group,Time slice level,Vintage,Aggregation Level 1
-AGRAPP00,total agriculture electricity,AGR,.DMD.,Base year electrical appliances,PJ,PJA,DMD,AGRAP,ANNUAL,"0,00",AGR_DMD_PJ_PJA
+AGRAPP00,Base year electrical appliances,AGR,.DMD.,Base year electrical appliances,PJ,PJA,DMD,AGRAP,ANNUAL,"0,00",AGR_DMD_PJ_PJA
 AGRBDL00,agriculture oil,AGR,.PRE.,Fuel Tech - Biodiesel (AGR),PJ,PJA,PRE,AGRBDL,ANNUAL,"0,00",Fuel Tech - Biodiesel
-AGRBGS00,Fuel Tech - Biogas,AGR,.PRE.,Fuel Tech - Biogas(AGR),PJ,PJA,PRE,AGRBGS,ANNUAL,"0,00",Fuel Tech - Biogas
+AGRBGS00,biogas for agriculture,AGR,.PRE.,Fuel Tech - Biogas(AGR),PJ,PJA,PRE,AGRBGS,ANNUAL,"0,00",Fuel Tech - Biogas
 AGRCPS00,solid biomass for agriculture,AGR,.PRE.,Fuel - Tech - bois chips (AGR),PJ,PJA,PRE,AGRCPS,ANNUAL,"0,00",AGR_PRE_PJ_PJA
 AGRELC00,Electricity for Agriculture sector,AGR,.PRE.,Fuel Tech - Electricity (AGR),PJ,PJA,PRE,AGRELC,DAYNITE,"0,00",Fuel Tech - Electricity
 AGRGMX00,gas for agriculture,AGR,.PRE.,Fuel Tech - gas mix réseau,PJ,PJA,PRE,AGRGMX,ANNUAL,"0,00",Fuel Tech - gas mix réseau
 AGRHET00,Fuel Tech - Low Temperature Heat,AGR,.PRE.,Fuel Tech - Low Temperature Heat (AGR),PJ,PJA,PRE,AGRHET,SEASON,"0,00",Fuel Tech - Low Temperature Heat
-AGRHH00,total agriculture heat,AGR,.DMD.,Base year oil  boiler  small,PJ,PJA,DMD,AGRHH,ANNUAL,"0,00",AGR_DMD_PJ_PJA
-AGROFR00,agriculture machinery oil,AGR,.DMD.,Base year offroad,PJ,PJA,DMD,AGROF,ANNUAL,"0,00",AGR_DMD_PJ_PJA
+AGRHH00,Base year oil  boiler,AGR,.DMD.,Base year oil  boiler  small,PJ,PJA,DMD,AGRHH,ANNUAL,"0,00",AGR_DMD_PJ_PJA
+AGROFR00,Base year offroad,AGR,.DMD.,Base year offroad,PJ,PJA,DMD,AGROF,ANNUAL,"0,00",AGR_DMD_PJ_PJA
 AGROIL00,agriculture oil,AGR,.PRE.,Fuel Tech - Oil (AGR),PJ,PJA,PRE,AGROIL,ANNUAL,"0,00",Fuel Tech - Oil
 BBIORPS101,SUP_PRE_PJ_GW,SUP,.PRE.,Vegetable oil extraction,PJ,GW,PRE,BIORPOIL,ANNUAL,"0,00",SUP_PRE_PJ_GW
 BBLQFTST110,SUP_PRE_PJ_GW,SUP,.PRE.,Gasification_ black liquor to FT-diesel,PJ,GW,PRE,BIODST,ANNUAL,"0,00",SUP_PRE_PJ_GW
@@ -462,24 +462,24 @@ IMPOILHFO,Imports,SUP,.IMP.IRE.,Import Residual Fuel Oil,PJ,-,IRE,OILHFO,ANNUAL,
 IMPOILKER,Imports,SUP,.IMP.IRE.,Import Kerosenes - Jet Fuels,PJ,-,IRE,OILKER,ANNUAL,"0,00",SUP_IRE_PJ_-
 IMPOILLPG,Imports,SUP,.IMP.IRE.,Import Liquified Petroleum Gas,PJ,-,IRE,OILLPG,ANNUAL,"0,00",SUP_IRE_PJ_-
 IMPOILOTH,Imports,SUP,.IMP.IRE.,Import Other Petroleum Products,PJ,-,IRE,OILOTH,ANNUAL,"0,00",SUP_IRE_PJ_-
-INDBGS00,gas for industry,IND,.PRE.,Fuel Tech - Biogas (IND),PJ,PJA,PRE,INDBGS,ANNUAL,"0,00",Fuel Tech - Biogas
+INDBGS00,Fuel Tech – Biogas,IND,.PRE.,Fuel Tech - Biogas (IND),PJ,PJA,PRE,INDBGS,ANNUAL,"0,00",Fuel Tech - Biogas
 INDBIO00,Fuel Tech - Biofuel,IND,.PRE.,Fuel Tech - Biofuel (IND),PJ,PJA,PRE,INDBIO,ANNUAL,"0,00",Fuel Tech - Biofuel
-INDCOA00,coal for industry,IND,.PRE.,Fuel Tech - Hard Coal (IND),PJ,PJA,PRE,INDCOA,ANNUAL,"0,00",Fuel Tech - Hard Coal
-INDCOK00,coke for industry,IND,.PRE.,Fuel Tech - Coke (IND),PJ,PJA,PRE,INDCOK,ANNUAL,"0,00",Fuel Tech - Coke
-INDCOL00,coal for industry,IND,.PRE.,Fuel Tech - Lignite (IND),PJ,PJA,PRE,INDCOL,ANNUAL,"0,00",Fuel Tech - Lignite
-INDCPS00,solid biomass for industry,IND,.PRE.,Fuel Tech - Wood CHIPS (IND),PJ,PJA,PRE,INDCPS,ANNUAL,"0,00",Fuel Tech - Wood CHIPS
+INDCOA00,Fuel Tech - Hard Coal,IND,.PRE.,Fuel Tech - Hard Coal (IND),PJ,PJA,PRE,INDCOA,ANNUAL,"0,00",Fuel Tech - Hard Coal
+INDCOK00,Fuel Tech – Coke,IND,.PRE.,Fuel Tech - Coke (IND),PJ,PJA,PRE,INDCOK,ANNUAL,"0,00",Fuel Tech - Coke
+INDCOL00,Fuel Tech – Lignite,IND,.PRE.,Fuel Tech - Lignite (IND),PJ,PJA,PRE,INDCOL,ANNUAL,"0,00",Fuel Tech - Lignite
+INDCPS00,Fuel Tech - Wood Chips,IND,.PRE.,Fuel Tech - Wood CHIPS (IND),PJ,PJA,PRE,INDCPS,ANNUAL,"0,00",Fuel Tech - Wood CHIPS
 INDELC00,industry electricity,IND,.PRE.,Fuel Tech - Electricity (IND),PJ,GW,PRE,INDELC,DAYNITE,"0,00",Fuel Tech - Electricity
 INDGAS00,gas for industry,IND,.PRE.,Fuel Tech - Natural Gas transport (IND),PJ,PJA,PRE,INDGAS,ANNUAL,"0,00",Fuel Tech - Natural Gas transport
 INDGASCOG01,Fuel Tech New - Gas and Cog industry,IND,.PRE.,Fuel Tech New - Gas and Cog industry (IND),PJ,PJA,PRE,INDGASCOG,ANNUAL,"1,00",Fuel Tech New - Gas and Cog industry
 INDGEO00,Fuel Tech - Solar,IND,.PRE.,Fuel Tech - Solar (IND),PJ,PJA,PRE,INDGEO,ANNUAL,"0,00",Fuel Tech - Solar
 INDGH2C01,Fuel Tech - H2 Delivery from centralized production (COMP+TR+DP - Industrial),SUP,.PRE.,Fuel Tech - H2 Delivery from centralized production (COMP+TR+DP - Industrial),PJ,PJ-A,PRE,INDHH2,DAYNITE,,Fuel Tech - H2 Delivery from centralized production (COMP+TR+DP - Industrial)
 INDGH2C01_i,Imports,SUP,.PRE.,INDGH2C01_i,PJ,PJ-A,PRE,INDHH2,DAYNITE,,SUP_PRE_PJ_PJ-A
-INDGMX00,gas for industry,IND,.PRE.,Fuel Tech - Natural Gas and biogas mixed  (IND),PJ,PJA,PRE,INDGMX,ANNUAL,"0,00",Fuel Tech - Natural Gas and biogas mixed
-INDHFO00,oil for industry,IND,.PRE.,Fuel Tech - Heavy Fuel Oil (IND),PJ,PJA,PRE,INDHFO,ANNUAL,"0,00",Fuel Tech - Heavy Fuel Oil
-INDHTH00,Fuel Tech - Heat,IND,.PRE.,industry high temperature heat,PJ,PJA,PRE,INDHET,ANNUAL,"0,00",Fuel Tech - Heat
+INDGMX00,Fuel Tech - Natural Gas and biogas mixed,IND,.PRE.,Fuel Tech - Natural Gas and biogas mixed  (IND),PJ,PJA,PRE,INDGMX,ANNUAL,"0,00",Fuel Tech - Natural Gas and biogas mixed
+INDHFO00,Fuel Tech - Heavy Fuel Oil ,IND,.PRE.,Fuel Tech - Heavy Fuel Oil (IND),PJ,PJA,PRE,INDHFO,ANNUAL,"0,00",Fuel Tech - Heavy Fuel Oil
+INDHTH00,Fuel Tech – Heat,IND,.PRE.,industry high temperature heat,PJ,PJA,PRE,INDHET,ANNUAL,"0,00",Fuel Tech - Heat
 INDIIS01,Fuel Tech New - IIS GMX - Corex GMX or BFG TGR with CCS or BOF,IND,.PRE.,Fuel Tech New - IIS GMX - Corex GMX or BFG TGR with CCS or BOF (IND),PJ,PJA,PRE,INDIIS,ANNUAL,"1,00",Fuel Tech New - IIS GMX - Corex GMX or BFG TGR with CCS or BOF
-INDLFO00,oil for industry,IND,.PRE.,Fuel Tech - Light Fuel Oil (IND),PJ,PJA,PRE,INDLFO,ANNUAL,"0,00",Fuel Tech - Light Fuel Oil
-INDLPG00,oil for industry,IND,.PRE.,Fuel Tech - Liquified Petroleum Gas (IND),PJ,PJA,PRE,INDLPG,ANNUAL,"0,00",Fuel Tech - Liquified Petroleum Gas
+INDLFO00,Fuel Tech - Light Fuel Oil ,IND,.PRE.,Fuel Tech - Light Fuel Oil (IND),PJ,PJA,PRE,INDLFO,ANNUAL,"0,00",Fuel Tech - Light Fuel Oil
+INDLPG00,Fuel Tech - Liquified Petroleum Gas,IND,.PRE.,Fuel Tech - Liquified Petroleum Gas (IND),PJ,PJA,PRE,INDLPG,ANNUAL,"0,00",Fuel Tech - Liquified Petroleum Gas
 INDPVELC,PV industrial,IND,.ELE.,PV industrial,PJ,GW,ELE,INDPVELC_NRGO,DAYNITE,"0,00",IND_ELE_PJ_GW
 INDSLU00,Fuel Tech - Waste Renewable,IND,.PRE.,Fuel Tech - Waste Renewable (IND),PJ,PJA,PRE,INDSLU,ANNUAL,"0,00",Fuel Tech - Waste Renewable
 INDSOL00,Fuel Tech - Solar,IND,.PRE.,Fuel Tech - Solar (IND),PJ,PJA,PRE,INDSOL,ANNUAL,"0,00",Fuel Tech - Solar
@@ -554,24 +554,24 @@ IOIPRCGMX00,IND_PRE_PJ_PJA,IND,.PRE.,IOI.Other Industries.Process Heat.GAS.00,PJ
 IOIPRCGMX01,IND_PRE_PJ_GW,IND,.PRE.,IOIPRCGMX01,PJ,GW,PRE,IOIPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
 IOIPRCHH202,IND_PRE_PJ_GW,IND,.PRE.,IOIPRCHH202,PJ,GW,PRE,IOIPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
 IOIPRCLFO00,IND_PRE_PJ_PJA,IND,.PRE.,IOI.Other Industries.Process Heat.LFO.00,PJ,PJA,PRE,IOIPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
-IOISTMBGS01,industry high temperature heat,IND,.PRE.,IOISTMBGS01,PJ,GW,PRE,IOIHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
-IOISTMCOK00,industry high temperature heat,IND,.PRE.,IOI.Other Industries.Steam.COK.00,PJ,GW,PRE,IOIHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-IOISTMCPS00,industry high temperature heat,IND,.PRE.,IOI.Other Industries.Steam.CPS.00,PJ,GW,PRE,IOIHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-IOISTMCPS01,industry high temperature heat,IND,.PRE.,IOISTMCPS01,PJ,GW,PRE,IOIHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
-IOISTMELC01,industry high temperature heat,IND,.PRE.,IOISTMELC01,PJ,GW,PRE,IOIHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
-IOISTMGAS00,industry high temperature heat,IND,.PRE.,IOI.Other Industries.Steam.GAS.00,PJ,GW,PRE,IOIHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-IOISTMGMX00,industry high temperature heat,IND,.PRE.,IOI.Other Industries.Steam.GAS.01,PJ,GW,PRE,IOIHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-IOISTMHET01,industry high temperature heat,IND,.PRE.,IOISTMHET01,PJ,GW,PRE,IOIHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
-IOISTMHFO00,industry high temperature heat,IND,.PRE.,IOI.Other Industries.Steam.HFO.00,PJ,GW,PRE,IOIHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-IOISTMLFO00,industry high temperature heat,IND,.PRE.,IOI.Other Industries.Steam.LFO.00,PJ,GW,PRE,IOIHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-IOISTMLPG00,industry high temperature heat,IND,.PRE.,IOI.Other Industries.Steam.LPG.00,PJ,GW,PRE,IOIHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-IPOHTHSTMBGS01,industry high temperature heat,IND,.PRE.,IPO.Preparation.of.potatoes.Process Heat.BGS.03,PJ,GW,PRE,IPOHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
-IPOHTHSTMCPS01,industry high temperature heat,IND,.PRE.,IPO.Preparation.of.potatoes.Process Heat.CPS.04,PJ,GW,PRE,IPOHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+IOISTMBGS01,IND_PRE_PJ_GW,IND,.PRE.,IOISTMBGS01,PJ,GW,PRE,IOIHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+IOISTMCOK00,IND_PRE_PJ_GW,IND,.PRE.,IOI.Other Industries.Steam.COK.00,PJ,GW,PRE,IOIHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+IOISTMCPS00,IND_PRE_PJ_GW,IND,.PRE.,IOI.Other Industries.Steam.CPS.00,PJ,GW,PRE,IOIHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+IOISTMCPS01,IND_PRE_PJ_GW,IND,.PRE.,IOISTMCPS01,PJ,GW,PRE,IOIHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+IOISTMELC01,IND_PRE_PJ_GW,IND,.PRE.,IOISTMELC01,PJ,GW,PRE,IOIHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+IOISTMGAS00,IND_PRE_PJ_GW,IND,.PRE.,IOI.Other Industries.Steam.GAS.00,PJ,GW,PRE,IOIHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+IOISTMGMX00,IND_PRE_PJ_GW,IND,.PRE.,IOI.Other Industries.Steam.GAS.01,PJ,GW,PRE,IOIHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+IOISTMHET01,IND_PRE_PJ_GW,IND,.PRE.,IOISTMHET01,PJ,GW,PRE,IOIHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+IOISTMHFO00,IND_PRE_PJ_GW,IND,.PRE.,IOI.Other Industries.Steam.HFO.00,PJ,GW,PRE,IOIHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+IOISTMLFO00,IND_PRE_PJ_GW,IND,.PRE.,IOI.Other Industries.Steam.LFO.00,PJ,GW,PRE,IOIHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+IOISTMLPG00,IND_PRE_PJ_GW,IND,.PRE.,IOI.Other Industries.Steam.LPG.00,PJ,GW,PRE,IOIHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+IPOHTHSTMBGS01,IND_PRE_PJ_GW,IND,.PRE.,IPO.Preparation.of.potatoes.Process Heat.BGS.03,PJ,GW,PRE,IPOHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+IPOHTHSTMCPS01,IND_PRE_PJ_GW,IND,.PRE.,IPO.Preparation.of.potatoes.Process Heat.CPS.04,PJ,GW,PRE,IPOHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
 IPOPREPA00,IND_DMD_PJ_PJA,IND,.DMD.,IPO.Preparation.of.potatoes.00,PJ,PJA,DMD,IPO,ANNUAL,"0,00",IND_DMD_PJ_PJA
 IPOPREPA03,IND_DMD_MT_MT,IND,.DMD.,IPO.Preparation.of.potatoes.03,MT,MT,DMD,IPO,ANNUAL,"1,00",IND_DMD_MT_MT
 IPOPREPA04,IND_DMD_MT_MT,IND,.DMD.,IPO.Preparation.of.potatoes.04,MT,MT,DMD,IPO,ANNUAL,"1,00",IND_DMD_MT_MT
-IPOSTMGAS00,industry high temperature heat,IND,.PRE.,IPO.Generic Boiler.GAS,PJ,PJA,PRE,IPOHTH,ANNUAL,"0,00",IND_PRE_PJ_PJA
-IPOSTMOIL00,industry high temperature heat,IND,.PRE.,IPO.Generic Boiler.OIL,PJ,PJA,PRE,IPOHTH,ANNUAL,"0,00",IND_PRE_PJ_PJA
+IPOSTMGAS00,IND_PRE_PJ_GW,IND,.PRE.,IPO.Generic Boiler.GAS,PJ,PJA,PRE,IPOHTH,ANNUAL,"0,00",IND_PRE_PJ_PJA
+IPOSTMOIL00,IND_PRE_PJ_GW,IND,.PRE.,IPO.Generic Boiler.OIL,PJ,PJA,PRE,IPOHTH,ANNUAL,"0,00",IND_PRE_PJ_PJA
 IPPHIGQUA00,IND_DMD_MT_MTA,IND,.DMD.,IPP.High Quality Paper Production.00.,MT,MTA,DMD,IPP,ANNUAL,"0,00",IND_DMD_MT_MTA
 IPPHIGQUA05,IND_DMD_MT_MT,IND,.DMD.,IPP.High Quality Paper Production Adv Drives.05.,MT,MT,DMD,IPP,ANNUAL,"1,00",IND_DMD_MT_MT
 IPPHIGQUA55,IND_DMD_MT_MT,IND,.DMD.,IPP.High Quality Paper Production Adv Drives.05. - electricity,MT,MT,DMD,IPP,ANNUAL,"1,00",IND_DMD_MT_MT
@@ -905,7 +905,7 @@ TMOTGSLN01,2 and 3 wheelers,TRA,.DMD.TRADMO.,Motorcycles Gasoline New,BVKM,000VE
 TNDFDST00,Navigation Domestic Freight Tech Existing,TRA,.DMD.,Navigation Domestic Freight Tech Existing,BTKM,BTKMA,DMD,TNDF,ANNUAL,"0,00",TRA_DMD_BTKM_BTKMA
 TRABDL00,Fuel Tech - Biodiesel,TRA,.PRE.,Fuel Tech - Biodiesel (TRA),PJ,PJA,PRE,TRABDL,ANNUAL,"0,00",Fuel Tech - Biodiesel
 TRABGS00,TRA_PRE_PJ_PJA,TRA,.PRE.,Fuel tech - biogas (TRA),PJ,PJA,PRE,TRABGS,ANNUAL,"0,00",TRA_PRE_PJ_PJA
-TRADST00,Fuel Tech - Diesel,TRA,.PRE.,Fuel Tech - Diesel (TRA),PJ,PJA,PRE,TRADST,ANNUAL,"0,00",Fuel Tech - Diesel
+TRADST00,Diesel for transport,TRA,.PRE.,Fuel Tech - Diesel (TRA),PJ,PJA,PRE,TRADST,ANNUAL,"0,00",Fuel Tech - Diesel
 TRAELC00,electricity transport,TRA,.PRE.,Fuel Tech - Electricity (TRA),PJ,GW,PRE,TRAELC,ANNUAL,"0,00",Fuel Tech - Electricity
 TRAETH00,Fuel Tech - Ethanol,TRA,.PRE.,Fuel Tech - Ethanol (TRA),PJ,PJA,PRE,TRAETH,ANNUAL,"0,00",Fuel Tech - Ethanol
 TRAGH2C04,Fuel Tech - H2 Delivery from centralized production (COMP+USTOR+TR+GSTORB+RTS+REFGG (small)),SUP,.PRE.,Fuel Tech - H2 Delivery from centralized production (COMP+USTOR+TR+GSTORB+RTS+REFGG (small)),PJ,PJ-A,PRE,TRAGH2,DAYNITE,,Fuel Tech - H2 Delivery from centralized production (COMP+USTOR+TR+GSTORB+RTS+REFGG (small))
