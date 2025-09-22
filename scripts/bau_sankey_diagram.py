@@ -716,7 +716,6 @@ def main():
     process_mapping_file = "data/mapping_processes.csv"
     processes_df = pd.read_csv(process_mapping_file)
     processes_df = processes_df[processes_df["Activity unit"] == "PJ"]
-    processes_df = processes_df[~processes_df["PyPSA technology"].str.contains("^(IND_|Base)", regex=True)]
     if 'Process' not in processes_df.columns and 'Technology (Process)' in processes_df.columns:
         processes_df = processes_df.rename(columns={'Technology (Process)': 'Process'})
     if 'Description' not in processes_df.columns:
