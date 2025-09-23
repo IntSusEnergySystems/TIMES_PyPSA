@@ -227,73 +227,73 @@ CREFELC100,tertiary electricity,COM,.DMD.,Com.Refrigeration.ELC.00.Refrigerator.
 CREFELC200,tertiary electricity,COM,.DMD.,Com.Refrigeration.ELC.00.Freezer.,PJ,PJA,DMD,CREF,ANNUAL,"0,00",COM_DMD_PJ_PJA
 CREFELC300,tertiary electricity,COM,.DMD.,Com.Refrigeration.ELC.00.Refrigerator+Freezer.,PJ,PJA,DMD,CREF,ANNUAL,"0,00",COM_DMD_PJ_PJA
 CREFELC301,tertiary electricity,COM,.DMD.,Com.Refrigeration.ELC.301.Refrigerator.,PJ,PJA,DMD,CREF,ANNUAL,"0,00",COM_DMD_PJ_PJA
-CWBABGS100,electricity services water,COM,.PRE.,Com.Water Heat.BA.BGS.00.Furnace.,PJ,GW,PRE,CWBA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWBACPS100,electricity services water,COM,.PRE.,Com.Water Heat.BA.BIOCPS.00.Stove.,PJ,GW,PRE,CWBA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWBAGMX100,electricity services water,COM,.PRE.,Com.Water Heat.BA.GAS.00.Furnace.,PJ,GW,PRE,CWBA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWBAGMX101,electricity services water,COM,.PRE.,Com Water Heat New Boiler - BA - GMX101,PJ,GW,PRE,CWBA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWBALPG100,electricity services water,COM,.PRE.,Com.Water Heat.BA.LPG.00.Furnace.,PJ,GW,PRE,CWBA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWBAOIL100,electricity services water,COM,.PRE.,Com.Water Heat.BA.OIL.00.Furnace.,PJ,GW,PRE,CWBA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWBAPEL100,electricity services water,COM,.PRE.,Com.Water Heat.BA.BIOPEL.00.Stove.,PJ,GW,PRE,CWBA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWBASOL100,electricity services water,COM,.PRE.,Com.Water Heat.BA.SOL.00.Furnace.,PJ,GW,PRE,CWBA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWBASOL101,electricity services water,COM,.PRE.,Com Water Heat New Boiler - BA - SOL101,PJ,GW,PRE,CWBA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWBPBGS100,electricity services water,COM,.PRE.,Com.Water Heat.BP.BGS.00.Furnace.,PJ,GW,PRE,CWBP,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWBPCPS100,electricity services water,COM,.PRE.,Com.Water Heat.BP.BIOCPS.00.Stove.,PJ,GW,PRE,CWBP,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWBPGMX100,electricity services water,COM,.PRE.,Com.Water Heat.BP.GAS.00.Furnace.,PJ,GW,PRE,CWBP,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWBPGMX101,electricity services water,COM,.PRE.,Com Water Heat New Boiler - BP - GMX101,PJ,GW,PRE,CWBP,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWBPLPG100,electricity services water,COM,.PRE.,Com.Water Heat.BP.LPG.00.Furnace.,PJ,GW,PRE,CWBP,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWBPOIL100,electricity services water,COM,.PRE.,Com.Water Heat.BP.OIL.00.Furnace.,PJ,GW,PRE,CWBP,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWBPPEL100,electricity services water,COM,.PRE.,Com.Water Heat.BP.BIOPEL.00.Stove.,PJ,GW,PRE,CWBP,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWBPSOL100,electricity services water,COM,.PRE.,Com.Water Heat.BP.SOL.00.Furnace.,PJ,GW,PRE,CWBP,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWBPSOL101,electricity services water,COM,.DMD.,Com Water Heat New Boiler - BPN - SOL101,PJ,GW,DMD,CWBP,ANNUAL,"0,00",COM_DMD_PJ_GW
-CWCOBGS100,electricity services water,COM,.PRE.,Com.Water Heat.CO.BGS.00.Furnace.,PJ,GW,PRE,CWCO,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWCOCPS100,electricity services water,COM,.PRE.,Com.Water Heat.CO.BIOCPS.00.Stove.,PJ,GW,PRE,CWCO,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWCOELC100,electricity services water,COM,.PRE.,Com.Water Heat.CO.ELC.00.Resistance.,PJ,GW,PRE,CWCO,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWCOELC200,electricity services water,COM,.PRE.,Com.Water Heat.CO.ELC.00.Heat Pump.,PJ,GW,PRE,CWCO,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWCOGMX100,electricity services water,COM,.PRE.,Com.Water Heat.CO.GAS.00.Furnace.,PJ,GW,PRE,CWCO,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWCOGMX101,electricity services water,COM,.PRE.,Com Water Heat New Boiler - CO - GMX101,PJ,GW,PRE,CWCO,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWCOLPG100,electricity services water,COM,.PRE.,Com.Water Heat.CO.LPG.00.Furnace.,PJ,GW,PRE,CWCO,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWCOOIL100,electricity services water,COM,.PRE.,Com.Water Heat.CO.OIL.00.Furnace.,PJ,GW,PRE,CWCO,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWCOPEL100,electricity services water,COM,.PRE.,Com.Water Heat.CO.BIOPEL.00.Stove.,PJ,GW,PRE,CWCO,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWCOSOL100,electricity services water,COM,.PRE.,Com.Water Heat.CO.SOL.00.Furnace.,PJ,GW,PRE,CWCO,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWCOSOL101,electricity services water,COM,.PRE.,Com Water Heat New Boiler - CO - SOL101,PJ,GW,PRE,CWCO,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWCSBGS100,electricity services water,COM,.PRE.,Com.Water Heat.CS.BGS.00.Furnace.,PJ,GW,PRE,CWCS,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWCSCPS100,electricity services water,COM,.PRE.,Com.Water Heat.CS.BIOCPS.00.Stove.,PJ,GW,PRE,CWCS,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWCSGMX100,electricity services water,COM,.PRE.,Com.Water Heat.CS.GAS.00.Furnace.,PJ,GW,PRE,CWCS,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWCSGMX101,electricity services water,COM,.PRE.,Com Water Heat New Boiler - CS - GMX101,PJ,GW,PRE,CWCS,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWCSHET100,electricity services water,COM,.PRE.,Com.Water Heat.CS.LTH.00.Heat Exchanger.,PJ,GW,PRE,CWCS,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWCSLPG100,electricity services water,COM,.PRE.,Com.Water Heat.CS.LPG.00.Furnace.,PJ,GW,PRE,CWCS,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWCSOIL100,electricity services water,COM,.PRE.,Com.Water Heat.CS.OIL.00.Furnace.,PJ,GW,PRE,CWCS,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWCSPEL100,electricity services water,COM,.PRE.,Com.Water Heat.CS.BIOPEL.00.Stove.,PJ,GW,PRE,CWCS,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWCSSOL100,electricity services water,COM,.PRE.,Com.Water Heat.CS.SOL.00.Furnace.,PJ,GW,PRE,CWCS,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWCSSOL101,electricity services water,COM,.PRE.,Com Water Heat New Boiler - CS - SOL101,PJ,GW,PRE,CWCS,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWENBGS100,electricity services water,COM,.PRE.,Com.Water Heat.EN.BGS.00.Furnace.,PJ,GW,PRE,CWEN,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWENCPS100,electricity services water,COM,.PRE.,Com.Water Heat.EN.BIOCPS.00.Stove.,PJ,GW,PRE,CWEN,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWENGMX100,electricity services water,COM,.PRE.,Com.Water Heat.EN.GAS.00.Furnace.,PJ,GW,PRE,CWEN,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWENGMX101,electricity services water,COM,.PRE.,Com Water Heat New Boiler - EN - GMX101,PJ,GW,PRE,CWEN,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWENLPG100,electricity services water,COM,.PRE.,Com.Water Heat.EN.LPG.00.Furnace.,PJ,GW,PRE,CWEN,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWENOIL100,electricity services water,COM,.PRE.,Com.Water Heat.EN.OIL.00.Furnace.,PJ,GW,PRE,CWEN,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWENPEL100,electricity services water,COM,.PRE.,Com.Water Heat.EN.BIOPEL.00.Stove.,PJ,GW,PRE,CWEN,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWENSOL100,electricity services water,COM,.PRE.,Com.Water Heat.EN.SOL.00.Furnace.,PJ,GW,PRE,CWEN,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWENSOL101,electricity services water,COM,.PRE.,Com Water Heat New Boiler - EN - SOL101,PJ,GW,PRE,CWEN,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWNBAGMX101,electricity services water,COM,.PRE.,Com Water Heat New Boiler - NBA - GMX101,PJ,GW,PRE,CWNBA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWNBPGMX101,electricity services water,COM,.PRE.,Com Water Heat New Boiler - NBP - GMX101,PJ,GW,PRE,CWNBP,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWNCOGMX101,electricity services water,COM,.PRE.,Com Water Heat New Boiler - NCO - GMX101,PJ,GW,PRE,CWNCO,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWNCSGMX101,electricity services water,COM,.PRE.,Com Water Heat New Boiler - NCS - GMX101,PJ,GW,PRE,CWNCS,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWNCSSOL101,electricity services water,COM,.PRE.,Com Water Heat New Boiler - NCS - SOL101,PJ,GW,PRE,CWNCS,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWNENGMX101,electricity services water,COM,.PRE.,Com Water Heat New Boiler - NEN - GMX101,PJ,GW,PRE,CWNEN,ANNUAL,,COM_PRE_PJ_GW
-CWNENSOL101,electricity services water,COM,.PRE.,Com Water Heat New Boiler - NEN - SOL101,PJ,GW,PRE,CWNEN,ANNUAL,,COM_PRE_PJ_GW
-CWNSAGMX101,electricity services water,COM,.PRE.,Com Water Heat New Boiler - NSA - GMX101,PJ,GW,PRE,CWNSA,ANNUAL,,COM_PRE_PJ_GW
-CWNSASOL101,electricity services water,COM,.PRE.,Com Water Heat New Boiler - NSA - SOL101,PJ,GW,PRE,CWNSA,ANNUAL,,COM_PRE_PJ_GW
-CWSABGS100,electricity services water,COM,.PRE.,Com.Water Heat.SA.BGS.00.Furnace.,PJ,GW,PRE,CWSA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWSACPS100,electricity services water,COM,.PRE.,Com.Water Heat.SA.BIOCPS.00.Stove.,PJ,GW,PRE,CWSA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWSAGMX100,electricity services water,COM,.PRE.,Com.Water Heat.SA.GAS.00.Furnace.,PJ,GW,PRE,CWSA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWSAGMX101,electricity services water,COM,.PRE.,Com Water Heat New Boiler - SA - GMX101,PJ,GW,PRE,CWSA,ANNUAL,,COM_PRE_PJ_GW
-CWSAHET100,electricity services water,COM,.PRE.,Com.Water Heat.SA.LTH.00.Heat Exchanger.,PJ,GW,PRE,CWSA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWSALPG100,electricity services water,COM,.PRE.,Com.Water Heat.SA.LPG.00.Furnace.,PJ,GW,PRE,CWSA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWSAOIL100,electricity services water,COM,.PRE.,Com.Water Heat.SA.OIL.00.Furnace.,PJ,GW,PRE,CWSA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWSAPEL100,electricity services water,COM,.PRE.,Com.Water Heat.SA.BIOPEL.00.Stove.,PJ,GW,PRE,CWSA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWSASOL100,electricity services water,COM,.PRE.,Com.Water Heat.SA.SOL.00.Furnace.,PJ,GW,PRE,CWSA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CWSASOL101,electricity services water,COM,.PRE.,Com Water Heat New Boiler - SA - SOL101,PJ,GW,PRE,CWSA,ANNUAL,,COM_PRE_PJ_GW
+CWBABGS100,services hot water,COM,.PRE.,Com.Water Heat.BA.BGS.00.Furnace.,PJ,GW,PRE,CWBA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWBACPS100,services hot water,COM,.PRE.,Com.Water Heat.BA.BIOCPS.00.Stove.,PJ,GW,PRE,CWBA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWBAGMX100,services hot water,COM,.PRE.,Com.Water Heat.BA.GAS.00.Furnace.,PJ,GW,PRE,CWBA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWBAGMX101,services hot water,COM,.PRE.,Com Water Heat New Boiler - BA - GMX101,PJ,GW,PRE,CWBA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWBALPG100,services hot water,COM,.PRE.,Com.Water Heat.BA.LPG.00.Furnace.,PJ,GW,PRE,CWBA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWBAOIL100,services hot water,COM,.PRE.,Com.Water Heat.BA.OIL.00.Furnace.,PJ,GW,PRE,CWBA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWBAPEL100,services hot water,COM,.PRE.,Com.Water Heat.BA.BIOPEL.00.Stove.,PJ,GW,PRE,CWBA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWBASOL100,services hot water,COM,.PRE.,Com.Water Heat.BA.SOL.00.Furnace.,PJ,GW,PRE,CWBA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWBASOL101,services hot water,COM,.PRE.,Com Water Heat New Boiler - BA - SOL101,PJ,GW,PRE,CWBA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWBPBGS100,services hot water,COM,.PRE.,Com.Water Heat.BP.BGS.00.Furnace.,PJ,GW,PRE,CWBP,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWBPCPS100,services hot water,COM,.PRE.,Com.Water Heat.BP.BIOCPS.00.Stove.,PJ,GW,PRE,CWBP,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWBPGMX100,services hot water,COM,.PRE.,Com.Water Heat.BP.GAS.00.Furnace.,PJ,GW,PRE,CWBP,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWBPGMX101,services hot water,COM,.PRE.,Com Water Heat New Boiler - BP - GMX101,PJ,GW,PRE,CWBP,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWBPLPG100,services hot water,COM,.PRE.,Com.Water Heat.BP.LPG.00.Furnace.,PJ,GW,PRE,CWBP,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWBPOIL100,services hot water,COM,.PRE.,Com.Water Heat.BP.OIL.00.Furnace.,PJ,GW,PRE,CWBP,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWBPPEL100,services hot water,COM,.PRE.,Com.Water Heat.BP.BIOPEL.00.Stove.,PJ,GW,PRE,CWBP,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWBPSOL100,services hot water,COM,.PRE.,Com.Water Heat.BP.SOL.00.Furnace.,PJ,GW,PRE,CWBP,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWBPSOL101,services hot water,COM,.DMD.,Com Water Heat New Boiler - BPN - SOL101,PJ,GW,DMD,CWBP,ANNUAL,"0,00",COM_DMD_PJ_GW
+CWCOBGS100,services hot water,COM,.PRE.,Com.Water Heat.CO.BGS.00.Furnace.,PJ,GW,PRE,CWCO,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWCOCPS100,services hot water,COM,.PRE.,Com.Water Heat.CO.BIOCPS.00.Stove.,PJ,GW,PRE,CWCO,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWCOELC100,services hot water,COM,.PRE.,Com.Water Heat.CO.ELC.00.Resistance.,PJ,GW,PRE,CWCO,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWCOELC200,services hot water,COM,.PRE.,Com.Water Heat.CO.ELC.00.Heat Pump.,PJ,GW,PRE,CWCO,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWCOGMX100,services hot water,COM,.PRE.,Com.Water Heat.CO.GAS.00.Furnace.,PJ,GW,PRE,CWCO,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWCOGMX101,services hot water,COM,.PRE.,Com Water Heat New Boiler - CO - GMX101,PJ,GW,PRE,CWCO,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWCOLPG100,services hot water,COM,.PRE.,Com.Water Heat.CO.LPG.00.Furnace.,PJ,GW,PRE,CWCO,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWCOOIL100,services hot water,COM,.PRE.,Com.Water Heat.CO.OIL.00.Furnace.,PJ,GW,PRE,CWCO,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWCOPEL100,services hot water,COM,.PRE.,Com.Water Heat.CO.BIOPEL.00.Stove.,PJ,GW,PRE,CWCO,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWCOSOL100,services hot water,COM,.PRE.,Com.Water Heat.CO.SOL.00.Furnace.,PJ,GW,PRE,CWCO,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWCOSOL101,services hot water,COM,.PRE.,Com Water Heat New Boiler - CO - SOL101,PJ,GW,PRE,CWCO,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWCSBGS100,services hot water,COM,.PRE.,Com.Water Heat.CS.BGS.00.Furnace.,PJ,GW,PRE,CWCS,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWCSCPS100,services hot water,COM,.PRE.,Com.Water Heat.CS.BIOCPS.00.Stove.,PJ,GW,PRE,CWCS,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWCSGMX100,services hot water,COM,.PRE.,Com.Water Heat.CS.GAS.00.Furnace.,PJ,GW,PRE,CWCS,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWCSGMX101,services hot water,COM,.PRE.,Com Water Heat New Boiler - CS - GMX101,PJ,GW,PRE,CWCS,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWCSHET100,services hot water,COM,.PRE.,Com.Water Heat.CS.LTH.00.Heat Exchanger.,PJ,GW,PRE,CWCS,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWCSLPG100,services hot water,COM,.PRE.,Com.Water Heat.CS.LPG.00.Furnace.,PJ,GW,PRE,CWCS,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWCSOIL100,services hot water,COM,.PRE.,Com.Water Heat.CS.OIL.00.Furnace.,PJ,GW,PRE,CWCS,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWCSPEL100,services hot water,COM,.PRE.,Com.Water Heat.CS.BIOPEL.00.Stove.,PJ,GW,PRE,CWCS,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWCSSOL100,services hot water,COM,.PRE.,Com.Water Heat.CS.SOL.00.Furnace.,PJ,GW,PRE,CWCS,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWCSSOL101,services hot water,COM,.PRE.,Com Water Heat New Boiler - CS - SOL101,PJ,GW,PRE,CWCS,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWENBGS100,services hot water,COM,.PRE.,Com.Water Heat.EN.BGS.00.Furnace.,PJ,GW,PRE,CWEN,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWENCPS100,services hot water,COM,.PRE.,Com.Water Heat.EN.BIOCPS.00.Stove.,PJ,GW,PRE,CWEN,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWENGMX100,services hot water,COM,.PRE.,Com.Water Heat.EN.GAS.00.Furnace.,PJ,GW,PRE,CWEN,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWENGMX101,services hot water,COM,.PRE.,Com Water Heat New Boiler - EN - GMX101,PJ,GW,PRE,CWEN,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWENLPG100,services hot water,COM,.PRE.,Com.Water Heat.EN.LPG.00.Furnace.,PJ,GW,PRE,CWEN,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWENOIL100,services hot water,COM,.PRE.,Com.Water Heat.EN.OIL.00.Furnace.,PJ,GW,PRE,CWEN,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWENPEL100,services hot water,COM,.PRE.,Com.Water Heat.EN.BIOPEL.00.Stove.,PJ,GW,PRE,CWEN,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWENSOL100,services hot water,COM,.PRE.,Com.Water Heat.EN.SOL.00.Furnace.,PJ,GW,PRE,CWEN,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWENSOL101,services hot water,COM,.PRE.,Com Water Heat New Boiler - EN - SOL101,PJ,GW,PRE,CWEN,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWNBAGMX101,services hot water,COM,.PRE.,Com Water Heat New Boiler - NBA - GMX101,PJ,GW,PRE,CWNBA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWNBPGMX101,services hot water,COM,.PRE.,Com Water Heat New Boiler - NBP - GMX101,PJ,GW,PRE,CWNBP,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWNCOGMX101,services hot water,COM,.PRE.,Com Water Heat New Boiler - NCO - GMX101,PJ,GW,PRE,CWNCO,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWNCSGMX101,services hot water,COM,.PRE.,Com Water Heat New Boiler - NCS - GMX101,PJ,GW,PRE,CWNCS,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWNCSSOL101,services hot water,COM,.PRE.,Com Water Heat New Boiler - NCS - SOL101,PJ,GW,PRE,CWNCS,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWNENGMX101,services hot water,COM,.PRE.,Com Water Heat New Boiler - NEN - GMX101,PJ,GW,PRE,CWNEN,ANNUAL,,COM_PRE_PJ_GW
+CWNENSOL101,services hot water,COM,.PRE.,Com Water Heat New Boiler - NEN - SOL101,PJ,GW,PRE,CWNEN,ANNUAL,,COM_PRE_PJ_GW
+CWNSAGMX101,services hot water,COM,.PRE.,Com Water Heat New Boiler - NSA - GMX101,PJ,GW,PRE,CWNSA,ANNUAL,,COM_PRE_PJ_GW
+CWNSASOL101,services hot water,COM,.PRE.,Com Water Heat New Boiler - NSA - SOL101,PJ,GW,PRE,CWNSA,ANNUAL,,COM_PRE_PJ_GW
+CWSABGS100,services hot water,COM,.PRE.,Com.Water Heat.SA.BGS.00.Furnace.,PJ,GW,PRE,CWSA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWSACPS100,services hot water,COM,.PRE.,Com.Water Heat.SA.BIOCPS.00.Stove.,PJ,GW,PRE,CWSA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWSAGMX100,services hot water,COM,.PRE.,Com.Water Heat.SA.GAS.00.Furnace.,PJ,GW,PRE,CWSA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWSAGMX101,services hot water,COM,.PRE.,Com Water Heat New Boiler - SA - GMX101,PJ,GW,PRE,CWSA,ANNUAL,,COM_PRE_PJ_GW
+CWSAHET100,services hot water,COM,.PRE.,Com.Water Heat.SA.LTH.00.Heat Exchanger.,PJ,GW,PRE,CWSA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWSALPG100,services hot water,COM,.PRE.,Com.Water Heat.SA.LPG.00.Furnace.,PJ,GW,PRE,CWSA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWSAOIL100,services hot water,COM,.PRE.,Com.Water Heat.SA.OIL.00.Furnace.,PJ,GW,PRE,CWSA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWSAPEL100,services hot water,COM,.PRE.,Com.Water Heat.SA.BIOPEL.00.Stove.,PJ,GW,PRE,CWSA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWSASOL100,services hot water,COM,.PRE.,Com.Water Heat.SA.SOL.00.Furnace.,PJ,GW,PRE,CWSA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CWSASOL101,services hot water,COM,.PRE.,Com Water Heat New Boiler - SA - SOL101,PJ,GW,PRE,CWSA,ANNUAL,,COM_PRE_PJ_GW
 DIGEGAS100,Heat from COM sector,SUP,.PRE.,Chaleur digesteur biogaz,PJ,GW,PRE,SUPHET,ANNUAL,"0,00",SUP_PRE_PJ_GW
 DIGEOIL100,Heat from COM sector,SUP,.PRE.,Chaleur digesteur mazout,PJ,GW,PRE,SUPHET,ANNUAL,"0,00",SUP_PRE_PJ_GW
 DJ_2F_process,DJ_process,RSD,.DMD.,DJ_2F_process,PJ,PJA,DMD,DJ2F,ANNUAL,"0,00",RSD_DMD_PJ_PJA
@@ -466,7 +466,7 @@ INDBGS00,Fuel Tech – Biogas,IND,.PRE.,Fuel Tech - Biogas (IND),PJ,PJA,PRE,INDB
 INDBIO00,Fuel Tech - Biofuel,IND,.PRE.,Fuel Tech - Biofuel (IND),PJ,PJA,PRE,INDBIO,ANNUAL,"0,00",Fuel Tech - Biofuel
 INDCOA00,Fuel Tech - Hard Coal,IND,.PRE.,Fuel Tech - Hard Coal (IND),PJ,PJA,PRE,INDCOA,ANNUAL,"0,00",Fuel Tech - Hard Coal
 INDCOK00,Fuel Tech - Coke,IND,.PRE.,Fuel Tech - Coke (IND),PJ,PJA,PRE,INDCOK,ANNUAL,"0,00",Fuel Tech - Coke
-INDCOL00,Fuel Tech – Lignite,IND,.PRE.,Fuel Tech - Lignite (IND),PJ,PJA,PRE,INDCOL,ANNUAL,"0,00",Fuel Tech - Lignite
+INDCOL00,Fuel Tech - Lignite,IND,.PRE.,Fuel Tech - Lignite (IND),PJ,PJA,PRE,INDCOL,ANNUAL,"0,00",Fuel Tech - Lignite
 INDCPS00,Fuel Tech - Wood Chips,IND,.PRE.,Fuel Tech - Wood CHIPS (IND),PJ,PJA,PRE,INDCPS,ANNUAL,"0,00",Fuel Tech - Wood CHIPS
 INDELC00,Fuel Tech - Electricity,IND,.PRE.,Fuel Tech - Electricity (IND),PJ,GW,PRE,INDELC,DAYNITE,"0,00",Fuel Tech - Electricity
 INDGAS00,Fuel Tech - Natural Gas transport,IND,.PRE.,Fuel Tech - Natural Gas transport (IND),PJ,PJA,PRE,INDGAS,ANNUAL,"0,00",Fuel Tech - Natural Gas transport
@@ -476,7 +476,7 @@ INDGH2C01,hydrogen for industry,SUP,.PRE.,Fuel Tech - H2 Delivery from centraliz
 INDGH2C01_i,Imports,SUP,.PRE.,INDGH2C01_i,PJ,PJ-A,PRE,INDHH2,DAYNITE,,SUP_PRE_PJ_PJ-A
 INDGMX00,Fuel Tech - Natural Gas and biogas mixed,IND,.PRE.,Fuel Tech - Natural Gas and biogas mixed  (IND),PJ,PJA,PRE,INDGMX,ANNUAL,"0,00",Fuel Tech - Natural Gas and biogas mixed
 INDHFO00,Fuel Tech - Heavy Fuel Oil ,IND,.PRE.,Fuel Tech - Heavy Fuel Oil (IND),PJ,PJA,PRE,INDHFO,ANNUAL,"0,00",Fuel Tech - Heavy Fuel Oil
-INDHTH00,Fuel Tech – Heat,IND,.PRE.,industry high temperature heat,PJ,PJA,PRE,INDHET,ANNUAL,"0,00",Fuel Tech - Heat
+INDHTH00,Fuel Tech - Heat,IND,.PRE.,industry high temperature heat,PJ,PJA,PRE,INDHET,ANNUAL,"0,00",Fuel Tech - Heat
 INDIIS01,Fuel Tech New - IIS GMX - Corex GMX or BFG TGR with CCS or BOF,IND,.PRE.,Fuel Tech New - IIS GMX - Corex GMX or BFG TGR with CCS or BOF (IND),PJ,PJA,PRE,INDIIS,ANNUAL,"1,00",Fuel Tech New - IIS GMX - Corex GMX or BFG TGR with CCS or BOF
 INDLFO00,Fuel Tech - Light Fuel Oil ,IND,.PRE.,Fuel Tech - Light Fuel Oil (IND),PJ,PJA,PRE,INDLFO,ANNUAL,"0,00",Fuel Tech - Light Fuel Oil
 INDLPG00,Fuel Tech - Liquified Petroleum Gas,IND,.PRE.,Fuel Tech - Liquified Petroleum Gas (IND),PJ,PJA,PRE,INDLPG,ANNUAL,"0,00",Fuel Tech - Liquified Petroleum Gas
@@ -908,11 +908,11 @@ TRABGS00,Fuel Tech – Biogas,TRA,.PRE.,Fuel tech - biogas (TRA),PJ,PJA,PRE,TRAB
 TRADST00,Fuel Tech – Diesel,TRA,.PRE.,Fuel Tech - Diesel (TRA),PJ,PJA,PRE,TRADST,ANNUAL,"0,00",Fuel Tech - Diesel
 TRAELC00,electricity transport,TRA,.PRE.,Fuel Tech - Electricity (TRA),PJ,GW,PRE,TRAELC,ANNUAL,"0,00",Fuel Tech - Electricity
 TRAETH00,Fuel Tech - Ethanol,TRA,.PRE.,Fuel Tech - Ethanol (TRA),PJ,PJA,PRE,TRAETH,ANNUAL,"0,00",Fuel Tech - Ethanol
-TRAGH2C04,Fuel Tech - H2 Delivery from centralized production (COMP+USTOR+TR+GSTORB+RTS+REFGG (small)),SUP,.PRE.,Fuel Tech - H2 Delivery from centralized production (COMP+USTOR+TR+GSTORB+RTS+REFGG (small)),PJ,PJ-A,PRE,TRAGH2,DAYNITE,,Fuel Tech - H2 Delivery from centralized production (COMP+USTOR+TR+GSTORB+RTS+REFGG (small))
+TRAGH2C04,Fuel Tech - H2,SUP,.PRE.,Fuel Tech - H2 Delivery from centralized production (COMP+USTOR+TR+GSTORB+RTS+REFGG (small)),PJ,PJ-A,PRE,TRAGH2,DAYNITE,,Fuel Tech - H2 Delivery from centralized production (COMP+USTOR+TR+GSTORB+RTS+REFGG (small))
 TRAGMX00,Fuel Tech - Reseau gas mixed,TRA,.PRE.,Fuel Tech - Reseau gas mixed (TRA),PJ,PJA,PRE,TRAGMX,ANNUAL,"0,00",Fuel Tech - Reseau gas mixed
 TRAGSL00,Fuel Tech - Gasoline,TRA,.PRE.,Fuel Tech - Gasoline (TRA),PJ,PJA,PRE,TRAGSL,ANNUAL,"0,00",Fuel Tech - Gasoline
 TRAKER00,Fuel Tech - Kerosene - Jet Fuels,TRA,.PRE.,Fuel Tech - Kerosene - Jet Fuels (TRA),PJ,PJA,PRE,TRAKER,ANNUAL,"0,00",Fuel Tech - Kerosene - Jet Fuels
-TRALH2C01,Fuel Tech - H2 Delivery from centralized production (COMP+USTOR+TR+LIQ+LSTORB+RTS+REFLL(large)),SUP,.PRE.,Fuel Tech - H2 Delivery from centralized production (COMP+USTOR+TR+LIQ+LSTORB+RTS+REFLL(large)),PJ,PJ-A,PRE,TRALH2,DAYNITE,,Fuel Tech - H2 Delivery from centralized production (COMP+USTOR+TR+LIQ+LSTORB+RTS+REFLL(large))
+TRALH2C01,Fuel Tech - H2,SUP,.PRE.,Fuel Tech - H2 Delivery from centralized production (COMP+USTOR+TR+LIQ+LSTORB+RTS+REFLL(large)),PJ,PJ-A,PRE,TRALH2,DAYNITE,,Fuel Tech - H2 Delivery from centralized production (COMP+USTOR+TR+LIQ+LSTORB+RTS+REFLL(large))
 TRALH2C02_i,SUP_PRE_PJ_PJ-A,SUP,.PRE.,TRALH2C02_i,PJ,PJ-A,PRE,TRALH2,DAYNITE,,SUP_PRE_PJ_PJ-A
 TRALPG00,Fuel Tech - Liquified Petroleum Gas,TRA,.PRE.,Fuel Tech - Liquified Petroleum Gas (TRA),PJ,PJA,PRE,TRALPG,ANNUAL,"0,00",Fuel Tech - Liquified Petroleum Gas
 TSTGEVCMIDN01,TRA_STG_PJ_GW,TRA,.STG.,TSTGEVCMIDN01,PJ,GW,STG,BATELCOUT,DAYNITE,"0,00",TRA_STG_PJ_GW

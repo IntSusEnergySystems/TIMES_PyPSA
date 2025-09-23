@@ -6,7 +6,7 @@ ELCLOW,Low Voltage Electricity,PJ,ELC,NRG,Low Voltage Electricity,Low Voltage El
 RSDELC,Electricity for Residential sector,PJ,RSD,NRG,Electricity for Residential sector,Electricity for Residential sector,ELCLOW,RSDELC00,
 INDELC,Fuel Tech - Electricity,PJ,IND,NRG,industry electricity,Electricity for Industry sector,ELCHIGG,INDELC00,
 COMELC,Electricity for Commercial sector,PJ,COM,NRG,Electricity for Commercial sector,Electricity for Commercial sector,ELCMED,COMELC00,
-TRAELC,electricity transport,PJ,TRA,NRG,total transport,Electricity for Transport sector,ELCLOW,TRAELC00,
+TRAELC,electricity transport,PJ,TRA,NRG,total rail,Electricity for Transport sector,ELCLOW,TRAELC00,
 ELCNUC,Nuclear for Electricity sector,PJ,ELC,NRG,Nuclear for Electricity sector,Uranium,,,
 RSDOIL,Diesel Oil for the residential sector,PJ,RSD,NRG,Diesel Oil for the residential sector,Oil,,,
 INDLFO,Fuel Tech - Light Fuel Oil ,PJ,IND,NRG,oil for industry,Oil,,,light fuel oil
@@ -23,9 +23,9 @@ INDLPG,Fuel Tech - Liquified Petroleum Gas,PJ,IND,NRG,gas for industry,Oil,,,Pro
 INDCOA,Fuel Tech - Hard Coal,PJ,IND,NRG,coal for industry,Coal,,,
 RSDCOA,Coal for residential sector,PJ,RSD,NRG,Coal for residential sector,Coal,,,
 COMCOA,Coal for commertial sector,PJ,COM,NRG,Coal for commertial sector,Coal,,,
-INDCOL,Fuel Tech – Lignite,PJ,IND,NRG,coal for industry,Lignite,,,
+INDCOL,Fuel Tech - Lignite,PJ,IND,NRG,coal for industry,Lignite,,,
 ELCCOL,Lignite for electricity sector,PJ,ELC,NRG,Lignite for electricity sector,Lignite,,,
-INDCOK,Fuel Tech - Coke,PJ,IND,NRG,coal for industry,Coal,,,Coke  in cement and lime industry
+INDCOK,Fuel Tech - Coke,PJ,IND,NRG,coke for industry,Coal,,,Coke  in cement and lime industry
 ELCGAS,Natural Gas for Electricity,PJ,ELC,NRG,Natural Gas for Electricity,Natural Gas,GASNAT,,
 INDGAS,Fuel Tech - Natural Gas transport,PJ,IND,NRG,gas for industry,Natural Gas,GASNAT,,
 INDGMX,Fuel Tech - Natural Gas and biogas mixed,PJ,IND,NRG,gas for industry,Network gas,BIOGZH,SUPGMX00,Injected biomethane (after upgrading/concentration) + imported biomethane
@@ -46,11 +46,11 @@ TRABGS,Biogas for Transport sector,PJ,TRA,NRG,total transport,Biogas,,,
 AGRBGS,Fuel Tech – Biogas,PJ,AGR,NRG,Fuel Tech – Biogas,Biogas,,,
 ELCBGS,Biogas for Electricity sector,PJ,ELC,NRG,Biogas for Electricity sector,Biogas,,,
 ELCWST,Waste for Electricity sector,PJ,ELC,NRG,Waste for Electricity sector,Municipal waste (optional),,,incinerator
-INDHET,Fuel Tech – Heat,PJ,IND,NRG,Fuel Tech – Heat,HT heat,,,District heating network with centralized CHP (ELCHET) and/or recovered excess heat from industry (INDHWT)
+INDHET,Fuel Tech - Heat,PJ,IND,NRG,Fuel Tech - Heat,HT heat,,,District heating network with centralized CHP (ELCHET) and/or recovered excess heat from industry (INDHWT)
 RSDHET,Heat for Residential sector,PJ,RSD,NRG,Heat for Residential sector,Central heat,,,District heating network with centralized CHP (ELCHET) and/or recovered excess heat from industry (INDHWT)
 COMHET,LT Heat for Commercial sector,PJ,COM,NRG,LT Heat for Commercial sector,Central heat,,,District heating network with centralized CHP (ELCHET) and/or recovered excess heat from industry (INDHWT)
-TRAGH2,Fuel Tech - H2 Delivery from centralized production (COMP+USTOR+TR+GSTORB+RTS+REFGG (small)),PJ,SUP,NRG,Fuel Tech - H2 Delivery from centralized production (COMP+USTOR+TR+GSTORB+RTS+REFGG (small)),Hydrogen,,,
-TRALH2,Fuel Tech - H2 Delivery from centralized production (COMP+USTOR+TR+LIQ+LSTORB+RTS+REFLL(large)),PJ,SUP,NRG,Fuel Tech - H2 Delivery from centralized production (COMP+USTOR+TR+LIQ+LSTORB+RTS+REFLL(large)),Hydrogen,,,
+TRAGH2,Fuel Tech - H2,PJ,SUP,NRG,Fuel Tech - H2,Hydrogen,,,
+TRALH2,Fuel Tech - H2,PJ,SUP,NRG,Fuel Tech - H2,Hydrogen,,,
 INDHH2,hydrogen for industry,PJ,SUP,NRG,hydrogen for industry,Hydrogen,,,
 ELCSLU,Sludge for Electricity sector,PJ,ELC,NRG,Sludge for Electricity sector,Biomass & Biofuels,,,Renewable waste incinerated
 TRAETH,Fuel Tech – Ethanol,PJ,TRA,NRG,total transport,Oil Products,,,pure bioethanol
@@ -157,18 +157,18 @@ CLIGNSA,tertiary electricity,PJ,COM,NRG,total services,Services,,,
 CLIGSA,tertiary electricity,PJ,COM,NRG,total services,Services,,,
 COEL,tertiary electricity,PJ,COM,NRG,total services,Services,,,
 CCOK,tertiary electricity cooking,PJ,COM,NRG,total services,Services,,,
-CWBA,electricity services water,PJ,COM,NRG,total services,Services,,,
-CWBP,electricity services water,PJ,COM,NRG,total services,Services,,,
-CWCO,electricity services water,PJ,COM,NRG,total services,Services,,,
-CWCS,electricity services water,PJ,COM,NRG,total services,Services,,,
-CWEN,electricity services water,PJ,COM,NRG,total services,Services,,,
-CWNBA,electricity services water,PJ,COM,NRG,total services,Services,,,
-CWNBP,electricity services water,PJ,COM,NRG,total services,Services,,,
-CWNCO,electricity services water,PJ,COM,NRG,total services,Services,,,
-CWNCS,electricity services water,PJ,COM,NRG,total services,Services,,,
-CWNEN,electricity services water,PJ,COM,NRG,total services,Services,,,
-CWNSA,electricity services water,PJ,COM,NRG,total services,Services,,,
-CWSA,electricity services water,PJ,COM,NRG,total services,Services,,,
+CWBA,services hot water,PJ,COM,NRG,total services,Services,,,
+CWBP,services hot water,PJ,COM,NRG,total services,Services,,,
+CWCO,services hot water,PJ,COM,NRG,total services,Services,,,
+CWCS,services hot water,PJ,COM,NRG,total services,Services,,,
+CWEN,services hot water,PJ,COM,NRG,total services,Services,,,
+CWNBA,services hot water,PJ,COM,NRG,total services,Services,,,
+CWNBP,services hot water,PJ,COM,NRG,total services,Services,,,
+CWNCO,services hot water,PJ,COM,NRG,total services,Services,,,
+CWNCS,services hot water,PJ,COM,NRG,total services,Services,,,
+CWNEN,services hot water,PJ,COM,NRG,total services,Services,,,
+CWNSA,services hot water,PJ,COM,NRG,total services,Services,,,
+CWSA,services hot water,PJ,COM,NRG,total services,Services,,,
 INDBIO,Fuel Tech – Biofuel,PJ,IND,NRG,Fuel Tech – Biofuel,Industry,,,
 AGRAP,agriculture electricity,PJ,AGR,NRG,total agriculture,Agriculture,,,
 AGRHH,heat for agriculture,PJ,AGR,NRG,total agriculture,Agriculture,,,

@@ -581,6 +581,7 @@ def build_sankey(df, output_html_file, year, flow_threshold=0.0, process_unit_ma
         return None
 
     df = df.copy()
+    df.to_csv(f"output/annual_values_{selected_year}.csv")
     var_upper = df['variable'].str.upper()
     # Direction based on variable type. Ensure nuclear fuel (e.g., ELCNUC, NUCRSV)
     # feeds into nuclear generation processes rather than electricity into ENUC.
@@ -700,7 +701,7 @@ def main():
 
     # --- Configuration ---
     vd_file = "data/bau_080925_0809.vd"
-    selected_year = 2021
+    # selected_year = 2050
     # commodities_file removed in favor of mapping-based metadata
     # processes_file removed in favor of mapping-based metadata
     output_csv_file = f"output/annual_values{'_clustered' if cluster else ''}.csv"
@@ -715,7 +716,11 @@ def main():
     # Load process mapping and construct processes_df from mapping
     process_mapping_file = "data/mapping_processes.csv"
     processes_df = pd.read_csv(process_mapping_file)
-    processes_df = processes_df[processes_df["Activity unit"] == "PJ"]
+    # processes_df = processes_df[processes_df["Activity unit"] == "PJ"]
+    processes_df = processes_df[
+    (processes_df["Activity unit"] == "PJ") |
+    (processes_df["PyPSA technology"].isin(["Navigation Domestic Freight Tech Existing"]))
+]
     if 'Process' not in processes_df.columns and 'Technology (Process)' in processes_df.columns:
         processes_df = processes_df.rename(columns={'Technology (Process)': 'Process'})
     if 'Description' not in processes_df.columns:
@@ -770,7 +775,6 @@ def main():
         .merge(commodities_df.rename(columns={"Commodity": "commodity_code", "Description": "commodity"}), on="commodity_code", how="inner")
         .merge(processes_df.rename(columns={"Process": "process_code", "Description": "process"}), on="process_code", how="inner")
     )
-
     # Reorder columns for readability
     ordered_cols = [
         'year', 'region', 'variable', 'commodity_code', 'commodity', 'process_code', 'process', 'value'
@@ -862,4 +866,5 @@ def main():
         _ = build_sankey(clustered_df, output_html_file, year=selected_year, flow_threshold=0.0, process_unit_map=combined_unit_map)
 
 if __name__ == "__main__":
+    selected_year = 2050
     main()
