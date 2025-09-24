@@ -569,7 +569,7 @@ def apply_commodity_grouping(df, commodity_to_group, groups_info, commodities_df
     return dfg
 
 
-def build_sankey(df, output_html_file, year, flow_threshold=0.0, process_unit_map=None):
+def build_sankey(df, output_html_file, year, flow_threshold=0.0, selected_year='', process_unit_map=None):
     """
     Build and save a Sankey diagram from filtered annual flows.
     Uses variable type to set direction:
@@ -701,7 +701,7 @@ def main():
 
     # --- Configuration ---
     vd_file = "data/bau_080925_0809.vd"
-    # selected_year = 2050
+    selected_year = 2021
     # commodities_file removed in favor of mapping-based metadata
     # processes_file removed in favor of mapping-based metadata
     output_csv_file = f"output/annual_values{'_clustered' if cluster else ''}.csv"
@@ -853,7 +853,7 @@ def main():
     if not enable_process_clustering:
         print("Process clustering disabled. Building unclustered Sankey.")
         # Represent all flows without netting
-        _ = build_sankey(filtered_df, output_html_file, year=selected_year, flow_threshold=0.0, process_unit_map=process_unit_map)
+        _ = build_sankey(filtered_df, output_html_file, year=selected_year, flow_threshold=0.0, selected_year=selected_year, process_unit_map=process_unit_map)
     else:
         # --- Apply mapping-based process clustering (no other clustering) ---
         clustered_df, aggregated_unit_map = apply_mapping_based_process_clustering(
@@ -863,8 +863,7 @@ def main():
         combined_unit_map = {**(process_unit_map or {}), **(aggregated_unit_map or {})}
 
         # --- Build Sankey ---
-        _ = build_sankey(clustered_df, output_html_file, year=selected_year, flow_threshold=0.0, process_unit_map=combined_unit_map)
+        _ = build_sankey(clustered_df, output_html_file, year=selected_year, flow_threshold=0.0, selected_year=selected_year, process_unit_map=combined_unit_map)
 
 if __name__ == "__main__":
-    selected_year = 2050
     main()
