@@ -13,32 +13,32 @@ pip install pandas plotly jupyter
 
 ### Data
 Files under `data/`:
-- [demos_004_0209.vd](https://squoilin.github.io/TIMES_PyPSA/data/demos_004_0209.vd): example TIMES output file parsed by the script
-- [commodities.csv](https://squoilin.github.io/TIMES_PyPSA/data/commodities.csv), [technologies.csv](https://squoilin.github.io/TIMES_PyPSA/data/technologies.csv), [times_variables.csv](https://squoilin.github.io/TIMES_PyPSA/data/times_variables.csv): reference/mapping CSVs (inferred values)
+- bau_080925_0809.vd: example TIMES output file parsed by the script
+- mapping_commodities.csv, mapping_processes.csv: mapping the TIMES processes and commodities towards the PyPSA equivalents
 
-### Outputs
-Generated files under `output/` after running the script:
-- [interactive_energy_sankey_pj.html](https://squoilin.github.io/TIMES_PyPSA/output/interactive_energy_sankey_pj.html)
-- [interactive_energy_sankey_twh.html](https://squoilin.github.io/TIMES_PyPSA/output/interactive_energy_sankey_twh.html)
-- [power_capacity_by_technology.html](https://squoilin.github.io/TIMES_PyPSA/output/power_capacity_by_technology.html)
-- [sankey_data_2020_pj.csv](https://squoilin.github.io/TIMES_PyPSA/output/sankey_data_2020_pj.csv), [sankey_data_2020_twh.csv](https://squoilin.github.io/TIMES_PyPSA/output/sankey_data_2020_twh.csv): exported flows/nodes for year 2020 (year can be changed in the script)
-
-The output is available through github pages at [https://squoilin.github.io/TIMES_PyPSA/](https://squoilin.github.io/TIMES_PyPSA/).
+### Example outputs
+Generated files (synced to the web server by the rsync script):
+- [bau_sankey_2021_pj_clustered.html](http://labothap.squoilin.eu/times_pypsa/bau_sankey_2021_pj_clustered.html)
+- [bau_sankey_2050_pj.html](http://labothap.squoilin.eu/times_pypsa/bau_sankey_2050_pj.html)
+- [annual_values_2021.csv](http://labothap.squoilin.eu/times_pypsa/annual_values_2021.csv)
+- [annual_values_2050.csv](http://labothap.squoilin.eu/times_pypsa/annual_values_2050.csv)
+- [annual_values.csv](http://labothap.squoilin.eu/times_pypsa/annual_values.csv)
+- [annual_values_clustered.csv](http://labothap.squoilin.eu/times_pypsa/annual_values_clustered.csv)
+- [annual_flows_2021_energy_clustered.csv](http://labothap.squoilin.eu/times_pypsa/annual_flows_2021_energy_clustered.csv)
+- [annual_flows_2050_energy.csv](http://labothap.squoilin.eu/times_pypsa/annual_flows_2050_energy.csv)
+- [sankey_commodity_groups_2021.csv](http://labothap.squoilin.eu/times_pypsa/sankey_commodity_groups_2021.csv)
+- [sankey_commodity_groups_2021.json](http://labothap.squoilin.eu/times_pypsa/sankey_commodity_groups_2021.json)
 
 ### How to run
 Run the Python script (recommended):
 ```bash
 cd scripts
-python sankey_diagram.py
+python bau_sankey_diagram.py
 ```
-This reads [data/demos_004_0209.vd](https://squoilin.github.io/TIMES_PyPSA/data/demos_004_0209.vd), creates interactive Sankey diagrams in PJ and TWh, a capacity bar plot, and exports CSVs to `output/`.
+This reads data/bau_080925_0809.vd, creates interactive Sankey diagrams in PJ, a capacity bar plot, and exports CSVs to `output/`.
 
-Run the notebook:
+Run the notebook (currently running with a simplistic demo output file):
 ```bash
 jupyter lab  # or: jupyter notebook
 ```
 Then open `scripts/run_sankey.ipynb` and run all cells.
-
-### View the notebook online
-If you prefer not to run locally, view the notebook on nbviewer to display the plotly content:
-[View on nbviewer](https://nbviewer.org/github/squoilin/TIMES_PyPSA/blob/main/scripts/run_sankey.ipynb)

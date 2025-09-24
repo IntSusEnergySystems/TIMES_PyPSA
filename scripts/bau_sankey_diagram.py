@@ -680,7 +680,7 @@ def main():
     """Main function to generate the Sankey diagram."""
 
     # --- Simplification options ---
-    cluster = True
+    cluster = False
     if cluster:
         # Set to False to build unclustered Sankey
         enable_process_clustering = True
@@ -701,7 +701,7 @@ def main():
 
     # --- Configuration ---
     vd_file = "data/bau_080925_0809.vd"
-    selected_year = 2021
+    selected_year = 2050
     # commodities_file removed in favor of mapping-based metadata
     # processes_file removed in favor of mapping-based metadata
     output_csv_file = f"output/annual_values{'_clustered' if cluster else ''}.csv"
