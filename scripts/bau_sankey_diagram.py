@@ -118,15 +118,15 @@ def filter_for_sankey(annual_df, commodities_df, year, mapping_df=None):
     df = df[var_upper.isin(['VAR_FIN', 'VAR_FOUT'])]
 
     # Determine energy commodity codes strictly from mapping Unit == 'PJ'
-    mapping_energy_codes = set()
+    energy_codes = set()
     if mapping_df is not None and not mapping_df.empty and 'unit' in mapping_df.columns and 'times' in mapping_df.columns:
-        mapping_energy_codes = set(mapping_df.loc[mapping_df['unit'].astype(str).str.strip().str.upper() == 'PJ', 'times'].astype(str).str.strip().unique())
+        energy_codes = set(mapping_df.loc[mapping_df['unit'].astype(str).str.strip().str.upper() == 'PJ', 'times'].astype(str).str.strip().unique())
 
-    # If mapping is present, filter by those codes; otherwise, fall back to all observed
-    if mapping_energy_codes and 'commodity_code' in df.columns:
-        df = df[df['commodity_code'].astype(str).isin(mapping_energy_codes)]
+    # Filter by the identified energy codes
+    if energy_codes and 'commodity_code' in df.columns:
+        df = df[df['commodity_code'].astype(str).isin(energy_codes)]
 
-    return df, mapping_energy_codes
+    return df, energy_codes
 
 
 def analyze_process_connectivity(df):
@@ -476,24 +476,10 @@ def read_commodity_mapping_table(mapping_file):
     return out
 
 
-def write_commodity_mapping_table(mapping_file, mapping_df):
-    cols = ['Energy Carrier - PYPSA', 'commodities TIMES ', 'uspstream_commodity', 'upstream_process', 'Sector (com_in)', 'Comment']
-    df = pd.DataFrame({
-        cols[0]: mapping_df['pypsa'],
-        cols[1]: mapping_df['times'],
-        cols[2]: mapping_df.get('upstream_commodity', ''),
-        cols[3]: mapping_df.get('upstream_process', ''),
-        cols[4]: mapping_df.get('sector', ''),
-        cols[5]: mapping_df.get('comment', ''),
-    })
-    df.to_csv(mapping_file, index=False)
-
-
-def build_commodity_groups_from_mapping(mapping_df, energy_commodity_codes, commodities_df, mapping_file):
+def build_commodity_groups_from_mapping(mapping_df, energy_commodity_codes):
     """
     Use mapping table to group TIMES commodity codes into PYPSA carriers.
-    Adds missing energy commodities to mapping (auto-added) using heuristics
-    for their PYPSA label and persists back to file.
+    It does NOT add missing commodities. It is assumed the mapping is complete.
     Returns (commodity_to_group, groups_info)
     """
     mapping_df = mapping_df.copy()
@@ -502,34 +488,14 @@ def build_commodity_groups_from_mapping(mapping_df, energy_commodity_codes, comm
 
     # Build initial map from file
     times_to_pypsa = {row['times']: row['pypsa'] for _, row in mapping_df.iterrows() if row['times']}
-
-    # Add missing energy commodities
+    
+    # Warn about energy commodities that are not in the mapping file
     missing = [c for c in energy_commodity_codes if c not in times_to_pypsa]
     if missing:
-        # If commodities_df is not provided (we are phasing out commodities.csv),
-        # fall back to using mapping_df's Description column when adding new codes.
-        comm_desc = commodities_df.set_index('Commodity')['Description'].to_dict() if commodities_df is not None and not commodities_df.empty else {}
-        new_rows = []
+        print(f"[WARN] {len(missing)} energy commodities are present in the data but not in the mapping file. They will appear ungrouped.")
         for code in missing:
-            gid, gname = _categorize_commodity(code, comm_desc.get(code, ''))
-            # Map heuristic name to a PYPSA label best-effort
-            # Keep it simple: use the readable name as PYPSA label
-            pypsa_name = gname
-            print(f"[WARN] Commodity '{code}' missing from mapping table; inferred PYPSA='{pypsa_name}' and appended to {mapping_file} (comment=auto-added).")
-            new_rows.append({
-                'pypsa': pypsa_name,
-                'times': code,
-                'upstream_commodity': '',
-                'upstream_process': '',
-                'sector': '',
-                'comment': 'auto-added'
-            })
-            times_to_pypsa[code] = pypsa_name
-
-        if new_rows:
-            mapping_df = pd.concat([mapping_df, pd.DataFrame(new_rows)], ignore_index=True)
-            # Persist mapping back to CSV
-            write_commodity_mapping_table(mapping_file, mapping_df)
+             # Treat them as their own group
+            times_to_pypsa[code] = code
 
     # Build groups
     groups = {}
@@ -680,7 +646,7 @@ def main():
     """Main function to generate the Sankey diagram."""
 
     # --- Simplification options ---
-    cluster = False
+    cluster = True
     if cluster:
         # Set to False to build unclustered Sankey
         enable_process_clustering = True
@@ -701,7 +667,7 @@ def main():
 
     # --- Configuration ---
     vd_file = "data/bau_080925_0809.vd"
-    selected_year = 2050
+    selected_year = 2021
     # commodities_file removed in favor of mapping-based metadata
     # processes_file removed in favor of mapping-based metadata
     output_csv_file = f"output/annual_values{'_clustered' if cluster else ''}.csv"
@@ -716,11 +682,17 @@ def main():
     # Load process mapping and construct processes_df from mapping
     process_mapping_file = "data/mapping_processes.csv"
     processes_df = pd.read_csv(process_mapping_file)
-    # processes_df = processes_df[processes_df["Activity unit"] == "PJ"]
-    processes_df = processes_df[
-    (processes_df["Activity unit"] == "PJ") |
-    (processes_df["PyPSA technology"].isin(["Navigation Domestic Freight Tech Existing"]))
-]
+    
+    # Define which processes to keep for Sankey. We want all PJ processes,
+    # but also non-PJ processes that are part of a PyPSA technology cluster.
+    pj_procs = processes_df[processes_df["Activity unit"] == "PJ"]
+    non_pj_procs_in_cluster = processes_df[
+        (processes_df["Activity unit"] != "PJ") &
+        (processes_df["PyPSA technology"].notna()) &
+        (processes_df["PyPSA technology"] != "")
+    ]
+    processes_df = pd.concat([pj_procs, non_pj_procs_in_cluster]).drop_duplicates()
+
     if 'Process' not in processes_df.columns and 'Technology (Process)' in processes_df.columns:
         processes_df = processes_df.rename(columns={'Technology (Process)': 'Process'})
     if 'Description' not in processes_df.columns:
@@ -772,9 +744,12 @@ def main():
     # --- Join descriptions ---
     annual_values_df = (
         annual_values_df
-        .merge(commodities_df.rename(columns={"Commodity": "commodity_code", "Description": "commodity"}), on="commodity_code", how="inner")
-        .merge(processes_df.rename(columns={"Process": "process_code", "Description": "process"}), on="process_code", how="inner")
+        .merge(commodities_df.rename(columns={"Commodity": "commodity_code", "Description": "commodity"}), on="commodity_code", how="left")
+        .merge(processes_df.rename(columns={"Process": "process_code", "Description": "process"}), on="process_code", how="left")
     )
+    # Fill missing names with codes for records not in mapping files
+    annual_values_df['commodity'] = annual_values_df['commodity'].fillna(annual_values_df['commodity_code'])
+    annual_values_df['process'] = annual_values_df['process'].fillna(annual_values_df['process_code'])
     # Reorder columns for readability
     ordered_cols = [
         'year', 'region', 'variable', 'commodity_code', 'commodity', 'process_code', 'process', 'value'
@@ -814,7 +789,9 @@ def main():
     commodity_to_group = None
     groups_info = None
     if group_commodities:
-        commodity_to_group, groups_info = build_commodity_groups_from_mapping(mapping_df, energy_codes, commodities_df, mapping_file)
+        commodity_to_group, groups_info = build_commodity_groups_from_mapping(
+            mapping_df, energy_codes
+        )
         # Build name map for groups
         group_name_map = {gid: info['name'] for gid, info in groups_info.items()} if groups_info else {}
         filtered_df['grouped_commodity_code'] = filtered_df['commodity_code'].map(lambda c: commodity_to_group.get(c, c))
@@ -831,7 +808,9 @@ def main():
     if group_commodities:
         # Reuse computed groups if available from preview; else compute
         if not commodity_to_group or not groups_info:
-            commodity_to_group, groups_info = build_commodity_groups_from_mapping(mapping_df, energy_codes, commodities_df, mapping_file)
+            commodity_to_group, groups_info = build_commodity_groups_from_mapping(
+                mapping_df, energy_codes
+            )
         if groups_info:
             import json
             groups_json_file = f"output/sankey_commodity_groups_{selected_year}.json"
