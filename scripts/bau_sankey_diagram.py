@@ -102,10 +102,10 @@ def aggregate_to_annual(flows_df):
     return annual
 
 
-def filter_for_sankey(annual_df, commodities_df, year, mapping_df=None):
+def filter_for_sankey(annual_df, year, mapping_df=None, processes_df=None):
     """
     Filter annual aggregated flows for a given year, keeping only VAR_FIn and
-    VAR_FOut variables and restricting to energy commodities.
+    VAR_FOut variables and restricting to energy commodities AND processes.
     Returns the filtered DataFrame and the set of energy commodity codes.
     """
     if annual_df.empty:
@@ -117,14 +117,25 @@ def filter_for_sankey(annual_df, commodities_df, year, mapping_df=None):
     var_upper = df['variable'].str.upper()
     df = df[var_upper.isin(['VAR_FIN', 'VAR_FOUT'])]
 
-    # Determine energy commodity codes strictly from mapping Unit == 'PJ'
+    # 1. Filter by Commodity Unit = 'PJ'
     energy_codes = set()
     if mapping_df is not None and not mapping_df.empty and 'unit' in mapping_df.columns and 'times' in mapping_df.columns:
         energy_codes = set(mapping_df.loc[mapping_df['unit'].astype(str).str.strip().str.upper() == 'PJ', 'times'].astype(str).str.strip().unique())
 
-    # Filter by the identified energy codes
     if energy_codes and 'commodity_code' in df.columns:
+        original_rows = len(df)
         df = df[df['commodity_code'].astype(str).isin(energy_codes)]
+        print(f"Kept {len(df)} of {original_rows} rows after commodity unit filtering (PJ only).")
+
+    # 2. Filter by Process Unit = 'PJ'
+    pj_process_codes = set()
+    if processes_df is not None and not processes_df.empty and 'Activity unit' in processes_df.columns and 'Process' in processes_df.columns:
+        pj_process_codes = set(processes_df.loc[processes_df['Activity unit'].astype(str).str.strip().str.upper() == 'PJ', 'Process'].astype(str).str.strip().unique())
+
+    if pj_process_codes and 'process_code' in df.columns:
+        original_rows = len(df)
+        df = df[df['process_code'].astype(str).isin(pj_process_codes)]
+        print(f"Kept {len(df)} of {original_rows} rows after process unit filtering (PJ only).")
 
     return df, energy_codes
 
@@ -682,16 +693,6 @@ def main():
     # Load process mapping and construct processes_df from mapping
     process_mapping_file = "data/mapping_processes.csv"
     processes_df = pd.read_csv(process_mapping_file)
-    
-    # Define which processes to keep for Sankey. We want all PJ processes,
-    # but also non-PJ processes that are part of a PyPSA technology cluster.
-    pj_procs = processes_df[processes_df["Activity unit"] == "PJ"]
-    non_pj_procs_in_cluster = processes_df[
-        (processes_df["Activity unit"] != "PJ") &
-        (processes_df["PyPSA technology"].notna()) &
-        (processes_df["PyPSA technology"] != "")
-    ]
-    processes_df = pd.concat([pj_procs, non_pj_procs_in_cluster]).drop_duplicates()
 
     if 'Process' not in processes_df.columns and 'Technology (Process)' in processes_df.columns:
         processes_df = processes_df.rename(columns={'Technology (Process)': 'Process'})
@@ -765,7 +766,13 @@ def main():
     print("Done.")
 
     # --- Filter for Sankey (year=2021, VAR_F*, energy commodities) ---
-    filtered_df, energy_codes = filter_for_sankey(annual_values_df, commodities_df, year=selected_year, mapping_df=mapping_df)
+    print("\n--- Filtering for Sankey Diagram ---")
+    filtered_df, energy_codes = filter_for_sankey(
+        annual_values_df,
+        year=selected_year,
+        mapping_df=mapping_df,
+        processes_df=processes_df
+    )
     if filtered_df.empty:
         print("Filtered dataset for Sankey is empty; skipping Sankey generation.")
         return
