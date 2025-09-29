@@ -15,43 +15,43 @@ BBLQH2G110,SUP_PRE_PJ_GW,SUP,.PRE.,Gasification_ black liquor to hydrogen,PJ,GW,
 BCRPETH101,SUP_PRE_PJ_GW,SUP,.PRE.,Ethanol production from starch crops,PJ,GW,PRE,BIOETH,ANNUAL,"0,00",SUP_PRE_PJ_GW
 BRPSME101,SUP_PRE_PJ_GW,SUP,.PRE.,Transesterification of vegetable oils,PJ,GW,PRE,BIORME,ANNUAL,"0,00",SUP_PRE_PJ_GW
 BWBIOGAZ100,SUP_PRE_PJ_GW,SUP,.PRE.,Methanisation Biogas production,PJ,GW,PRE,BIOGAS,ANNUAL,"0,00",SUP_PRE_PJ_GW
-CCBAELC100,tertiary electricity,COM,.PRE.,Com.Space Cool.BA.ELC.00.Central.,PJ,GW,PRE,CCBA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CCBAELC200,tertiary electricity,COM,.PRE.,Com.Space Cool.BA.ELC.00.Windows.,PJ,GW,PRE,CCBA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CCBAELC300,tertiary electricity,COM,.PRE.,Com.Space Cool.BA.ELC.00.Fans.,PJ,GW,PRE,CCBA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CCBPELC100,tertiary electricity,COM,.PRE.,Com.Space Cool.BP.ELC.00.Central.,PJ,GW,PRE,CCBP,ANNUAL,"0,00",COM_PRE_PJ_GW
-CCBPELC200,tertiary electricity,COM,.PRE.,Com.Space Cool.BP.ELC.00.Windows.,PJ,GW,PRE,CCBP,ANNUAL,"0,00",COM_PRE_PJ_GW
-CCBPELC300,tertiary electricity,COM,.PRE.,Com.Space Cool.BP.ELC.00.Fans.,PJ,GW,PRE,CCBP,ANNUAL,"0,00",COM_PRE_PJ_GW
-CCBPELC301,tertiary electricity,COM,.PRE.,Com Space Cool New - BP - ELC301,PJ,GW,PRE,CCBP,ANNUAL,"0,00",COM_PRE_PJ_GW
-CCCOELC100,tertiary electricity,COM,.PRE.,Com.Space Cool.CO.ELC.00.Central.,PJ,GW,PRE,CCCO,ANNUAL,"0,00",COM_PRE_PJ_GW
-CCCOELC200,tertiary electricity,COM,.PRE.,Com.Space Cool.CO.ELC.00.Windows.,PJ,GW,PRE,CCCO,ANNUAL,"0,00",COM_PRE_PJ_GW
-CCCOELC300,tertiary electricity,COM,.PRE.,Com.Space Cool.CO.ELC.00.Fans.,PJ,GW,PRE,CCCO,ANNUAL,"0,00",COM_PRE_PJ_GW
-CCCOELC301,tertiary electricity,COM,.PRE.,Com Space Cool New - CO - ELC301,PJ,GW,PRE,CCCO,ANNUAL,"0,00",COM_PRE_PJ_GW
-CCCSELC100,tertiary electricity,COM,.PRE.,Com.Space Cool.CS.ELC.00.Central.,PJ,GW,PRE,CCCS,ANNUAL,"0,00",COM_PRE_PJ_GW
-CCCSELC200,tertiary electricity,COM,.PRE.,Com.Space Cool.CS.ELC.00.Windows.,PJ,GW,PRE,CCCS,ANNUAL,"0,00",COM_PRE_PJ_GW
-CCCSELC300,tertiary electricity,COM,.PRE.,Com.Space Cool.CS.ELC.00.Fans.,PJ,GW,PRE,CCCS,ANNUAL,"0,00",COM_PRE_PJ_GW
-CCCSELC301,tertiary electricity,COM,.PRE.,Com Space Cool New - CS - ELC301,PJ,GW,PRE,CCCS,ANNUAL,"0,00",COM_PRE_PJ_GW
+CCBAELC100,Commercial electrical processes,COM,.PRE.,Com.Space Cool.BA.ELC.00.Central.,PJ,GW,PRE,CCBA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CCBAELC200,Commercial electrical processes,COM,.PRE.,Com.Space Cool.BA.ELC.00.Windows.,PJ,GW,PRE,CCBA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CCBAELC300,Commercial electrical processes,COM,.PRE.,Com.Space Cool.BA.ELC.00.Fans.,PJ,GW,PRE,CCBA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CCBPELC100,Commercial electrical processes,COM,.PRE.,Com.Space Cool.BP.ELC.00.Central.,PJ,GW,PRE,CCBP,ANNUAL,"0,00",COM_PRE_PJ_GW
+CCBPELC200,Commercial electrical processes,COM,.PRE.,Com.Space Cool.BP.ELC.00.Windows.,PJ,GW,PRE,CCBP,ANNUAL,"0,00",COM_PRE_PJ_GW
+CCBPELC300,Commercial electrical processes,COM,.PRE.,Com.Space Cool.BP.ELC.00.Fans.,PJ,GW,PRE,CCBP,ANNUAL,"0,00",COM_PRE_PJ_GW
+CCBPELC301,Commercial electrical processes,COM,.PRE.,Com Space Cool New - BP - ELC301,PJ,GW,PRE,CCBP,ANNUAL,"0,00",COM_PRE_PJ_GW
+CCCOELC100,Commercial electrical processes,COM,.PRE.,Com.Space Cool.CO.ELC.00.Central.,PJ,GW,PRE,CCCO,ANNUAL,"0,00",COM_PRE_PJ_GW
+CCCOELC200,Commercial electrical processes,COM,.PRE.,Com.Space Cool.CO.ELC.00.Windows.,PJ,GW,PRE,CCCO,ANNUAL,"0,00",COM_PRE_PJ_GW
+CCCOELC300,Commercial electrical processes,COM,.PRE.,Com.Space Cool.CO.ELC.00.Fans.,PJ,GW,PRE,CCCO,ANNUAL,"0,00",COM_PRE_PJ_GW
+CCCOELC301,Commercial electrical processes,COM,.PRE.,Com Space Cool New - CO - ELC301,PJ,GW,PRE,CCCO,ANNUAL,"0,00",COM_PRE_PJ_GW
+CCCSELC100,Commercial electrical processes,COM,.PRE.,Com.Space Cool.CS.ELC.00.Central.,PJ,GW,PRE,CCCS,ANNUAL,"0,00",COM_PRE_PJ_GW
+CCCSELC200,Commercial electrical processes,COM,.PRE.,Com.Space Cool.CS.ELC.00.Windows.,PJ,GW,PRE,CCCS,ANNUAL,"0,00",COM_PRE_PJ_GW
+CCCSELC300,Commercial electrical processes,COM,.PRE.,Com.Space Cool.CS.ELC.00.Fans.,PJ,GW,PRE,CCCS,ANNUAL,"0,00",COM_PRE_PJ_GW
+CCCSELC301,Commercial electrical processes,COM,.PRE.,Com Space Cool New - CS - ELC301,PJ,GW,PRE,CCCS,ANNUAL,"0,00",COM_PRE_PJ_GW
 CCCSGMXHP101,other services,COM,.PRE.,Com Space Cool New - CS - GMX101,PJ,GW,PRE,CCCS,ANNUAL,"0,00",COM_PRE_PJ_GW
-CCDATAELC301,tertiary electricity,COM,.PRE.,Com Space Cool New - DATA - ELC301,PJ,GW,PRE,CCDATA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CCDATELC100,tertiary electricity,COM,.PRE.,Com.Space Cool.DATA.ELC.00.Central.,PJ,GW,PRE,CCDATA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CCDATELC200,tertiary electricity,COM,.PRE.,Com.Space Cool.DATA.ELC.00.Windows.,PJ,GW,PRE,CCDATA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CCDATELC300,tertiary electricity,COM,.PRE.,Com.Space Cool.DATA.ELC.00.Fans.,PJ,GW,PRE,CCDATA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CCENELC100,tertiary electricity,COM,.PRE.,Com.Space Cool.EN.ELC.00.Central.,PJ,GW,PRE,CCEN,ANNUAL,"0,00",COM_PRE_PJ_GW
-CCENELC200,tertiary electricity,COM,.PRE.,Com.Space Cool.EN.ELC.00.Windows.,PJ,GW,PRE,CCEN,ANNUAL,"0,00",COM_PRE_PJ_GW
-CCENELC300,tertiary electricity,COM,.PRE.,Com.Space Cool.EN.ELC.00.Fans.,PJ,GW,PRE,CCEN,ANNUAL,"0,00",COM_PRE_PJ_GW
-CCNBAELC301,tertiary electricity,COM,.PRE.,Com Space Cool New - NBA - ELC301,PJ,GW,PRE,CCNBA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CCNBPELC301,tertiary electricity,COM,.PRE.,Com Space Cool New - NBP - ELC301,PJ,GW,PRE,CCNBP,ANNUAL,"0,00",COM_PRE_PJ_GW
-CCNCSELC301,tertiary electricity,COM,.PRE.,Com Space Cool New - NCS - ELC301,PJ,GW,PRE,CCNCS,ANNUAL,"0,00",COM_PRE_PJ_GW
+CCDATAELC301,Commercial electrical processes,COM,.PRE.,Com Space Cool New - DATA - ELC301,PJ,GW,PRE,CCDATA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CCDATELC100,Commercial electrical processes,COM,.PRE.,Com.Space Cool.DATA.ELC.00.Central.,PJ,GW,PRE,CCDATA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CCDATELC200,Commercial electrical processes,COM,.PRE.,Com.Space Cool.DATA.ELC.00.Windows.,PJ,GW,PRE,CCDATA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CCDATELC300,Commercial electrical processes,COM,.PRE.,Com.Space Cool.DATA.ELC.00.Fans.,PJ,GW,PRE,CCDATA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CCENELC100,Commercial electrical processes,COM,.PRE.,Com.Space Cool.EN.ELC.00.Central.,PJ,GW,PRE,CCEN,ANNUAL,"0,00",COM_PRE_PJ_GW
+CCENELC200,Commercial electrical processes,COM,.PRE.,Com.Space Cool.EN.ELC.00.Windows.,PJ,GW,PRE,CCEN,ANNUAL,"0,00",COM_PRE_PJ_GW
+CCENELC300,Commercial electrical processes,COM,.PRE.,Com.Space Cool.EN.ELC.00.Fans.,PJ,GW,PRE,CCEN,ANNUAL,"0,00",COM_PRE_PJ_GW
+CCNBAELC301,Commercial electrical processes,COM,.PRE.,Com Space Cool New - NBA - ELC301,PJ,GW,PRE,CCNBA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CCNBPELC301,Commercial electrical processes,COM,.PRE.,Com Space Cool New - NBP - ELC301,PJ,GW,PRE,CCNBP,ANNUAL,"0,00",COM_PRE_PJ_GW
+CCNCSELC301,Commercial electrical processes,COM,.PRE.,Com Space Cool New - NCS - ELC301,PJ,GW,PRE,CCNCS,ANNUAL,"0,00",COM_PRE_PJ_GW
 CCNCSGMXHP101,other services,COM,.PRE.,Com Space Cool New - NCS - GMX101,PJ,GW,PRE,CCNCS,ANNUAL,"0,00",COM_PRE_PJ_GW
-CCNDATAELC301,tertiary electricity,COM,.PRE.,Com Space Cool New - NDATA - ELC301,PJ,GW,PRE,CCNDATA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CCNENELC301,tertiary electricity,COM,.PRE.,Com Space Cool New - NEN - ELC301,PJ,GW,PRE,CCNEN,ANNUAL,,COM_PRE_PJ_GW
-CCNSAELC301,tertiary electricity,COM,.PRE.,Com Space Cool New - NSA - ELC301,PJ,GW,PRE,CCNSA,ANNUAL,,COM_PRE_PJ_GW
+CCNDATAELC301,Commercial electrical processes,COM,.PRE.,Com Space Cool New - NDATA - ELC301,PJ,GW,PRE,CCNDATA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CCNENELC301,Commercial electrical processes,COM,.PRE.,Com Space Cool New - NEN - ELC301,PJ,GW,PRE,CCNEN,ANNUAL,,COM_PRE_PJ_GW
+CCNSAELC301,Commercial electrical processes,COM,.PRE.,Com Space Cool New - NSA - ELC301,PJ,GW,PRE,CCNSA,ANNUAL,,COM_PRE_PJ_GW
 CCOKELC100,tertiary electricity cooking,COM,.DMD.,Com.Cooking.ELC.00.Stove.,PJ,PJA,DMD,CCOK,ANNUAL,"0,00",COM_DMD_PJ_PJA
 CCOKGMX101,total services cooking,COM,.DMD.,Com.Cooking.GMX.01.Stove.,PJ,PJA,DMD,CCOK,ANNUAL,"0,00",COM_DMD_PJ_PJA
 CCOKLPG101,total services cooking,COM,.DMD.,Com.Cooking.LPG.01.Stove.,PJ,PJA,DMD,CCOK,ANNUAL,"0,00",COM_DMD_PJ_PJA
-CCSAELC100,tertiary electricity,COM,.PRE.,Com.Space Cool.SA.ELC.00.Central.,PJ,GW,PRE,CCSA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CCSAELC200,tertiary electricity,COM,.PRE.,Com.Space Cool.SA.ELC.00.Windows.,PJ,GW,PRE,CCSA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CCSAELC300,tertiary electricity,COM,.PRE.,Com.Space Cool.SA.ELC.00.Fans.,PJ,GW,PRE,CCSA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CCSAELC301,tertiary electricity,COM,.PRE.,Com Space Cool New - SA - ELC301,PJ,GW,PRE,CCSA,ANNUAL,,COM_PRE_PJ_GW
+CCSAELC100,Commercial electrical processes,COM,.PRE.,Com.Space Cool.SA.ELC.00.Central.,PJ,GW,PRE,CCSA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CCSAELC200,Commercial electrical processes,COM,.PRE.,Com.Space Cool.SA.ELC.00.Windows.,PJ,GW,PRE,CCSA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CCSAELC300,Commercial electrical processes,COM,.PRE.,Com.Space Cool.SA.ELC.00.Fans.,PJ,GW,PRE,CCSA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CCSAELC301,Commercial electrical processes,COM,.PRE.,Com Space Cool New - SA - ELC301,PJ,GW,PRE,CCSA,ANNUAL,,COM_PRE_PJ_GW
 CHBABGS100,Space heating services,COM,.PRE.,Com.Space Heat.BA.BGS.00.Furnace.,PJ,GW,PRE,CHBA,ANNUAL,"0,00",COM_PRE_PJ_GW
 CHBACPS100,Space heating services,COM,.PRE.,Com.Space Heat.BA.BIOCPS.00.Stove.,PJ,GW,PRE,CHBA,ANNUAL,"0,00",COM_PRE_PJ_GW
 CHBAELC100,Space heating services,COM,.PRE.,Com.Space Heat.BA.ELC.00.Resistance.,PJ,GW,PRE,CHBA,ANNUAL,"0,00",COM_PRE_PJ_GW
@@ -146,52 +146,52 @@ CHSAHET100,Space heating services,COM,.PRE.,Com.Space Heat.SA.LTH.00.Heat exchan
 CHSALPG100,Space heating services,COM,.PRE.,Com.Space Heat.SA.LPG.00.Furnace.,PJ,GW,PRE,CHSA,ANNUAL,"0,00",COM_PRE_PJ_GW
 CHSAOIL100,Space heating services,COM,.PRE.,Com.Space Heat.SA.OIL.00.Furnace.,PJ,GW,PRE,CHSA,ANNUAL,"0,00",COM_PRE_PJ_GW
 CHSAPEL100,Space heating services,COM,.PRE.,Com.Space Heat.SA.BIOPEL.00.Stove.,PJ,GW,PRE,CHSA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CLIGBAELC200,tertiary electricity,COM,.PRE.,Com.Lighting.ELC.00.Incandescent Improved.,PJ,PJA,PRE,CLIGBA,ANNUAL,"0,00",COM_PRE_PJ_PJA
-CLIGBAELC300,tertiary electricity,COM,.PRE.,Com.Lighting.ELC.00.Halogen.,PJ,PJA,PRE,CLIGBA,ANNUAL,"0,00",COM_PRE_PJ_PJA
-CLIGBAELC400,tertiary electricity,COM,.PRE.,Com.Lighting.ELC.00.Fluorescent.,PJ,PJA,PRE,CLIGBA,ANNUAL,"0,00",COM_PRE_PJ_PJA
-CLIGBAELC500,tertiary electricity,COM,.PRE.,Com.Lighting.ELC.00.LED.,PJ,PJA,PRE,CLIGBA,ANNUAL,"0,00",COM_PRE_PJ_PJA
-CLIGBAELC501,tertiary electricity,COM,.PRE.,CLIGBAELC501,PJ,GW,PRE,CLIGBA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CLIGBPELC200,tertiary electricity,COM,.PRE.,Com.Lighting.ELC.00.Incandescent Improved.,PJ,PJA,PRE,CLIGBP,ANNUAL,"0,00",COM_PRE_PJ_PJA
-CLIGBPELC300,tertiary electricity,COM,.PRE.,Com.Lighting.ELC.00.Halogen.,PJ,PJA,PRE,CLIGBP,ANNUAL,"0,00",COM_PRE_PJ_PJA
-CLIGBPELC400,tertiary electricity,COM,.PRE.,Com.Lighting.ELC.00.Fluorescent.,PJ,PJA,PRE,CLIGBP,ANNUAL,"0,00",COM_PRE_PJ_PJA
-CLIGBPELC500,tertiary electricity,COM,.PRE.,Com.Lighting.ELC.00.LED.,PJ,PJA,PRE,CLIGBP,ANNUAL,"0,00",COM_PRE_PJ_PJA
-CLIGBPELC501,tertiary electricity,COM,.PRE.,CLIGBPELC501,PJ,GW,PRE,CLIGBP,ANNUAL,"0,00",COM_PRE_PJ_GW
-CLIGCOELC200,tertiary electricity,COM,.PRE.,Com.Lighting.ELC.00.Incandescent Improved.,PJ,PJA,PRE,CLIGCO,ANNUAL,"0,00",COM_PRE_PJ_PJA
-CLIGCOELC300,tertiary electricity,COM,.PRE.,Com.Lighting.ELC.00.Halogen.,PJ,PJA,PRE,CLIGCO,ANNUAL,"0,00",COM_PRE_PJ_PJA
-CLIGCOELC400,tertiary electricity,COM,.PRE.,Com.Lighting.ELC.00.Fluorescent.,PJ,PJA,PRE,CLIGCO,ANNUAL,"0,00",COM_PRE_PJ_PJA
-CLIGCOELC500,tertiary electricity,COM,.PRE.,Com.Lighting.ELC.00.LED.,PJ,PJA,PRE,CLIGCO,ANNUAL,"0,00",COM_PRE_PJ_PJA
-CLIGCOELC501,tertiary electricity,COM,.PRE.,CLIGCOELC501,PJ,GW,PRE,CLIGCO,ANNUAL,"0,00",COM_PRE_PJ_GW
-CLIGCSELC200,tertiary electricity,COM,.PRE.,Com.Lighting.ELC.00.Incandescent Improved.,PJ,PJA,PRE,CLIGCS,ANNUAL,"0,00",COM_PRE_PJ_PJA
-CLIGCSELC300,tertiary electricity,COM,.PRE.,Com.Lighting.ELC.00.Halogen.,PJ,PJA,PRE,CLIGCS,ANNUAL,"0,00",COM_PRE_PJ_PJA
-CLIGCSELC400,tertiary electricity,COM,.PRE.,Com.Lighting.ELC.00.Fluorescent.,PJ,PJA,PRE,CLIGCS,ANNUAL,"0,00",COM_PRE_PJ_PJA
-CLIGCSELC500,tertiary electricity,COM,.PRE.,Com.Lighting.ELC.00.Fluorescent.,PJ,PJA,PRE,CLIGCS,ANNUAL,"0,00",COM_PRE_PJ_PJA
-CLIGCSELC501,tertiary electricity,COM,.PRE.,CLIGCSELC501,PJ,GW,PRE,CLIGCS,ANNUAL,"0,00",COM_PRE_PJ_GW
-CLIGDATAELC200,tertiary electricity,COM,.PRE.,Com.Lighting.ELC.00.Incandescent Improved.,PJ,PJA,PRE,CLIGDATA,ANNUAL,"0,00",COM_PRE_PJ_PJA
-CLIGDATAELC300,tertiary electricity,COM,.PRE.,Com.Lighting.ELC.00.Halogen.,PJ,PJA,PRE,CLIGDATA,ANNUAL,"0,00",COM_PRE_PJ_PJA
-CLIGDATAELC400,tertiary electricity,COM,.PRE.,Com.Lighting.ELC.00.Fluorescent.,PJ,PJA,PRE,CLIGDATA,ANNUAL,"0,00",COM_PRE_PJ_PJA
-CLIGDATAELC500,tertiary electricity,COM,.PRE.,Com.Lighting.ELC.00.LED.,PJ,PJA,PRE,CLIGDATA,ANNUAL,"0,00",COM_PRE_PJ_PJA
-CLIGDATAELC501,tertiary electricity,COM,.PRE.,CLIGDATAELC501,PJ,GW,PRE,CLIGDATA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CLIGENELC200,tertiary electricity,COM,.PRE.,Com.Lighting.ELC.00.Incandescent Improved.,PJ,PJA,PRE,CLIGEN,ANNUAL,"0,00",COM_PRE_PJ_PJA
-CLIGENELC300,tertiary electricity,COM,.PRE.,Com.Lighting.ELC.00.Halogen.,PJ,PJA,PRE,CLIGEN,ANNUAL,"0,00",COM_PRE_PJ_PJA
-CLIGENELC400,tertiary electricity,COM,.PRE.,Com.Lighting.ELC.00.Fluorescent.,PJ,PJA,PRE,CLIGEN,ANNUAL,"0,00",COM_PRE_PJ_PJA
-CLIGENELC500,tertiary electricity,COM,.PRE.,Com.Lighting.ELC.00.LED.,PJ,PJA,PRE,CLIGEN,ANNUAL,"0,00",COM_PRE_PJ_PJA
-CLIGENELC501,tertiary electricity,COM,.PRE.,CLIGENELC501,PJ,GW,PRE,CLIGEN,ANNUAL,"0,00",COM_PRE_PJ_GW
-CLIGNBAELC501,tertiary electricity,COM,.PRE.,CLIGNBAELC501,PJ,GW,PRE,CLIGNBA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CLIGNBPELC501,tertiary electricity,COM,.PRE.,CLIGNBPELC501,PJ,GW,PRE,CLIGNBP,ANNUAL,"0,00",COM_PRE_PJ_GW
-CLIGNCOELC501,tertiary electricity,COM,.PRE.,CLIGNCOELC501,PJ,GW,PRE,CLIGNCO,ANNUAL,"0,00",COM_PRE_PJ_GW
-CLIGNCSELC501,tertiary electricity,COM,.PRE.,CLIGNCSELC501,PJ,GW,PRE,CLIGNCS,ANNUAL,"0,00",COM_PRE_PJ_GW
-CLIGNDATAELC501,tertiary electricity,COM,.PRE.,CLIGNDATAELC501,PJ,GW,PRE,CLIGNDATA,ANNUAL,"0,00",COM_PRE_PJ_GW
-CLIGNENELC501,tertiary electricity,COM,.PRE.,CLIGNENELC501,PJ,GW,PRE,CLIGNEN,ANNUAL,,COM_PRE_PJ_GW
-CLIGNSAELC501,tertiary electricity,COM,.PRE.,CLIGNSAELC501,PJ,GW,PRE,CLIGNSA,ANNUAL,,COM_PRE_PJ_GW
-CLIGSAELC200,tertiary electricity,COM,.PRE.,Com.Lighting.ELC.00.Incandescent Improved.,PJ,PJA,PRE,CLIGSA,ANNUAL,"0,00",COM_PRE_PJ_PJA
-CLIGSAELC300,tertiary electricity,COM,.PRE.,Com.Lighting.ELC.00.Halogen.,PJ,PJA,PRE,CLIGSA,ANNUAL,"0,00",COM_PRE_PJ_PJA
-CLIGSAELC400,tertiary electricity,COM,.PRE.,Com.Lighting.ELC.00.Fluorescent.,PJ,PJA,PRE,CLIGSA,ANNUAL,"0,00",COM_PRE_PJ_PJA
-CLIGSAELC500,tertiary electricity,COM,.PRE.,Com.Lighting.ELC.00.LED.,PJ,PJA,PRE,CLIGSA,ANNUAL,"0,00",COM_PRE_PJ_PJA
-CLIGSAELC501,tertiary electricity,COM,.PRE.,CLIGSAELC501,PJ,GW,PRE,CLIGSA,ANNUAL,,COM_PRE_PJ_GW
-COELELC100,tertiary electricity,COM,.DMD.,Com.Other Electricity.ELC.00.Other Equipments.,PJ,PJA,DMD,COEL,ANNUAL,"0,00",COM_DMD_PJ_PJA
-COELELC101,tertiary electricity,COM,.DMD.,Com.Other Electricity.ELC.1010.Other Equipments.,PJ,PJA,DMD,COEL,ANNUAL,"0,00",COM_DMD_PJ_PJA
-COENMIX100,tertiary electricity,COM,.DMD.,Com.Other Energy.00.Other.,PJ,PJA,DMD,COEN,ANNUAL,"0,00",COM_DMD_PJ_PJA
-COENMIX101,tertiary electricity,COM,.DMD.,Com.Other Energy.101.Other,PJ,PJA,DMD,COEN,ANNUAL,"0,00",COM_DMD_PJ_PJA
+CLIGBAELC200,Commercial electrical processes,COM,.PRE.,Com.Lighting.ELC.00.Incandescent Improved.,PJ,PJA,PRE,CLIGBA,ANNUAL,"0,00",COM_PRE_PJ_PJA
+CLIGBAELC300,Commercial electrical processes,COM,.PRE.,Com.Lighting.ELC.00.Halogen.,PJ,PJA,PRE,CLIGBA,ANNUAL,"0,00",COM_PRE_PJ_PJA
+CLIGBAELC400,Commercial electrical processes,COM,.PRE.,Com.Lighting.ELC.00.Fluorescent.,PJ,PJA,PRE,CLIGBA,ANNUAL,"0,00",COM_PRE_PJ_PJA
+CLIGBAELC500,Commercial electrical processes,COM,.PRE.,Com.Lighting.ELC.00.LED.,PJ,PJA,PRE,CLIGBA,ANNUAL,"0,00",COM_PRE_PJ_PJA
+CLIGBAELC501,Commercial electrical processes,COM,.PRE.,CLIGBAELC501,PJ,GW,PRE,CLIGBA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CLIGBPELC200,Commercial electrical processes,COM,.PRE.,Com.Lighting.ELC.00.Incandescent Improved.,PJ,PJA,PRE,CLIGBP,ANNUAL,"0,00",COM_PRE_PJ_PJA
+CLIGBPELC300,Commercial electrical processes,COM,.PRE.,Com.Lighting.ELC.00.Halogen.,PJ,PJA,PRE,CLIGBP,ANNUAL,"0,00",COM_PRE_PJ_PJA
+CLIGBPELC400,Commercial electrical processes,COM,.PRE.,Com.Lighting.ELC.00.Fluorescent.,PJ,PJA,PRE,CLIGBP,ANNUAL,"0,00",COM_PRE_PJ_PJA
+CLIGBPELC500,Commercial electrical processes,COM,.PRE.,Com.Lighting.ELC.00.LED.,PJ,PJA,PRE,CLIGBP,ANNUAL,"0,00",COM_PRE_PJ_PJA
+CLIGBPELC501,Commercial electrical processes,COM,.PRE.,CLIGBPELC501,PJ,GW,PRE,CLIGBP,ANNUAL,"0,00",COM_PRE_PJ_GW
+CLIGCOELC200,Commercial electrical processes,COM,.PRE.,Com.Lighting.ELC.00.Incandescent Improved.,PJ,PJA,PRE,CLIGCO,ANNUAL,"0,00",COM_PRE_PJ_PJA
+CLIGCOELC300,Commercial electrical processes,COM,.PRE.,Com.Lighting.ELC.00.Halogen.,PJ,PJA,PRE,CLIGCO,ANNUAL,"0,00",COM_PRE_PJ_PJA
+CLIGCOELC400,Commercial electrical processes,COM,.PRE.,Com.Lighting.ELC.00.Fluorescent.,PJ,PJA,PRE,CLIGCO,ANNUAL,"0,00",COM_PRE_PJ_PJA
+CLIGCOELC500,Commercial electrical processes,COM,.PRE.,Com.Lighting.ELC.00.LED.,PJ,PJA,PRE,CLIGCO,ANNUAL,"0,00",COM_PRE_PJ_PJA
+CLIGCOELC501,Commercial electrical processes,COM,.PRE.,CLIGCOELC501,PJ,GW,PRE,CLIGCO,ANNUAL,"0,00",COM_PRE_PJ_GW
+CLIGCSELC200,Commercial electrical processes,COM,.PRE.,Com.Lighting.ELC.00.Incandescent Improved.,PJ,PJA,PRE,CLIGCS,ANNUAL,"0,00",COM_PRE_PJ_PJA
+CLIGCSELC300,Commercial electrical processes,COM,.PRE.,Com.Lighting.ELC.00.Halogen.,PJ,PJA,PRE,CLIGCS,ANNUAL,"0,00",COM_PRE_PJ_PJA
+CLIGCSELC400,Commercial electrical processes,COM,.PRE.,Com.Lighting.ELC.00.Fluorescent.,PJ,PJA,PRE,CLIGCS,ANNUAL,"0,00",COM_PRE_PJ_PJA
+CLIGCSELC500,Commercial electrical processes,COM,.PRE.,Com.Lighting.ELC.00.Fluorescent.,PJ,PJA,PRE,CLIGCS,ANNUAL,"0,00",COM_PRE_PJ_PJA
+CLIGCSELC501,Commercial electrical processes,COM,.PRE.,CLIGCSELC501,PJ,GW,PRE,CLIGCS,ANNUAL,"0,00",COM_PRE_PJ_GW
+CLIGDATAELC200,Commercial electrical processes,COM,.PRE.,Com.Lighting.ELC.00.Incandescent Improved.,PJ,PJA,PRE,CLIGDATA,ANNUAL,"0,00",COM_PRE_PJ_PJA
+CLIGDATAELC300,Commercial electrical processes,COM,.PRE.,Com.Lighting.ELC.00.Halogen.,PJ,PJA,PRE,CLIGDATA,ANNUAL,"0,00",COM_PRE_PJ_PJA
+CLIGDATAELC400,Commercial electrical processes,COM,.PRE.,Com.Lighting.ELC.00.Fluorescent.,PJ,PJA,PRE,CLIGDATA,ANNUAL,"0,00",COM_PRE_PJ_PJA
+CLIGDATAELC500,Commercial electrical processes,COM,.PRE.,Com.Lighting.ELC.00.LED.,PJ,PJA,PRE,CLIGDATA,ANNUAL,"0,00",COM_PRE_PJ_PJA
+CLIGDATAELC501,Commercial electrical processes,COM,.PRE.,CLIGDATAELC501,PJ,GW,PRE,CLIGDATA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CLIGENELC200,Commercial electrical processes,COM,.PRE.,Com.Lighting.ELC.00.Incandescent Improved.,PJ,PJA,PRE,CLIGEN,ANNUAL,"0,00",COM_PRE_PJ_PJA
+CLIGENELC300,Commercial electrical processes,COM,.PRE.,Com.Lighting.ELC.00.Halogen.,PJ,PJA,PRE,CLIGEN,ANNUAL,"0,00",COM_PRE_PJ_PJA
+CLIGENELC400,Commercial electrical processes,COM,.PRE.,Com.Lighting.ELC.00.Fluorescent.,PJ,PJA,PRE,CLIGEN,ANNUAL,"0,00",COM_PRE_PJ_PJA
+CLIGENELC500,Commercial electrical processes,COM,.PRE.,Com.Lighting.ELC.00.LED.,PJ,PJA,PRE,CLIGEN,ANNUAL,"0,00",COM_PRE_PJ_PJA
+CLIGENELC501,Commercial electrical processes,COM,.PRE.,CLIGENELC501,PJ,GW,PRE,CLIGEN,ANNUAL,"0,00",COM_PRE_PJ_GW
+CLIGNBAELC501,Commercial electrical processes,COM,.PRE.,CLIGNBAELC501,PJ,GW,PRE,CLIGNBA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CLIGNBPELC501,Commercial electrical processes,COM,.PRE.,CLIGNBPELC501,PJ,GW,PRE,CLIGNBP,ANNUAL,"0,00",COM_PRE_PJ_GW
+CLIGNCOELC501,Commercial electrical processes,COM,.PRE.,CLIGNCOELC501,PJ,GW,PRE,CLIGNCO,ANNUAL,"0,00",COM_PRE_PJ_GW
+CLIGNCSELC501,Commercial electrical processes,COM,.PRE.,CLIGNCSELC501,PJ,GW,PRE,CLIGNCS,ANNUAL,"0,00",COM_PRE_PJ_GW
+CLIGNDATAELC501,Commercial electrical processes,COM,.PRE.,CLIGNDATAELC501,PJ,GW,PRE,CLIGNDATA,ANNUAL,"0,00",COM_PRE_PJ_GW
+CLIGNENELC501,Commercial electrical processes,COM,.PRE.,CLIGNENELC501,PJ,GW,PRE,CLIGNEN,ANNUAL,,COM_PRE_PJ_GW
+CLIGNSAELC501,Commercial electrical processes,COM,.PRE.,CLIGNSAELC501,PJ,GW,PRE,CLIGNSA,ANNUAL,,COM_PRE_PJ_GW
+CLIGSAELC200,Commercial electrical processes,COM,.PRE.,Com.Lighting.ELC.00.Incandescent Improved.,PJ,PJA,PRE,CLIGSA,ANNUAL,"0,00",COM_PRE_PJ_PJA
+CLIGSAELC300,Commercial electrical processes,COM,.PRE.,Com.Lighting.ELC.00.Halogen.,PJ,PJA,PRE,CLIGSA,ANNUAL,"0,00",COM_PRE_PJ_PJA
+CLIGSAELC400,Commercial electrical processes,COM,.PRE.,Com.Lighting.ELC.00.Fluorescent.,PJ,PJA,PRE,CLIGSA,ANNUAL,"0,00",COM_PRE_PJ_PJA
+CLIGSAELC500,Commercial electrical processes,COM,.PRE.,Com.Lighting.ELC.00.LED.,PJ,PJA,PRE,CLIGSA,ANNUAL,"0,00",COM_PRE_PJ_PJA
+CLIGSAELC501,Commercial electrical processes,COM,.PRE.,CLIGSAELC501,PJ,GW,PRE,CLIGSA,ANNUAL,,COM_PRE_PJ_GW
+COELELC100,Commercial electricity demands,COM,.DMD.,Com.Other Electricity.ELC.00.Other Equipments.,PJ,PJA,DMD,COEL,ANNUAL,"0,00",COM_DMD_PJ_PJA
+COELELC101,Commercial electricity demands,COM,.DMD.,Com.Other Electricity.ELC.1010.Other Equipments.,PJ,PJA,DMD,COEL,ANNUAL,"0,00",COM_DMD_PJ_PJA
+COENMIX100,Other energy demand (commercial),COM,.DMD.,Com.Other Energy.00.Other.,PJ,PJA,DMD,COEN,ANNUAL,"0,00",COM_DMD_PJ_PJA
+COENMIX101,Other energy demand (commercial),COM,.DMD.,Com.Other Energy.101.Other,PJ,PJA,DMD,COEN,ANNUAL,"0,00",COM_DMD_PJ_PJA
 COMBDL00,FT- Biodiesel (COM),COM,.PRE.,FT- Biodiesel (COM),PJ,PJA,PRE,COMBDL,ANNUAL,"0,00",COM_PRE_PJ_PJA
 COMBGS00,Fuel Tech - biogaz enrichi,COM,.PRE.,Fuel Tech - biogaz enrichi (COM),PJ,PJA,PRE,COMBGS,ANNUAL,"0,00",Fuel Tech - biogaz enrichi
 COMCPS00,Fuel Tech - Wood Chips,COM,.PRE.,Fuel Tech - Chips (COM),PJ,PJA,PRE,COMCPS,ANNUAL,"0,00",Fuel Tech - Chips
@@ -219,14 +219,14 @@ COM_CNBAT_CS,Commercial buildings,COM,.DMD.,Building New CS,MM2,MM2-A,DMD,CNBATC
 COM_CNBAT_DATA,Commercial buildings,COM,.DMD.,Building New TA,MM2,MM2-A,DMD,CNBATDATA,ANNUAL,"0,00",COM_DMD_MM2_MM2-A
 COM_CNBAT_EN,Commercial buildings,COM,.DMD.,Building New EN,MM2,MM2-A,DMD,CNBATEN,ANNUAL,"0,00",COM_DMD_MM2_MM2-A
 COM_CNBAT_SA,Commercial buildings,COM,.DMD.,Building New SA,MM2,MM2-A,DMD,CNBATSA,ANNUAL,"0,00",COM_DMD_MM2_MM2-A
-COSEELC100,tertiary electricity,COM,.DMD.,Com.Serveur Electricity.DATA CENTER.ELC.00.Other Equipments.,PJ,PJA,DMD,COSE,ANNUAL,"0,00",COM_DMD_PJ_PJA
-COSEELC101,tertiary electricity,COM,.DMD.,Com.Serveur Electricity.DATA CENTER.ELC.01.Other Equipments.,PJ,PJA,DMD,COSE,ANNUAL,"0,00",COM_DMD_PJ_PJA
-CPLIELC100,tertiary electricity,COM,.DMD.,Com.Public Lighting.ELC.00.Generic Lamp.,PJ,PJA,DMD,CPLI,ANNUAL,"0,00",COM_DMD_PJ_PJA
-CPLIELC201,tertiary electricity,COM,.DMD.,Com.Public Lighting.ELC.201.LED.,PJ,PJA,DMD,CPLI,ANNUAL,"0,00",COM_DMD_PJ_PJA
-CREFELC100,tertiary electricity,COM,.DMD.,Com.Refrigeration.ELC.00.Refrigerator.,PJ,PJA,DMD,CREF,ANNUAL,"0,00",COM_DMD_PJ_PJA
-CREFELC200,tertiary electricity,COM,.DMD.,Com.Refrigeration.ELC.00.Freezer.,PJ,PJA,DMD,CREF,ANNUAL,"0,00",COM_DMD_PJ_PJA
-CREFELC300,tertiary electricity,COM,.DMD.,Com.Refrigeration.ELC.00.Refrigerator+Freezer.,PJ,PJA,DMD,CREF,ANNUAL,"0,00",COM_DMD_PJ_PJA
-CREFELC301,tertiary electricity,COM,.DMD.,Com.Refrigeration.ELC.301.Refrigerator.,PJ,PJA,DMD,CREF,ANNUAL,"0,00",COM_DMD_PJ_PJA
+COSEELC100,Commercial electricity demands,COM,.DMD.,Com.Serveur Electricity.DATA CENTER.ELC.00.Other Equipments.,PJ,PJA,DMD,COSE,ANNUAL,"0,00",COM_DMD_PJ_PJA
+COSEELC101,Commercial electricity demands,COM,.DMD.,Com.Serveur Electricity.DATA CENTER.ELC.01.Other Equipments.,PJ,PJA,DMD,COSE,ANNUAL,"0,00",COM_DMD_PJ_PJA
+CPLIELC100,Commercial electricity demands,COM,.DMD.,Com.Public Lighting.ELC.00.Generic Lamp.,PJ,PJA,DMD,CPLI,ANNUAL,"0,00",COM_DMD_PJ_PJA
+CPLIELC201,Commercial electricity demands,COM,.DMD.,Com.Public Lighting.ELC.201.LED.,PJ,PJA,DMD,CPLI,ANNUAL,"0,00",COM_DMD_PJ_PJA
+CREFELC100,Commercial electricity demands,COM,.DMD.,Com.Refrigeration.ELC.00.Refrigerator.,PJ,PJA,DMD,CREF,ANNUAL,"0,00",COM_DMD_PJ_PJA
+CREFELC200,Commercial electricity demands,COM,.DMD.,Com.Refrigeration.ELC.00.Freezer.,PJ,PJA,DMD,CREF,ANNUAL,"0,00",COM_DMD_PJ_PJA
+CREFELC300,Commercial electricity demands,COM,.DMD.,Com.Refrigeration.ELC.00.Refrigerator+Freezer.,PJ,PJA,DMD,CREF,ANNUAL,"0,00",COM_DMD_PJ_PJA
+CREFELC301,Commercial electricity demands,COM,.DMD.,Com.Refrigeration.ELC.301.Refrigerator.,PJ,PJA,DMD,CREF,ANNUAL,"0,00",COM_DMD_PJ_PJA
 CWBABGS100,services hot water,COM,.PRE.,Com.Water Heat.BA.BGS.00.Furnace.,PJ,GW,PRE,CWBA,ANNUAL,"0,00",COM_PRE_PJ_GW
 CWBACPS100,services hot water,COM,.PRE.,Com.Water Heat.BA.BIOCPS.00.Stove.,PJ,GW,PRE,CWBA,ANNUAL,"0,00",COM_PRE_PJ_GW
 CWBAGMX100,services hot water,COM,.PRE.,Com.Water Heat.BA.GAS.00.Furnace.,PJ,GW,PRE,CWBA,ANNUAL,"0,00",COM_PRE_PJ_GW
@@ -358,53 +358,53 @@ IAMSTDPRO01,IND_DMD_MT_MT,IND,.DMD.,IAM.Standard Production.01,MT,MT,DMD,IAMSTDP
 IBKSTDPRO00,Energy demands for industrial processes,IND,.DMD.,IBK.bricks.production.standard,PJ,PJA,DMD,IBK,ANNUAL,"0,00",IND_DMD_PJ_PJA
 IBKSTDPRO01,IND_DMD_MT_MT,IND,.DMD.,IBK.bricks.production.standard.01,MT,MT,DMD,IBK,ANNUAL,"1,00",IND_DMD_MT_MT
 IBOBIOPEL00,IBO.production.wood.pellets.00,IND,.PRE.,IBO.production.wood.pellets.00,PJ,PJA,PRE,BIOPEL,ANNUAL,"0,00",IND_PRE_PJ_PJA
-IBOBIOPEL01,total industry,IND,.PRE.,IBE.production.wood.pellets.01,PJ,PJA,PRE,BIOPEL,ANNUAL,"1,00",IND_PRE_PJ_PJA
-IBOHTHSTMCPS01,total industry,IND,.PRE.,IBO.wood.Process Heat.CPS.01,PJ,GW,PRE,IBOHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+IBOBIOPEL01,industrial processes,IND,.PRE.,IBE.production.wood.pellets.01,PJ,PJA,PRE,BIOPEL,ANNUAL,"1,00",IND_PRE_PJ_PJA
+IBOHTHSTMCPS01,industrial processes,IND,.PRE.,IBO.wood.Process Heat.CPS.01,PJ,GW,PRE,IBOHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
 IBOPROD00,Energy demands for industrial processes,IND,.DMD.,IBO.Production.Wood.products.00,PJ,PJA,DMD,IBO,ANNUAL,"0,00",IND_DMD_PJ_PJA
 IBOPROD01,IND_DMD_MM3_MM3,IND,.DMD.,IBO.Production.Wood.products.01,MM3,MM3,DMD,IBO,ANNUAL,"1,00",IND_DMD_MM3_MM3
-IBOSTMGAS00,total industry,IND,.PRE.,IBO.Generic Boiler.GAS,PJ,PJA,PRE,IBOHTH,ANNUAL,"0,00",IND_PRE_PJ_PJA
-IBOSTMOIL00,total industry,IND,.PRE.,IBO.Generic Boiler.OIL,PJ,PJA,PRE,IBOHTH,ANNUAL,"0,00",IND_PRE_PJ_PJA
-IBOSTMSOLID00,total industry,IND,.PRE.,IBO.Generic Boiler.Solids,PJ,PJA,PRE,IBOHTH,ANNUAL,"0,00",IND_PRE_PJ_PJA
+IBOSTMGAS00,industrial processes,IND,.PRE.,IBO.Generic Boiler.GAS,PJ,PJA,PRE,IBOHTH,ANNUAL,"0,00",IND_PRE_PJ_PJA
+IBOSTMOIL00,industrial processes,IND,.PRE.,IBO.Generic Boiler.OIL,PJ,PJA,PRE,IBOHTH,ANNUAL,"0,00",IND_PRE_PJ_PJA
+IBOSTMSOLID00,industrial processes,IND,.PRE.,IBO.Generic Boiler.Solids,PJ,PJA,PRE,IBOHTH,ANNUAL,"0,00",IND_PRE_PJ_PJA
 ICESTDPRO00,Energy demands for industrial processes,IND,.DMD.,ICE.Ceramics.production.standard,PJ,PJA,DMD,ICE,ANNUAL,"0,00",IND_DMD_PJ_PJA
 ICESTDPRO01,IND_DMD_MT_MT,IND,.DMD.,ICE.Ceramics.production.standard.01,MT,MT,DMD,ICE,ANNUAL,"1,00",IND_DMD_MT_MT
 ICHDEMAND00,Energy demands for industrial processes,IND,.DMD.,ICH.Other Chemicals.00.,PJ,PJA,DMD,ICH,ANNUAL,"0,00",IND_DMD_PJ_PJA
-ICHELEELC00,total industry,IND,.PRE.,ICH.Other Chemicals.Electro-Chemical Processes.ELC.00,PJ,PJA,PRE,ICHELE,ANNUAL,"0,00",IND_PRE_PJ_PJA
-ICHELEELC01,total industry,IND,.PRE.,ICHELEELC01,PJ,PJA,PRE,ICHELE,ANNUAL,"1,00",IND_PRE_PJ_PJA
-ICHMCHELC00,total industry,IND,.PRE.,ICH.Other Chemicals.Machine Drive.ELC.00,PJ,PJA,PRE,ICHMCH,ANNUAL,"0,00",IND_PRE_PJ_PJA
-ICHMCHELC01,total industry,IND,.PRE.,ICHMCHELC01,PJ,PJA,PRE,ICHMCH,ANNUAL,"1,00",IND_PRE_PJ_PJA
-ICHOTH-NRG,total industry,IND,.PRE.,ICH: Other energy uses,PJ,PJA,PRE,ICHOTH,ANNUAL,"0,00",IND_PRE_PJ_PJA
-ICHPACELC01,total industry,IND,.PRE.,Heat pump,PJ,GW,PRE,ICHHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
-ICHPRCCOA00,total industry,IND,.PRE.,ICH.Other Chemicals.Process Heat.COA.00,PJ,PJA,PRE,ICHPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
-ICHPRCCOA01,total industry,IND,.PRE.,ICHPRCCOA01,PJ,GW,PRE,ICHPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
-ICHPRCCOK01,total industry,IND,.PRE.,ICHPRCCOK01,PJ,GW,PRE,ICHPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
-ICHPRCCPS00,total industry,IND,.PRE.,ICH.Other Chemicals.Process Heat.CPS.00,PJ,PJA,PRE,ICHPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
-ICHPRCCPS01,total industry,IND,.PRE.,ICHPRCCPS01,PJ,GW,PRE,ICHPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
-ICHPRCGAS00,total industry,IND,.PRE.,ICH.Other Chemicals.Process Heat.GAS.00,PJ,PJA,PRE,ICHPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
-ICHPRCHFO00,total industry,IND,.PRE.,ICH.Other Chemicals.Process Heat.HFO.00,PJ,PJA,PRE,ICHPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
-ICHSTMBGS01,total industry,IND,.PRE.,ICHSTMBGS01,PJ,GW,PRE,ICHHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
-ICHSTMCOA00,total industry,IND,.PRE.,ICH.Other Chemicals.Steam.COA.00,PJ,GW,PRE,ICHHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-ICHSTMCPS00,total industry,IND,.PRE.,ICH.Other Chemicals.Steam.CPS.00,PJ,GW,PRE,ICHHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-ICHSTMCPS01,total industry,IND,.PRE.,ICHSTMCPS01,PJ,GW,PRE,ICHHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
-ICHSTMELC01,total industry,IND,.PRE.,ICHSTMELC01,PJ,GW,PRE,ICHHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
-ICHSTMGAS00,total industry,IND,.PRE.,ICH.Other Chemicals.Steam.GAS.01,PJ,GW,PRE,ICHHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-ICHSTMGMX00,total industry,IND,.PRE.,ICH.Other Chemicals.Steam.GAS.00,PJ,GW,PRE,ICHHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-ICHSTMHET00,total industry,IND,.PRE.,ICH.Other Chemicals.Steam.HET.00,PJ,GW,PRE,ICHHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-ICHSTMHET01,total industry,IND,.PRE.,ICHSTMHET01,PJ,GW,PRE,ICHHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
-ICHSTMHFO00,total industry,IND,.PRE.,ICH.Other Chemicals.Steam.HFO.00,PJ,GW,PRE,ICHHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-ICHSTMLFO00,total industry,IND,.PRE.,ICH.Other Chemicals.Steam.LFO.00,PJ,GW,PRE,ICHHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-ICHSTMLPG00,total industry,IND,.PRE.,ICH.Other Chemicals.Steam.LPG.00,PJ,GW,PRE,ICHHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+ICHELEELC00,industrial processes,IND,.PRE.,ICH.Other Chemicals.Electro-Chemical Processes.ELC.00,PJ,PJA,PRE,ICHELE,ANNUAL,"0,00",IND_PRE_PJ_PJA
+ICHELEELC01,industrial processes,IND,.PRE.,ICHELEELC01,PJ,PJA,PRE,ICHELE,ANNUAL,"1,00",IND_PRE_PJ_PJA
+ICHMCHELC00,industrial processes,IND,.PRE.,ICH.Other Chemicals.Machine Drive.ELC.00,PJ,PJA,PRE,ICHMCH,ANNUAL,"0,00",IND_PRE_PJ_PJA
+ICHMCHELC01,industrial processes,IND,.PRE.,ICHMCHELC01,PJ,PJA,PRE,ICHMCH,ANNUAL,"1,00",IND_PRE_PJ_PJA
+ICHOTH-NRG,industrial processes,IND,.PRE.,ICH: Other energy uses,PJ,PJA,PRE,ICHOTH,ANNUAL,"0,00",IND_PRE_PJ_PJA
+ICHPACELC01,industrial processes,IND,.PRE.,Heat pump,PJ,GW,PRE,ICHHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+ICHPRCCOA00,industrial processes,IND,.PRE.,ICH.Other Chemicals.Process Heat.COA.00,PJ,PJA,PRE,ICHPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+ICHPRCCOA01,industrial processes,IND,.PRE.,ICHPRCCOA01,PJ,GW,PRE,ICHPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
+ICHPRCCOK01,industrial processes,IND,.PRE.,ICHPRCCOK01,PJ,GW,PRE,ICHPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
+ICHPRCCPS00,industrial processes,IND,.PRE.,ICH.Other Chemicals.Process Heat.CPS.00,PJ,PJA,PRE,ICHPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+ICHPRCCPS01,industrial processes,IND,.PRE.,ICHPRCCPS01,PJ,GW,PRE,ICHPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
+ICHPRCGAS00,industrial processes,IND,.PRE.,ICH.Other Chemicals.Process Heat.GAS.00,PJ,PJA,PRE,ICHPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+ICHPRCHFO00,industrial processes,IND,.PRE.,ICH.Other Chemicals.Process Heat.HFO.00,PJ,PJA,PRE,ICHPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+ICHSTMBGS01,industrial processes,IND,.PRE.,ICHSTMBGS01,PJ,GW,PRE,ICHHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+ICHSTMCOA00,industrial processes,IND,.PRE.,ICH.Other Chemicals.Steam.COA.00,PJ,GW,PRE,ICHHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+ICHSTMCPS00,industrial processes,IND,.PRE.,ICH.Other Chemicals.Steam.CPS.00,PJ,GW,PRE,ICHHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+ICHSTMCPS01,industrial processes,IND,.PRE.,ICHSTMCPS01,PJ,GW,PRE,ICHHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+ICHSTMELC01,industrial processes,IND,.PRE.,ICHSTMELC01,PJ,GW,PRE,ICHHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+ICHSTMGAS00,industrial processes,IND,.PRE.,ICH.Other Chemicals.Steam.GAS.01,PJ,GW,PRE,ICHHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+ICHSTMGMX00,industrial processes,IND,.PRE.,ICH.Other Chemicals.Steam.GAS.00,PJ,GW,PRE,ICHHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+ICHSTMHET00,industrial processes,IND,.PRE.,ICH.Other Chemicals.Steam.HET.00,PJ,GW,PRE,ICHHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+ICHSTMHET01,industrial processes,IND,.PRE.,ICHSTMHET01,PJ,GW,PRE,ICHHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+ICHSTMHFO00,industrial processes,IND,.PRE.,ICH.Other Chemicals.Steam.HFO.00,PJ,GW,PRE,ICHHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+ICHSTMLFO00,industrial processes,IND,.PRE.,ICH.Other Chemicals.Steam.LFO.00,PJ,GW,PRE,ICHHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+ICHSTMLPG00,industrial processes,IND,.PRE.,ICH.Other Chemicals.Steam.LPG.00,PJ,GW,PRE,ICHHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
 ICMDRYPRD00,IND_PRE_MT_MTA,IND,.PRE.,ICM.Dry Process Production.00.,MT,MTA,PRE,MCMCLK,ANNUAL,"0,00",IND_PRE_MT_MTA
 ICMDRYPRD10,IND_PRE_MT_MT,IND,.PRE.,ICM.Dry Process Production.01,MT,MT,PRE,MCMCLK,ANNUAL,"1,00",IND_PRE_MT_MT
 ICMFINPRO00,IND_DMD_MT_MTA,IND,.DMD.,ICM.Finishing Processes.00.,MT,MTA,DMD,ICM,ANNUAL,"0,00",IND_DMD_MT_MTA
 ICMFINPRO01,IND_DMD_MT_MT,IND,.DMD.,ICM.Finishing Processes.01,MT,MT,DMD,ICM,ANNUAL,"1,00",IND_DMD_MT_MT
 ICMPRC20,IND_PRE_MT_MT,IND,.PRE.,ICM.Dry Process Production oxycomb.01,MT,MT,PRE,MCMCLK,ANNUAL,"1,00",IND_PRE_MT_MT
 ICMPRC21,IND_PRE_MT_MT,IND,.PRE.,ICM.Dry Process Production oxycomb.02,MT,MT,PRE,MCMCLK,ANNUAL,"1,00",IND_PRE_MT_MT
-ICMPRCCOA00,total industry,IND,.PRE.,ICM.Generic fuel kiln.COA,PJ,PJA,PRE,ICMPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
-ICMPRCCOK00,total industry,IND,.PRE.,ICM.Generic fuel kiln.COL,PJ,PJA,PRE,ICMPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
-ICMPRCCOL00,total industry,IND,.PRE.,ICM.Generic fuel kiln.COL,PJ,PJA,PRE,ICMPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
-ICMPRCGAS00,total industry,IND,.PRE.,ICM.Generic fuel kiln.GAS,PJ,PJA,PRE,ICMPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
-ICMPRCHFO00,total industry,IND,.PRE.,ICM.Generic fuel kiln.HFO,PJ,PJA,PRE,ICMPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
-ICMPRCSLU00,total industry,IND,.PRE.,ICM.Generic fuel kiln.SLU,PJ,PJA,PRE,ICMPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+ICMPRCCOA00,industrial processes,IND,.PRE.,ICM.Generic fuel kiln.COA,PJ,PJA,PRE,ICMPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+ICMPRCCOK00,industrial processes,IND,.PRE.,ICM.Generic fuel kiln.COL,PJ,PJA,PRE,ICMPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+ICMPRCCOL00,industrial processes,IND,.PRE.,ICM.Generic fuel kiln.COL,PJ,PJA,PRE,ICMPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+ICMPRCGAS00,industrial processes,IND,.PRE.,ICM.Generic fuel kiln.GAS,PJ,PJA,PRE,ICMPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+ICMPRCHFO00,industrial processes,IND,.PRE.,ICM.Generic fuel kiln.HFO,PJ,PJA,PRE,ICMPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+ICMPRCSLU00,industrial processes,IND,.PRE.,ICM.Generic fuel kiln.SLU,PJ,PJA,PRE,ICMPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
 ICMPRDCC_02,IND_PRE_MT_MT,IND,.PRE.,ICM. LEILAC.02,MT,MT,PRE,ICM,ANNUAL,"1,00",IND_PRE_MT_MT
 ICMWETPRD00,IND_PRE_MT_MTA,IND,.PRE.,ICM.Wet Process Production.00.,MT,MTA,PRE,MCMCLK,ANNUAL,"0,00",IND_PRE_MT_MTA
 IGFFLATGL00,IND_DMD_MT_MTA,IND,.DMD.,IGF.Glass Flat.00.,MT,MTA,DMD,IGF,ANNUAL,"0,00",IND_DMD_MT_MTA
@@ -426,23 +426,23 @@ IISFINPRO00,IND_DMD_MT_MTA,IND,.DMD.,IIS.Finishing Processes.00.,MT,MTA,DMD,IIS,
 IISFINPRO02,IND_DMD_MT_MT,IND,.DMD.,IISFINPRO02,MT,MT,DMD,IIS,ANNUAL,"1,00",IND_DMD_MT_MT
 IISPELLET01,IND_PRE_MT_MT,IND,.PRE.,IIS.Pellet Production.01,MT,MT,PRE,MISPLT,ANNUAL,"1,00",IND_PRE_MT_MT
 IISSINTER01,IND_PRE_MT_MT,IND,.PRE.,IIS.Sinter Production.01,MT,MT,PRE,MISSNT,ANNUAL,"1,00",IND_PRE_MT_MT
-IISSTMGAS00,total industry,IND,.PRE.,IIS.Generic Boiler.GAS,PJ,GW,PRE,IISHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-IISSTMGMX01,total industry,IND,.PRE.,IIS. Iron and Steel.Heat.GMX.01,PJ,GW,PRE,IISHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
-ILMPRCCOA00,total industry,IND,.PRE.,ILM.Generic fuel kiln.COA,PJ,PJA,PRE,ILMPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
-ILMPRCCOK00,total industry,IND,.PRE.,ILM.Generic fuel kiln.COK,PJ,PJA,PRE,ILMPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
-ILMPRCCOL00,total industry,IND,.PRE.,ILM.Generic fuel kiln.COL,PJ,PJA,PRE,ILMPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
-ILMPRCGAS00,total industry,IND,.PRE.,ILM.Generic fuel kiln.GAS,PJ,PJA,PRE,ILMPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
-ILMPRCLFO00,total industry,IND,.PRE.,ILM.Generic fuel kiln.LFO,PJ,PJA,PRE,ILMPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
-ILMPRCLPG00,total industry,IND,.PRE.,ILM.Generic fuel kiln.LPG,PJ,PJA,PRE,ILMPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
-ILMPRCSLU00,total industry,IND,.PRE.,ILM.Generic fuel kiln.SLU,PJ,PJA,PRE,ILMPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+IISSTMGAS00,industrial processes,IND,.PRE.,IIS.Generic Boiler.GAS,PJ,GW,PRE,IISHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+IISSTMGMX01,industrial processes,IND,.PRE.,IIS. Iron and Steel.Heat.GMX.01,PJ,GW,PRE,IISHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+ILMPRCCOA00,industrial processes,IND,.PRE.,ILM.Generic fuel kiln.COA,PJ,PJA,PRE,ILMPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+ILMPRCCOK00,industrial processes,IND,.PRE.,ILM.Generic fuel kiln.COK,PJ,PJA,PRE,ILMPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+ILMPRCCOL00,industrial processes,IND,.PRE.,ILM.Generic fuel kiln.COL,PJ,PJA,PRE,ILMPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+ILMPRCGAS00,industrial processes,IND,.PRE.,ILM.Generic fuel kiln.GAS,PJ,PJA,PRE,ILMPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+ILMPRCLFO00,industrial processes,IND,.PRE.,ILM.Generic fuel kiln.LFO,PJ,PJA,PRE,ILMPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+ILMPRCLPG00,industrial processes,IND,.PRE.,ILM.Generic fuel kiln.LPG,PJ,PJA,PRE,ILMPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+ILMPRCSLU00,industrial processes,IND,.PRE.,ILM.Generic fuel kiln.SLU,PJ,PJA,PRE,ILMPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
 ILMQLMPRCC02,IND_DMD_MT_MT,IND,.DMD.,ILM.Quick Lime Production.02.improv,MT,MT,DMD,ILM,ANNUAL,"1,00",IND_DMD_MT_MT
 ILMQLMPRO00,IND_DMD_MT_MTA,IND,.DMD.,ILM.Quick Lime Production.00.,MT,MTA,DMD,ILM,ANNUAL,"0,00",IND_DMD_MT_MTA
 ILMQLMPRO01,IND_DMD_MT_MT,IND,.DMD.,ILM.Quick Lime Production.11,MT,MT,DMD,ILM,ANNUAL,"1,00",IND_DMD_MT_MT
 IMLEVA00,Energy demands for industrial processes,IND,.DMD.,IML.Evaporation and Powder.00,PJ,PJA,DMD,IML,ANNUAL,"0,00",IND_DMD_PJ_PJA
 IMLEVA03,IND_DMD_MT_MT,IND,.DMD.,IML.evaporation.milk.03,MT,MT,DMD,IML,ANNUAL,"1,00",IND_DMD_MT_MT
-IMLHTHSTMCPS01,total industry,IND,.PRE.,IML.Preparation.of.milk.Process Heat.CPS.01,PJ,GW,PRE,IMLHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
-IMLSTMGAS00,total industry,IND,.PRE.,IML.Generic Boiler.GAS,PJ,PJA,PRE,IMLHTH,ANNUAL,"0,00",IND_PRE_PJ_PJA
-IMLSTMOIL00,total industry,IND,.PRE.,IML.Generic Boiler.OIL,PJ,PJA,PRE,IMLHTH,ANNUAL,"0,00",IND_PRE_PJ_PJA
+IMLHTHSTMCPS01,industrial processes,IND,.PRE.,IML.Preparation.of.milk.Process Heat.CPS.01,PJ,GW,PRE,IMLHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+IMLSTMGAS00,industrial processes,IND,.PRE.,IML.Generic Boiler.GAS,PJ,PJA,PRE,IMLHTH,ANNUAL,"0,00",IND_PRE_PJ_PJA
+IMLSTMOIL00,industrial processes,IND,.PRE.,IML.Generic Boiler.OIL,PJ,PJA,PRE,IMLHTH,ANNUAL,"0,00",IND_PRE_PJ_PJA
 IMPBIOCPS,Imports,SUP,.IMP.IRE.,Import Wood Chips,PJ,-,IRE,BIOCPS,ANNUAL,"0,00",SUP_IRE_PJ_-
 IMPBIODST,Imports,SUP,.IMP.IRE.,Import biodiesel,PJ,-,IRE,BIODST,ANNUAL,"0,00",SUP_IRE_PJ_-
 IMPBIOEFF,Imports,SUP,.IMP.IRE.,Import Effluents,MT,-,IRE,BIOEFF,ANNUAL,"0,00",SUP_IRE_MT_-
@@ -486,116 +486,116 @@ INDSOL00,Fuel Tech - Solar,IND,.PRE.,Fuel Tech - Solar (IND),PJ,PJA,PRE,INDSOL,A
 INDWOO00,Fuel Tech - Wood material,IND,.PRE.,Fuel Tech - Wood material (IND),MT,MTA,PRE,MBRWOO,ANNUAL,"0,00",Fuel Tech - Wood material
 INDWST00,Fuel Tech - Waste Non-Renewable,IND,.PRE.,Fuel Tech - Waste Non-Renewable (IND),PJ,PJA,PRE,INDWST,ANNUAL,"0,00",Fuel Tech - Waste Non-Renewable
 INFDEMAND00,Energy demands for industrial processes,IND,.DMD.,INF.Other Non Ferrous Metals.00.,PJ,PJA,DMD,INF,ANNUAL,"0,00",IND_DMD_PJ_PJA
-INFELEELC00,total industry,IND,.PRE.,INF.Other Non Ferrous Metals.Electro-Chemical Processes.ELC.00,PJ,PJA,PRE,INFELE,ANNUAL,"0,00",IND_PRE_PJ_PJA
-INFELEELC01,total industry,IND,.PRE.,INFELEELC01,PJ,PJA,PRE,INFELE,ANNUAL,"0,00",IND_PRE_PJ_PJA
-INFMCHELC00,total industry,IND,.PRE.,INF.Other Non Ferrous Metals.Machine Drive.ELC.00,PJ,PJA,PRE,INFMCH,ANNUAL,"0,00",IND_PRE_PJ_PJA
-INFMCHELC01,total industry,IND,.PRE.,INFMCHELC01,PJ,PJA,PRE,INFMCH,ANNUAL,"1,00",IND_PRE_PJ_PJA
-INFPRCCOA01,total industry,IND,.PRE.,INFPRCCOA01,PJ,GW,PRE,INFPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
-INFPRCGMX00,total industry,IND,.PRE.,INF.Other Non Ferrous Metals.Process Heat.GAS.00,PJ,PJA,PRE,INFPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
-INFSTMCOL01,total industry,IND,.PRE.,INFSTMCOL01,PJ,GW,PRE,INFHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
-INFSTMGMX00,total industry,IND,.PRE.,INF.Other Non Ferrous Metals.Steam.GAS.00,PJ,GW,PRE,INFHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-INFSTMLFO00,total industry,IND,.PRE.,INF.Other Non Ferrous Metals.Steam.LFO.00,PJ,GW,PRE,INFHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-INFSTMLPG00,total industry,IND,.PRE.,INF.Other Non Ferrous Metals.Steam.LPG.00,PJ,GW,PRE,INFHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+INFELEELC00,industrial processes,IND,.PRE.,INF.Other Non Ferrous Metals.Electro-Chemical Processes.ELC.00,PJ,PJA,PRE,INFELE,ANNUAL,"0,00",IND_PRE_PJ_PJA
+INFELEELC01,industrial processes,IND,.PRE.,INFELEELC01,PJ,PJA,PRE,INFELE,ANNUAL,"0,00",IND_PRE_PJ_PJA
+INFMCHELC00,industrial processes,IND,.PRE.,INF.Other Non Ferrous Metals.Machine Drive.ELC.00,PJ,PJA,PRE,INFMCH,ANNUAL,"0,00",IND_PRE_PJ_PJA
+INFMCHELC01,industrial processes,IND,.PRE.,INFMCHELC01,PJ,PJA,PRE,INFMCH,ANNUAL,"1,00",IND_PRE_PJ_PJA
+INFPRCCOA01,industrial processes,IND,.PRE.,INFPRCCOA01,PJ,GW,PRE,INFPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
+INFPRCGMX00,industrial processes,IND,.PRE.,INF.Other Non Ferrous Metals.Process Heat.GAS.00,PJ,PJA,PRE,INFPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+INFSTMCOL01,industrial processes,IND,.PRE.,INFSTMCOL01,PJ,GW,PRE,INFHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+INFSTMGMX00,industrial processes,IND,.PRE.,INF.Other Non Ferrous Metals.Steam.GAS.00,PJ,GW,PRE,INFHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+INFSTMLFO00,industrial processes,IND,.PRE.,INF.Other Non Ferrous Metals.Steam.LFO.00,PJ,GW,PRE,INFHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+INFSTMLPG00,industrial processes,IND,.PRE.,INF.Other Non Ferrous Metals.Steam.LPG.00,PJ,GW,PRE,INFHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
 INMDEMAND00,Energy demands for industrial processes,IND,.DMD.,INM.Other Non Metallic Minerals.00.,PJ,PJA,DMD,INM,ANNUAL,"0,00",IND_DMD_PJ_PJA
-INMELEELC00,total industry,IND,.PRE.,INM.Other Non Metallic Minerals.Electro-Chemical Processes.ELC.00,PJ,PJA,PRE,INMELE,ANNUAL,"0,00",IND_PRE_PJ_PJA
-INMELEELC01,total industry,IND,.PRE.,INMELEELC01,PJ,PJA,PRE,INMELE,ANNUAL,"1,00",IND_PRE_PJ_PJA
-INMMCHELC00,total industry,IND,.PRE.,INM.Other Non Metallic Minerals.Machine Drive.ELC.00,PJ,PJA,PRE,INMMCH,ANNUAL,"0,00",IND_PRE_PJ_PJA
-INMMCHELC01,total industry,IND,.PRE.,INMMCHELC01,PJ,PJA,PRE,INMMCH,ANNUAL,"1,00",IND_PRE_PJ_PJA
-INMPRCCOA01,total industry,IND,.PRE.,INMPRCCOA01,PJ,GW,PRE,INMPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
-INMPRCCOK01,total industry,IND,.PRE.,INMPRCCOK01,PJ,GW,PRE,INMPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
-INMPRCGMX00,total industry,IND,.PRE.,INM.Other Non Metallic Minerals.Process Heat.GAS.00,PJ,PJA,PRE,INMPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
-INMPRCLFO00,total industry,IND,.PRE.,INM.Other Non Metallic Minerals.Process Heat.LFO.00,PJ,PJA,PRE,INMPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
-INMSTMBGS01,total industry,IND,.PRE.,INMSTMBGS01,PJ,GW,PRE,INMHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
-INMSTMCOL00,total industry,IND,.PRE.,INM.Other Non Metallic Minerals.Steam.COL.00,PJ,GW,PRE,INMHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-INMSTMCOL01,total industry,IND,.PRE.,INMSTMCOL01,PJ,GW,PRE,INMHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
-INMSTMCPS01,total industry,IND,.PRE.,INMSTMCPS01,PJ,GW,PRE,INMHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
-INMSTMGMX00,total industry,IND,.PRE.,INM.Other Non Metallic Minerals.Steam.GAS.00,PJ,GW,PRE,INMHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-INMSTMHFO00,total industry,IND,.PRE.,INM.Other Non Metallic Minerals.Steam.HFO.00,PJ,GW,PRE,INMHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-INMSTMLFO00,total industry,IND,.PRE.,INM.Other Non Metallic Minerals.Steam.LFO.00,PJ,GW,PRE,INMHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-INMSTMLPG00,total industry,IND,.PRE.,INM.Other Non Metallic Minerals.Steam.LPG.00,PJ,GW,PRE,INMHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+INMELEELC00,industrial processes,IND,.PRE.,INM.Other Non Metallic Minerals.Electro-Chemical Processes.ELC.00,PJ,PJA,PRE,INMELE,ANNUAL,"0,00",IND_PRE_PJ_PJA
+INMELEELC01,industrial processes,IND,.PRE.,INMELEELC01,PJ,PJA,PRE,INMELE,ANNUAL,"1,00",IND_PRE_PJ_PJA
+INMMCHELC00,industrial processes,IND,.PRE.,INM.Other Non Metallic Minerals.Machine Drive.ELC.00,PJ,PJA,PRE,INMMCH,ANNUAL,"0,00",IND_PRE_PJ_PJA
+INMMCHELC01,industrial processes,IND,.PRE.,INMMCHELC01,PJ,PJA,PRE,INMMCH,ANNUAL,"1,00",IND_PRE_PJ_PJA
+INMPRCCOA01,industrial processes,IND,.PRE.,INMPRCCOA01,PJ,GW,PRE,INMPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
+INMPRCCOK01,industrial processes,IND,.PRE.,INMPRCCOK01,PJ,GW,PRE,INMPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
+INMPRCGMX00,industrial processes,IND,.PRE.,INM.Other Non Metallic Minerals.Process Heat.GAS.00,PJ,PJA,PRE,INMPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+INMPRCLFO00,industrial processes,IND,.PRE.,INM.Other Non Metallic Minerals.Process Heat.LFO.00,PJ,PJA,PRE,INMPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+INMSTMBGS01,industrial processes,IND,.PRE.,INMSTMBGS01,PJ,GW,PRE,INMHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+INMSTMCOL00,industrial processes,IND,.PRE.,INM.Other Non Metallic Minerals.Steam.COL.00,PJ,GW,PRE,INMHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+INMSTMCOL01,industrial processes,IND,.PRE.,INMSTMCOL01,PJ,GW,PRE,INMHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+INMSTMCPS01,industrial processes,IND,.PRE.,INMSTMCPS01,PJ,GW,PRE,INMHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+INMSTMGMX00,industrial processes,IND,.PRE.,INM.Other Non Metallic Minerals.Steam.GAS.00,PJ,GW,PRE,INMHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+INMSTMHFO00,industrial processes,IND,.PRE.,INM.Other Non Metallic Minerals.Steam.HFO.00,PJ,GW,PRE,INMHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+INMSTMLFO00,industrial processes,IND,.PRE.,INM.Other Non Metallic Minerals.Steam.LFO.00,PJ,GW,PRE,INMHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+INMSTMLPG00,industrial processes,IND,.PRE.,INM.Other Non Metallic Minerals.Steam.LPG.00,PJ,GW,PRE,INMHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
 IOFDEMAND00,Energy demands for industrial processes,IND,.DMD.,IOF.Other FOOD.00,PJ,PJA,DMD,IOF,ANNUAL,"0,00",IND_DMD_PJ_PJA
-IOFELEELC00,total industry,IND,.PRE.,IOF.Other Food.Electro Processes.ELC.00,PJ,PJA,PRE,IOFELE,ANNUAL,"0,00",IND_PRE_PJ_PJA
-IOFELEELC01,total industry,IND,.PRE.,IOFELEELC01,PJ,PJA,PRE,IOFELE,ANNUAL,"1,00",IND_PRE_PJ_PJA
-IOFFROELC00,total industry,IND,.PRE.,IOF.cold.ELC.00,PJ,PJA,PRE,IOFFRO,ANNUAL,"0,00",IND_PRE_PJ_PJA
-IOFFROELC01,total industry,IND,.PRE.,IOFFROELC01,PJ,GW,PRE,IOFFRO,ANNUAL,"1,00",IND_PRE_PJ_GW
-IOFMCHELC00,total industry,IND,.PRE.,IOF.Other Food.Machine Drive.ELC.00,PJ,PJA,PRE,IOFMCH,ANNUAL,"0,00",IND_PRE_PJ_PJA
-IOFMCHELC01,total industry,IND,.PRE.,IOFMCHELC01,PJ,PJA,PRE,IOFMCH,ANNUAL,"1,00",IND_PRE_PJ_PJA
-IOFOTH-NRG,total industry,IND,.PRE.,IOF: Other energy uses,PJ,PJA,PRE,IOFOTH,ANNUAL,"0,00",IND_PRE_PJ_PJA
-IOFPACELC01,total industry,IND,.PRE.,IOFPACELC01,PJ,GW,PRE,IOFHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
-IOFPRCBGS00,total industry,IND,.PRE.,IOF.Other Food.Process Heat.BGS.00,PJ,PJA,PRE,IOFPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
-IOFPRCCPS00,total industry,IND,.PRE.,IOF.Other Food.Process Heat.CPS.00,PJ,PJA,PRE,IOFPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
-IOFPRCELC01,total industry,IND,.PRE.,IOFPRCELC01,PJ,GW,PRE,IOFPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
-IOFPRCGAS00,total industry,IND,.PRE.,IOF.Other Food.Process Heat.GAS.01,PJ,PJA,PRE,IOFPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
-IOFPRCGMX00,total industry,IND,.PRE.,IOF.Other Food.Process Heat.GAS.00,PJ,PJA,PRE,IOFPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
-IOFPRCGMX01,total industry,IND,.PRE.,IOFPRCGMX01,PJ,GW,PRE,IOFPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
-IOFPRCHH202,total industry,IND,.PRE.,IOFPRCHH202,PJ,GW,PRE,IOFPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
-IOFPRCLFO00,total industry,IND,.PRE.,IOF.Other Food.Process Heat.LFO.00,PJ,PJA,PRE,IOFPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
-IOFSTMBGS00,total industry,IND,.PRE.,IOF.Other Food.Steam.BGS.00,PJ,GW,PRE,IOFHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-IOFSTMBGS01,total industry,IND,.PRE.,IOFSTMBGS01,PJ,GW,PRE,IOFHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
-IOFSTMCPS00,total industry,IND,.PRE.,IOF.Other Food.Steam.CPS.00,PJ,GW,PRE,IOFHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-IOFSTMCPS01,total industry,IND,.PRE.,IOFSTMCPS01,PJ,GW,PRE,IOFHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
-IOFSTMELC01,total industry,IND,.PRE.,IOFSTMELC01,PJ,GW,PRE,IOFHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
-IOFSTMGAS00,total industry,IND,.PRE.,IOF.Other Food.Steam.GAS.01,PJ,GW,PRE,IOFHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-IOFSTMGMX00,total industry,IND,.PRE.,IOF.Other Food.Steam.GAS.00,PJ,GW,PRE,IOFHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-IOFSTMHET00,total industry,IND,.PRE.,IOF.Other Food.Steam.HTH.00,PJ,GW,PRE,IOFHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-IOFSTMHET01,total industry,IND,.PRE.,IOFSTMHET01,PJ,GW,PRE,IOFHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
-IOFSTMLFO00,total industry,IND,.PRE.,IOF.Other Food.Steam.LFO.00,PJ,GW,PRE,IOFHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-IOFSTMLPG00,total industry,IND,.PRE.,IOF.Other Food.Steam.LPG.00,PJ,GW,PRE,IOFHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+IOFELEELC00,industrial processes,IND,.PRE.,IOF.Other Food.Electro Processes.ELC.00,PJ,PJA,PRE,IOFELE,ANNUAL,"0,00",IND_PRE_PJ_PJA
+IOFELEELC01,industrial processes,IND,.PRE.,IOFELEELC01,PJ,PJA,PRE,IOFELE,ANNUAL,"1,00",IND_PRE_PJ_PJA
+IOFFROELC00,industrial processes,IND,.PRE.,IOF.cold.ELC.00,PJ,PJA,PRE,IOFFRO,ANNUAL,"0,00",IND_PRE_PJ_PJA
+IOFFROELC01,industrial processes,IND,.PRE.,IOFFROELC01,PJ,GW,PRE,IOFFRO,ANNUAL,"1,00",IND_PRE_PJ_GW
+IOFMCHELC00,industrial processes,IND,.PRE.,IOF.Other Food.Machine Drive.ELC.00,PJ,PJA,PRE,IOFMCH,ANNUAL,"0,00",IND_PRE_PJ_PJA
+IOFMCHELC01,industrial processes,IND,.PRE.,IOFMCHELC01,PJ,PJA,PRE,IOFMCH,ANNUAL,"1,00",IND_PRE_PJ_PJA
+IOFOTH-NRG,industrial processes,IND,.PRE.,IOF: Other energy uses,PJ,PJA,PRE,IOFOTH,ANNUAL,"0,00",IND_PRE_PJ_PJA
+IOFPACELC01,industrial processes,IND,.PRE.,IOFPACELC01,PJ,GW,PRE,IOFHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+IOFPRCBGS00,industrial processes,IND,.PRE.,IOF.Other Food.Process Heat.BGS.00,PJ,PJA,PRE,IOFPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+IOFPRCCPS00,industrial processes,IND,.PRE.,IOF.Other Food.Process Heat.CPS.00,PJ,PJA,PRE,IOFPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+IOFPRCELC01,industrial processes,IND,.PRE.,IOFPRCELC01,PJ,GW,PRE,IOFPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
+IOFPRCGAS00,industrial processes,IND,.PRE.,IOF.Other Food.Process Heat.GAS.01,PJ,PJA,PRE,IOFPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+IOFPRCGMX00,industrial processes,IND,.PRE.,IOF.Other Food.Process Heat.GAS.00,PJ,PJA,PRE,IOFPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+IOFPRCGMX01,industrial processes,IND,.PRE.,IOFPRCGMX01,PJ,GW,PRE,IOFPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
+IOFPRCHH202,industrial processes,IND,.PRE.,IOFPRCHH202,PJ,GW,PRE,IOFPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
+IOFPRCLFO00,industrial processes,IND,.PRE.,IOF.Other Food.Process Heat.LFO.00,PJ,PJA,PRE,IOFPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+IOFSTMBGS00,industrial processes,IND,.PRE.,IOF.Other Food.Steam.BGS.00,PJ,GW,PRE,IOFHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+IOFSTMBGS01,industrial processes,IND,.PRE.,IOFSTMBGS01,PJ,GW,PRE,IOFHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+IOFSTMCPS00,industrial processes,IND,.PRE.,IOF.Other Food.Steam.CPS.00,PJ,GW,PRE,IOFHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+IOFSTMCPS01,industrial processes,IND,.PRE.,IOFSTMCPS01,PJ,GW,PRE,IOFHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+IOFSTMELC01,industrial processes,IND,.PRE.,IOFSTMELC01,PJ,GW,PRE,IOFHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+IOFSTMGAS00,industrial processes,IND,.PRE.,IOF.Other Food.Steam.GAS.01,PJ,GW,PRE,IOFHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+IOFSTMGMX00,industrial processes,IND,.PRE.,IOF.Other Food.Steam.GAS.00,PJ,GW,PRE,IOFHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+IOFSTMHET00,industrial processes,IND,.PRE.,IOF.Other Food.Steam.HTH.00,PJ,GW,PRE,IOFHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+IOFSTMHET01,industrial processes,IND,.PRE.,IOFSTMHET01,PJ,GW,PRE,IOFHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+IOFSTMLFO00,industrial processes,IND,.PRE.,IOF.Other Food.Steam.LFO.00,PJ,GW,PRE,IOFHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+IOFSTMLPG00,industrial processes,IND,.PRE.,IOF.Other Food.Steam.LPG.00,PJ,GW,PRE,IOFHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
 IOIDEMAND00,Energy demands for industrial processes,IND,.DMD.,IOI.Other Industries.00.,PJ,PJA,DMD,IOI,ANNUAL,"0,00",IND_DMD_PJ_PJA
-IOIELEELC00,total industry,IND,.PRE.,IOI.Other Industries.Electro-Chemical Processes.ELC.00,PJ,PJA,PRE,IOIELE,ANNUAL,"0,00",IND_PRE_PJ_PJA
-IOIELEELC01,total industry,IND,.PRE.,IOIELEELC01,PJ,PJA,PRE,IOIELE,ANNUAL,"1,00",IND_PRE_PJ_PJA
-IOIMCHELC00,total industry,IND,.PRE.,IOI.Other Industries.Machine Drive.ELC.00,PJ,PJA,PRE,IOIMCH,ANNUAL,"0,00",IND_PRE_PJ_PJA
-IOIMCHELC01,total industry,IND,.PRE.,IOI. Other Industries.Machine Drive.ELC.01,PJ,PJA,PRE,IOIMCH,ANNUAL,"1,00",IND_PRE_PJ_PJA
-IOIOTH-NRG,total industry,IND,.PRE.,IOI: Other energy uses,PJ,PJA,PRE,IOIOTH,ANNUAL,"0,00",IND_PRE_PJ_PJA
-IOIPACELC01,total industry,IND,.PRE.,IOIPACELC01,PJ,GW,PRE,IOIHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
-IOIPRCELC01,total industry,IND,.PRE.,IOIPRCELC01,PJ,GW,PRE,IOIPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
-IOIPRCGAS00,total industry,IND,.PRE.,IOI.Other Industries.Process Heat.GAS.01,PJ,PJA,PRE,IOIPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
-IOIPRCGMX00,total industry,IND,.PRE.,IOI.Other Industries.Process Heat.GAS.00,PJ,PJA,PRE,IOIPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
-IOIPRCGMX01,total industry,IND,.PRE.,IOIPRCGMX01,PJ,GW,PRE,IOIPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
-IOIPRCHH202,total industry,IND,.PRE.,IOIPRCHH202,PJ,GW,PRE,IOIPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
-IOIPRCLFO00,total industry,IND,.PRE.,IOI.Other Industries.Process Heat.LFO.00,PJ,PJA,PRE,IOIPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
-IOISTMBGS01,total industry,IND,.PRE.,IOISTMBGS01,PJ,GW,PRE,IOIHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
-IOISTMCOK00,total industry,IND,.PRE.,IOI.Other Industries.Steam.COK.00,PJ,GW,PRE,IOIHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-IOISTMCPS00,total industry,IND,.PRE.,IOI.Other Industries.Steam.CPS.00,PJ,GW,PRE,IOIHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-IOISTMCPS01,total industry,IND,.PRE.,IOISTMCPS01,PJ,GW,PRE,IOIHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
-IOISTMELC01,total industry,IND,.PRE.,IOISTMELC01,PJ,GW,PRE,IOIHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
-IOISTMGAS00,total industry,IND,.PRE.,IOI.Other Industries.Steam.GAS.00,PJ,GW,PRE,IOIHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-IOISTMGMX00,total industry,IND,.PRE.,IOI.Other Industries.Steam.GAS.01,PJ,GW,PRE,IOIHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-IOISTMHET01,total industry,IND,.PRE.,IOISTMHET01,PJ,GW,PRE,IOIHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
-IOISTMHFO00,total industry,IND,.PRE.,IOI.Other Industries.Steam.HFO.00,PJ,GW,PRE,IOIHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-IOISTMLFO00,total industry,IND,.PRE.,IOI.Other Industries.Steam.LFO.00,PJ,GW,PRE,IOIHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-IOISTMLPG00,total industry,IND,.PRE.,IOI.Other Industries.Steam.LPG.00,PJ,GW,PRE,IOIHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
-IPOHTHSTMBGS01,total industry,IND,.PRE.,IPO.Preparation.of.potatoes.Process Heat.BGS.03,PJ,GW,PRE,IPOHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
-IPOHTHSTMCPS01,total industry,IND,.PRE.,IPO.Preparation.of.potatoes.Process Heat.CPS.04,PJ,GW,PRE,IPOHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+IOIELEELC00,industrial processes,IND,.PRE.,IOI.Other Industries.Electro-Chemical Processes.ELC.00,PJ,PJA,PRE,IOIELE,ANNUAL,"0,00",IND_PRE_PJ_PJA
+IOIELEELC01,industrial processes,IND,.PRE.,IOIELEELC01,PJ,PJA,PRE,IOIELE,ANNUAL,"1,00",IND_PRE_PJ_PJA
+IOIMCHELC00,industrial processes,IND,.PRE.,IOI.Other Industries.Machine Drive.ELC.00,PJ,PJA,PRE,IOIMCH,ANNUAL,"0,00",IND_PRE_PJ_PJA
+IOIMCHELC01,industrial processes,IND,.PRE.,IOI. Other Industries.Machine Drive.ELC.01,PJ,PJA,PRE,IOIMCH,ANNUAL,"1,00",IND_PRE_PJ_PJA
+IOIOTH-NRG,industrial processes,IND,.PRE.,IOI: Other energy uses,PJ,PJA,PRE,IOIOTH,ANNUAL,"0,00",IND_PRE_PJ_PJA
+IOIPACELC01,industrial processes,IND,.PRE.,IOIPACELC01,PJ,GW,PRE,IOIHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+IOIPRCELC01,industrial processes,IND,.PRE.,IOIPRCELC01,PJ,GW,PRE,IOIPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
+IOIPRCGAS00,industrial processes,IND,.PRE.,IOI.Other Industries.Process Heat.GAS.01,PJ,PJA,PRE,IOIPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+IOIPRCGMX00,industrial processes,IND,.PRE.,IOI.Other Industries.Process Heat.GAS.00,PJ,PJA,PRE,IOIPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+IOIPRCGMX01,industrial processes,IND,.PRE.,IOIPRCGMX01,PJ,GW,PRE,IOIPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
+IOIPRCHH202,industrial processes,IND,.PRE.,IOIPRCHH202,PJ,GW,PRE,IOIPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
+IOIPRCLFO00,industrial processes,IND,.PRE.,IOI.Other Industries.Process Heat.LFO.00,PJ,PJA,PRE,IOIPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+IOISTMBGS01,industrial processes,IND,.PRE.,IOISTMBGS01,PJ,GW,PRE,IOIHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+IOISTMCOK00,industrial processes,IND,.PRE.,IOI.Other Industries.Steam.COK.00,PJ,GW,PRE,IOIHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+IOISTMCPS00,industrial processes,IND,.PRE.,IOI.Other Industries.Steam.CPS.00,PJ,GW,PRE,IOIHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+IOISTMCPS01,industrial processes,IND,.PRE.,IOISTMCPS01,PJ,GW,PRE,IOIHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+IOISTMELC01,industrial processes,IND,.PRE.,IOISTMELC01,PJ,GW,PRE,IOIHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+IOISTMGAS00,industrial processes,IND,.PRE.,IOI.Other Industries.Steam.GAS.00,PJ,GW,PRE,IOIHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+IOISTMGMX00,industrial processes,IND,.PRE.,IOI.Other Industries.Steam.GAS.01,PJ,GW,PRE,IOIHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+IOISTMHET01,industrial processes,IND,.PRE.,IOISTMHET01,PJ,GW,PRE,IOIHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+IOISTMHFO00,industrial processes,IND,.PRE.,IOI.Other Industries.Steam.HFO.00,PJ,GW,PRE,IOIHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+IOISTMLFO00,industrial processes,IND,.PRE.,IOI.Other Industries.Steam.LFO.00,PJ,GW,PRE,IOIHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+IOISTMLPG00,industrial processes,IND,.PRE.,IOI.Other Industries.Steam.LPG.00,PJ,GW,PRE,IOIHTH,ANNUAL,"0,00",IND_PRE_PJ_GW
+IPOHTHSTMBGS01,industrial processes,IND,.PRE.,IPO.Preparation.of.potatoes.Process Heat.BGS.03,PJ,GW,PRE,IPOHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+IPOHTHSTMCPS01,industrial processes,IND,.PRE.,IPO.Preparation.of.potatoes.Process Heat.CPS.04,PJ,GW,PRE,IPOHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
 IPOPREPA00,Energy demands for industrial processes,IND,.DMD.,IPO.Preparation.of.potatoes.00,PJ,PJA,DMD,IPO,ANNUAL,"0,00",IND_DMD_PJ_PJA
 IPOPREPA03,IND_DMD_MT_MT,IND,.DMD.,IPO.Preparation.of.potatoes.03,MT,MT,DMD,IPO,ANNUAL,"1,00",IND_DMD_MT_MT
 IPOPREPA04,IND_DMD_MT_MT,IND,.DMD.,IPO.Preparation.of.potatoes.04,MT,MT,DMD,IPO,ANNUAL,"1,00",IND_DMD_MT_MT
-IPOSTMGAS00,total industry,IND,.PRE.,IPO.Generic Boiler.GAS,PJ,PJA,PRE,IPOHTH,ANNUAL,"0,00",IND_PRE_PJ_PJA
-IPOSTMOIL00,total industry,IND,.PRE.,IPO.Generic Boiler.OIL,PJ,PJA,PRE,IPOHTH,ANNUAL,"0,00",IND_PRE_PJ_PJA
+IPOSTMGAS00,industrial processes,IND,.PRE.,IPO.Generic Boiler.GAS,PJ,PJA,PRE,IPOHTH,ANNUAL,"0,00",IND_PRE_PJ_PJA
+IPOSTMOIL00,industrial processes,IND,.PRE.,IPO.Generic Boiler.OIL,PJ,PJA,PRE,IPOHTH,ANNUAL,"0,00",IND_PRE_PJ_PJA
 IPPHIGQUA00,IND_DMD_MT_MTA,IND,.DMD.,IPP.High Quality Paper Production.00.,MT,MTA,DMD,IPP,ANNUAL,"0,00",IND_DMD_MT_MTA
 IPPHIGQUA05,IND_DMD_MT_MT,IND,.DMD.,IPP.High Quality Paper Production Adv Drives.05.,MT,MT,DMD,IPP,ANNUAL,"1,00",IND_DMD_MT_MT
 IPPHIGQUA55,IND_DMD_MT_MT,IND,.DMD.,IPP.High Quality Paper Production Adv Drives.05. - electricity,MT,MT,DMD,IPP,ANNUAL,"1,00",IND_DMD_MT_MT
-IPPPACELC01,total industry,IND,.PRE.,IPP. Pulp and Paper.Heat.pac.01,PJ,GW,PRE,IPPHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
-IPPPRCBIO01,total industry,IND,.PRE.,IPP. Pulp and Paper.Process Heat.BIO.01,PJ,GW,PRE,IPPPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
-IPPPRCCOA01,total industry,IND,.PRE.,IPP. Pulp and Paper.Process Heat.COA.01,PJ,GW,PRE,IPPPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
-IPPPRCGAS00,total industry,IND,.PRE.,IPP.Generic fuel kiln.GAS,PJ,PJA,PRE,IPPPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
-IPPPRCGMX01,total industry,IND,.PRE.,IPP. Pulp and Paper.Process Heat.GMX.01,PJ,GW,PRE,IPPPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
-IPPPRCHFO00,total industry,IND,.PRE.,IPP.Generic fuel kiln.HFO,PJ,PJA,PRE,IPPPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
-IPPPRCLFO00,total industry,IND,.PRE.,IPP.Generic fuel kiln.LFO,PJ,PJA,PRE,IPPPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
-IPPPRCLPG00,total industry,IND,.PRE.,IPP.Generic fuel kiln.LPG,PJ,PJA,PRE,IPPPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+IPPPACELC01,industrial processes,IND,.PRE.,IPP. Pulp and Paper.Heat.pac.01,PJ,GW,PRE,IPPHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+IPPPRCBIO01,industrial processes,IND,.PRE.,IPP. Pulp and Paper.Process Heat.BIO.01,PJ,GW,PRE,IPPPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
+IPPPRCCOA01,industrial processes,IND,.PRE.,IPP. Pulp and Paper.Process Heat.COA.01,PJ,GW,PRE,IPPPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
+IPPPRCGAS00,industrial processes,IND,.PRE.,IPP.Generic fuel kiln.GAS,PJ,PJA,PRE,IPPPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+IPPPRCGMX01,industrial processes,IND,.PRE.,IPP. Pulp and Paper.Process Heat.GMX.01,PJ,GW,PRE,IPPPRC,ANNUAL,"1,00",IND_PRE_PJ_GW
+IPPPRCHFO00,industrial processes,IND,.PRE.,IPP.Generic fuel kiln.HFO,PJ,PJA,PRE,IPPPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+IPPPRCLFO00,industrial processes,IND,.PRE.,IPP.Generic fuel kiln.LFO,PJ,PJA,PRE,IPPPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
+IPPPRCLPG00,industrial processes,IND,.PRE.,IPP.Generic fuel kiln.LPG,PJ,PJA,PRE,IPPPRC,ANNUAL,"0,00",IND_PRE_PJ_PJA
 IPPPUPCHE00,IND_PRE_MT_MTA,IND,.PRE.,IPP.Chemical Pulp Production.00.,MT,MTA,PRE,MPPPUP,ANNUAL,"0,00",IND_PRE_MT_MTA
 IPPPUPCHE01,IND_PRE_MT_MT,IND,.PRE.,IPP.Chemical Pulp Production.01,MT,MT,PRE,MPPPUP,ANNUAL,"1,00",IND_PRE_MT_MT
 IPPPUPIMP00,IND_IRE_MT_MTA,IND,.IMP.IRE.,IPP.Pulp Import.00.,MT,MTA,IRE,MPPPUP,ANNUAL,"0,00",IND_IRE_MT_MTA
-IPPSTMGMX01,total industry,IND,.PRE.,IPP. Pulp and Paper.Heat.GMX.01,PJ,GW,PRE,IPPHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
-IPPSTMHH201,total industry,IND,.PRE.,IPP. Pulp and Paper.Heat.BLQ.01,PJ,GW,PRE,IPPHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
-ISGHTHSTMGMX01,total industry,IND,.PRE.,ISG.Preparation.of.sugar.Process Heat.GMX.01,PJ,GW,PRE,ISGHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+IPPSTMGMX01,industrial processes,IND,.PRE.,IPP. Pulp and Paper.Heat.GMX.01,PJ,GW,PRE,IPPHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+IPPSTMHH201,industrial processes,IND,.PRE.,IPP. Pulp and Paper.Heat.BLQ.01,PJ,GW,PRE,IPPHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
+ISGHTHSTMGMX01,industrial processes,IND,.PRE.,ISG.Preparation.of.sugar.Process Heat.GMX.01,PJ,GW,PRE,ISGHTH,ANNUAL,"1,00",IND_PRE_PJ_GW
 ISGPREPA00,ISG.Beet.Preparation.00,IND,.PRE.,ISG.Beet.Preparation.00,PJ,PJA,PRE,MISGJU,ANNUAL,"0,00",IND_PRE_PJ_PJA
 ISGPREPA01,IND_PRE_MT_MT,IND,.PRE.,ISG.Beet.Preparation.sugar.01,MT,MT,PRE,MISGJU,ANNUAL,"1,00",IND_PRE_MT_MT
 ISGPROD00,Energy demands for industrial processes,IND,.DMD.,ISG.Production.00,PJ,PJA,DMD,ISG,ANNUAL,"0,00",IND_DMD_PJ_PJA
 ISGPROD01,IND_DMD_MT_MT,IND,.DMD.,ISG.Production sugar.01,MT,MT,DMD,ISG,ANNUAL,"1,00",IND_DMD_MT_MT
-ISGSTMGAS00,total industry,IND,.PRE.,ISG.Generic Boiler.GAS,PJ,PJA,PRE,ISGHTH,ANNUAL,"0,00",IND_PRE_PJ_PJA
-ISGSTMOIL00,total industry,IND,.PRE.,ISG.Generic Boiler.OIL,PJ,PJA,PRE,ISGHTH,ANNUAL,"0,00",IND_PRE_PJ_PJA
-ISGSTMSOLID00,total industry,IND,.PRE.,ISG.Generic Boiler.Solids.00,PJ,PJA,PRE,ISGHTH,ANNUAL,"0,00",IND_PRE_PJ_PJA
+ISGSTMGAS00,industrial processes,IND,.PRE.,ISG.Generic Boiler.GAS,PJ,PJA,PRE,ISGHTH,ANNUAL,"0,00",IND_PRE_PJ_PJA
+ISGSTMOIL00,industrial processes,IND,.PRE.,ISG.Generic Boiler.OIL,PJ,PJA,PRE,ISGHTH,ANNUAL,"0,00",IND_PRE_PJ_PJA
+ISGSTMSOLID00,industrial processes,IND,.PRE.,ISG.Generic Boiler.Solids.00,PJ,PJA,PRE,ISGHTH,ANNUAL,"0,00",IND_PRE_PJ_PJA
 MINBIOBOU,SUP_IRE_MT_-,SUP,.MIN.IRE.,Boues production,MT,-,IRE,BIOBOU,ANNUAL,"0,00",SUP_IRE_MT_-
 MINBIOCPS,Local production,SUP,.MIN.IRE.,Wood Chips production,PJ,-,IRE,BIOCPS,ANNUAL,"0,00",SUP_IRE_PJ_-
 MINBIOCRP11,Local production,SUP,.MIN.IRE.,Starch crop production 1,PJ,-,IRE,BIOCRP1,ANNUAL,"0,00",SUP_IRE_PJ_-

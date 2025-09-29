@@ -6,7 +6,7 @@ ELCLOW,Low Voltage Electricity,PJ,ELC,,Low Voltage Electricity,Low Voltage Elect
 RSDELC,Electricity for Residential sector,PJ,RSD,,Electricity for Residential sector,Electricity for Residential sector,ELCLOW,RSDELC00,nan
 INDELC,Electricity for industy,PJ,IND,,Electricity for industy,Electricity for industy,ELCHIGG,INDELC00,nan
 COMELC,Electricity for Commercial sector,PJ,COM,,Electricity for Commercial sector,Electricity for Commercial sector,ELCMED,COMELC00,nan
-TRAELC,Electricity for transport,PJ,TRA,,Electricity for transport,Electricity for transport,ELCLOW,TRAELC00,nan
+TRAELC,Electricity for transport,PJ,TRA,,total energy for transport,total energy for transport,ELCLOW,TRAELC00,nan
 ELCNUC,Nuclear for Electricity sector,PJ,ELC,,Nuclear for Electricity sector,Nuclear for Electricity sector,nan,nan,nan
 RSDOIL,Diesel Oil for the residential sector,PJ,RSD,,Diesel Oil for the residential sector,Diesel Oil for the residential sector,nan,nan,nan
 INDLFO,Fuel Tech - Light Fuel Oil,PJ,IND,,oil for industry,oil for industry,nan,nan,light fuel oil
@@ -111,6 +111,7 @@ ELCBIO,Biomass for Electricity sector,PJ,ELC,,Biomass for Electricity sector,Bio
 ELCHYD,Hydro for Electricity sector,PJ,ELC,,Hydro for Electricity sector,Hydro for Electricity sector,nan,nan,nan
 ELCOIL,Oil for Electricity sector,PJ,ELC,,Oil for Electricity sector,Oil for Electricity sector,nan,nan,nan
 SUPBGS,Biogas for Supply sector,PJ,SUP,,Biogas for Supply sector,Biogas for Supply sector,nan,nan,nan
+RHDJAP_2021,space heating for apartments (2021),PJ,RSD,,space heating for residential,space heating for residential,nan,nan,nan
 RHDJ4F_2021,space heating for 4f houses (2021),PJ,RSD,,space heating for residential,space heating for residential,nan,nan,nan
 RHN4F,space heating for 4f houses,PJ,RSD,,space heating for residential,space heating for residential,nan,nan,nan
 RWN3F,hot water for 3F houses,PJ,RSD,,hot water for residential,hot water for residential,nan,nan,nan
@@ -179,7 +180,7 @@ INDGASCOG,Gas and Cog for industry,PJ,COM,,gas for industry,gas for industry,nan
 INDIIS,IIS GMX - Corex GMX or BFG TGR with CCS or BOF,PJ,COM,,gas for industry,gas for industry,nan,nan,nan
 IOFPRC,Other Food.Process Heat.,PJ,IND,NRG,Process heat,Other Food.Process Heat.,,,auto-added from AllCommodities.csv
 INFMCH,Other Non Ferrous Metals.Machine Drive.,PJ,IND,NRG,Machine drive energy for industry,Other Non Ferrous Metals.Machine Drive.,,,auto-added from AllCommodities.csv
-CCEN,Commercial space cooling Enseignment Existing,PJ,COM,NRG,Commercial space cooling Enseignment Existing,Commercial space cooling Enseignment Existing,,,auto-added from AllCommodities.csv
+CCEN,Commercial space cooling Enseignment Existing,PJ,COM,NRG,Electricity for existing commercial appliances,Commercial space cooling Enseignment Existing,,,auto-added from AllCommodities.csv
 ICH,Other Chemicals Demand,PJ,IND,DEM,Other Chemicals Demand,Other Chemicals Demand,,,auto-added from AllCommodities.csv
 ICHOTH,Other Chemicals.Other Processes.,PJ,IND,NRG,Other energy for industry,Other Chemicals.Other Processes.,,,auto-added from AllCommodities.csv
 IOIHTH,Other Industries.Steam.,PJ,IND,NRG,Steam for industry,Other Industries.Steam.,,,auto-added from AllCommodities.csv
@@ -199,32 +200,32 @@ TADF,Aviation Domestic Freight,PJ,TRA,DEM,Fuel for aviation,Fuel for aviation,,,
 INDHTH,High Temperature Heat for IND,PJ,IND,NRG,High Temperature Heat for IND,High Temperature Heat for IND,,,auto-added from AllCommodities.csv
 IOIELE,Other Industries.Electro-Chemicals.,PJ,IND,NRG,Other energy for industry,Other Industries.Electro-Chemicals.,,,auto-added from AllCommodities.csv
 INDGEO,Geothermal (IND),PJ,IND,NRG,Geothermal (IND),Geothermal (IND),,,auto-added from AllCommodities.csv
-CCDATA,Commercial space cooling Data Center Existing,PJ,COM,NRG,Commercial space cooling Data Center Existing,Commercial space cooling Data Center Existing,,,auto-added from AllCommodities.csv
+CCDATA,Commercial space cooling Data Center Existing,PJ,COM,NRG,Electricity for existing commercial appliances,Commercial space cooling Data Center Existing,,,auto-added from AllCommodities.csv
 ISGHTH,High Temperature Heat for ISG (IND),PJ,IND,NRG,High Temperature Heat for IND,High Temperature Heat for ISG (IND),,,auto-added from AllCommodities.csv
-CCBP,"Commercial space cooling Bureaux: transport et communication, banques etc Existing",PJ,COM,NRG,"Commercial space cooling Bureaux: transport et communication, banques etc Existing","Commercial space cooling Bureaux: transport et communication, banques etc Existing",,,auto-added from AllCommodities.csv
+CCBP,"Commercial space cooling Bureaux: transport et communication, banques etc Existing",PJ,COM,NRG,Electricity for existing commercial appliances,"Commercial space cooling Bureaux: transport et communication, banques etc Existing",,,auto-added from AllCommodities.csv
 BIOGZH,Biogaz épuré,PJ,SUP,NRG,Biogaz épuré,Biogaz épuré,,,auto-added from AllCommodities.csv
 ICHELE,Other Chemicals.Electro-Chemicals.,PJ,IND,NRG,Other energy for industry,Other Chemicals.Electro-Chemicals.,,,auto-added from AllCommodities.csv
 INMHTH,High Temperature Heat for INM (IND),PJ,IND,NRG,High Temperature Heat for IND,High Temperature Heat for INM (IND),,,auto-added from AllCommodities.csv
 INFPRC,Other Non Ferrous Metals.Process Heat.,PJ,IND,NRG,Process heat,Other Non Ferrous Metals.Process Heat.,,,auto-added from AllCommodities.csv
 DJ4F,Energy correction based on degree days,PJ,RSD,DEM,Energy correction based on degree days,DJ4F,,,auto-added from AllCommodities.csv
-CCBA,Commercial space cooling Bureaux: Administration Existing,PJ,COM,NRG,Commercial space cooling Bureaux: Administration Existing,Commercial space cooling Bureaux: Administration Existing,,,auto-added from AllCommodities.csv
-CCCO,Commercial space cooling Commerce Existing,PJ,COM,NRG,Commercial space cooling Commerce Existing,Commercial space cooling Commerce Existing,,,auto-added from AllCommodities.csv
-CREF,Commercial Refrigeration Existing,PJ,COM,DEM,Commercial Refrigeration Existing,Commercial Refrigeration Existing,,,auto-added from AllCommodities.csv
+CCBA,Commercial space cooling Bureaux: Administration Existing,PJ,COM,NRG,Electricity for existing commercial appliances,Commercial space cooling Bureaux: Administration Existing,,,auto-added from AllCommodities.csv
+CCCO,Commercial space cooling Commerce Existing,PJ,COM,NRG,Electricity for existing commercial appliances,Commercial space cooling Commerce Existing,,,auto-added from AllCommodities.csv
+CREF,Commercial Refrigeration Existing,PJ,COM,DEM,Electricity for existing commercial appliances,Commercial Refrigeration Existing,,,auto-added from AllCommodities.csv
 INF,Other Non Ferrous Metals Demand,PJ,IND,DEM,Other Non Ferrous Metals Demand,Other Non Ferrous Metals Demand,,,auto-added from AllCommodities.csv
 INFHTH,High Temperature Heat for INF (IND),PJ,IND,NRG,High Temperature Heat for IND,High Temperature Heat for INF (IND),,,auto-added from AllCommodities.csv
 IOIMCH,Other Industries.Machine Drive.,PJ,IND,NRG,Machine drive energy for industry,Other Industries.Machine Drive.,,,auto-added from AllCommodities.csv
 TADP,Aviation Domestic Passengers,PJ,TRA,DEM,Fuel for aviation,Fuel for aviation,,,auto-added from AllCommodities.csv
 IOI,Other Industries,PJ,IND,DEM,Other Industries,Other Industries,,,auto-added from AllCommodities.csv
 ILMPRC,Lime.Process Heat.,PJ,IND,NRG,Process heat,Lime.Process Heat.,,,auto-added from AllCommodities.csv
-CCSA,Commercial space cooling Santé Existing,PJ,COM,NRG,Commercial space cooling Santé Existing,Commercial space cooling Santé Existing,,,auto-added from AllCommodities.csv
+CCSA,Commercial space cooling Santé Existing,PJ,COM,NRG,Electricity for existing commercial appliances,Commercial space cooling Santé Existing,,,auto-added from AllCommodities.csv
 IISHTH,High Temperature Heat for IIS (IND),PJ,IND,NRG,High Temperature Heat for IND,High Temperature Heat for IIS (IND),,,auto-added from AllCommodities.csv
 ICHPRC,Other Chemicals.Process Heat.,PJ,IND,NRG,Process heat,Other Chemicals.Process Heat.,,,auto-added from AllCommodities.csv
 ICHHTH,Other Chemicals.Steam.,PJ,IND,NRG,Steam for industry,Other Chemicals.Steam.,,,auto-added from AllCommodities.csv
 ICHMCH,Other Chemicals.Machine Drive.,PJ,IND,NRG,Machine drive energy for industry,Other Chemicals.Machine Drive.,,,auto-added from AllCommodities.csv
 INDHWT,Chaleur fatale (IND),PJ,IND,NRG,Chaleur fatale (IND),Chaleur fatale (IND),,,auto-added from AllCommodities.csv
 INMPRC,Other Non Metallic Minerals.Process Heat.,PJ,IND,NRG,Process heat,Other Non Metallic Minerals.Process Heat.,,,auto-added from AllCommodities.csv
-COSE,Commercial Serveur DATA CENTER Existing,PJ,COM,DEM,Commercial Serveur DATA CENTER Existing,Commercial Serveur DATA CENTER Existing,,,auto-added from AllCommodities.csv
-CPLI,Commercial Public Lighting Existing,PJ,COM,DEM,Commercial Public Lighting Existing,Commercial Public Lighting Existing,,,auto-added from AllCommodities.csv
+COSE,Commercial Serveur DATA CENTER Existing,PJ,COM,DEM,Electricity for existing commercial appliances,Commercial Serveur DATA CENTER Existing,,,auto-added from AllCommodities.csv
+CPLI,Commercial Public Lighting Existing,PJ,COM,DEM,Electricity for existing commercial appliances,Commercial Public Lighting Existing,,,auto-added from AllCommodities.csv
 IOFOTH,Other Food.Cold Processes.,PJ,IND,NRG,Other energy for industry,Other Food.Cold Processes.,,,auto-added from AllCommodities.csv
 DJAP,Energy correction based on degree days,PJ,RSD,DEM,Energy correction based on degree days,DJAP,,,auto-added from AllCommodities.csv
 IOF,Other food demand,PJ,IND,DEM,Other food demand,Other food demand,,,auto-added from AllCommodities.csv
