@@ -118,8 +118,10 @@ hydrogen road,total transport,Fuel Tech - H2
 total rail,total rail,electricity transport
 electricity rail,total rail,electricity transport
 total domestic navigation,total navigation,Navigation Domestic Freight Tech Existing
+total international navigation,total navigation,Navigation International Freight Tech Existing
 total international aviation,Kerosene - Jet Fuels for transport,Aviation
 total international aviation,Fuel Tech - H2,Aviation
+total domestic aviation,Domestic aviation,Aviation
 electricity,industry electricity,Fuel Tech - Electricity
 electricity,industry electricity,PV industrial
 electricity,industry electricity,PV
@@ -132,10 +134,9 @@ methane,gas for industry,Fuel Tech - Biogas
 methane,gas for industry,Fuel Tech - Liquified Petroleum Gas
 methane,gas for industry,Fuel Tech - Natural Gas transport
 methane,gas for industry,Fuel Tech - Natural Gas and biogas mixed
-methane,gas for industry,Fuel Tech - Gas and Cog industry
 methane,gas for industry,Fuel Tech New - IIS GMX - Corex GMX or BFG TGR with CCS or BOF
+methane,Fuel Tech - Heat,Fuel Tech - Heat
 low-temperature heat,Fuel Tech - Heat,Fuel Tech 1 - Heat
-low-temperature heat,Fuel Tech - Heat,Fuel Tech - Heat
 low-temperature heat,Fuel Tech - Heat,industrial CHP
 naphtha,Diesel,Non-energy
 naphtha,Hard Coal,Non-energy
@@ -143,3 +144,5 @@ naphtha,Natural Gas,Non-energy
 naphtha,oil for industry,Fuel Tech - Heavy Fuel Oil
 naphtha,oil for industry,Fuel Tech - Light Fuel Oil
 hydrogen,hydrogen for industry,Imports
+ammonia,ammonia for industry,Fuel Tech - Ammonia
+methanol,methanol for industry,Fuel Tech - Methanol
