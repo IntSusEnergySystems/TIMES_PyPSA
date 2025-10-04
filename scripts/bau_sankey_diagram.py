@@ -546,6 +546,226 @@ def apply_commodity_grouping(df, commodity_to_group, groups_info, commodities_df
     return dfg
 
 
+def extract_pypsa_demands(annual_values_df, processes_df, commodities_mapping_df, start_year=2021, end_year=2050, apply_netting=True):
+    """
+    Extract aggregated PyPSA demands from TIMES data based on Aggregation Level 1 mapping
+    and PyPSA Energy Carrier mapping.
+    
+    Parameters:
+    -----------
+    annual_values_df : DataFrame
+        Annual values with columns: year, region, variable, commodity_code, commodity, process_code, process, value
+    processes_df : DataFrame
+        Process mapping with 'Aggregation Level 1' column
+    commodities_mapping_df : DataFrame
+        Commodity mapping with 'PyPSA Energy Carrier' column
+    start_year : int
+        First year to extract (filters years >= start_year)
+    end_year : int
+        Last year to extract (filters years <= end_year)
+    apply_netting : bool
+        If True, apply netting to remove internal transfers within aggregated process groups (recommended)
+        
+    Returns:
+    --------
+    None (saves CSV files)
+    """
+    print("\n--- Extracting PyPSA Demands ---")
+    if apply_netting:
+        print("Netting will be applied to remove internal transfers within aggregated processes.")
+    
+    # Build process to aggregation mapping
+    process_agg_map = {}
+    if 'Process' in processes_df.columns and 'Aggregation Level 1' in processes_df.columns:
+        for _, row in processes_df.iterrows():
+            proc = str(row['Process']).strip()
+            agg = str(row.get('Aggregation Level 1', '')).strip()
+            if agg and agg.lower() not in ['nan', '']:
+                process_agg_map[proc] = agg
+    
+    # Build commodity to PyPSA Energy Carrier mapping (for extraction, NOT clustering)
+    # Read directly from CSV to get the PyPSA Energy Carrier column (not Cluster)
+    commodity_pypsa_map = {}
+    mapping_file = "data/mapping_commodities.csv"
+    if os.path.exists(mapping_file):
+        raw_mapping = pd.read_csv(mapping_file, engine='python')
+        # Normalize column names
+        cols_map = {}
+        for c in raw_mapping.columns:
+            key = c.strip().lower().replace('\ufeff', '')
+            cols_map[c] = key
+        raw_mapping = raw_mapping.rename(columns=cols_map)
+        
+        # Use PyPSA Energy Carrier column (not Cluster)
+        if 'pypsa energy carrier' in raw_mapping.columns and 'times commodity' in raw_mapping.columns:
+            for _, row in raw_mapping.iterrows():
+                comm = str(row['times commodity']).strip()
+                pypsa = str(row.get('pypsa energy carrier', '')).strip()
+                if pypsa and pypsa.lower() not in ['nan', '']:
+                    commodity_pypsa_map[comm] = pypsa
+        else:
+            print("[WARNING] PyPSA Energy Carrier column not found in mapping file. Using Cluster column as fallback.")
+            # Fallback to the passed mapping_df (which uses Cluster)
+            if 'times' in commodities_mapping_df.columns and 'pypsa' in commodities_mapping_df.columns:
+                for _, row in commodities_mapping_df.iterrows():
+                    comm = str(row['times']).strip()
+                    pypsa = str(row.get('pypsa', '')).strip()
+                    if pypsa and pypsa.lower() not in ['nan', '']:
+                        commodity_pypsa_map[comm] = pypsa
+    
+    # Define category extraction rules
+    # Each rule specifies: (pypsa_category, var_type, filter_type, filter_values)
+    # var_type: 'VAR_FIN' or 'VAR_FOUT' or 'both'
+    # filter_type: 'process_agg' or 'commodity' or 'pypsa_carrier' or 'commodity_code'
+    # filter_values: list of values to match
+    
+
+    
+    extraction_rules = {
+        # Electricity categories (filtered by BOTH process AND pypsa_carrier)
+        'electricity residential': ('VAR_FIN', 'combined', [('process_agg', ['residential other']), ('pypsa_carrier', ['Electricity', 'electricity for residential'])]),
+        'electricity residential space': ('VAR_FIN', 'combined', [('process_agg', ['residential space heating']), ('pypsa_carrier', ['Electricity', 'electricity for residential'])]),
+        'electricity residential water': ('VAR_FIN', 'combined', [('process_agg', ['residential hot water']), ('pypsa_carrier', ['Electricity', 'electricity for residential'])]),
+        'electricity services': ('VAR_FIN', 'combined', [('process_agg', ['commercial other']), ('pypsa_carrier', ['Electricity'])]),
+        'electricity services space': ('VAR_FIN', 'combined', [('process_agg', ['commercial space heating']), ('pypsa_carrier', ['Electricity'])]),
+        'electricity services water': ('VAR_FIN', 'combined', [('process_agg', ['commercial hot water']), ('pypsa_carrier', ['Electricity'])]),
+        'electricity road': ('VAR_FIN', 'combined', [('process_agg', ['Cars', 'Road Freight', '2 and 3 wheelers', 'Road transport (public)']), ('pypsa_carrier', ['Electricity'])]),
+        'electricity rail': ('VAR_FIN', 'combined', [('process_agg', ['rail transport']), ('pypsa_carrier', ['Electricity'])]),
+        
+        # Energy carriers for industry (filtered by BOTH process AND pypsa_carrier)
+        'electricity': ('VAR_FIN', 'combined', [('process_agg', ['Industry']), ('pypsa_carrier', ['Electricity'])]),
+        'ammonia': ('VAR_FIN', 'combined', [('process_agg', ['Industry']), ('pypsa_carrier', ['ammonia'])]),
+        'coal': ('VAR_FIN', 'combined', [('process_agg', ['Industry']), ('pypsa_carrier', ['coal for industry'])]),
+        'coke': ('VAR_FIN', 'combined', [('process_agg', ['Industry']), ('pypsa_carrier', ['Coke'])]),
+        'hydrogen': ('VAR_FIN', 'combined', [('process_agg', ['Industry']), ('pypsa_carrier', ['hydrogen for industry'])]),
+        'low-temperature heat': ('VAR_FIN', 'combined', [('process_agg', ['Industry']), ('pypsa_carrier', ['Heat for industry', 'Geothermal (IND)'])]),
+        'methane': ('VAR_FIN', 'combined', [('process_agg', ['Industry']), ('pypsa_carrier', ['Natural Gas', 'Network gas', 'gas for industry', 'High Temperature Heat for IND'])]),
+        'methanol': ('VAR_FIN', 'combined', [('process_agg', ['Industry']), ('pypsa_carrier', ['methanol'])]),
+        'naphtha': ('VAR_FIN', 'combined', [('process_agg', ['Industry']), ('pypsa_carrier', ['naphtha'])]),
+        'solid biomass': ('VAR_FIN', 'combined', [('process_agg', ['Industry']), ('pypsa_carrier', ['solid biomass for industry',
+                                                          'Wood pellets for Industry'])]),
+        
+        # Agriculture (note: these need to be refined based on specific commodity filters)
+        'total agriculture': ('VAR_FIN', 'process_agg', ['Agriculture']),
+        'total agriculture electricity': ('VAR_FIN', 'combined', [('process_agg', ['Agriculture']), ('pypsa_carrier', ['Electricity for agriculture'])]),
+        'total agriculture heat': ('VAR_FIN', 'combined', [('process_agg', ['Agriculture']), ('pypsa_carrier', ['Heat for agriculture', 'Network gas for agriculture'])]),
+        'total agriculture machinery': ('VAR_FIN', 'combined', [('process_agg', ['Agriculture']), ('pypsa_carrier', ['Oil for agriculture', 'Biodiesel for agriculture', 'Fuel Tech – Diesel'])]),
+        
+        # Transport (commodity-based for aviation, navigation)
+        'total domestic aviation': ('VAR_FOUT', 'process_agg', ['domestic aviation']),
+        'total international aviation': ('VAR_FOUT', 'process_agg', ['international aviation']),
+        'total domestic navigation': ('VAR_FOUT', 'process_agg', ['domestic navigation']),
+        'total international navigation': ('VAR_FOUT', 'process_agg', ['international navigation']),
+        'total road': ('VAR_FIN', 'process_agg', ['Cars', 'Road Freight', '2 and 3 wheelers', 'Road transport (public)']),
+        'total rail': ('VAR_FIN', 'process_agg', ['rail transport']),
+        'hydrogen road': ('VAR_FIN', 'combined', [('process_agg', ['Cars', 'Road Freight', '2 and 3 wheelers', 'Road transport (public)']), ('pypsa_carrier', ['Hydrogen for transport'])]),
+
+        
+        # Residential and services totals
+        'total residential': ('VAR_FIN', 'process_agg', ['residential space heating', 'residential hot water', 'residential other', 'residential cooking']),
+        'total residential space': ('VAR_FIN', 'process_agg', ['residential space heating']),
+        'total residential water': ('VAR_FIN', 'process_agg', ['residential hot water']),
+        'total services': ('VAR_FIN', 'process_agg', ['commercial space heating', 'commercial hot water', 'commercial other', 'commercial cooking']),
+        'total services space': ('VAR_FIN', 'process_agg', ['commercial space heating']),
+        'total services water': ('VAR_FIN', 'process_agg', ['commercial hot water']),
+    }
+    
+    # Process each year - use all available years in the data
+    available_years = sorted(annual_values_df['year'].unique())
+    years = [y for y in available_years if start_year <= y <= end_year]
+    
+    print(f"Available years in data: {years}")
+    
+    for year in years:
+        print(f"Processing year {year}...")
+        
+        # Filter data for this year and VAR_FIN/VAR_FOUT only
+        year_df = annual_values_df[
+            (annual_values_df['year'] == year) & 
+            (annual_values_df['variable'].str.upper().isin(['VAR_FIN', 'VAR_FOUT']))
+        ].copy()
+        
+        if year_df.empty:
+            print(f"  Warning: No data for year {year}")
+            continue
+        
+        # Add aggregation level and pypsa carrier columns
+        year_df['agg_level_1'] = year_df['process_code'].map(process_agg_map)
+        year_df['pypsa_carrier'] = year_df['commodity_code'].map(commodity_pypsa_map)
+        
+        # Extract values for each category
+        results = []
+        
+        for category, (var_type, filter_type, filter_values) in extraction_rules.items():
+            # Start with all flow types (don't filter by variable yet if netting is enabled)
+            # Netting requires both VAR_FIN and VAR_FOUT to compute net flows correctly
+            if apply_netting:
+                filtered_df = year_df.copy()
+            else:
+                # If no netting, filter by variable type immediately
+                if var_type == 'both':
+                    filtered_df = year_df.copy()
+                else:
+                    filtered_df = year_df[year_df['variable'].str.upper() == var_type].copy()
+            
+            # Apply category filter
+            if filter_type == 'process_agg':
+                filtered_df = filtered_df[filtered_df['agg_level_1'].isin(filter_values)]
+            elif filter_type == 'pypsa_carrier':
+                filtered_df = filtered_df[filtered_df['pypsa_carrier'].isin(filter_values)]
+            elif filter_type == 'commodity':
+                filtered_df = filtered_df[filtered_df['commodity'].isin(filter_values)]
+            elif filter_type == 'commodity_code':
+                filtered_df = filtered_df[filtered_df['commodity_code'].isin(filter_values)]
+            elif filter_type == 'combined':
+                # Apply multiple filters with AND logic
+                for sub_filter_type, sub_filter_values in filter_values:
+                    if sub_filter_type == 'process_agg':
+                        filtered_df = filtered_df[filtered_df['agg_level_1'].isin(sub_filter_values)]
+                    elif sub_filter_type == 'pypsa_carrier':
+                        filtered_df = filtered_df[filtered_df['pypsa_carrier'].isin(sub_filter_values)]
+                    elif sub_filter_type == 'commodity':
+                        filtered_df = filtered_df[filtered_df['commodity'].isin(sub_filter_values)]
+                    elif sub_filter_type == 'commodity_code':
+                        filtered_df = filtered_df[filtered_df['commodity_code'].isin(sub_filter_values)]
+            
+            # Apply netting if enabled to remove internal transfers within aggregated process groups
+            if apply_netting and not filtered_df.empty:
+                # Replace process_code with agg_level_1 for aggregation
+                netted_df = filtered_df.copy()
+                netted_df['process_code_orig'] = netted_df['process_code']
+                netted_df['process_code'] = netted_df['agg_level_1']
+                
+                # Apply the netting function (similar to Sankey)
+                netted_df = net_bidirectional_links(netted_df)
+                
+                # For demand extraction, we only want inflows (VAR_FIN), so filter
+                if var_type == 'VAR_FIN':
+                    netted_df = netted_df[netted_df['variable'].str.upper() == 'VAR_FIN']
+                elif var_type == 'VAR_FOUT':
+                    netted_df = netted_df[netted_df['variable'].str.upper() == 'VAR_FOUT']
+                
+                filtered_df = netted_df
+            
+            # Sum the values and convert PJ to TWh (1 PJ = 0.277778 TWh)
+            total_pj = filtered_df['value'].sum()
+            total_twh = total_pj * 0.277778
+            
+            results.append({
+                'category': category,
+                'TWh': total_twh,
+                'PJ': total_pj
+            })
+        
+        # Save to CSV
+        results_df = pd.DataFrame(results)
+        output_file = f"output/pypsa_demands_{year}.csv"
+        results_df.to_csv(output_file, index=False)
+        print(f"  Saved {output_file}")
+    
+    print("PyPSA demand extraction complete.\n")
+
+
 def build_sankey(df, output_html_file, year, flow_threshold=0.0, selected_year='', process_unit_map=None):
     """
     Build and save a Sankey diagram from filtered annual flows.
@@ -663,22 +883,26 @@ def main():
         enable_process_clustering = True
         # Set to False to keep all commodity codes (no grouping)
         group_commodities = True
-        # Max share of total final energy for the 'Others' buckets (0.10 = 10%)
-        max_cluster_pct = 0.1
         # Column in mapping_processes.csv used for process aggregation
         process_cluster_column = "PyPSA technology"
+        process_cluster_column = "Aggregation Level 1"
     else:
         # Set to False to build unclustered Sankey
         enable_process_clustering = False
         # Set to False to keep all commodity codes (no grouping)
         group_commodities = False
-        # Max share of total final energy for the 'Others' buckets (0.10 = 10%)
-        max_cluster_pct = 0  
         process_cluster_column = None
+        netting = False
+
+    # Netting is only applicable to Aggregation Level 1
+    if process_cluster_column == "Aggregation Level 1":
+        netting = True
+    else:
+        netting = False
 
     # --- Configuration ---
     vd_file = "data/bau_080925_0809.vd"
-    selected_year = 2021
+    selected_year = 2030
     # commodities_file removed in favor of mapping-based metadata
     # processes_file removed in favor of mapping-based metadata
     output_csv_file = f"output/annual_values{'_clustered' if cluster else ''}.csv"
@@ -765,6 +989,16 @@ def main():
     annual_values_df.to_csv(output_csv_file, index=False)
     print("Done.")
 
+    # --- Extract PyPSA demands ---
+    extract_pypsa_demands(
+        annual_values_df,
+        processes_df,
+        mapping_df,
+        start_year=2021,
+        end_year=2050,
+        apply_netting=True  # Apply netting to remove internal transfers within aggregated processes
+    )
+
     # --- Filter for Sankey (year=2021, VAR_F*, energy commodities) ---
     print("\n--- Filtering for Sankey Diagram ---")
     filtered_df, energy_codes = filter_for_sankey(
@@ -836,20 +1070,30 @@ def main():
     both_io, only_in, only_out = analyze_process_connectivity(filtered_df)
 
     # --- Option: process clustering toggle ---
+    sankey_df = None
+    final_unit_map = process_unit_map
+
     if not enable_process_clustering:
-        print("Process clustering disabled. Building unclustered Sankey.")
-        # Represent all flows without netting
-        _ = build_sankey(filtered_df, output_html_file, year=selected_year, flow_threshold=0.0, selected_year=selected_year, process_unit_map=process_unit_map)
+        print("Process clustering disabled. Using unclustered data for Sankey.")
+        sankey_df = filtered_df
     else:
         # --- Apply mapping-based process clustering (no other clustering) ---
+        print(f"Applying process clustering using column: '{process_cluster_column}'")
         clustered_df, aggregated_unit_map = apply_mapping_based_process_clustering(
             filtered_df, processes_df, agg_column_name=process_cluster_column, process_unit_col=process_unit_col
         )
         # Merge unit maps: prefer aggregated units for aggregated codes, fall back to original map
-        combined_unit_map = {**(process_unit_map or {}), **(aggregated_unit_map or {})}
+        final_unit_map = {**(process_unit_map or {}), **(aggregated_unit_map or {})}
+        sankey_df = clustered_df
 
-        # --- Build Sankey ---
-        _ = build_sankey(clustered_df, output_html_file, year=selected_year, flow_threshold=0.0, selected_year=selected_year, process_unit_map=combined_unit_map)
+    # --- Netting option ---
+    if netting:
+        print("Applying netting to bidirectional links...")
+        sankey_df = net_bidirectional_links(sankey_df)
+
+    # --- Build Sankey ---
+    _ = build_sankey(sankey_df, output_html_file, year=selected_year, flow_threshold=0.0, selected_year=selected_year, process_unit_map=final_unit_map)
+
 
 if __name__ == "__main__":
     main()

@@ -1,11 +1,11 @@
 TIMES commodity,Description,Unit,Sector,Type,Cluster,PyPSA Energy Carrier,Upstream commodity,Upstream process,Comment
-ELCHIG,Electricity - High Voltage WITHOUT grid costs,PJ,ELC,,Electricity - High Voltage WITHOUT grid costs,Electricity - High Voltage WITHOUT grid costs,nan,nan,Produced by the public power station or imports
-ELCHIGG,High Voltage Electricity,PJ,ELC,,High Voltage Electricity,High Voltage Electricity,nan,nan,High voltage electricity
+ELCHIG,Electricity - High Voltage WITHOUT grid costs,PJ,ELC,,Electricity - High Voltage WITHOUT grid costs,Electricity ,nan,nan,Produced by the public power station or imports
+ELCHIGG,High Voltage Electricity,PJ,ELC,,High Voltage Electricity,Electricity ,nan,nan,High voltage electricity
 ELCMED,Medium Voltage Electricity,PJ,ELC,,Medium Voltage Electricity,Medium Voltage Electricity,nan,nan,Medium voltage electricity
 ELCLOW,Low Voltage Electricity,PJ,ELC,,Low Voltage Electricity,Low Voltage Electricity,nan,nan,low voltage electricity
-RSDELC,Electricity for Residential sector,PJ,RSD,,Electricity for Residential sector,Electricity for Residential sector,ELCLOW,RSDELC00,nan
-INDELC,Electricity for industy,PJ,IND,,Electricity for industy,Electricity for industy,ELCHIGG,INDELC00,nan
-COMELC,Electricity for Commercial sector,PJ,COM,,Electricity for Commercial sector,Electricity for Commercial sector,ELCMED,COMELC00,nan
+RSDELC,Electricity for Residential sector,PJ,RSD,,Electricity for Residential sector,Electricity ,ELCLOW,RSDELC00,nan
+INDELC,Electricity for industy,PJ,IND,,Electricity for industy,Electricity ,ELCHIGG,INDELC00,nan
+COMELC,Electricity for Commercial sector,PJ,COM,,Electricity for Commercial sector,Electricity ,ELCMED,COMELC00,nan
 TRAELC,Electricity for transport,PJ,TRA,,total energy for transport,total energy for transport,ELCLOW,TRAELC00,nan
 ELCNUC,Nuclear for Electricity sector,PJ,ELC,,Nuclear for Electricity sector,Nuclear for Electricity sector,nan,nan,nan
 RSDOIL,Diesel Oil for the residential sector,PJ,RSD,,Diesel Oil for the residential sector,Diesel Oil for the residential sector,nan,nan,nan
@@ -78,7 +78,7 @@ COMBDL,Biodiesel for Commercial sector,PJ,COM,,Biodiesel for Commercial sector,B
 COMSOL,Commercial: Solar,PJ,COM,,Commercial: Solar,Commercial: Solar,nan,nan,nan
 BIOLOG,Wood Logs,PJ,SUP,,Wood Logs,Wood Logs,nan,nan,nan
 SYNH2CU,Centralized hydrogen (Underground storage),PJ,SUP,,Centralized hydrogen (Underground storage),Centralized hydrogen (Underground storage),nan,nan,nan
-SUPELC,Electricity (SUP),PJ,SUP,,Electricity (SUP),Electricity (SUP),nan,nan,nan
+SUPELC,Electricity (SUP),PJ,SUP,,Electricity (SUP),Electricity ,nan,nan,nan
 RENWIN,Renewable: Wind,PJ,SUP,,Renewable: Wind,Renewable: Wind,nan,nan,nan
 AGRBDL,Biodiesel for agriculture,PJ,AGR,,Biodiesel for agriculture,Biodiesel for agriculture,nan,nan,nan
 RSDSOL,Residential: Solar,PJ,RSD,,Residential: Solar,Residential: Solar,nan,nan,nan
@@ -124,11 +124,11 @@ RWN4F,hot water for 4F houses,PJ,RSD,,hot water for residential,hot water for re
 RHDJ3F_2021,space heating for 3F houses (2021),PJ,RSD,,space heating for residential,space heating for residential,nan,nan,nan
 RHN3F,space heating for 3f houses,PJ,RSD,,space heating for residential,space heating for residential,nan,nan,nan
 RWN2F,hot water for 2F houses,PJ,RSD,,hot water for residential,hot water for residential,nan,nan,nan
-RCDR,Rsd.Cloth Drying.Existing,PJ,RSD,,electricity for residential,electricity for residential,nan,nan,nan
-RCOK,Rsd.Cooking.Existing,PJ,RSD,,electricity for residential,electricity for residential,nan,nan,nan
-RCWA,Rsd.Cloth Washing.Existing,PJ,RSD,,electricity for residential,electricity for residential,nan,nan,nan
-RDWA,Rsd.Dish Washing.Existing,PJ,RSD,,electricity for residential,electricity for residential,nan,nan,nan
-RLIG,Rsd.Lighting.Existing.,PJ,RSD,,electricity for residential,electricity for residential,nan,nan,nan
+RCDR,Rsd.Cloth Drying.Existing,PJ,RSD,,electricity for residential,Electricity ,nan,nan,nan
+RCOK,Rsd.Cooking.Existing,PJ,RSD,,electricity for residential,Electricity ,nan,nan,nan
+RCWA,Rsd.Cloth Washing.Existing,PJ,RSD,,electricity for residential,Electricity ,nan,nan,nan
+RDWA,Rsd.Dish Washing.Existing,PJ,RSD,,electricity for residential,Electricity ,nan,nan,nan
+RLIG,Rsd.Lighting.Existing.,PJ,RSD,,electricity for residential,Electricity ,nan,nan,nan
 RREF,Rsd.Refrigeration.Existing.,PJ,RSD,,electricity for residential,electricity for residential,nan,nan,nan
 ROEN,Rsd.Other Energy.Existing.,PJ,RSD,,electricity for residential,electricity for residential,nan,nan,nan
 ROEL,Rsd.Other Electric.Existing.,PJ,RSD,,electricity for residential,electricity for residential,nan,nan,nan
@@ -247,3 +247,4 @@ NREWST,Waste Non-Renewable,PJ,SUP,NRG,Waste Non-Renewable,Waste Non-Renewable,,,
 IPPHTH,High Temperature Heat for IPH and IPL (IND),PJ,IND,NRG,High Temperature Heat for IND,High Temperature Heat for IPH and IPL (IND),,,auto-added from AllCommodities.csv
 IOIPRC,Other Industries.Process Heat.,PJ,IND,NRG,Process heat,Other Industries.Process Heat.,,,auto-added from AllCommodities.csv
 IPOHTH,High Temperature Heat for IPO (IND),PJ,IND,NRG,High Temperature Heat for IND,High Temperature Heat for IPO (IND),,,auto-added from AllCommodities.csv
+OILNAP,Naphtha,PJ,IND,NRG,naphtha,naphtha,,,Added for industry sector
