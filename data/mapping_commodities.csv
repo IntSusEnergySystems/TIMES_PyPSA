@@ -6,7 +6,7 @@ ELCLOW,Low Voltage Electricity,PJ,ELC,,Low Voltage Electricity,Low Voltage Elect
 RSDELC,Electricity for Residential sector,PJ,RSD,,Electricity for Residential sector,Electricity ,ELCLOW,RSDELC00,nan
 INDELC,Electricity for industy,PJ,IND,,Electricity for industy,Electricity ,ELCHIGG,INDELC00,nan
 COMELC,Electricity for Commercial sector,PJ,COM,,Electricity for Commercial sector,Electricity ,ELCMED,COMELC00,nan
-TRAELC,Electricity for transport,PJ,TRA,,total energy for transport,total energy for transport,ELCLOW,TRAELC00,nan
+TRAELC,Electricity for transport,PJ,TRA,,total energy for transport,Electricity,ELCLOW,TRAELC00,nan
 ELCNUC,Nuclear for Electricity sector,PJ,ELC,,Nuclear for Electricity sector,Nuclear for Electricity sector,nan,nan,nan
 RSDOIL,Diesel Oil for the residential sector,PJ,RSD,,Diesel Oil for the residential sector,Diesel Oil for the residential sector,nan,nan,nan
 INDLFO,Fuel Tech - Light Fuel Oil,PJ,IND,,oil for industry,oil for industry,nan,nan,light fuel oil
@@ -25,7 +25,7 @@ RSDCOA,Coal for residential sector,PJ,RSD,,Coal for residential sector,Coal for 
 COMCOA,Coal for commertial sector,PJ,COM,,Coal for commertial sector,Coal for commertial sector,nan,nan,nan
 INDCOL,Lignite for industry,PJ,IND,,coal for industry,coal for industry,nan,nan,nan
 ELCCOL,Lignite for electricity sector,PJ,ELC,,Lignite for electricity sector,Lignite for electricity sector,nan,nan,nan
-INDCOK,Coke for industry,PJ,IND,,coal for industry,coal for industry,nan,nan,Coke  in cement and lime industry
+INDCOK,Coke for industry,PJ,IND,,Coke for industry,Coke for industry,nan,nan,Coke  in cement and lime industry
 ELCGAS,Natural Gas for Electricity,PJ,ELC,,Natural Gas for Electricity,Natural Gas for Electricity,GASNAT,nan,nan
 INDGAS,Natural Gas for Industry,PJ,IND,,gas for industry,gas for industry,GASNAT,nan,nan
 INDGMX,Network gas for industry,PJ,IND,,gas for industry,gas for industry,BIOGZH,SUPGMX00,Injected biomethane (after upgrading/concentration) + imported biomethane
@@ -133,7 +133,7 @@ RREF,Rsd.Refrigeration.Existing.,PJ,RSD,,electricity for residential,electricity
 ROEN,Rsd.Other Energy.Existing.,PJ,RSD,,electricity for residential,electricity for residential,nan,nan,nan
 ROEL,Rsd.Other Electric.Existing.,PJ,RSD,,electricity for residential,electricity for residential,nan,nan,nan
 TRALPG,Fuel Tech - Liquified Petroleum Gas,PJ,TRA,,total energy for transport,total energy for transport,nan,nan,nan
-TNDF,Navigation Domestic Freight Tech Existing,PJ,TRA,,total energy for transport,total energy for transport,nan,nan,nan
+TNDF,Navigation Domestic Freight Tech Existing,PJ,TRA,,domestic navigation,domestic navigation,nan,nan,nan
 AGRCPS,Wood for agriculture,PJ,AGR,,Wood for agriculture,Wood for agriculture,nan,nan,nan
 CHBA,Space heating for commercial sector,PJ,COM,,Space heating for commercial sector,Space heating for commercial sector,nan,nan,nan
 CHBP,Space heating for commercial sector,PJ,COM,,Space heating for commercial sector,Space heating for commercial sector,nan,nan,nan
@@ -187,7 +187,7 @@ IOIHTH,Other Industries.Steam.,PJ,IND,NRG,Steam for industry,Other Industries.St
 DJ2F,Energy correction based on degree days,PJ,RSD,DEM,Energy correction based on degree days,DJ2F,,,auto-added from AllCommodities.csv
 INMMCH,Other Non Metallic Minerals.Machine Drive.,PJ,IND,NRG,Machine drive energy for industry,Other Non Metallic Minerals.Machine Drive.,,,auto-added from AllCommodities.csv
 INM,Other Non Metallic Minerals Demand,PJ,IND,DEM,Other Non Metallic Minerals Demand,Other Non Metallic Minerals Demand,,,auto-added from AllCommodities.csv
-TAIP,Aviation International Passengers,PJ,TRA,DEM,Fuel for aviation,Fuel for aviation,,,auto-added from AllCommodities.csv
+TAIP,Aviation International Passengers,PJ,TRA,DEM,Fuel for aviation,international aviation,,,auto-added from AllCommodities.csv
 INMELE,Other Non Metallic Minerals.Electro-Chemicals.,PJ,IND,NRG,Other energy for industry,Other Non Metallic Minerals.Electro-Chemicals.,,,auto-added from AllCommodities.csv
 DJ3F,Energy correction based on degree days,PJ,RSD,DEM,Energy correction based on degree days,DJ3F,,,auto-added from AllCommodities.csv
 INFELE,Other Non Ferrous Metals.Electro-Chemicals.,PJ,IND,NRG,Other energy for industry,Other Non Ferrous Metals.Electro-Chemicals.,,,auto-added from AllCommodities.csv
@@ -196,7 +196,7 @@ IOFFRO,Other Food.Other Processes.,PJ,IND,NRG,Other energy for industry,Other Fo
 IOFMCH,Other Food.Machine Drive.,PJ,IND,NRG,Machine drive energy for industry,Other Food.Machine Drive.,,,auto-added from AllCommodities.csv
 RSDGEO,Geothermal (RSD),PJ,RSD,NRG,Geothermal (RSD),Geothermal (RSD),,,auto-added from AllCommodities.csv
 IOIOTH,Other Industries.Other Processes.,PJ,IND,NRG,Other energy for industry,Other Industries.Other Processes.,,,auto-added from AllCommodities.csv
-TADF,Aviation Domestic Freight,PJ,TRA,DEM,Fuel for aviation,Fuel for aviation,,,auto-added from AllCommodities.csv
+TADF,Aviation Domestic Freight,PJ,TRA,DEM,Fuel for aviation,domestic aviation,,,auto-added from AllCommodities.csv
 INDHTH,High Temperature Heat for IND,PJ,IND,NRG,High Temperature Heat for IND,High Temperature Heat for IND,,,auto-added from AllCommodities.csv
 IOIELE,Other Industries.Electro-Chemicals.,PJ,IND,NRG,Other energy for industry,Other Industries.Electro-Chemicals.,,,auto-added from AllCommodities.csv
 INDGEO,Geothermal (IND),PJ,IND,NRG,Geothermal (IND),Geothermal (IND),,,auto-added from AllCommodities.csv
@@ -214,7 +214,7 @@ CREF,Commercial Refrigeration Existing,PJ,COM,DEM,Electricity for existing comme
 INF,Other Non Ferrous Metals Demand,PJ,IND,DEM,Other Non Ferrous Metals Demand,Other Non Ferrous Metals Demand,,,auto-added from AllCommodities.csv
 INFHTH,High Temperature Heat for INF (IND),PJ,IND,NRG,High Temperature Heat for IND,High Temperature Heat for INF (IND),,,auto-added from AllCommodities.csv
 IOIMCH,Other Industries.Machine Drive.,PJ,IND,NRG,Machine drive energy for industry,Other Industries.Machine Drive.,,,auto-added from AllCommodities.csv
-TADP,Aviation Domestic Passengers,PJ,TRA,DEM,Fuel for aviation,Fuel for aviation,,,auto-added from AllCommodities.csv
+TADP,Aviation Domestic Passengers,PJ,TRA,DEM,Fuel for aviation,domestic aviation,,,auto-added from AllCommodities.csv
 IOI,Other Industries,PJ,IND,DEM,Other Industries,Other Industries,,,auto-added from AllCommodities.csv
 ILMPRC,Lime.Process Heat.,PJ,IND,NRG,Process heat,Lime.Process Heat.,,,auto-added from AllCommodities.csv
 CCSA,Commercial space cooling Santé Existing,PJ,COM,NRG,Electricity for existing commercial appliances,Commercial space cooling Santé Existing,,,auto-added from AllCommodities.csv
@@ -230,8 +230,8 @@ IOFOTH,Other Food.Cold Processes.,PJ,IND,NRG,Other energy for industry,Other Foo
 DJAP,Energy correction based on degree days,PJ,RSD,DEM,Energy correction based on degree days,DJAP,,,auto-added from AllCommodities.csv
 IOF,Other food demand,PJ,IND,DEM,Other food demand,Other food demand,,,auto-added from AllCommodities.csv
 RENGEO,Geothermal,PJ,SUP,NRG,Geothermal,Geothermal,,,auto-added from AllCommodities.csv
-TAIF,Aviation International Freight,PJ,TRA,DEM,Fuel for aviation,Fuel for aviation,,,auto-added from AllCommodities.csv
-NEO,Non Energy Consumption - Others,PJ,IND,DEM,Non Energy Consumption - Others,Non Energy Consumption - Others,,,auto-added from AllCommodities.csv
+TAIF,Aviation International Freight,PJ,TRA,DEM,Fuel for aviation,international aviation,,,auto-added from AllCommodities.csv
+NEO,Non Energy Consumption - Others,PJ,IND,DEM,Non Energy Consumption - Others,naphtha,,,auto-added from AllCommodities.csv
 COMGEO,Geothermal (COM),PJ,COM,NRG,Geothermal (COM),Geothermal (COM),,,auto-added from AllCommodities.csv
 IOFHTH,Other Food.Steam.,PJ,IND,NRG,Steam for industry,Other Food.Steam.,,,auto-added from AllCommodities.csv
 IMLHTH,High Temperature Heat for IML (IND),PJ,IND,NRG,High Temperature Heat for IND,High Temperature Heat for IML (IND),,,auto-added from AllCommodities.csv
@@ -240,7 +240,7 @@ IOFELE,Other Food.Electro-Chemicals.,PJ,IND,NRG,Other energy for industry,Other 
 INMOTH,Other Non Metallic Minerals.Other Processes.,PJ,IND,NRG,Other energy for industry,Other Non Metallic Minerals.Other Processes.,,,auto-added from AllCommodities.csv
 COMCPS,Chips wood (COM),PJ,COM,NRG,Chips wood (COM),Chips wood (COM),,,auto-added from AllCommodities.csv
 INDSOL,Solar (IND),PJ,IND,NRG,Solar (IND),Solar (IND),,,auto-added from AllCommodities.csv
-NEC,Non Energy Consumption - Chemicals,PJ,IND,DEM,Non Energy Consumption - Chemicals,Non Energy Consumption - Chemicals,,,auto-added from AllCommodities.csv
+NEC,Non Energy Consumption - Chemicals,PJ,IND,DEM,Non Energy Consumption - Chemicals,naphtha,,,auto-added from AllCommodities.csv
 BIOSLU,Sludges Renewable,PJ,SUP,NRG,Sludges Renewable,Sludges Renewable,,,auto-added from AllCommodities.csv
 IBOHTH,High Temperature Heat for IBO (IND),PJ,IND,NRG,High Temperature Heat for IND,High Temperature Heat for IBO (IND),,,auto-added from AllCommodities.csv
 NREWST,Waste Non-Renewable,PJ,SUP,NRG,Waste Non-Renewable,Waste Non-Renewable,,,auto-added from AllCommodities.csv

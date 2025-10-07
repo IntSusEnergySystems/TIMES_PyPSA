@@ -629,19 +629,19 @@ def extract_pypsa_demands(annual_values_df, processes_df, commodities_mapping_df
         'electricity services': ('VAR_FIN', 'combined', [('process_agg', ['commercial other']), ('pypsa_carrier', ['Electricity'])]),
         'electricity services space': ('VAR_FIN', 'combined', [('process_agg', ['commercial space heating']), ('pypsa_carrier', ['Electricity'])]),
         'electricity services water': ('VAR_FIN', 'combined', [('process_agg', ['commercial hot water']), ('pypsa_carrier', ['Electricity'])]),
-        'electricity road': ('VAR_FIN', 'combined', [('process_agg', ['Cars', 'Road Freight', '2 and 3 wheelers', 'Road transport (public)']), ('pypsa_carrier', ['Electricity'])]),
+        'electricity road': ('VAR_FIN', 'combined', [('process_agg', ['EV charger']), ('pypsa_carrier', ['Electricity'])]),
         'electricity rail': ('VAR_FIN', 'combined', [('process_agg', ['rail transport']), ('pypsa_carrier', ['Electricity'])]),
         
         # Energy carriers for industry (filtered by BOTH process AND pypsa_carrier)
         'electricity': ('VAR_FIN', 'combined', [('process_agg', ['Industry']), ('pypsa_carrier', ['Electricity'])]),
         'ammonia': ('VAR_FIN', 'combined', [('process_agg', ['Industry']), ('pypsa_carrier', ['ammonia'])]),
         'coal': ('VAR_FIN', 'combined', [('process_agg', ['Industry']), ('pypsa_carrier', ['coal for industry'])]),
-        'coke': ('VAR_FIN', 'combined', [('process_agg', ['Industry']), ('pypsa_carrier', ['Coke'])]),
-        'hydrogen': ('VAR_FIN', 'combined', [('process_agg', ['Industry']), ('pypsa_carrier', ['hydrogen for industry'])]),
+        'coke': ('VAR_FIN', 'combined', [('process_agg', ['Industry']), ('pypsa_carrier', ['Coke for industry'])]),
+        'hydrogen': ('VAR_FOut', 'combined', [('process_agg', ['Imports']), ('pypsa_carrier', ['hydrogen for industry'])]),
         'low-temperature heat': ('VAR_FIN', 'combined', [('process_agg', ['Industry']), ('pypsa_carrier', ['Heat for industry', 'Geothermal (IND)'])]),
         'methane': ('VAR_FIN', 'combined', [('process_agg', ['Industry']), ('pypsa_carrier', ['Natural Gas', 'Network gas', 'gas for industry', 'High Temperature Heat for IND'])]),
         'methanol': ('VAR_FIN', 'combined', [('process_agg', ['Industry']), ('pypsa_carrier', ['methanol'])]),
-        'naphtha': ('VAR_FIN', 'combined', [('process_agg', ['Industry']), ('pypsa_carrier', ['naphtha'])]),
+        'naphtha': ('VAR_FOut', 'combined', [('process_agg', ['Non-energy']), ('pypsa_carrier', ['naphtha','oil for industry'])]),
         'solid biomass': ('VAR_FIN', 'combined', [('process_agg', ['Industry']), ('pypsa_carrier', ['solid biomass for industry',
                                                           'Wood pellets for Industry'])]),
         
@@ -652,13 +652,13 @@ def extract_pypsa_demands(annual_values_df, processes_df, commodities_mapping_df
         'total agriculture machinery': ('VAR_FIN', 'combined', [('process_agg', ['Agriculture']), ('pypsa_carrier', ['Oil for agriculture', 'Biodiesel for agriculture', 'Fuel Tech – Diesel'])]),
         
         # Transport (commodity-based for aviation, navigation)
-        'total domestic aviation': ('VAR_FOUT', 'process_agg', ['domestic aviation']),
-        'total international aviation': ('VAR_FOUT', 'process_agg', ['international aviation']),
-        'total domestic navigation': ('VAR_FOUT', 'process_agg', ['domestic navigation']),
+        'total domestic aviation': ('VAR_FOUT','combined', [('process_agg', ['international aviation']),('pypsa_carrier', ['domestic aviation'])]),
+        'total international aviation': ('VAR_FOUT', 'combined', [('process_agg', ['international aviation']),('pypsa_carrier', ['international aviation'])]),
+        'total domestic navigation': ('VAR_FOUT', 'combined', [('process_agg', ['domestic navigation']),('pypsa_carrier', ['domestic navigation'])]),
         'total international navigation': ('VAR_FOUT', 'process_agg', ['international navigation']),
         'total road': ('VAR_FIN', 'process_agg', ['Cars', 'Road Freight', '2 and 3 wheelers', 'Road transport (public)']),
         'total rail': ('VAR_FIN', 'process_agg', ['rail transport']),
-        'hydrogen road': ('VAR_FIN', 'combined', [('process_agg', ['Cars', 'Road Freight', '2 and 3 wheelers', 'Road transport (public)']), ('pypsa_carrier', ['Hydrogen for transport'])]),
+        'hydrogen road': ('VAR_FIN', 'combined', [('process_agg', ['Cars', 'Road Freight', '2 and 3 wheelers', 'Road transport (public)']), ('pypsa_carrier', ['H2 for transport'])]),
 
         
         # Residential and services totals
@@ -778,7 +778,6 @@ def build_sankey(df, output_html_file, year, flow_threshold=0.0, selected_year='
         return None
 
     df = df.copy()
-    df.to_csv(f"output/annual_values_{selected_year}.csv")
     var_upper = df['variable'].str.upper()
     # Direction based on variable type. Ensure nuclear fuel (e.g., ELCNUC, NUCRSV)
     # feeds into nuclear generation processes rather than electricity into ENUC.
