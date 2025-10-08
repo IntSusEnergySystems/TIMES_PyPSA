@@ -58,22 +58,22 @@ TRABDL,Biodiesel for transport,PJ,TRA,,Fuel Tech – Diesel,Fuel Tech – Diesel
 OILKER,Kerosenes - Jet Fuels,PJ,SUP,,Kerosenes - Jet Fuels,Kerosenes - Jet Fuels,nan,nan,nan
 BIORME,Biodiesel rapeseed methyl ester (RME),PJ,SUP,,Biodiesel rapeseed methyl ester (RME),Biodiesel rapeseed methyl ester (RME),nan,nan,nan
 BIOPEL,Biomass: Pellets (separated from wood),PJ,IND,,Biomass: Pellets (separated from wood),Biomass: Pellets (separated from wood),nan,nan,nan
-RW3F,hot water for 3F houses,PJ,RSD,,hot water for residential,hot water for residential,nan,nan,nan
+RW3F,hot water for 3F houses,PJ,RSD,,BEWAL residential urban decentral heat,hot water for residential,nan,nan,nan
 RSDGSL,Gasoline for Residential sector,PJ,RSD,,Gasoline for Residential sector,Gasoline for Residential sector,nan,nan,nan
 BIOCRP1,Starch crops,PJ,SUP,,Starch crops,Starch crops,nan,nan,nan
 RENHYD,Hydro,PJ,SUP,,Hydro,Hydro,nan,nan,nan
 BIORPOIL,Rape seed oil,PJ,SUP,,Rape seed oil,Rape seed oil,nan,nan,nan
-RH4F,space heating for 4f houses,PJ,RSD,,space heating for residential,space heating for residential,nan,nan,nan
+RH4F,space heating for 4f houses,PJ,RSD,,BEWAL residential urban decentral heat,space heating for residential,nan,nan,nan
 BIODST,Diesel from Biomass,PJ,SUP,,Diesel from Biomass,Diesel from Biomass,nan,nan,nan
 BIORPS,Biomass: Rapeseed,PJ,SUP,,Biomass: Rapeseed,Biomass: Rapeseed,nan,nan,nan
 ELCWIN,Electricity: Wind,PJ,ELC,,Electricity: Wind,Electricity: Wind,nan,nan,nan
 ELCSOL,Electricity: Solar,PJ,ELC,,Electricity: Solar,Electricity: Solar,nan,nan,nan
-RWAP,hot water for apartments,PJ,RSD,,hot water for residential,hot water for residential,nan,nan,nan
+RWAP,hot water for apartments,PJ,RSD,,BEWAL residential urban decentral heat,hot water for residential,nan,nan,nan
 COMGSL,Gasoline for Commercial sector,PJ,COM,,Gasoline for Commercial sector,Gasoline for Commercial sector,nan,nan,nan
 GASBFT,GAS from Blast Furnace TGR,PJ,IND,,GAS from Blast Furnace TGR,GAS from Blast Furnace TGR,nan,nan,nan
 OILGSL,Fuel: Gasoline,PJ,SUP,,Fuel: Gasoline,Fuel: Gasoline,nan,nan,nan
 OILLPG,Liquified Petroleum Gas,PJ,SUP,,Liquified Petroleum Gas,Liquified Petroleum Gas,nan,nan,nan
-RW4F,hot water for 4f houses,PJ,RSD,,space heating for residential,space heating for residential,nan,nan,nan
+RW4F,hot water for 4f houses,PJ,RSD,,BEWAL residential urban decentral heat,space heating for residential,nan,nan,nan
 COMBDL,Biodiesel for Commercial sector,PJ,COM,,Biodiesel for Commercial sector,Biodiesel for Commercial sector,nan,nan,nan
 COMSOL,Commercial: Solar,PJ,COM,,Commercial: Solar,Commercial: Solar,nan,nan,nan
 BIOLOG,Wood Logs,PJ,SUP,,Wood Logs,Wood Logs,nan,nan,nan
@@ -82,11 +82,11 @@ SUPELC,Electricity (SUP),PJ,SUP,,Electricity (SUP),Electricity ,nan,nan,nan
 RENWIN,Renewable: Wind,PJ,SUP,,Renewable: Wind,Renewable: Wind,nan,nan,nan
 AGRBDL,Biodiesel for agriculture,PJ,AGR,,Biodiesel for agriculture,Biodiesel for agriculture,nan,nan,nan
 RSDSOL,Residential: Solar,PJ,RSD,,Residential: Solar,Residential: Solar,nan,nan,nan
-RH2F,space heating for 2f houses,PJ,RSD,,space heating for residential,space heating for residential,nan,nan,nan
+RH2F,space heating for 2f houses,PJ,RSD,,BEWAL residential urban decentral heat,space heating for residential,nan,nan,nan
 COACOK,Coke,PJ,SUP,,Coke,Coke,nan,nan,nan
 OILDST,Diesel,PJ,SUP,,Diesel,Diesel,nan,nan,nan
 BIOGAS,Biogas,PJ,SUP,,Biogas,Biogas,nan,nan,nan
-RHAP,space heating for apartments,PJ,RSD,,space heating for residential,space heating for residential,nan,nan,nan
+RHAP,space heating for apartments,PJ,RSD,,BEWAL residential urban decentral heat,space heating for residential,nan,nan,nan
 AGRELC,Electricity for agriculture,PJ,AGR,,Electricity for agriculture,Electricity for agriculture,nan,nan,nan
 COALIG,Lignite,PJ,SUP,,Lignite,Lignite,nan,nan,nan
 NUCRSV,Uranium (Dummy Reserves),PJ,SUP,,Uranium (Dummy Reserves),Uranium (Dummy Reserves),nan,nan,nan
@@ -99,10 +99,10 @@ COAHAR,Hard Coal,PJ,SUP,,Hard Coal,Hard Coal,nan,nan,nan
 OILOTH,Other Petroleum Products,PJ,SUP,,Other Petroleum Products,Other Petroleum Products,nan,nan,nan
 SUPGAS,Supply: Natural Gas,PJ,SUP,,Supply: Natural Gas,Supply: Natural Gas,nan,nan,nan
 GASIIS,GAS from Corex and/or Blast Furnace TGR with CCS and/or BOF,PJ,IND,,GAS from Corex and/or Blast Furnace TGR with CCS and/or BOF,GAS from Corex and/or Blast Furnace TGR with CCS and/or BOF,nan,nan,nan
-RH3F,space heating for 3F houses,PJ,RSD,,space heating for residential,space heating for residential,nan,nan,nan
+RH3F,space heating for 3F houses,PJ,RSD,,BEWAL residential urban decentral heat,space heating for residential,nan,nan,nan
 BIOETH,Bioethanol,PJ,SUP,,Bioethanol,Bioethanol,nan,nan,nan
 SYNH2CT,Centralized hydrogen (Tank storage),PJ,SUP,,Centralized hydrogen (Tank storage),Centralized hydrogen (Tank storage),nan,nan,nan
-RW2F,hot water for 2F houses,PJ,RSD,,hot water for residential,hot water for residential,nan,nan,nan
+RW2F,hot water for 2F houses,PJ,RSD,,BEWAL residential urban decentral heat,hot water for residential,nan,nan,nan
 SUPDST,Diesel,PJ,SUP,,Diesel,Diesel,nan,nan,nan
 BIOCPS,Wood Chips,PJ,SUP,,Wood Chips,Wood Chips,nan,nan,nan
 RENSOL,Renewable: Solar,PJ,SUP,,Renewable: Solar,Renewable: Solar,nan,nan,nan
@@ -111,19 +111,19 @@ ELCBIO,Biomass for Electricity sector,PJ,ELC,,Biomass for Electricity sector,Bio
 ELCHYD,Hydro for Electricity sector,PJ,ELC,,Hydro for Electricity sector,Hydro for Electricity sector,nan,nan,nan
 ELCOIL,Oil for Electricity sector,PJ,ELC,,Oil for Electricity sector,Oil for Electricity sector,nan,nan,nan
 SUPBGS,Biogas for Supply sector,PJ,SUP,,Biogas for Supply sector,Biogas for Supply sector,nan,nan,nan
-RHDJAP_2021,space heating for apartments (2021),PJ,RSD,,space heating for residential,space heating for residential,nan,nan,nan
-RHDJ4F_2021,space heating for 4f houses (2021),PJ,RSD,,space heating for residential,space heating for residential,nan,nan,nan
-RHN4F,space heating for 4f houses,PJ,RSD,,space heating for residential,space heating for residential,nan,nan,nan
-RWN3F,hot water for 3F houses,PJ,RSD,,hot water for residential,hot water for residential,nan,nan,nan
-RHNAP,space heating for apartments,PJ,RSD,,space heating for residential,space heating for residential,nan,nan,nan
-RHDJ2F_2021,space heating for 2f houses (2021),PJ,RSD,,space heating for residential,space heating for residential,nan,nan,nan
-RHN2F,space heating for 2f houses,PJ,RSD,,space heating for residential,space heating for residential,nan,nan,nan
+RHDJAP_2021,space heating for apartments (2021),PJ,RSD,,BEWAL residential urban decentral heat,space heating for residential,nan,nan,nan
+RHDJ4F_2021,space heating for 4f houses (2021),PJ,RSD,,BEWAL residential urban decentral heat,space heating for residential,nan,nan,nan
+RHN4F,space heating for 4f houses,PJ,RSD,,BEWAL residential urban decentral heat,space heating for residential,nan,nan,nan
+RWN3F,hot water for 3F houses,PJ,RSD,,BEWAL residential urban decentral heat,hot water for residential,nan,nan,nan
+RHNAP,space heating for apartments,PJ,RSD,,BEWAL residential urban decentral heat,space heating for residential,nan,nan,nan
+RHDJ2F_2021,space heating for 2f houses (2021),PJ,RSD,,BEWAL residential urban decentral heat,space heating for residential,nan,nan,nan
+RHN2F,space heating for 2f houses,PJ,RSD,,BEWAL residential urban decentral heat,space heating for residential,nan,nan,nan
 SUPGMX,Network gas (mixed) for Supply sector,PJ,SUP,,Network gas,Network gas,nan,nan,nan
-RWNAP,hot water for apartments (new),PJ,RSD,,hot water for residential,hot water for residential,nan,nan,nan
-RWN4F,hot water for 4F houses,PJ,RSD,,hot water for residential,hot water for residential,nan,nan,nan
-RHDJ3F_2021,space heating for 3F houses (2021),PJ,RSD,,space heating for residential,space heating for residential,nan,nan,nan
-RHN3F,space heating for 3f houses,PJ,RSD,,space heating for residential,space heating for residential,nan,nan,nan
-RWN2F,hot water for 2F houses,PJ,RSD,,hot water for residential,hot water for residential,nan,nan,nan
+RWNAP,hot water for apartments (new),PJ,RSD,,BEWAL residential urban decentral heat,hot water for residential,nan,nan,nan
+RWN4F,hot water for 4F houses,PJ,RSD,,BEWAL residential urban decentral heat,hot water for residential,nan,nan,nan
+RHDJ3F_2021,space heating for 3F houses (2021),PJ,RSD,,BEWAL residential urban decentral heat,space heating for residential,nan,nan,nan
+RHN3F,space heating for 3f houses,PJ,RSD,,BEWAL residential urban decentral heat,space heating for residential,nan,nan,nan
+RWN2F,hot water for 2F houses,PJ,RSD,,BEWAL residential urban decentral heat,hot water for residential,nan,nan,nan
 RCDR,Rsd.Cloth Drying.Existing,PJ,RSD,,electricity for residential,Electricity ,nan,nan,nan
 RCOK,Rsd.Cooking.Existing,PJ,RSD,,electricity for residential,Electricity ,nan,nan,nan
 RCWA,Rsd.Cloth Washing.Existing,PJ,RSD,,electricity for residential,Electricity ,nan,nan,nan
@@ -135,13 +135,13 @@ ROEL,Rsd.Other Electric.Existing.,PJ,RSD,,electricity for residential,electricit
 TRALPG,Fuel Tech - Liquified Petroleum Gas,PJ,TRA,,total energy for transport,total energy for transport,nan,nan,nan
 TNDF,Navigation Domestic Freight Tech Existing,PJ,TRA,,domestic navigation,domestic navigation,nan,nan,nan
 AGRCPS,Wood for agriculture,PJ,AGR,,Wood for agriculture,Wood for agriculture,nan,nan,nan
-CHBA,Space heating for commercial sector,PJ,COM,,Space heating for commercial sector,Space heating for commercial sector,nan,nan,nan
-CHBP,Space heating for commercial sector,PJ,COM,,Space heating for commercial sector,Space heating for commercial sector,nan,nan,nan
-CHCO,Space heating for commercial sector,PJ,COM,,Space heating for commercial sector,Space heating for commercial sector,nan,nan,nan
-CHCS,Space heating for commercial sector,PJ,COM,,Space heating for commercial sector,Space heating for commercial sector,nan,nan,nan
-CHEN,Space heating for commercial sector,PJ,COM,,Space heating for commercial sector,Space heating for commercial sector,nan,nan,nan
-CHNCS,Space heating for commercial sector,PJ,COM,,Space heating for commercial sector,Space heating for commercial sector,nan,nan,nan
-CHSA,Space heating for commercial sector,PJ,COM,,Space heating for commercial sector,Space heating for commercial sector,nan,nan,nan
+CHBA,Space heating for commercial sector,PJ,COM,,BEWAL services urban decentral heat,Space heating for commercial sector,nan,nan,nan
+CHBP,Space heating for commercial sector,PJ,COM,,BEWAL services urban decentral heat,Space heating for commercial sector,nan,nan,nan
+CHCO,Space heating for commercial sector,PJ,COM,,BEWAL services urban decentral heat,Space heating for commercial sector,nan,nan,nan
+CHCS,Space heating for commercial sector,PJ,COM,,BEWAL services urban decentral heat,Space heating for commercial sector,nan,nan,nan
+CHEN,Space heating for commercial sector,PJ,COM,,BEWAL services urban decentral heat,Space heating for commercial sector,nan,nan,nan
+CHNCS,Space heating for commercial sector,PJ,COM,,BEWAL services urban decentral heat,Space heating for commercial sector,nan,nan,nan
+CHSA,Space heating for commercial sector,PJ,COM,,BEWAL services urban decentral heat,Space heating for commercial sector,nan,nan,nan
 CLIGBA,Appliances for commercial sector,PJ,COM,,Appliances for commercial sector,Appliances for commercial sector,nan,nan,nan
 CLIGBP,Appliances for commercial sector,PJ,COM,,Appliances for commercial sector,Appliances for commercial sector,nan,nan,nan
 CLIGCO,Appliances for commercial sector,PJ,COM,,Appliances for commercial sector,Appliances for commercial sector,nan,nan,nan
@@ -158,18 +158,18 @@ CLIGNSA,Appliances for commercial sector,PJ,COM,,Appliances for commercial secto
 CLIGSA,Appliances for commercial sector,PJ,COM,,Appliances for commercial sector,Appliances for commercial sector,nan,nan,nan
 COEL,Appliances for commercial sector,PJ,COM,,Appliances for commercial sector,Appliances for commercial sector,nan,nan,nan
 CCOK,Appliances for commercial sector,PJ,COM,,Appliances for commercial sector,Appliances for commercial sector,nan,nan,nan
-CWBA,Hot water for Commercial sector,PJ,COM,,Hot water for Commercial sector,Hot water for Commercial sector,nan,nan,nan
-CWBP,Hot water for Commercial sector,PJ,COM,,Hot water for Commercial sector,Hot water for Commercial sector,nan,nan,nan
-CWCO,Hot water for Commercial sector,PJ,COM,,Hot water for Commercial sector,Hot water for Commercial sector,nan,nan,nan
-CWCS,Hot water for Commercial sector,PJ,COM,,Hot water for Commercial sector,Hot water for Commercial sector,nan,nan,nan
-CWEN,Hot water for Commercial sector,PJ,COM,,Hot water for Commercial sector,Hot water for Commercial sector,nan,nan,nan
-CWNBA,Hot water for Commercial sector,PJ,COM,,Hot water for Commercial sector,Hot water for Commercial sector,nan,nan,nan
-CWNBP,Hot water for Commercial sector,PJ,COM,,Hot water for Commercial sector,Hot water for Commercial sector,nan,nan,nan
-CWNCO,Hot water for Commercial sector,PJ,COM,,Hot water for Commercial sector,Hot water for Commercial sector,nan,nan,nan
-CWNCS,Hot water for Commercial sector,PJ,COM,,Hot water for Commercial sector,Hot water for Commercial sector,nan,nan,nan
-CWNEN,Hot water for Commercial sector,PJ,COM,,Hot water for Commercial sector,Hot water for Commercial sector,nan,nan,nan
-CWNSA,Hot water for Commercial sector,PJ,COM,,Hot water for Commercial sector,Hot water for Commercial sector,nan,nan,nan
-CWSA,Hot water for Commercial sector,PJ,COM,,Hot water for Commercial sector,Hot water for Commercial sector,nan,nan,nan
+CWBA,Hot water for Commercial sector,PJ,COM,,BEWAL services urban decentral heat,Hot water for Commercial sector,nan,nan,nan
+CWBP,Hot water for Commercial sector,PJ,COM,,BEWAL services urban decentral heat,Hot water for Commercial sector,nan,nan,nan
+CWCO,Hot water for Commercial sector,PJ,COM,,BEWAL services urban decentral heat,Hot water for Commercial sector,nan,nan,nan
+CWCS,Hot water for Commercial sector,PJ,COM,,BEWAL services urban decentral heat,Hot water for Commercial sector,nan,nan,nan
+CWEN,Hot water for Commercial sector,PJ,COM,,BEWAL services urban decentral heat,Hot water for Commercial sector,nan,nan,nan
+CWNBA,Hot water for Commercial sector,PJ,COM,,BEWAL services urban decentral heat,Hot water for Commercial sector,nan,nan,nan
+CWNBP,Hot water for Commercial sector,PJ,COM,,BEWAL services urban decentral heat,Hot water for Commercial sector,nan,nan,nan
+CWNCO,Hot water for Commercial sector,PJ,COM,,BEWAL services urban decentral heat,Hot water for Commercial sector,nan,nan,nan
+CWNCS,Hot water for Commercial sector,PJ,COM,,BEWAL services urban decentral heat,Hot water for Commercial sector,nan,nan,nan
+CWNEN,Hot water for Commercial sector,PJ,COM,,BEWAL services urban decentral heat,Hot water for Commercial sector,nan,nan,nan
+CWNSA,Hot water for Commercial sector,PJ,COM,,BEWAL services urban decentral heat,Hot water for Commercial sector,nan,nan,nan
+CWSA,Hot water for Commercial sector,PJ,COM,,BEWAL services urban decentral heat,Hot water for Commercial sector,nan,nan,nan
 INDBIO,Biofuel for industry,PJ,IND,,Biofuel for industry,Biofuel for industry,nan,nan,nan
 AGRAP,Electricity for agriculture,PJ,AGR,,Electricity for agriculture,Electricity for agriculture,nan,nan,nan
 AGRHH,space heating for agriculture,PJ,AGR,,space heating for agriculture,space heating for agriculture,nan,nan,nan

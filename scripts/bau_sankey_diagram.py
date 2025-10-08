@@ -884,7 +884,7 @@ def main():
         group_commodities = True
         # Column in mapping_processes.csv used for process aggregation
         process_cluster_column = "PyPSA technology"
-        process_cluster_column = "Aggregation Level 1"
+        process_cluster_column = "Aggregation Level 2"
     else:
         # Set to False to build unclustered Sankey
         enable_process_clustering = False
@@ -894,7 +894,7 @@ def main():
         netting = False
 
     # Netting is only applicable to Aggregation Level 1
-    if process_cluster_column == "Aggregation Level 1":
+    if process_cluster_column == "Aggregation Level 2":
         netting = True
     else:
         netting = False
