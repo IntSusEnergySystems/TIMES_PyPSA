@@ -623,8 +623,8 @@ def extract_pypsa_demands(annual_values_df, processes_df, commodities_mapping_df
     
     extraction_rules = {
         # Electricity categories (filtered by BOTH process AND pypsa_carrier)
-        'electricity residential': ('VAR_FIN', 'combined', [('process_agg', ['residential other']), ('pypsa_carrier', ['Electricity', 'electricity for residential'])]),
-        'electricity services': ('VAR_FIN', 'combined', [('process_agg', ['commercial other']), ('pypsa_carrier', ['Electricity'])]),
+        'total electricity residential': ('VAR_FIN', 'combined', [('process_agg', ['residential other']), ('pypsa_carrier', ['Electricity', 'electricity for residential'])]),
+        'total electricity services': ('VAR_FIN', 'combined', [('process_agg', ['commercial other']), ('pypsa_carrier', ['Electricity'])]),
         'electricity road': ('VAR_FIN', 'combined', [('process_agg', ['EV charger']), ('pypsa_carrier', ['Electricity'])]),
         'electricity rail': ('VAR_FIN', 'combined', [('process_agg', ['rail transport']), ('pypsa_carrier', ['Electricity'])]),
         
@@ -659,6 +659,26 @@ def extract_pypsa_demands(annual_values_df, processes_df, commodities_mapping_df
         #Heating Demands total for residential and tertiary
         'BEWAL residential urban decentral heat': ('VAR_FOut','combined', [('process_agg', ['Residential Coal heater','Residential electric heater','Residential  Heat pump','Residential geothermal heating','Residential gas heater','District heating','Residential biomass heater','Residential solar thermal','Residential oil heater']),('pypsa_carrier', ['Heat'])]),
         'BEWAL services urban decentral heat': ('VAR_FOut', 'combined', [('process_agg', ['Commercial gas boiler','Commercial Biomass boiler','Commercial Heat pump','Commercial Heat Exchanger','Commercial Oil boiler','commercial Geothermal','Commercial electrical stove','Commercial solar thermal']), ('pypsa_carrier', ['Heat'])]),
+        
+        #Compute heating technology capacities and output
+        'residential gas boiler': ('VAR_FOut', 'combined', [('process_agg', ['Residential gas heater']), ('pypsa_carrier', ['Heat'])]),
+        'residential coal boiler': ('VAR_FOut', 'combined', [('process_agg', ['Residential Coal heater']), ('pypsa_carrier', ['Heat'])]),
+        'residential electric heater': ('VAR_FOut', 'combined', [('process_agg', ['Residential electric heater']), ('pypsa_carrier', ['Heat'])]),
+        'residential heat pump': ('VAR_FOut', 'combined', [('process_agg', ['Residential  Heat pump']), ('pypsa_carrier', ['Heat'])]),
+        'residential geothermal': ('VAR_FOut', 'combined', [('process_agg', ['Residential geothermal heating']), ('pypsa_carrier', ['Heat'])]),
+        'residential district heating': ('VAR_FOut', 'combined', [('process_agg', ['District heating']), ('pypsa_carrier', ['Heat'])]),
+        'residential biomass boiler': ('VAR_FOut', 'combined', [('process_agg', ['Residential biomass heater']), ('pypsa_carrier', ['Heat'])]),
+        'residential solar thermal': ('VAR_FOut', 'combined', [('process_agg', ['Residential solar thermal']), ('pypsa_carrier', ['Heat'])]),
+        'residential oil boiler': ('VAR_FOut', 'combined', [('process_agg', ['Residential oil heater']), ('pypsa_carrier', ['Heat'])]),
+        #Commercial
+        'services gas boiler': ('VAR_FOut', 'combined', [('process_agg', ['Commercial gas boiler']), ('pypsa_carrier', ['Heat'])]),
+        'services biomass boiler': ('VAR_FOut', 'combined', [('process_agg', ['Commercial Biomass boiler']), ('pypsa_carrier', ['Heat'])]),
+        'services heat pump': ('VAR_FOut', 'combined', [('process_agg', ['Commercial Heat pump']), ('pypsa_carrier', ['Heat'])]),
+        'services district heating': ('VAR_FOut', 'combined', [('process_agg', ['Commercial Heat Exchanger']), ('pypsa_carrier', ['Heat'])]),
+        'services oil boiler': ('VAR_FOut', 'combined', [('process_agg', ['Commercial Oil boiler']), ('pypsa_carrier', ['Heat'])]),
+        'services geothermal': ('VAR_FOut', 'combined', [('process_agg', ['commercial Geothermal']), ('pypsa_carrier', ['Heat'])]),
+        'services electric heater': ('VAR_FOut', 'combined', [('process_agg', ['Commercial electrical stove']), ('pypsa_carrier', ['Heat'])]),
+        'services solar thermal': ('VAR_FOut', 'combined', [('process_agg', ['Commercial solar thermal']), ('pypsa_carrier', ['Heat'])]),
     }
     
     # Process each year - use all available years in the data
@@ -741,11 +761,17 @@ def extract_pypsa_demands(annual_values_df, processes_df, commodities_mapping_df
             # Sum the values and convert PJ to TWh (1 PJ = 0.277778 TWh)
             total_pj = filtered_df['value'].sum()
             total_twh = total_pj * 0.277778
-            
+            heating_keywords = ['boiler', 'heater', 'heat pump', 'geothermal', 'solar thermal', 'district heating']
+            if any(keyword in category.lower() for keyword in heating_keywords):
+               # 1 PJ/year = 31.7 MW
+               total_mw = total_pj * 31.7
+            else:
+               total_mw = 0.0
             results.append({
                 'category': category,
                 'TWh': total_twh,
-                'PJ': total_pj
+                'PJ': total_pj,
+                'MW': total_mw
             })
         
         # Save to CSV
