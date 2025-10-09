@@ -579,7 +579,7 @@ def extract_pypsa_demands(annual_values_df, processes_df, commodities_mapping_df
     if 'Process' in processes_df.columns and 'Aggregation Level 1' in processes_df.columns:
         for _, row in processes_df.iterrows():
             proc = str(row['Process']).strip()
-            agg = str(row.get('Aggregation Level 1', '')).strip()
+            agg = str(row.get('Aggregation Level 2', '')).strip()
             if agg and agg.lower() not in ['nan', '']:
                 process_agg_map[proc] = agg
     
@@ -624,11 +624,7 @@ def extract_pypsa_demands(annual_values_df, processes_df, commodities_mapping_df
     extraction_rules = {
         # Electricity categories (filtered by BOTH process AND pypsa_carrier)
         'electricity residential': ('VAR_FIN', 'combined', [('process_agg', ['residential other']), ('pypsa_carrier', ['Electricity', 'electricity for residential'])]),
-        'electricity residential space': ('VAR_FIN', 'combined', [('process_agg', ['residential space heating']), ('pypsa_carrier', ['Electricity', 'electricity for residential'])]),
-        'electricity residential water': ('VAR_FIN', 'combined', [('process_agg', ['residential hot water']), ('pypsa_carrier', ['Electricity', 'electricity for residential'])]),
         'electricity services': ('VAR_FIN', 'combined', [('process_agg', ['commercial other']), ('pypsa_carrier', ['Electricity'])]),
-        'electricity services space': ('VAR_FIN', 'combined', [('process_agg', ['commercial space heating']), ('pypsa_carrier', ['Electricity'])]),
-        'electricity services water': ('VAR_FIN', 'combined', [('process_agg', ['commercial hot water']), ('pypsa_carrier', ['Electricity'])]),
         'electricity road': ('VAR_FIN', 'combined', [('process_agg', ['EV charger']), ('pypsa_carrier', ['Electricity'])]),
         'electricity rail': ('VAR_FIN', 'combined', [('process_agg', ['rail transport']), ('pypsa_carrier', ['Electricity'])]),
         
@@ -659,15 +655,10 @@ def extract_pypsa_demands(annual_values_df, processes_df, commodities_mapping_df
         'total road': ('VAR_FIN', 'process_agg', ['Cars', 'Road Freight', '2 and 3 wheelers', 'Road transport (public)']),
         'total rail': ('VAR_FIN', 'process_agg', ['rail transport']),
         'hydrogen road': ('VAR_FIN', 'combined', [('process_agg', ['Cars', 'Road Freight', '2 and 3 wheelers', 'Road transport (public)']), ('pypsa_carrier', ['H2 for transport'])]),
-
         
-        # Residential and services totals
-        'total residential': ('VAR_FIN', 'process_agg', ['residential space heating', 'residential hot water', 'residential other', 'residential cooking']),
-        'total residential space': ('VAR_FIN', 'process_agg', ['residential space heating']),
-        'total residential water': ('VAR_FIN', 'process_agg', ['residential hot water']),
-        'total services': ('VAR_FIN', 'process_agg', ['commercial space heating', 'commercial hot water', 'commercial other', 'commercial cooking']),
-        'total services space': ('VAR_FIN', 'process_agg', ['commercial space heating']),
-        'total services water': ('VAR_FIN', 'process_agg', ['commercial hot water']),
+        #Heating Demands total for residential and tertiary
+        'BEWAL residential urban decentral heat': ('VAR_FOut','combined', [('process_agg', ['Residential Coal heater','Residential electric heater','Residential  Heat pump','Residential geothermal heating','Residential gas heater','District heating','Residential biomass heater','Residential solar thermal','Residential oil heater']),('pypsa_carrier', ['Heat'])]),
+        'BEWAL services urban decentral heat': ('VAR_FOut', 'combined', [('process_agg', ['Commercial gas boiler','Commercial Biomass boiler','Commercial Heat pump','Commercial Heat Exchanger','Commercial Oil boiler','commercial Geothermal','Commercial electrical stove','Commercial solar thermal']), ('pypsa_carrier', ['Heat'])]),
     }
     
     # Process each year - use all available years in the data
