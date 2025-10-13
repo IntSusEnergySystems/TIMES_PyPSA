@@ -657,8 +657,8 @@ def extract_pypsa_demands(annual_values_df, processes_df, commodities_mapping_df
         'hydrogen road': ('VAR_FIN', 'combined', [('process_agg', ['Cars', 'Road Freight', '2 and 3 wheelers', 'Road transport (public)']), ('pypsa_carrier', ['H2 for transport'])]),
         
         #Heating Demands total for residential and tertiary
-        'BEWAL residential urban decentral heat': ('VAR_FOut','combined', [('process_agg', ['Residential Coal heater','Residential electric heater','Residential  Heat pump','Residential geothermal heating','Residential gas heater','District heating','Residential biomass heater','Residential solar thermal','Residential oil heater']),('pypsa_carrier', ['Heat'])]),
-        'BEWAL services urban decentral heat': ('VAR_FOut', 'combined', [('process_agg', ['Commercial gas boiler','Commercial Biomass boiler','Commercial Heat pump','Commercial Heat Exchanger','Commercial Oil boiler','commercial Geothermal','Commercial electrical stove','Commercial solar thermal']), ('pypsa_carrier', ['Heat'])]),
+        'BEWAL residential urban decentral heat': ('VAR_FOut','combined', [('process_agg', ['Residential Coal heater','Residential electric heater','Residential  Heat pump','Residential geothermal heating','Residential gas heater','Residential biomass heater','Residential solar thermal','Residential oil heater']),('pypsa_carrier', ['Heat'])]),
+        'BEWAL services urban decentral heat': ('VAR_FOut', 'combined', [('process_agg', ['Commercial gas boiler','Commercial Biomass boiler','Commercial Heat pump','Commercial Oil boiler','commercial Geothermal','Commercial electrical stove','Commercial solar thermal']), ('pypsa_carrier', ['Heat'])]),
         
         #Compute heating technology capacities and output
         'residential gas boiler': ('VAR_FOut', 'combined', [('process_agg', ['Residential gas heater']), ('pypsa_carrier', ['Heat'])]),
@@ -761,17 +761,10 @@ def extract_pypsa_demands(annual_values_df, processes_df, commodities_mapping_df
             # Sum the values and convert PJ to TWh (1 PJ = 0.277778 TWh)
             total_pj = filtered_df['value'].sum()
             total_twh = total_pj * 0.277778
-            heating_keywords = ['boiler', 'heater', 'heat pump', 'geothermal', 'solar thermal', 'district heating']
-            if any(keyword in category.lower() for keyword in heating_keywords):
-               # 1 PJ/year = 31.7 MW
-               total_mw = total_pj * 31.7
-            else:
-               total_mw = 0.0
             results.append({
                 'category': category,
                 'TWh': total_twh,
                 'PJ': total_pj,
-                'MW': total_mw
             })
         
         # Save to CSV
@@ -933,7 +926,7 @@ def main():
     # Load process mapping and construct processes_df from mapping
     process_mapping_file = "data/mapping_processes.csv"
     processes_df = pd.read_csv(process_mapping_file)
-
+    mapping = processes_df.copy()
     if 'Process' not in processes_df.columns and 'Technology (Process)' in processes_df.columns:
         processes_df = processes_df.rename(columns={'Technology (Process)': 'Process'})
     if 'Description' not in processes_df.columns:
@@ -978,7 +971,19 @@ def main():
     if raw_flows_df.empty:
         print("No valid energy flow data was processed. Exiting.")
         return
-
+    #Extracting heating capacities
+    capacity_value = raw_flows_df.copy()
+    filtered_capacities = capacity_value.loc[
+        (capacity_value['year'] == selected_year) &
+        (capacity_value['variable'].isin(['VAR_Cap', 'VAR_Ncap']))
+    ]
+    map_dict = mapping.set_index("Technology (Process)")["Aggregation Level 2"].to_dict()
+    filtered_capacities["mapped_process"] = filtered_capacities["process_code"].map(map_dict)
+    aggregated_capacities = filtered_capacities.groupby("mapped_process", dropna=False).sum(numeric_only=True).drop(columns=['year'])
+    #convert into MW
+    aggregated_capacities = (aggregated_capacities * 1000).round(2)
+    aggregated_capacities = aggregated_capacities[aggregated_capacities.index.str.contains('boiler|heat pump|stove|thermal|heater', case=False, na=False)]
+    aggregated_capacities.to_csv(f"output/heating_capacities_{selected_year}.csv")
     # --- Aggregate to annual ---
     annual_values_df = aggregate_to_annual(raw_flows_df)
 
@@ -999,7 +1004,6 @@ def main():
         if col not in annual_values_df.columns:
             annual_values_df[col] = None
     annual_values_df = annual_values_df[ordered_cols]
-
     # --- Save CSV ---
     print(f"Writing annual aggregated values to {output_csv_file} ...")
     annual_values_df.to_csv(output_csv_file, index=False)
