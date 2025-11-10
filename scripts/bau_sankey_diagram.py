@@ -629,17 +629,16 @@ def extract_pypsa_demands(annual_values_df, processes_df, commodities_mapping_df
         'electricity rail': ('VAR_FIN', 'combined', [('process_agg', ['rail transport']), ('pypsa_carrier', ['Electricity'])]),
         
         # Energy carriers for industry (filtered by BOTH process AND pypsa_carrier)
-        'electricity': ('VAR_FIN', 'combined', [('process_agg', ['Industry']), ('pypsa_carrier', ['Electricity'])]),
+        'electricity': ('VAR_FIN', 'process_agg', ['PV industrial','Fuel Tech - Electricity (IND)','Fuel Tech - Solar (IND)']),
         'ammonia': ('VAR_FIN', 'combined', [('process_agg', ['Industry']), ('pypsa_carrier', ['ammonia'])]),
-        'coal': ('VAR_FIN', 'combined', [('process_agg', ['Industry']), ('pypsa_carrier', ['coal for industry'])]),
-        'coke': ('VAR_FIN', 'combined', [('process_agg', ['Industry']), ('pypsa_carrier', ['Coke for industry'])]),
-        'hydrogen': ('VAR_FOut', 'combined', [('process_agg', ['Imports']), ('pypsa_carrier', ['hydrogen for industry'])]),
-        'low-temperature heat': ('VAR_FIN', 'combined', [('process_agg', ['Industry']), ('pypsa_carrier', ['Heat for industry', 'Geothermal (IND)'])]),
-        'methane': ('VAR_FIN', 'combined', [('process_agg', ['Industry']), ('pypsa_carrier', ['Natural Gas', 'Network gas', 'gas for industry', 'High Temperature Heat for IND'])]),
+        'coal': ('VAR_FIN', 'process_agg', ['Fuel Tech - Hard Coal (IND)','Fuel Tech - Lignite (IND)']),
+        'coke': ('VAR_FIN', 'process_agg', ['Fuel Tech - Coke (IND)']),
+        'hydrogen': ('VAR_FIN', 'process_agg', ['hydrogen for industry']),
+        'low-temperature heat': ('VAR_FIN', 'process_agg', ['Geothermal (IND)']),
+        'methane': ('VAR_FIN', 'process_agg', ['Fuel Tech - Biogas (IND)','Fuel Tech - Natural Gas transport (IND)','Fuel Tech New - Gas and Cog industry (IND)','Fuel Tech - Natural Gas and biogas mixed  (IND)','Fuel Tech - Liquified Petroleum Gas (IND)']),
         'methanol': ('VAR_FIN', 'combined', [('process_agg', ['Industry']), ('pypsa_carrier', ['methanol'])]),
-        'naphtha': ('VAR_FOut', 'combined', [('process_agg', ['Non-energy']), ('pypsa_carrier', ['naphtha','oil for industry'])]),
-        'solid biomass': ('VAR_FIN', 'combined', [('process_agg', ['Industry']), ('pypsa_carrier', ['solid biomass for industry',
-                                                          'Wood pellets for Industry'])]),
+        'naphtha': ('VAR_FIN', 'process_agg', ['Non-energy','Fuel Tech - Heavy Fuel Oil (IND)','Fuel Tech - Light Fuel Oil (IND)']),
+        'solid biomass': ('VAR_FIN', 'process_agg', ['Fuel Tech - Wood material (IND)','Fuel Tech - Waste Renewable (IND)','Fuel Tech - Wood CHIPS (IND)','Fuel Tech - Biofuel (IND)']),
         
         # Agriculture (note: these need to be refined based on specific commodity filters)
         'total agriculture': ('VAR_FIN', 'process_agg', ['Agriculture']),
@@ -648,11 +647,11 @@ def extract_pypsa_demands(annual_values_df, processes_df, commodities_mapping_df
         'total agriculture machinery': ('VAR_FIN', 'combined', [('process_agg', ['Agriculture']), ('pypsa_carrier', ['Oil for agriculture', 'Biodiesel for agriculture', 'Fuel Tech – Diesel'])]),
         
         # Transport (commodity-based for aviation, navigation)
-        'total domestic aviation': ('VAR_FOUT','combined', [('process_agg', ['international aviation']),('pypsa_carrier', ['domestic aviation'])]),
+        'total domestic aviation': ('VAR_FOUT','combined', [('process_agg', ['domestic aviation']),('pypsa_carrier', ['domestic aviation'])]),
         'total international aviation': ('VAR_FOUT', 'combined', [('process_agg', ['international aviation']),('pypsa_carrier', ['international aviation'])]),
         'total domestic navigation': ('VAR_FOUT', 'combined', [('process_agg', ['domestic navigation']),('pypsa_carrier', ['domestic navigation'])]),
         'total international navigation': ('VAR_FOUT', 'process_agg', ['international navigation']),
-        'total road': ('VAR_FIN', 'process_agg', ['Cars', 'Road Freight', '2 and 3 wheelers', 'Road transport (public)']),
+        'total road': ('VAR_FIN', 'process_agg', ['Fuel Tech - Biodiesel (TRA)', 'Fuel tech - biogas (TRA)', 'Fuel Tech - Diesel (TRA)','Fuel Tech - Ethanol (TRA)','Fuel Tech - H2','Fuel Tech - Reseau gas mixed (TRA)','Fuel Tech - Gasoline (TRA)','Fuel Tech - Liquified Petroleum Gas (TRA)']),
         'total rail': ('VAR_FIN', 'process_agg', ['rail transport']),
         'hydrogen road': ('VAR_FIN', 'combined', [('process_agg', ['Cars', 'Road Freight', '2 and 3 wheelers', 'Road transport (public)']), ('pypsa_carrier', ['H2 for transport'])]),
         
@@ -921,7 +920,7 @@ def main():
         netting = False
 
     # --- Configuration ---
-    vd_file = "data/bau_080925_0809.vd"
+    vd_file = "data/scen_base_coherence_3110.vd"
     selected_year = 2030
     # commodities_file removed in favor of mapping-based metadata
     # processes_file removed in favor of mapping-based metadata
