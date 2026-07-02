@@ -473,7 +473,7 @@ INDGAS00,Fuel Tech - Natural Gas transport,IND,.PRE.,Fuel Tech - Natural Gas tra
 INDGASCOG01,Fuel Tech New - Gas and Cog industry,IND,.PRE.,Fuel Tech New - Gas and Cog industry (IND),PJ,PJA,PRE,INDGASCOG,ANNUAL,"1,00",Fuel Tech New - Gas and Cog industry,Fuel Tech New - Gas and Cog industry (IND)
 INDGEO00,Geothermal (IND),IND,.PRE.,Geothermal (IND),PJ,PJA,PRE,INDGEO,ANNUAL,"0,00",Geothermal (IND),Geothermal (IND)
 INDGH2C01,hydrogen for industry,SUP,.PRE.,Fuel Tech - H2 Delivery from centralized production (COMP+TR+DP - Industrial),PJ,PJ-A,PRE,INDHH2,DAYNITE,,hydrogen for industry,hydrogen for industry
-INDGH2C01_i,Imports,SUP,.PRE.,INDGH2C01_i,PJ,PJ-A,PRE,INDHH2,DAYNITE,,Imports,Imports
+INDGH2C01_i,Imports,SUP,.PRE.,INDGH2C01_i,PJ,PJ-A,PRE,INDHH2,DAYNITE,,Imports,hydrogen imports
 INDGMX00,Fuel Tech - Natural Gas and biogas mixed,IND,.PRE.,Fuel Tech - Natural Gas and biogas mixed  (IND),PJ,PJA,PRE,INDGMX,ANNUAL,"0,00",Fuel Tech - Natural Gas and biogas mixed,Fuel Tech - Natural Gas and biogas mixed  (IND)
 INDHFO00,Fuel Tech - Heavy Fuel Oil ,IND,.PRE.,Fuel Tech - Heavy Fuel Oil (IND),PJ,PJA,PRE,INDHFO,ANNUAL,"0,00",Fuel Tech - Heavy Fuel Oil ,Fuel Tech - Heavy Fuel Oil (IND)
 INDHTH00,Fuel Tech - Heat,IND,.PRE.,industry high temperature heat,PJ,PJA,PRE,INDHET,ANNUAL,"0,00",Fuel Tech - Heat,Fuel Tech - Heat
@@ -836,7 +836,6 @@ TBUSDSTC00,Road transport (public),TRA,.DMD.,Buses Diesel Coaches Existing,BVKM,
 TBUSDSTU00,Road transport (public),TRA,.DMD.,Buses Diesel Urban Existing,BVKM,000VEH,DMD,TBU,ANNUAL,"0,00",Road transport (public),Road transport (public)
 TBUSDSTUN01,Road transport (public),TRA,.DMD.TRADBU.,Buses Diesel Urban New,BVKM,000VEH,DMD,TBU,ANNUAL,"1,00",Road transport (public),Road transport (public)
 TBUSETHCN01,Road transport (public),TRA,.DMD.TRADBU.,Buses Ethanol Coach New,BVKM,000VEH,DMD,TBC,ANNUAL,"1,00",Road transport (public),Road transport (public)
-TBUSGMXU00,Road transport (public),TRA,.DMD.,Buses CNG Urban Existing,BVKM,000VEH,DMD,TBU,ANNUAL,"0,00",Road transport (public),Road transport (public)
 TBUSHDSTU00,Road transport (public),TRA,.DMD.,Buses Hybrid Diesel Urban Existing,BVKM,000VEH,DMD,TBU,ANNUAL,"0,00",Road transport (public),Road transport (public)
 TCARDSTEX00,Cars,TRA,.DMD.,Cars Diesel Executive Existing,BVKM,000VEH,DMD,TCAR,ANNUAL,"0,00",Cars,Cars
 TCARDSTMU00,Cars,TRA,.DMD.,Cars Diesel Medium-Upper Existing,BVKM,000VEH,DMD,TCAR,ANNUAL,"0,00",Cars,Cars
@@ -903,18 +902,160 @@ TMOTELCN01,2 and 3 wheelers,TRA,.DMD.TRADMO.,Motorcycles Electric New,BVKM,000VE
 TMOTGSL00,2 and 3 wheelers,TRA,.DMD.,Motorcycles Gasoline  Existing,BVKM,000VEH,DMD,TMOT,ANNUAL,"0,00",2 and 3 wheelers,2 and 3 wheelers
 TMOTGSLN01,2 and 3 wheelers,TRA,.DMD.TRADMO.,Motorcycles Gasoline New,BVKM,000VEH,DMD,TMOT,ANNUAL,"1,00",2 and 3 wheelers,2 and 3 wheelers
 TNDFDST00,Navigation Domestic Freight Tech Existing,TRA,.DMD.,Navigation Domestic Freight Tech Existing,BTKM,BTKMA,DMD,TNDF,ANNUAL,"0,00",domestic navigation,domestic navigation
-TRABDL00,Fuel Tech - Biodiesel,TRA,.PRE.,Fuel Tech - Biodiesel (TRA),PJ,PJA,PRE,TRABDL,ANNUAL,"0,00",Fuel Tech - Biodiesel (TRA),Fuel Tech - Biodiesel (TRA)
-TRABGS00,Fuel Tech – Biogas,TRA,.PRE.,Fuel tech - biogas (TRA),PJ,PJA,PRE,TRABGS,ANNUAL,"0,00",Fuel tech - biogas (TRA),Fuel tech - biogas (TRA)
-TRADST00,Fuel Tech – Diesel,TRA,.PRE.,Fuel Tech - Diesel (TRA),PJ,PJA,PRE,TRADST,ANNUAL,"0,00",Fuel Tech - Diesel (TRA),Fuel Tech - Diesel (TRA)
-TRAELC00,electricity transport,TRA,.PRE.,Fuel Tech - Electricity (TRA),PJ,GW,PRE,TRAELC,ANNUAL,"0,00",electricity transport,Fuel Tech - Electricity (TRA)
-TRAETH00,Fuel Tech - Ethanol,TRA,.PRE.,Fuel Tech - Ethanol (TRA),PJ,PJA,PRE,TRAETH,ANNUAL,"0,00",Fuel Tech - Ethanol,Fuel Tech - Ethanol (TRA)
+TRABDL00,Fuel Tech - Biodiesel (TRA),TRA,.PRE.,Fuel Tech - Biodiesel (TRA),PJ,PJA,PRE,TRABDL,ANNUAL,"0,00",Fuel Tech - Biodiesel (TRA),Fuel Tech - Biodiesel (TRA)
+TRABGS00,Fuel Tech - Biogas (TRA),TRA,.PRE.,Fuel Tech - Biogas (TRA),PJ,PJA,PRE,TRABGS,ANNUAL,"0,00",Fuel Tech - Biogas (TRA),Fuel Tech - Biogas (TRA)
+TRAELC00,Fuel Tech - Electricity (TRA),TRA,.PRE.,Fuel Tech - Electricity (TRA),PJ,GW,PRE,TRAELC,ANNUAL,"0,00",electricity transport,Fuel Tech - Electricity (TRA)
 TRAGH2C04,Fuel Tech - H2,SUP,.PRE.,Fuel Tech - H2 Delivery from centralized production (COMP+USTOR+TR+GSTORB+RTS+REFGG (small)),PJ,PJ-A,PRE,TRAGH2,DAYNITE,,Fuel Tech - H2,Fuel Tech - H2
-TRAGMX00,Fuel Tech - Reseau gas mixed,TRA,.PRE.,Fuel Tech - Reseau gas mixed (TRA),PJ,PJA,PRE,TRAGMX,ANNUAL,"0,00",Fuel Tech - Reseau gas mixed,Fuel Tech - Reseau gas mixed (TRA)
-TRAGSL00,Fuel Tech - Gasoline,TRA,.PRE.,Fuel Tech - Gasoline (TRA),PJ,PJA,PRE,TRAGSL,ANNUAL,"0,00",Fuel Tech - Gasoline (TRA),Fuel Tech - Gasoline (TRA)
-TRAKER00,Fuel Tech - Kerosene - Jet Fuels,TRA,.PRE.,Fuel Tech - Kerosene - Jet Fuels (TRA),PJ,PJA,PRE,TRAKER,ANNUAL,"0,00",Fuel Tech - Kerosene - Jet Fuels,Fuel Tech - Kerosene - Jet Fuels
+TRAGMX00,Fuel Tech - Reseau gas mixed (TRA),TRA,.PRE.,Fuel Tech - Reseau gas mixed (TRA),PJ,PJA,PRE,TRAGMX,ANNUAL,"0,00",Fuel Tech - Reseau gas mixed,Fuel Tech - Reseau gas mixed (TRA)
+TRAKER00,Fuel Tech - Kerosene - Jet Fuels (TRA),TRA,.PRE.,Fuel Tech - Kerosene - Jet Fuels (TRA),PJ,PJA,PRE,TRAKER,ANNUAL,"0,00",Fuel Tech - Kerosene - Jet Fuels,Fuel Tech - Kerosene - Jet Fuels
 TRALH2C01,Fuel Tech - H2,SUP,.PRE.,Fuel Tech - H2 Delivery from centralized production (COMP+USTOR+TR+LIQ+LSTORB+RTS+REFLL(large)),PJ,PJ-A,PRE,TRALH2,DAYNITE,,Fuel Tech - H2,Fuel Tech - H2
 TRALH2C02_i,SUP_PRE_PJ_PJ-A,SUP,.PRE.,TRALH2C02_i,PJ,PJ-A,PRE,TRALH2,DAYNITE,,SUP_PRE_PJ_PJ-A,SUP_PRE_PJ_PJ-A
-TRALPG00,Fuel Tech - Liquified Petroleum Gas,TRA,.PRE.,Fuel Tech - Liquified Petroleum Gas (TRA),PJ,PJA,PRE,TRALPG,ANNUAL,"0,00",Fuel Tech - Liquified Petroleum Gas,Fuel Tech - Liquified Petroleum Gas (TRA)
+TRALPG00,Fuel Tech - Liquified Petroleum Gas (TRA),TRA,.PRE.,Fuel Tech - Liquified Petroleum Gas (TRA),PJ,PJA,PRE,TRALPG,ANNUAL,"0,00",Fuel Tech - Liquified Petroleum Gas,Fuel Tech - Liquified Petroleum Gas (TRA)
 TSTGEVCMIDN01,TRA_STG_PJ_GW,TRA,.STG.,TSTGEVCMIDN01,PJ,GW,STG,BATELCOUT,DAYNITE,"0,00",TRA_STG_PJ_GW,TRA_STG_PJ_GW
 TTFELCDST00,rail transport,TRA,.DMD.,Train Freigh Tech Existing,BTKM,BTKMA,DMD,TTF,ANNUAL,"0,00",rail transport,rail transport
 TTPELCDST00,rail transport,TRA,.DMD.,Train Conventional Passengers Tech Existing,BPKM,BPKMA,DMD,TTP,ANNUAL,"0,00",rail transport,rail transport
+TRAGAS00,Fuel Tech - Natural Gas (TRA),TRA,.DMD.,Fuel Tech - Natural Gas (TRA),PJ,PJA,PRE,TRAGAS,ANNUAL,"0,00",Fuel Tech - Natural Gas (TRA),Fuel Tech - Natural Gas (TRA)
+TRAGZH00,BioGas (TAR),TRA,.PRE.,BioGas (TAR),PJ,PJA,PRE,TRAGZH,ANNUAL,"0,00",BioGas (TAR),BioGas (TAR)
+TBUSGASU00,Road transport (public),TRA,.DMD.,Buses CNG Urban Existing,BVKM,000VEH,DMD,TBU,ANNUAL,,Road transport (public),Road transport (public)
+TBUSGMXCN01,Road transport (public),TRA,.DMD.,Buses Gas Coach New,BVKM,000VEH,DMD,TBU,ANNUAL,,Road transport (public),Road transport (public)
+TBUSGMXUN01,Road transport (public),TRA,.DMD.,Buses Gas Urban New,BVKM,000VEH,DMD,TBU,ANNUAL,,Road transport (public),Road transport (public)
+TCARGASEX01,Cars,TRA,.DMD.,Cars Gas Executive New,BVKM,000VEH,DMD,TCAR,ANNUAL,,Cars,Cars
+TCARGASEX02,Cars,TRA,.DMD.,Cars CNG Medium-Lower Existing,BVKM,000VEH,DMD,TCAR,ANNUAL,,Cars,Cars
+TCARGASEX03,Cars,TRA,.DMD.,Cars Gas Medium-Lower New,BVKM,000VEH,DMD,TCAR,ANNUAL,,Cars,Cars
+TCARGASEX04,Cars,TRA,.DMD.,Cars CNG Medium-Upper Existing,BVKM,000VEH,DMD,TCAR,ANNUAL,,Cars,Cars
+TCARGASEX05,Cars,TRA,.DMD.,Cars Gas Medium-Upper New,BVKM,000VEH,DMD,TCAR,ANNUAL,,Cars,Cars
+TCARGASEX06,Cars,TRA,.DMD.,Cars Gas Small New,BVKM,000VEH,DMD,TCAR,ANNUAL,,Cars,Cars
+TCARGASEX07,Cars,TRA,.DMD.,Cars CNG Executive Existing,BVKM,000VEH,DMD,TCAR,ANNUAL,,Cars,Cars
+TCARGASEX08,Cars,TRA,.DMD.,Cars Gas Executive New,BVKM,000VEH,DMD,TCAR,ANNUAL,,Cars,Cars
+TCARGASEX09,Cars,TRA,.DMD.,Cars CNG Medium-Lower Existing,BVKM,000VEH,DMD,TCAR,ANNUAL,,Cars,Cars
+TCARGASEX10,Cars,TRA,.DMD.,Cars Gas Medium-Lower New,BVKM,000VEH,DMD,TCAR,ANNUAL,,Cars,Cars
+TCARGASEX11,Cars,TRA,.DMD.,Cars CNG Medium-Upper Existing,BVKM,000VEH,DMD,TCAR,ANNUAL,,Cars,Cars
+TCARGASEX12,Cars,TRA,.DMD.,Cars Gas Medium-Upper New,BVKM,000VEH,DMD,TCAR,ANNUAL,,Cars,Cars
+TCARGASEX13,Cars,TRA,.DMD.,Cars Gas Small New,BVKM,000VEH,DMD,TCAR,ANNUAL,,Cars,Cars
+TCARGASEX14,Cars,TRA,.DMD.,TCHARGHOMSMARTN01,BVKM,000VEH,DMD,TCAR,ANNUAL,,Cars,Cars
+TCARGASEX15,Road Freight,TRA,.DMD.,Heavy Duty Trucks Gas More than 3 t,BVKM,000VEH,DMD,THDT,ANNUAL,,Road Freight,Road Freight
+TCARGASEX16,Road Freight,TRA,.DMD.,Heavy Duty Trucks CNG More than 3 t,BVKM,000VEH,DMD,THDT,ANNUAL,,Road Freight,Road Freight
+TCARGASEX17,Road Freight,TRA,.DMD.,Heavy Duty Trucks CNG Less than 14 t New,BVKM,000VEH,DMD,THDT,ANNUAL,,Road Freight,Road Freight
+TCARGASEX18,Road Freight,TRA,.DMD.,Heavy Duty Trucks LNG  Between 14-28 t New,BVKM,000VEH,DMD,THDT,ANNUAL,,Road Freight,Road Freight
+TCARGASEX19,Road Freight,TRA,.DMD.,Heavy Duty Trucks LNG Between 28-40 t New,BVKM,000VEH,DMD,THDT,ANNUAL,,Road Freight,Road Freight
+TCARGASEX20,Road Freight,TRA,.DMD.,Heavy Duty Trucks LNG Between 40-50 t New,BVKM,000VEH,DMD,THDT,ANNUAL,,Road Freight,Road Freight
+TCARGASEX21,Road Freight,TRA,.DMD.,Heavy Duty Trucks Gas More than 3 t,BVKM,000VEH,DMD,THDT,ANNUAL,,Road Freight,Road Freight
+TCARGASEX22,Road Freight,TRA,.DMD.,Heavy Duty Trucks CNG More than 3 t,BVKM,000VEH,DMD,THDT,ANNUAL,,Road Freight,Road Freight
+TCARGASEX23,Road Freight,TRA,.DMD.,Heavy Duty Trucks CNG Less than 14 t New,BVKM,000VEH,DMD,THDT,ANNUAL,,Road Freight,Road Freight
+TCARGASEX24,Road Freight,TRA,.DMD.,Heavy Duty Trucks LNG  Between 14-28 t New,BVKM,000VEH,DMD,THDT,ANNUAL,,Road Freight,Road Freight
+TCARGASEX25,Road Freight,TRA,.DMD.,Heavy Duty Trucks LNG Between 28-40 t New,BVKM,000VEH,DMD,THDT,ANNUAL,,Road Freight,Road Freight
+TCARGASEX26,Road Freight,TRA,.DMD.,Heavy Duty Trucks LNG Between 40-50 t New,BVKM,000VEH,DMD,THDT,ANNUAL,,Road Freight,Road Freight
+TCARGASEX27,Road Freight,TRA,.DMD.,Light Commercial Vehicles Gas Light New,BVKM,000VEH,DMD,TLCV,ANNUAL,,Road Freight,Road Freight
+TCARGASEX28,Road Freight,TRA,.DMD.,Light Commercial Vehicles Gas Light New,BVKM,000VEH,DMD,TLCV,ANNUAL,,Road Freight,Road Freight
+BBLQGAS110,industrial processes,IND,.PRE.,Gasification_ black liquor to methane,PJ,PJA,PRE,BBLQGAS,ANNUAL,,Industry,Industry
+BWOOGAS110,industrial processes,IND,.PRE.,Gasification_ biomass (tree salix etc) to methane,PJ,PJA,PRE,BWOOGAS,ANNUAL,,Industry,Industry
+CO2STG01,CO2 transport and storage,SUP,.PRE.,CO2 transport and storage,PJ,PJA,PRE,CO2STOCK,ANNUAL,,CO2 transport and storage,CO2 transport and storage
+ESTBATS102,Battery charge,ELC,.ELE.,Battery (Li-ion) Bulk ELC Storage: DayNite,PJ,PJA,PRE,ESTBATS,ANNUAL,,Battery charge,Battery charge
+ESTBATS202,Battery charge,ELC,.ELE.,Battery (Li-ion) Bulk ELC Storage: DayNite/Seasonal,PJ,PJA,PRE,ESTBATS,ANNUAL,,Battery charge,Battery charge
+ETSTP_CCGT_CCS_E12_N,Thermal Public - Retrofitting CCGT CCS,ELC,.ELE.,Thermal Public - Retrofitting CCGT CCS,PJ,PJA,PRE,ELCHIG,ANNUAL,,Thermal Public - Retrofitting CCGT CCS,Thermal Public - Retrofitting CCGT CCS
+ETSTP_CCGT_CCS_E13_N,Thermal Public - Retrofitting CCGT CCS,ELC,.ELE.,Thermal Public - Retrofitting CCGT CCS,PJ,PJA,PRE,ELCHIG,ANNUAL,,Thermal Public - Retrofitting CCGT CCS,Thermal Public - Retrofitting CCGT CCS
+ETSTP_Retrofit_CCGT_CCS_E12_N,Thermal Public - Retrofitting CCGT CCS,ELC,.ELE.,Thermal Public - Retrofitting CCGT CCS,PJ,PJA,PRE,ELCHIG,ANNUAL,,Thermal Public - Retrofitting CCGT CCS,Thermal Public - Retrofitting CCGT CCS
+ETSTP_Retrofit_CCGT_CCS_E13_N,Thermal Public - Retrofitting CCGT CCS,ELC,.ELE.,Thermal Public - Retrofitting CCGT CCS,PJ,PJA,PRE,ELCHIG,ANNUAL,,Thermal Public - Retrofitting CCGT CCS,Thermal Public - Retrofitting CCGT CCS
+ETSTP_Tihange_retrofit_N,ETSTP_Tihange_retrofit_N,ELC,.ELE.,ETSTP_Tihange_retrofit_N,PJ,PJA,PRE,ELCHIG,ANNUAL,,ETSTP_Tihange_retrofit_N,ETSTP_Tihange_retrofit_N
+ICMDRYCOKCC_01,industrial processes,IND,.PRE.,ICM.Dry Process Production with CO2 capture.10.,PJ,PJA,PRE,ICMGAS,ANNUAL,,Industry,Industry
+ICMDRYHFOCC_01,industrial processes,IND,.PRE.,ICM.Dry Process Production with CO2 capture.10.,PJ,PJA,PRE,ICMGAS,ANNUAL,,Industry,Industry
+ICMDRYLFOCC_01,industrial processes,IND,.PRE.,ICM.Dry Process Production with CO2 capture.10.,PJ,PJA,PRE,ICMGAS,ANNUAL,,Industry,Industry
+ICMGMX00,industrial processes,IND,.PRE.,ICMGMX00,PJ,PJA,PRE,ICMGAS,ANNUAL,,Industry,Industry
+IGFGMX00,industrial processes,IND,.PRE.,IGFGMX00,PJ,PJA,PRE,IGFGAS,ANNUAL,,Industry,Industry
+IGHGMX00,industrial processes,IND,.PRE.,IGHGMX00,PJ,PJA,PRE,IGHGAS,ANNUAL,,Industry,Industry
+IISGMX00,industrial processes,IND,.PRE.,IISGMX00,PJ,PJA,PRE,IISGAS,ANNUAL,,Industry,Industry
+ILMGMX00,industrial processes,IND,.PRE.,ILMGMX00,PJ,PJA,PRE,ILMGAS,ANNUAL,,Industry,Industry
+IMPELCOFFWINBE,Electricity Imports,SUP,.PRE.,Electricity import (ALL) - off wind ext,PJ,PJA,PRE,IMPELCOFFWINBE,ANNUAL,,Electricity Imports,Electricity Imports
+IMPELCOFFWINEXT,Electricity Imports,SUP,.PRE.,Electricity import (ALL) - off wind be,PJ,PJA,PRE,IMPELCOFFWINBE,ANNUAL,,Electricity Imports,Electricity Imports
+INDGZH00,Fuel Tech New - biogaz epure (IND),IND,.PRE.,Fuel Tech New - biogaz epure (IND),PJ,PJA,PRE,INDGZH,ANNUAL,,Fuel Tech New - biogaz epure (IND),Fuel Tech New - biogaz epure (IND)
+TAVINTHH2FN01,Aviation,TRA,.DMD.TAIP.,Transport marchandise - Aviation - International - Hydrogen (New),PJ,PJA,PRE,TAIP,ANNUAL,,Aviation,Aviation
+Transfo_Exp,Transfo_Exp,IND,.PRE.,Transfo_Exp,PJ,PJA,PRE,Transfo_Exp,ANNUAL,,Transfo_Exp,Electricity Exports
+Transfo_Imp,Transfo_Imp,IND,.PRE.,Transfo_Imp,PJ,PJA,PRE,Transfo_Imp,ANNUAL,,Transfo_Imp,Electricity Imports
+TBUSGASCN01,Road transport (public),TRA,.DMD.,Buses Gas Coach New,PJ,PJA,PRE,TBU,ANNUAL,,Road transport (public),Road transport (public)
+TBUSGASUN01,Road transport (public),TRA,.DMD.,Buses Gas Urban New,PJ,PJA,PRE,TBU,ANNUAL,,Road transport (public),Road transport (public)
+TBUSGMXU00,Road transport (public),TRA,.DMD.,Buses CNG Urban Existing,PJ,PJA,PRE,TBU,ANNUAL,,Road transport (public),Road transport (public)
+TCARGASEX00,Cars,TRA,.DMD.,Cars CNG Executive Existing,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARGASEXN01,Cars,TRA,.DMD.,Cars Gas Executive New,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARGASML00,Cars,TRA,.DMD.,Cars CNG Medium-Lower Existing,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARGASMLN01,Cars,TRA,.DMD.,Cars Gas Medium-Lower New,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARGASMU00,Cars,TRA,.DMD.,Cars CNG Medium-Upper Existing,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARGASMUN01,Cars,TRA,.DMD.,Cars Gas Medium-Upper New,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARGASSMN01,Cars,TRA,.DMD.,Cars Gas Small New,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARGMXEX00,Cars,TRA,.DMD.,Cars CNG Executive Existing,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARGMXEXN01,Cars,TRA,.DMD.,Cars Gas Executive New,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARGMXML00,Cars,TRA,.DMD.,Cars CNG Medium-Lower Existing,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARGMXMLN01,Cars,TRA,.DMD.,Cars Gas Medium-Lower New,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARGMXMU00,Cars,TRA,.DMD.,Cars CNG Medium-Upper Existing,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARGMXMUN01,Cars,TRA,.DMD.,Cars Gas Medium-Upper New,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARGMXSMN01,Cars,TRA,.DMD.,Cars Gas Small New,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCHARGHOMSMARTN01,Cars,TRA,.DMD.,TCHARGHOMSMARTN01,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+THDTGASH1N01,Road Freight,TRA,.DMD.,Heavy Duty Trucks Gas More than 3 t,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Road Freight
+THDTGASH1N02,Road Freight,TRA,.DMD.,Heavy Duty Trucks CNG More than 3 t,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Road Freight
+THDTGASH2N01,Road Freight,TRA,.DMD.,Heavy Duty Trucks CNG Less than 14 t New,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Road Freight
+THDTGASH3N01,Road Freight,TRA,.DMD.,Heavy Duty Trucks LNG  Between 14-28 t New,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Road Freight
+THDTGASH4N01,Road Freight,TRA,.DMD.,Heavy Duty Trucks LNG Between 28-40 t New,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Road Freight
+THDTGASH5N01,Road Freight,TRA,.DMD.,Heavy Duty Trucks LNG Between 40-50 t New,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Road Freight
+THDTGMXH1N01,Road Freight,TRA,.DMD.,Heavy Duty Trucks Gas More than 3 t,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Road Freight
+THDTGMXH1N02,Road Freight,TRA,.DMD.,Heavy Duty Trucks CNG More than 3 t,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Road Freight
+THDTGMXH2N01,Road Freight,TRA,.DMD.,Heavy Duty Trucks CNG Less than 14 t New,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Road Freight
+THDTGMXH3N01,Road Freight,TRA,.DMD.,Heavy Duty Trucks LNG  Between 14-28 t New,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Road Freight
+THDTGMXH4N01,Road Freight,TRA,.DMD.,Heavy Duty Trucks LNG Between 28-40 t New,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Road Freight
+THDTGMXH5N01,Road Freight,TRA,.DMD.,Heavy Duty Trucks LNG Between 40-50 t New,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Road Freight
+TLCVGASLCN01,Road Freight,TRA,.DMD.,Light Commercial Vehicles Gas Light New,PJ,PJA,PRE,TLCV,ANNUAL,,Road Freight,Road Freight
+TLCVGMXLCN01,Road Freight,TRA,.DMD.,Light Commercial Vehicles Gas Light New,PJ,PJA,PRE,TLCV,ANNUAL,,Road Freight,Road Freight
+TRADST00,Fuel Tech - Diesel (TRA),TRA,.PRE.,Fuel Tech - Diesel (TRA),PJ,PJA,PRE,TRADST,ANNUAL,"0,00",Fuel Tech - Diesel (TRA),Fuel Tech - Diesel (TRA)
+TRAETH00,Fuel Tech - Ethanol (TRA),TRA,.PRE.,Fuel Tech - Ethanol (TRA),PJ,PJA,PRE,TRAETH,ANNUAL,"0,00",Fuel Tech - Ethanol,Fuel Tech - Ethanol (TRA)
+TRAGSL00,Fuel Tech - Gasoline (TRA),TRA,.PRE.,Fuel Tech - Gasoline (TRA),PJ,PJA,PRE,TRAGSL,ANNUAL,"0,00",Fuel Tech - Gasoline (TRA),Fuel Tech - Gasoline (TRA)
+TBUSBDLCN01,Road transport (public),TRA,.DMD.,Buses Gas Coach New,PJ,PJA,PRE,TBU,ANNUAL,,Road transport (public),Road transport (public)
+TBUSBDLUN01,Road transport (public),TRA,.DMD.,Buses Gas Coach New,PJ,PJA,PRE,TBU,ANNUAL,,Road transport (public),Road transport (public)
+TBUSDSTCN01,Road transport (public),TRA,.DMD.,Buses Gas Coach New,PJ,PJA,PRE,TBU,ANNUAL,,Road transport (public),Road transport (public)
+TBUSDSTHEVU00,Road transport (public),TRA,.DMD.,Buses Gas Coach New,PJ,PJA,PRE,TBU,ANNUAL,,Road transport (public),Road transport (public)
+TBUSDSTUHEVN01,Road transport (public),TRA,.DMD.,Buses Gas Coach New,PJ,PJA,PRE,TBU,ANNUAL,,Road transport (public),Road transport (public)
+TBUSELCUN01,Road transport (public),TRA,.DMD.,Buses Gas Coach New,PJ,PJA,PRE,TBU,ANNUAL,,Road transport (public),Road transport (public)
+TBUSETHUN01,Road transport (public),TRA,.DMD.,Buses Gas Coach New,PJ,PJA,PRE,TBU,ANNUAL,,Road transport (public),Road transport (public)
+TBUSGH2CN01,Road transport (public),TRA,.DMD.,Buses Gas Coach New,PJ,PJA,PRE,TBU,ANNUAL,,Road transport (public),Road transport (public)
+TBUSGH2UN01,Road transport (public),TRA,.DMD.,Buses Gas Coach New,PJ,PJA,PRE,TBU,ANNUAL,,Road transport (public),Road transport (public)
+TBUSGSLCN01,Road transport (public),TRA,.DMD.,Buses Gas Coach New,PJ,PJA,PRE,TBU,ANNUAL,,Road transport (public),Road transport (public)
+TBUSGSLUN01,Road transport (public),TRA,.DMD.,Buses Gas Coach New,PJ,PJA,PRE,TBU,ANNUAL,,Road transport (public),Road transport (public)
+TCARDSTEXN01,Cars,TRA,.DMD.,Cars CNG Executive Existing,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARDSTHEV4EXN01,Cars,TRA,.DMD.,Cars CNG Executive Existing,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARDSTHYBEXN01,Cars,TRA,.DMD.,Cars CNG Executive Existing,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARDSTHYBMLN01,Cars,TRA,.DMD.,Cars CNG Executive Existing,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARDSTHYBMUN01,Cars,TRA,.DMD.,Cars CNG Executive Existing,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARDSTHYBSMN01,Cars,TRA,.DMD.,Cars CNG Executive Existing,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARDSTMUN01,Cars,TRA,.DMD.,Cars CNG Executive Existing,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARGH2FCEXN01,Cars,TRA,.DMD.,Cars CNG Executive Existing,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARGH2FCMLN01,Cars,TRA,.DMD.,Cars CNG Executive Existing,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARGH2FCMUN01,Cars,TRA,.DMD.,Cars CNG Executive Existing,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARGH2FCSMN01,Cars,TRA,.DMD.,Cars CNG Executive Existing,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARGSLEXN01,Cars,TRA,.DMD.,Cars CNG Executive Existing,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARGSLHEV4EXN01,Cars,TRA,.DMD.,Cars CNG Executive Existing,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARGSLHYBEXN01,Cars,TRA,.DMD.,Cars CNG Executive Existing,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARGSLHYBMUN01,Cars,TRA,.DMD.,Cars CNG Executive Existing,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARGSLHYBSMN01,Cars,TRA,.DMD.,Cars CNG Executive Existing,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARGSLMLN01,Cars,TRA,.DMD.,Cars CNG Executive Existing,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARGSLSMN01,Cars,TRA,.DMD.,Cars CNG Executive Existing,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARLPGEXN01,Cars,TRA,.DMD.,Cars CNG Executive Existing,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARLPGMUN01,Cars,TRA,.DMD.,Cars CNG Executive Existing,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+TCARLPGSMN01,Cars,TRA,.DMD.,Cars CNG Executive Existing,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Cars
+THDTDSTH1N01,Road Freight,TRA,.DMD.,Heavy Duty Trucks Gas More than 3 t,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Road Freight
+THDTDSTHYBH2N01,Road Freight,TRA,.DMD.,Heavy Duty Trucks Gas More than 3 t,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Road Freight
+THDTDSTHYBH3N01,Road Freight,TRA,.DMD.,Heavy Duty Trucks Gas More than 3 t,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Road Freight
+THDTDSTHYBH4N01,Road Freight,TRA,.DMD.,Heavy Duty Trucks Gas More than 3 t,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Road Freight
+THDTELCH1N01,Road Freight,TRA,.DMD.,Heavy Duty Trucks Gas More than 3 t,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Road Freight
+THDTELCH2N01,Road Freight,TRA,.DMD.,Heavy Duty Trucks Gas More than 3 t,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Road Freight
+THDTELCH3N01,Road Freight,TRA,.DMD.,Heavy Duty Trucks Gas More than 3 t,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Road Freight
+THDTELCH4N01,Road Freight,TRA,.DMD.,Heavy Duty Trucks Gas More than 3 t,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Road Freight
+THDTELCH5N01,Road Freight,TRA,.DMD.,Heavy Duty Trucks Gas More than 3 t,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Road Freight
+THDTGH2H1N01,Road Freight,TRA,.DMD.,Heavy Duty Trucks Gas More than 3 t,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Road Freight
+THDTGH2H2N01,Road Freight,TRA,.DMD.,Heavy Duty Trucks Gas More than 3 t,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Road Freight
+THDTGH2H3N01,Road Freight,TRA,.DMD.,Heavy Duty Trucks Gas More than 3 t,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Road Freight
+THDTGH2H4N01,Road Freight,TRA,.DMD.,Heavy Duty Trucks Gas More than 3 t,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Road Freight
+THDTGSLH1N01,Road Freight,TRA,.DMD.,Heavy Duty Trucks Gas More than 3 t,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Road Freight
+THDTGSLHYBH1N01,Road Freight,TRA,.DMD.,Heavy Duty Trucks Gas More than 3 t,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Road Freight
+TLCVELCLCN01,Road Freight,TRA,.DMD.,Light Commercial Vehicles Gas Light New,PJ,PJA,PRE,TLCV,ANNUAL,,Road Freight,Road Freight
+TLCVETHHYBLCN01,Road Freight,TRA,.DMD.,Light Commercial Vehicles Gas Light New,PJ,PJA,PRE,TLCV,ANNUAL,,Road Freight,Road Freight
+TLCVETHLCN01,Road Freight,TRA,.DMD.,Light Commercial Vehicles Gas Light New,PJ,PJA,PRE,TLCV,ANNUAL,,Road Freight,Road Freight
+TLCVGH2LCN01,Road Freight,TRA,.DMD.,Light Commercial Vehicles Gas Light New,PJ,PJA,PRE,TLCV,ANNUAL,,Road Freight,Road Freight
+TLCVGSLLCN01,Road Freight,TRA,.DMD.,Light Commercial Vehicles Gas Light New,PJ,PJA,PRE,TLCV,ANNUAL,,Road Freight,Road Freight
+TNAINLBDLN01,Road Freight,TRA,.DMD.,Light Commercial Vehicles Gas Light New,PJ,PJA,PRE,TLCV,ANNUAL,,Road Freight,Road Freight

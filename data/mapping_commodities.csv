@@ -18,7 +18,6 @@ TRAGSL,Gasoline for transport,PJ,TRA,,total energy for transport,total energy fo
 TRAKER,Kerosene - Jet Fuels for transport,PJ,TRA,,Kerosene - Jet Fuels for transport,Kerosene - Jet Fuels for transport,nan,nan,kerozene
 RSDLPG,Liquified Petroleum Gas (RSD),PJ,RSD,,Liquified Petroleum Gas (RSD),Liquified Petroleum Gas (RSD),nan,nan,Propane butane
 COMLPG,Liquified Petroleum Gas (COM),PJ,COM,,Liquified Petroleum Gas (COM),Liquified Petroleum Gas (COM),nan,nan,Propane butane
-TRALPG,Liquified Petroleum Gas (TRA),PJ,TRA,,total energy for transport,total energy for transport,nan,nan,Propane butane
 INDLPG,Liquified Petroleum Gas for industry,PJ,IND,,gas for industry,gas for industry,nan,nan,Propane butane
 INDCOA,Hard Coal for industry,PJ,IND,,coal for industry,coal for industry,nan,nan,nan
 RSDCOA,Coal for residential sector,PJ,RSD,,Coal for residential sector,Coal for residential sector,nan,nan,nan
@@ -48,7 +47,7 @@ TRAGH2,H2 for transport (gas),PJ,SUP,,H2 for transport,H2 for transport,nan,nan,
 TRALH2,H2 for transport (liquid),PJ,SUP,,H2 for transport,H2 for transport,nan,nan,nan
 INDHH2,hydrogen for industry,PJ,SUP,,hydrogen for industry,hydrogen for industry,nan,nan,nan
 TRAETH,Ethanol for transport,PJ,TRA,,total energy for transport,total energy for transport,nan,nan,pure bioethanol
-TRABDL,Biodiesel for transport,PJ,TRA,,Fuel Tech – Diesel,Fuel Tech – Diesel,nan,nan,pure biodiesiel
+TRABDL,Biodiesel for transport,PJ,TRA,,total energy for transport,total energy for transport,nan,nan,pure biodiesiel
 OILKER,Kerosenes - Jet Fuels,PJ,SUP,,Kerosenes - Jet Fuels,Kerosenes - Jet Fuels,nan,nan,nan
 BIORME,Biodiesel rapeseed methyl ester (RME),PJ,SUP,,Biodiesel rapeseed methyl ester (RME),Biodiesel rapeseed methyl ester (RME),nan,nan,nan
 RW3F,hot water for 3F houses,PJ,RSD,,BEWAL residential rural heat,Heat,nan,nan,nan
@@ -120,7 +119,7 @@ RLIG,Rsd.Lighting.Existing.,PJ,RSD,,electricity for residential,Electricity ,nan
 RREF,Rsd.Refrigeration.Existing.,PJ,RSD,,electricity for residential,electricity for residential,nan,nan,nan
 ROEN,Rsd.Other Energy.Existing.,PJ,RSD,,electricity for residential,electricity for residential,nan,nan,nan
 ROEL,Rsd.Other Electric.Existing.,PJ,RSD,,electricity for residential,electricity for residential,nan,nan,nan
-TRALPG,Fuel Tech - Liquified Petroleum Gas,PJ,TRA,,total energy for transport,total energy for transport,nan,nan,nan
+TRALPG,Fuel Tech - Liquified Petroleum Gas (TRA),PJ,TRA,,total energy for transport,total energy for transport,nan,nan,nan
 TNDF,Navigation Domestic Freight Tech Existing,PJ,TRA,,domestic navigation,domestic navigation,nan,nan,nan
 AGRCPS,Wood for agriculture,PJ,AGR,,Wood for agriculture,Wood for agriculture,nan,nan,nan
 CHBA,Space heating for commercial sector,PJ,COM,,BEWAL services urban decentral heat,Heat,nan,nan,nan
@@ -173,3 +172,7 @@ COMCPS,Chips wood (COM),PJ,COM,NRG,Chips wood (COM),Chips wood (COM),,,auto-adde
 INDSOL,Solar (IND),PJ,IND,NRG,Solar (IND),Solar (IND),,,auto-added from AllCommodities.csv
 NEC,Non Energy Consumption - Chemicals,PJ,IND,DEM,Non-energy,naphtha,,,auto-added from AllCommodities.csv
 OILNAP,Naphtha,PJ,IND,NRG,Non-energy,naphtha,,,Added for industry sector
+TRAGAS,Fuel Tech - Natural Gas (TRA),PJ,TRA,DEM,total energy for transport,total energy for transport,,,
+TRAGZH,BioGas (TAR),PJ,TRA,DEM,total energy for transport,total energy for transport,,,
+INDGZH,Fuel Tech New - biogaz epure (IND),PJ,IND,DEM,gas for industry,gas for industry,,,
+BATELCOUT,TSTGEVCMIDN01,PJ,TRA,DEM,total energy for transport,Electricity ,,,
