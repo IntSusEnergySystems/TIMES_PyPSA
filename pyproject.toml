@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "times-pypsa"
+version = "0.1.0"
+description = "Extract PyPSA demands and Sankey diagrams from TIMES .vd output"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "pandas",
+    "plotly",
+]
+
+[project.scripts]
+times-pypsa = "times_pypsa.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["times_pypsa*"]
+
+[tool.setuptools.package-data]
+times_pypsa = ["mappings/*.csv"]

@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../pypsa-wal"
+		},
+		{
+			"path": "../../llm"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {}
+}

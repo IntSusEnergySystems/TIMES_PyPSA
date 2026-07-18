@@ -1,44 +1,95 @@
 ### TIMES_PyPSA
-Soft-linking between the TIMES‑WAL and PyPSA‑WAL models. This repository includes a parser/visualizer that reads TIMES `.vd` output files and generates interactive Sankey energy-flow diagrams and a power capacity bar chart.
 
-### Requirements
-- **Python**: 3.9+ recommended
-- **Libraries**: `pandas`, `plotly` (and `jupyter` if using the notebook)
+Soft-linking between the TIMES-WAL and PyPSA-WAL models. This repository provides the **`times_pypsa`** Python package to parse TIMES `.vd` output files, extract PyPSA demand categories, and generate interactive Sankey energy-flow diagrams.
 
-Install with pip:
+### Install
+
+From the repository root:
+
 ```bash
 python -m pip install --upgrade pip
-pip install pandas plotly jupyter
+pip install -e .
 ```
 
+Dependencies: `pandas`, `plotly` (Python 3.9+).
+
+Bundled mapping files live in `times_pypsa/mappings/` (`mapping_commodities.csv`, `mapping_processes.csv`, `extraction_rules.csv`).
+
+### CLI usage
+
+Export demands and Sankey for multiple horizons:
+
+```bash
+times-pypsa export \
+  --vd data/scen_corrige_251129_0112.vd \
+  --out output/ \
+  --horizons 2021-2050 \
+  --emit all
+```
+
+Export demands only:
+
+```bash
+times-pypsa export \
+  --vd data/scen_corrige_251129_0112.vd \
+  --out output/ \
+  --horizons 2030,2040,2050 \
+  --emit demands
+```
+
+Generate a standalone Sankey for one year:
+
+```bash
+times-pypsa sankey \
+  --vd data/scen_corrige_251129_0112.vd \
+  --year 2030 \
+  --out-dir output/
+```
+
+Use `--mappings-dir` to override the bundled mappings (defaults to the package `times_pypsa/mappings/`).
+
+### Python API
+
+For Snakemake integration in pypsa-wal:
+
+```python
+from times_pypsa import export_horizon, export_all_horizons, generate_sankey
+
+export_horizon(
+    vd_file="path/to/scenario.vd",
+    mappings_dir="times_pypsa/mappings",
+    horizon=2030,
+    wallon_demands_path="resources/walloon/demands_2030.csv",
+    heating_capacities_path="resources/walloon/heating_capacities_2030.csv",
+    sankey_dir="results/sankey",
+    emit_sankey=True,
+)
+```
+
+### Legacy script
+
+The original monolithic script remains as a thin wrapper:
+
+```bash
+python scripts/bau_sankey_diagram.py
+```
+
+This exports `pypsa_demands_{year}.csv` for 2021–2050 and a Sankey for 2030 into `output/`.
+
+> **Note:** `scripts/extract_pypsa_demands.py` is archived. It used an older mapping-based approach; use `times-pypsa export` or the Python API instead.
+
 ### Data
+
 Files under `data/`:
-- bau_080925_0809.vd: example TIMES output file parsed by the script
-- mapping_commodities.csv, mapping_processes.csv: mapping the TIMES processes and commodities towards the PyPSA equivalents
+
+- `scen_*.vd`: TIMES scenario output files
+- `mapping_commodities.csv`, `mapping_processes.csv`: TIMES → PyPSA mappings (also shipped in the package)
 
 ### Example outputs
+
 Generated files (synced to the web server by the rsync script):
+
 - [bau_sankey_2021_pj_clustered.html](http://labothap.squoilin.eu/times_pypsa/bau_sankey_2021_pj_clustered.html)
 - [bau_sankey_2050_pj.html](http://labothap.squoilin.eu/times_pypsa/bau_sankey_2050_pj.html)
 - [annual_values_2021.csv](http://labothap.squoilin.eu/times_pypsa/annual_values_2021.csv)
-- [annual_values_2050.csv](http://labothap.squoilin.eu/times_pypsa/annual_values_2050.csv)
-- [annual_values.csv](http://labothap.squoilin.eu/times_pypsa/annual_values.csv)
 - [annual_values_clustered.csv](http://labothap.squoilin.eu/times_pypsa/annual_values_clustered.csv)
-- [annual_flows_2021_energy_clustered.csv](http://labothap.squoilin.eu/times_pypsa/annual_flows_2021_energy_clustered.csv)
-- [annual_flows_2050_energy.csv](http://labothap.squoilin.eu/times_pypsa/annual_flows_2050_energy.csv)
-- [sankey_commodity_groups_2021.csv](http://labothap.squoilin.eu/times_pypsa/sankey_commodity_groups_2021.csv)
-- [sankey_commodity_groups_2021.json](http://labothap.squoilin.eu/times_pypsa/sankey_commodity_groups_2021.json)
-
-### How to run
-Run the Python script (recommended):
-```bash
-cd scripts
-python bau_sankey_diagram.py
-```
-This reads data/bau_080925_0809.vd, creates interactive Sankey diagrams in PJ, a capacity bar plot, and exports CSVs to `output/`.
-
-Run the notebook (currently running with a simplistic demo output file):
-```bash
-jupyter lab  # or: jupyter notebook
-```
-Then open `scripts/run_sankey.ipynb` and run all cells.
