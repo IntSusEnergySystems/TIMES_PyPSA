@@ -4,3 +4,4 @@ __pycache__/
 
 # Temporary files
 .~lock.*#
+times_pypsa.egg-info/*
