@@ -1267,7 +1267,7 @@ def export_all_horizons(
     if emit in ("demands", "all"):
         for horizon in horizons:
             wallon_path = out_dir / f"wallon_demands_{horizon}.csv"
-            extract_demands_for_horizon(
+            results_df = extract_demands_for_horizon(
                 annual_values_df,
                 metadata.processes_df,
                 metadata.mapping_df,
@@ -1277,7 +1277,8 @@ def export_all_horizons(
                 wallon_path,
                 apply_netting=config.apply_netting,
             )
-            shutil.copy2(wallon_path, out_dir / f"pypsa_demands_{horizon}.csv")
+            if not results_df.empty:
+                shutil.copy2(wallon_path, out_dir / f"pypsa_demands_{horizon}.csv")
         for horizon in horizons:
             extract_heating_capacities(
                 raw_flows_df,
@@ -1373,7 +1374,7 @@ def export_coupling_dir(
 
     for horizon in horizons:
         wallon_path = pypsa_inputs / f"wallon_demands_{horizon}.csv"
-        extract_demands_for_horizon(
+        results_df = extract_demands_for_horizon(
             annual_values_df,
             metadata.processes_df,
             metadata.mapping_df,
@@ -1383,7 +1384,8 @@ def export_coupling_dir(
             wallon_path,
             apply_netting=config.apply_netting,
         )
-        shutil.copy2(wallon_path, pypsa_inputs / f"pypsa_demands_{horizon}.csv")
+        if not results_df.empty:
+            shutil.copy2(wallon_path, pypsa_inputs / f"pypsa_demands_{horizon}.csv")
 
     for horizon in horizons:
         extract_heating_capacities(
