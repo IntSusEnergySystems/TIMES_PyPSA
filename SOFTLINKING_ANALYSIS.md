@@ -173,11 +173,13 @@ export_coupling_dir(
 
 1. Parse `.vd` → `[year, region, timeslice, variable, commodity_code, process_code, value]`
 2. Aggregate timeslices → annual PJ
-3. Map via `mapping_processes.csv` (`Aggregation Level 2`) and `mapping_commodities.csv` (`PyPSA Energy Carrier`)
+3. Map via `mapping_processes.csv` (`Aggregation Level 2` → column **`process_agg`**) and `mapping_commodities.csv` (`PyPSA Energy Carrier`)
 4. Apply 54 rules from `extraction_rules.csv`
 5. Net internal transfers (`net_bidirectional_links`) inside aggregated process groups
 6. PJ → TWh (`× 0.277778`)
 7. Post-process: subtract `electricity rail` from `electricity road`, `total rail` from `total road`
+
+**QA / validation:** use `times-pypsa qa` (multi-level Sankey with export highlighting, balance and coverage CSVs). Full data model, aggregation levels, tests, and expert questions: **[EXTRACTION_QA.md](EXTRACTION_QA.md)**.
 
 **Where to edit:**
 | What | File |
@@ -186,6 +188,7 @@ export_coupling_dir(
 | Process aggregation labels | `mapping_processes.csv` |
 | Commodity → PyPSA carrier | `mapping_commodities.csv` |
 | Parser / netting / road-rail | `times_pypsa/pipeline.py` |
+| QA report / balances / topology | `times_pypsa/{qa,balances,model,topology,aggregation}.py` |
 | Snakemake I/O only | `pypsa-wal/scripts/build_wallon_demands.py` |
 
 Keep both mapping copies in sync (or drop the pypsa-wal override and use package defaults).
@@ -236,6 +239,7 @@ SEPIA HTML + `scripts/rsync_output.sh` → labothap remains a fallback for Sanke
 | **2** | Wire `heating_capacities` into `add_existing_baseyear` | Open (needs Q2) |
 | **3** | Explorer upload orchestration | Operational via `nic5.sh` |
 | **4** | TIMES demands vs ClimAct BEWAL load QA script | Open |
+| **4** | Multi-view extraction QA (`times-pypsa qa`) + pytest balances | **Done** (see [EXTRACTION_QA.md](EXTRACTION_QA.md)) |
 
 ---
 
@@ -257,7 +261,7 @@ SEPIA HTML + `scripts/rsync_output.sh` → labothap remains a fallback for Sanke
 | Topic | Note |
 |-------|------|
 | Mapping drift | Two copies (`times_pypsa/mappings/` and `data/walloon/`). Prefer pointing config at the package or syncing in CI. |
-| Silent empty filters | A typo in `extraction_rules.csv` yields 0 demand with no hard failure. Consider fail-fast empty-match warnings. |
+| Silent empty filters | A typo in `extraction_rules.csv` yields 0 demand with no hard failure. Mitigated by `times-pypsa qa` empty-rule table + pytest allowlist (`KNOWN_ZERO_CATEGORIES`). |
 | Params vs TIMES | Nuclear floors, CO₂ baselines, shipping shares, sequestration potentials live in `config.walloon.yaml` / Python (`solve_network.py`) — must stay consistent with the TIMES scenario (future `params.yaml`). |
 | NIC5 + external `coupling_dir` | Materialise `pypsa_inputs/` into `resources/` before `nic5.sh push`, or extend rsync. |
 | PyPSA version split | Never merge ClimAct into this package; orchestrate envs only. |
@@ -270,6 +274,7 @@ SEPIA HTML + `scripts/rsync_output.sh` → labothap remains a fallback for Sanke
 | Role | Path |
 |------|------|
 | Library core | `TIMES_PyPSA/times_pypsa/pipeline.py` |
+| Extraction QA | `TIMES_PyPSA/EXTRACTION_QA.md`, `times-pypsa qa` |
 | CLI | `times-pypsa` → `times_pypsa/cli.py` |
 | Bundled mappings | `TIMES_PyPSA/times_pypsa/mappings/` |
 | Snakemake wrapper | `pypsa-wal/scripts/build_wallon_demands.py` |

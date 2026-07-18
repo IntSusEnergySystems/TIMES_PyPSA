@@ -608,6 +608,18 @@ def _build_commodity_pypsa_map(
     return commodity_pypsa_map
 
 
+def _process_agg_column(df: pd.DataFrame) -> str:
+    """
+    Column used by extraction_rules ``process_agg`` filters.
+
+    Canonical name is ``process_agg`` (Aggregation Level 2 labels).
+    Older code stored those labels in ``agg_level_1`` — accept either.
+    """
+    if "process_agg" in df.columns:
+        return "process_agg"
+    return "agg_level_1"
+
+
 def _apply_extraction_rule(
     year_df: pd.DataFrame,
     var_type: str,
@@ -623,8 +635,10 @@ def _apply_extraction_rule(
     else:
         filtered_df = year_df[year_df["variable"].str.upper() == var_type].copy()
 
+    agg_col = _process_agg_column(filtered_df)
+
     if filter_type == "process_agg":
-        filtered_df = filtered_df[filtered_df["agg_level_1"].isin(filter_values)]
+        filtered_df = filtered_df[filtered_df[agg_col].isin(filter_values)]
     elif filter_type == "pypsa_carrier":
         filtered_df = filtered_df[filtered_df["pypsa_carrier"].isin(filter_values)]
     elif filter_type == "commodity":
@@ -635,7 +649,7 @@ def _apply_extraction_rule(
         for sub_filter_type, sub_filter_values in filter_values:
             if sub_filter_type == "process_agg":
                 filtered_df = filtered_df[
-                    filtered_df["agg_level_1"].isin(sub_filter_values)
+                    filtered_df[agg_col].isin(sub_filter_values)
                 ]
             elif sub_filter_type == "pypsa_carrier":
                 filtered_df = filtered_df[
@@ -653,7 +667,7 @@ def _apply_extraction_rule(
     if apply_netting and not filtered_df.empty:
         netted_df = filtered_df.copy()
         netted_df["process_code_orig"] = netted_df["process_code"]
-        netted_df["process_code"] = netted_df["agg_level_1"]
+        netted_df["process_code"] = netted_df[agg_col]
         netted_df = net_bidirectional_links(netted_df)
         if var_type == "VAR_FIN":
             netted_df = netted_df[netted_df["variable"].str.upper() == "VAR_FIN"]
@@ -752,6 +766,8 @@ def extract_demands_for_horizon(
             "Netting enabled to remove internal transfers within aggregated processes."
         )
 
+    # process_agg = Aggregation Level 2 labels (used by extraction_rules.csv).
+    # Also mirrored to agg_level_1 for backward compatibility with older callers.
     process_agg_map: dict[str, str] = {}
     if "Process" in processes_df.columns and "Aggregation Level 2" in processes_df.columns:
         for _, row in processes_df.iterrows():
@@ -773,7 +789,8 @@ def extract_demands_for_horizon(
         logger.warning("No flow data for horizon %d", horizon)
         return pd.DataFrame(columns=["category", "TWh", "PJ", "year"])
 
-    year_df["agg_level_1"] = year_df["process_code"].map(process_agg_map)
+    year_df["process_agg"] = year_df["process_code"].map(process_agg_map)
+    year_df["agg_level_1"] = year_df["process_agg"]  # legacy alias
     year_df["pypsa_carrier"] = year_df["commodity_code"].map(commodity_pypsa_map)
 
     results = []

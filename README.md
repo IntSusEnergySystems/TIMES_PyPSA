@@ -46,6 +46,16 @@ times-pypsa sankey \
   --out-dir output/
 ```
 
+Multi-view extraction QA (export highlighting, balance / coverage CSVs) — see [EXTRACTION_QA.md](EXTRACTION_QA.md):
+
+```bash
+times-pypsa qa \
+  --vd /path/to/scen_corrige_251129_0112.vd \
+  --vdt /path/to/scen_corrige_251129_0112.vdt \
+  --year 2050 \
+  --out-dir output/qa_2050/
+```
+
 Use `--mappings-dir` to override the bundled mappings (defaults to the package `times_pypsa/mappings/`).
 
 ### Soft-linking bundle (PyPSA-WAL)

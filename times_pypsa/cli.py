@@ -15,6 +15,7 @@ from times_pypsa.pipeline import (
     export_horizon,
     generate_sankey,
 )
+from times_pypsa.qa import generate_qa_report
 
 logger = logging.getLogger(__name__)
 
@@ -113,6 +114,27 @@ def cmd_sankey(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_qa(args: argparse.Namespace) -> int:
+    mappings_dir = _resolve_mappings_dir(args)
+    config = _build_config(args)
+    artifacts = generate_qa_report(
+        args.vd,
+        args.out_dir,
+        args.year,
+        vdt_file=args.vdt,
+        mappings_dir=mappings_dir,
+        config=config,
+        flow_threshold_l0=args.threshold_l0,
+        flow_threshold_l1=args.threshold_l1,
+        flow_threshold_export=args.threshold_export,
+    )
+    if not artifacts:
+        logger.error("QA report produced no artifacts (empty flows?)")
+        return 1
+    logger.info("QA report: %s", artifacts.get("report"))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="times-pypsa",
@@ -178,6 +200,49 @@ def build_parser() -> argparse.ArgumentParser:
         help="Output directory for HTML and auxiliary CSVs",
     )
     sankey_parser.set_defaults(func=cmd_sankey)
+
+    qa_parser = subparsers.add_parser(
+        "qa",
+        help="Multi-view Sankey QA report with export highlighting and balance tables",
+    )
+    _add_common_args(qa_parser)
+    qa_parser.add_argument(
+        "--year",
+        type=int,
+        required=True,
+        help="Planning horizon / model year",
+    )
+    qa_parser.add_argument(
+        "--out-dir",
+        type=Path,
+        required=True,
+        help="Output directory for HTML report and CSV diagnostics",
+    )
+    qa_parser.add_argument(
+        "--vdt",
+        type=Path,
+        default=None,
+        help="Optional TIMES .vdt topology file for mismatch checks",
+    )
+    qa_parser.add_argument(
+        "--threshold-export",
+        type=float,
+        default=1.0,
+        help="Minimum flow (PJ) for export-neighbourhood Sankey links (default: 1.0)",
+    )
+    qa_parser.add_argument(
+        "--threshold-l0",
+        type=float,
+        default=0.5,
+        help="Deprecated (kept for CLI compat); unused by export neighbourhood view",
+    )
+    qa_parser.add_argument(
+        "--threshold-l1",
+        type=float,
+        default=0.5,
+        help="Deprecated (kept for CLI compat); unused by export neighbourhood view",
+    )
+    qa_parser.set_defaults(func=cmd_qa)
 
     return parser
 

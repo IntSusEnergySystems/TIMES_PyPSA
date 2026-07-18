@@ -13,6 +13,9 @@ dependencies = [
     "plotly",
 ]
 
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
 [project.scripts]
 times-pypsa = "times_pypsa.cli:main"
 
