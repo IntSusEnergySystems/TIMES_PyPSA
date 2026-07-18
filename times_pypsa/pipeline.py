@@ -35,6 +35,7 @@ class PipelineConfig:
     enable_process_clustering: bool = True
     group_commodities: bool = True
     process_cluster_column: str = "Aggregation Level 2"
+    agg_level: str = "Aggregation Level 2"
     flow_threshold: float = 0.0
 
 
@@ -1063,8 +1064,9 @@ def prepare_annual_values(
 
 def _sankey_config(config: PipelineConfig) -> tuple[bool, bool, str | None, bool]:
     if config.enable_process_clustering:
-        netting = config.process_cluster_column == "Aggregation Level 2"
-        return True, config.group_commodities, config.process_cluster_column, netting
+        cluster_col = config.agg_level
+        netting = cluster_col == "Aggregation Level 2"
+        return True, config.group_commodities, cluster_col, netting
     return False, config.group_commodities, None, False
 
 

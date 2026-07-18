@@ -64,7 +64,10 @@ def _add_common_args(parser: argparse.ArgumentParser) -> None:
 
 
 def _build_config(args: argparse.Namespace) -> PipelineConfig:
-    return PipelineConfig(start_year=args.start_year)
+    return PipelineConfig(
+        start_year=args.start_year,
+        agg_level=getattr(args, "agg_level", "Aggregation Level 2"),
+    )
 
 
 def _resolve_mappings_dir(args: argparse.Namespace) -> Path:
@@ -134,6 +137,7 @@ def cmd_qa(args: argparse.Namespace) -> int:
         flow_threshold_l1=args.threshold_l1,
         flow_threshold_export=args.threshold_export,
         units=args.units,
+        agg_level=args.agg_level,
     )
     if not artifacts:
         logger.error("QA report produced no artifacts (empty flows?)")
@@ -206,6 +210,14 @@ def build_parser() -> argparse.ArgumentParser:
         required=True,
         help="Output directory for HTML and auxiliary CSVs",
     )
+    sankey_parser.add_argument(
+        "--agg-level",
+        default="Aggregation Level 2",
+        help=(
+            "Sankey aggregation column shared by mapping_processes.csv and "
+            "mapping_commodities.csv (legacy aliases: L0, L1, L2, mapping)"
+        ),
+    )
     sankey_parser.set_defaults(func=cmd_sankey)
 
     qa_parser = subparsers.add_parser(
@@ -259,6 +271,14 @@ def build_parser() -> argparse.ArgumentParser:
         type=float,
         default=0.5,
         help="Deprecated (kept for CLI compat); unused by export neighbourhood view",
+    )
+    qa_parser.add_argument(
+        "--agg-level",
+        default="Aggregation Level 2",
+        help=(
+            "Sankey aggregation column shared by mapping_processes.csv and "
+            "mapping_commodities.csv (legacy aliases: L0, L1, L2, mapping)"
+        ),
     )
     qa_parser.set_defaults(func=cmd_qa)
 

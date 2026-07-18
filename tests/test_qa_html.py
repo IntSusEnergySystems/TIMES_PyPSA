@@ -39,10 +39,20 @@ def test_export_status_mixed_when_aggregated(tagged_2030):
         pytest.skip("Not enough tagged flows")
     sample.loc[sample.index[0], "exported"] = True
     sample.loc[sample.index[1], "exported"] = False
-    sample.loc[sample.index[0], "process_agg"] = "Mixed test process"
-    sample.loc[sample.index[1], "process_agg"] = "Mixed test process"
-    sample.loc[sample.index[0], "pypsa_carrier"] = "Electricity"
-    sample.loc[sample.index[1], "pypsa_carrier"] = "Electricity"
+    # Force both rows into the same aggregated nodes (column-based level)
+    for col in (
+        "process_agg",
+        "agg_level_2",
+        "proc_agg__Aggregation Level 2",
+        "proc_agg__custom",
+    ):
+        if col in sample.columns:
+            sample.loc[sample.index[0], col] = "Mixed test process"
+            sample.loc[sample.index[1], col] = "Mixed test process"
+    for col in ("pypsa_carrier", "com_agg__Aggregation Level 2", "com_agg__custom"):
+        if col in sample.columns:
+            sample.loc[sample.index[0], col] = "Electricity"
+            sample.loc[sample.index[1], col] = "Electricity"
     links = prepare_system_sankey_links(sample, flow_threshold=0.0, apply_netting=False)
     mixed = links[links["export_status"] == "mixed"]
     assert not mixed.empty
@@ -74,14 +84,17 @@ def test_netting_reduces_or_equal_link_values(tagged_2030):
     assert netted["value"].sum() <= gross["value"].sum() + 1e-6
 
 
-def test_generate_qa_report_all_years(tmp_path, vd_path, vdt_path, mappings_dir):
+def test_generate_qa_report_all_years(
+    tmp_path, qa_vd_path, qa_vdt_path, mappings_dir, qa_model
+):
     out_dir = tmp_path / "qa_all"
     artifacts = generate_qa_report(
-        vd_path,
+        qa_vd_path,
         out_dir,
         year=None,
-        vdt_file=vdt_path,
+        vdt_file=qa_vdt_path,
         mappings_dir=mappings_dir,
+        model=qa_model,
     )
     report = artifacts.get("report")
     assert report is not None
@@ -96,16 +109,19 @@ def test_generate_qa_report_all_years(tmp_path, vd_path, vdt_path, mappings_dir)
     assert any(p.name.startswith("qa_flows_") for p in out_dir.glob("qa_flows_*.csv"))
 
 
-def test_generate_qa_report_pj_units(tmp_path, vd_path, vdt_path, mappings_dir, times_model):
-    year = 2030 if 2030 in times_model.years else times_model.years[0]
+def test_generate_qa_report_pj_units(
+    tmp_path, qa_vd_path, qa_vdt_path, mappings_dir, qa_model
+):
+    year = 2030 if 2030 in qa_model.years else qa_model.years[0]
     out_dir = tmp_path / "qa_pj"
     generate_qa_report(
-        vd_path,
+        qa_vd_path,
         out_dir,
         year=year,
-        vdt_file=vdt_path,
+        vdt_file=qa_vdt_path,
         mappings_dir=mappings_dir,
         units="pj",
+        model=qa_model,
     )
     html = (out_dir / "qa_report.html").read_text(encoding="utf-8")
     assert '"unit": "PJ"' in html
@@ -114,15 +130,18 @@ def test_generate_qa_report_pj_units(tmp_path, vd_path, vdt_path, mappings_dir, 
     assert "TWh" not in flows.columns
 
 
-def test_generate_qa_report_single_year(tmp_path, vd_path, vdt_path, mappings_dir, times_model):
-    year = 2030 if 2030 in times_model.years else times_model.years[0]
+def test_generate_qa_report_single_year(
+    tmp_path, qa_vd_path, qa_vdt_path, mappings_dir, qa_model
+):
+    year = 2030 if 2030 in qa_model.years else qa_model.years[0]
     out_dir = tmp_path / "qa_one"
     artifacts = generate_qa_report(
-        vd_path,
+        qa_vd_path,
         out_dir,
         year=year,
-        vdt_file=vdt_path,
+        vdt_file=qa_vdt_path,
         mappings_dir=mappings_dir,
+        model=qa_model,
     )
     assert (out_dir / "qa_report.html").exists()
     assert (out_dir / f"qa_flows_{year}.csv").exists()

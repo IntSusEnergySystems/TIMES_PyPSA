@@ -9,7 +9,11 @@ from pathlib import Path
 import pandas as pd
 import plotly.graph_objects as go
 
-from times_pypsa.aggregation import aggregate_flows, sankey_links_from_flows
+from times_pypsa.aggregation import (
+    aggregate_flows,
+    build_sankey_label_map,
+    sankey_links_from_flows,
+)
 from times_pypsa.balances import (
     KNOWN_ZERO_CATEGORIES,
     commodity_balance_vs_comnet,
@@ -44,10 +48,13 @@ from times_pypsa.sankey_html import (
     MIXED_COLOR,
     assemble_interactive_report_html,
     build_sankey_dataset,
+    collect_typed_nodes,
     export_status_color,
     export_status_hover,
     link_export_status,
     links_to_records,
+    node_display_label,
+    node_key,
 )
 
 logger = logging.getLogger(__name__)
@@ -147,18 +154,19 @@ def prepare_export_sankey_links(
     core_mask: pd.Series | None = None,
     flow_threshold: float = 1.0,
     apply_netting: bool = True,
+    agg_level: str = "Aggregation Level 2",
 ) -> pd.DataFrame:
     """
     Build Sankey links for the export neighbourhood using mapping CSV labels only.
 
-    Aggregation: process_agg (Aggregation Level 2) × pypsa_carrier.
+    Aggregation level is controlled by ``agg_level`` (CSV column name or legacy alias).
     """
     nb = select_export_neighborhood(tagged, core_mask=core_mask)
     if nb.empty:
         return pd.DataFrame(
             columns=["source", "target", "value", "exported", "matched_categories"]
         )
-    agg = aggregate_flows(nb, level="mapping", apply_netting=apply_netting)
+    agg = aggregate_flows(nb, level=agg_level, apply_netting=apply_netting)
     return sankey_links_from_flows(agg, flow_threshold=flow_threshold)
 
 
@@ -167,18 +175,19 @@ def prepare_system_sankey_links(
     *,
     flow_threshold: float = 1.0,
     apply_netting: bool = True,
+    agg_level: str = "Aggregation Level 2",
 ) -> pd.DataFrame:
     """
     Build Sankey links for all TIMES energy carrier flows (no n−1/n+1 filter).
 
-    Aggregation: process_agg (Aggregation Level 2) × pypsa_carrier.
+    Aggregation level is controlled by ``agg_level`` (CSV column name or legacy alias).
     """
     df = filter_energy_carrier_flows(tagged)
     if df.empty:
         return pd.DataFrame(
             columns=["source", "target", "value", "exported", "matched_categories"]
         )
-    agg = aggregate_flows(df, level="mapping", apply_netting=apply_netting)
+    agg = aggregate_flows(df, level=agg_level, apply_netting=apply_netting)
     return sankey_links_from_flows(agg, flow_threshold=flow_threshold)
 
 
@@ -255,30 +264,49 @@ def build_colored_sankey(
     title: str,
     units: EnergyUnit = "twh",
 ) -> go.Figure:
-    """Build a Plotly Sankey with export-status link colors."""
+    """Build a Plotly Sankey with typed node colours and export-status link colours."""
     if links.empty:
         fig = go.Figure()
         fig.update_layout(title_text=f"{title} (no data)")
         return fig
 
-    nodes = pd.concat([links["source"], links["target"]]).unique().tolist()
-    node_index = {n: i for i, n in enumerate(nodes)}
     label = unit_label(units)
+    typed_nodes = collect_typed_nodes(links)
+    node_index = {n["key"]: i for i, n in enumerate(typed_nodes)}
+    has_kinds = {"source_kind", "target_kind"}.issubset(links.columns)
 
     colors = []
     customdata = []
+    sources = []
+    targets = []
+    values = []
     for _, row in links.iterrows():
         v = pj_to_display(float(row["value"]), units)
         cats = str(row.get("matched_categories", "") or "")
         status = link_export_status(row)
         colors.append(export_status_color(status))
-        tip = f"{row['source']} → {row['target']}<br>{v:.2f} {label}"
+        if has_kinds:
+            sk = str(row["source_kind"])
+            tk = str(row["target_kind"])
+            sk_key = node_key(sk, str(row["source"]))
+            tk_key = node_key(tk, str(row["target"]))
+            tip = (
+                f"{node_display_label(sk, row['source'])} → "
+                f"{node_display_label(tk, row['target'])}<br>{v:.2f} {label}"
+            )
+        else:
+            sk_key = str(row["source"])
+            tk_key = str(row["target"])
+            tip = f"{row['source']} → {row['target']}<br>{v:.2f} {label}"
         if cats:
             tip += f"<br>Categories: {cats.replace('|', ', ')}"
         tip += export_status_hover(status, cats)
         customdata.append(tip)
+        sources.append(node_index[sk_key])
+        targets.append(node_index[tk_key])
+        values.append(v)
 
-    n_max = max(len(nodes), 1)
+    n_max = max(len(typed_nodes), 1)
     dyn_pad = max(4, min(20, int(300 / n_max)))
     dyn_thickness = max(10, min(30, int(600 / n_max)))
 
@@ -288,13 +316,14 @@ def build_colored_sankey(
                 node=dict(
                     pad=dyn_pad,
                     thickness=dyn_thickness,
-                    line=dict(color="black", width=0.5),
-                    label=[str(n) for n in nodes],
+                    line=dict(color="rgba(40,40,40,0.65)", width=0.6),
+                    label=[n["label"] for n in typed_nodes],
+                    color=[n["color"] for n in typed_nodes],
                 ),
                 link=dict(
-                    source=links["source"].map(node_index).tolist(),
-                    target=links["target"].map(node_index).tolist(),
-                    value=links["value"].map(lambda v: pj_to_display(v, units)).tolist(),
+                    source=sources,
+                    target=targets,
+                    value=values,
                     color=colors,
                     customdata=customdata,
                     hovertemplate="%{customdata}<extra></extra>",
@@ -302,7 +331,24 @@ def build_colored_sankey(
             )
         ]
     )
-    fig.update_layout(title_text=title, font_size=10, height=700)
+    fig.update_layout(
+        title_text=title,
+        font_size=10,
+        height=700,
+        annotations=[
+            dict(
+                text="Nodes: P · process (blue) · C · commodity (amber)",
+                showarrow=False,
+                xref="paper",
+                yref="paper",
+                x=0,
+                y=-0.06,
+                align="left",
+                font=dict(size=11, color="#444"),
+            )
+        ],
+        margin=dict(l=20, r=20, t=60, b=40),
+    )
     return fig
 
 
@@ -333,6 +379,7 @@ def _write_qa_csvs_for_year(
     out_dir: Path,
     flow_threshold_pj: float,
     units: EnergyUnit = "twh",
+    agg_level: str = "Aggregation Level 2",
 ) -> dict[str, Path | None]:
     """Write companion CSV diagnostics for one planning year."""
     energy_label = unit_label(units)
@@ -502,6 +549,12 @@ def _write_qa_csvs_for_year(
     nb_path = out_dir / f"qa_export_neighborhood_{year}.csv"
     nb_out.to_csv(nb_path, index=False)
 
+    # Sankey node → original TIMES process/commodity crosswalk (pre-netting inventory)
+    label_map = build_sankey_label_map(tagged, agg_level, apply_netting=False)
+    label_map = prepare_energy_output(label_map, ["value"], units)
+    label_map_path = out_dir / f"qa_sankey_label_map_{year}.csv"
+    label_map.to_csv(label_map_path, index=False)
+
     return {
         "flows": flows_path,
         "coverage": coverage_path,
@@ -514,6 +567,7 @@ def _write_qa_csvs_for_year(
         "coverage_gap": gap_path,
         "coverage_gap_all": gap_all_path,
         "export_neighborhood": nb_path,
+        "sankey_label_map": label_map_path,
         "topology_mismatches": topo_path,
         "empty_rules_df": empty_rules,
         "gap_sum": gap_sum,
@@ -524,7 +578,9 @@ def _write_qa_csvs_for_year(
         "coverage_df": coverage,
         "nb_all": nb_all,
         "links_export_count": len(
-            prepare_export_sankey_links(tagged, flow_threshold=flow_threshold_pj)
+            prepare_export_sankey_links(
+                tagged, flow_threshold=flow_threshold_pj, agg_level=agg_level
+            )
         ),
         "dmd_gap_pj": dmd_gap_pj,
     }
@@ -543,6 +599,7 @@ def generate_qa_report(
     flow_threshold_export: float | None = None,
     units: EnergyUnit = "twh",
     model: TimesAnnualFlows | None = None,
+    agg_level: str = "Aggregation Level 2",
 ) -> dict[str, Path]:
     """
     Write multi-view QA HTML + companion CSV tables.
@@ -559,6 +616,8 @@ def generate_qa_report(
     flow_threshold_pj = display_to_pj(flow_threshold_export, units)
     energy_label = unit_label(units)
     config = config or PipelineConfig()
+    if agg_level == "Aggregation Level 2" and config.agg_level != "Aggregation Level 2":
+        agg_level = config.agg_level
     mappings_dir = Path(mappings_dir or default_mappings_dir())
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -604,6 +663,7 @@ def generate_qa_report(
             out_dir=out_dir,
             flow_threshold_pj=flow_threshold_pj,
             units=units,
+            agg_level=agg_level,
         )
         for key, path in csv_info.items():
             if isinstance(path, Path):
@@ -624,34 +684,53 @@ def generate_qa_report(
         logger.warning("No energy flows for requested years")
         return {}
 
+    # Only the categories that will appear in the HTML (top 15 by PJ).
+    top_categories = sorted(category_candidates.items(), key=lambda x: -x[1])[:15]
+    top_cat_names = {cat for cat, _pj in top_categories}
+
     # --- Interactive Sankey datasets (all years × netted/gross) ---
     system_netted: dict[int, list] = {}
     system_gross: dict[int, list] = {}
+    system_nodes: dict[int, list] = {}
     export_netted: dict[int, list] = {}
     export_gross: dict[int, list] = {}
+    export_nodes: dict[int, list] = {}
     category_series: dict[str, dict[str, dict[int, list]]] = {}
 
     for yr in active_years:
         tagged = year_payloads[yr]["tagged"]
         totals = year_payloads[yr]["totals"]
 
+        year_system_links = []
         for apply_netting, store in ((True, system_netted), (False, system_gross)):
             links = prepare_system_sankey_links(
                 tagged,
                 flow_threshold=flow_threshold_pj,
                 apply_netting=apply_netting,
+                agg_level=agg_level,
             )
             store[yr] = links_to_records(links, units=units)
+            year_system_links.append(links)
+        system_nodes[yr] = collect_typed_nodes(
+            pd.concat(year_system_links, ignore_index=True) if year_system_links else pd.DataFrame()
+        )
 
+        year_export_links = []
         for apply_netting, target in ((True, export_netted), (False, export_gross)):
             links = prepare_export_sankey_links(
                 tagged,
                 flow_threshold=flow_threshold_pj,
                 apply_netting=apply_netting,
+                agg_level=agg_level,
             )
             target[yr] = links_to_records(links, units=units)
+            year_export_links.append(links)
+        export_nodes[yr] = collect_typed_nodes(
+            pd.concat(year_export_links, ignore_index=True) if year_export_links else pd.DataFrame()
+        )
 
-        for cat, pj in sorted(totals.items(), key=lambda x: -x[1]):
+        for cat in top_cat_names:
+            pj = float(totals.get(cat, 0.0))
             if pj <= 0:
                 continue
             core_mask = tagged["matched_categories"].map(
@@ -665,17 +744,24 @@ def generate_qa_report(
                     "title": cat,
                     "netted": {},
                     "gross": {},
+                    "nodes": {},
                 }
+            year_cat_links = []
             for apply_netting, variant in ((True, "netted"), (False, "gross")):
                 links = prepare_export_sankey_links(
                     tagged,
                     core_mask=core_mask,
                     flow_threshold=max(0.1, flow_threshold_pj * 0.25),
                     apply_netting=apply_netting,
+                    agg_level=agg_level,
                 )
                 category_series[cat_id][variant][yr] = links_to_records(
                     links, units=units
                 )
+                year_cat_links.append(links)
+            category_series[cat_id]["nodes"][yr] = collect_typed_nodes(
+                pd.concat(year_cat_links, ignore_index=True) if year_cat_links else pd.DataFrame()
+            )
 
     charts: list[dict] = [
         build_sankey_dataset(
@@ -684,11 +770,14 @@ def generate_qa_report(
             years=active_years,
             netted_by_year=system_netted,
             gross_by_year=system_gross,
+            nodes_by_year=system_nodes,
             units=units,
             subtitle=(
                 "All energy-carrier flows aggregated to "
-                "<em>Aggregation Level 2</em> × <em>PyPSA Energy Carrier</em>. "
-                "Blue = exported; grey = not exported; light red = mixed aggregation."
+                f"<em>{agg_level}</em> (process × commodity mapping columns). "
+                "Node colours: <strong>P · process</strong> (blue family) vs "
+                "<strong>C · commodity</strong> (amber family). "
+                "Link colours: blue = exported; grey = not exported; light red = mixed."
             ),
         ),
         build_sankey_dataset(
@@ -697,16 +786,15 @@ def generate_qa_report(
             years=active_years,
             netted_by_year=export_netted,
             gross_by_year=export_gross,
+            nodes_by_year=export_nodes,
             units=units,
             subtitle=(
-                "Exported flows (blue), non-exported flows (grey), and mixed links "
-                "(light red) where mapping aggregation merged both. "
-                "Labels from existing mapping CSVs only."
+                "Exported flows (blue links), non-exported flows (grey), and mixed links "
+                "(light red). Nodes: P · process (blue) vs C · commodity (amber)."
             ),
         ),
     ]
 
-    top_categories = sorted(category_candidates.items(), key=lambda x: -x[1])[:15]
     for idx, (cat, _pj) in enumerate(top_categories):
         cat_id = cat.replace(" ", "-").replace("/", "-").lower()
         series = category_series.get(cat_id)
@@ -719,6 +807,7 @@ def generate_qa_report(
                 years=active_years,
                 netted_by_year=series["netted"],
                 gross_by_year=series["gross"],
+                nodes_by_year=series["nodes"],
                 units=units,
                 subtitle="Matched flows plus n−1/n+1 context for this PyPSA demand category.",
             )
@@ -786,7 +875,9 @@ def generate_qa_report(
 </ul>
 <h2>Interactive Sankey diagrams</h2>
 <p>Use the year slider and <em>Net bidirectional flows</em> checkbox on each chart.
-Companion CSVs are written per year as <code>qa_*_{{year}}.csv</code>.</p>
+Companion CSVs are written per year as <code>qa_*_{{year}}.csv</code>
+(including <code>qa_sankey_label_map_{{year}}.csv</code> to map Sankey labels
+back to TIMES process/commodity codes).</p>
 """
 
     footer_html = f"""

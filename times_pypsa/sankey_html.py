@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import colorsys
+import hashlib
 import json
 from typing import Any
 
@@ -12,6 +14,10 @@ from times_pypsa.units import EnergyUnit, pj_to_display, unit_label
 EXPORTED_COLOR = "rgba(31, 119, 180, 0.85)"
 CONTEXT_COLOR = "rgba(160, 160, 160, 0.45)"
 MIXED_COLOR = "rgba(255, 152, 152, 0.75)"
+
+# Process nodes → blue family; commodity nodes → amber family (Plotly has no shapes).
+_PROCESS_HSV = (205.0, 0.55, 0.72)
+_COMMODITY_HSV = (32.0, 0.70, 0.88)
 
 
 def export_status_color(export_status: str) -> str:
@@ -39,6 +45,74 @@ def export_status_hover(export_status: str, cats: str) -> str:
     }.get(export_status, "")
 
 
+def node_key(kind: str, label: str) -> str:
+    """Unique id so a process and commodity sharing a name stay distinct nodes."""
+    kind_n = "process" if str(kind).lower().startswith("p") else "commodity"
+    return f"{kind_n}::{label}"
+
+
+def node_display_label(kind: str, label: str) -> str:
+    kind_n = "process" if str(kind).lower().startswith("p") else "commodity"
+    marker = "P" if kind_n == "process" else "C"
+    return f"{marker} · {label}"
+
+
+def node_kind_color(kind: str, label: str) -> str:
+    """Vary colour within the process (blue) or commodity (amber) hue family."""
+    kind_n = "process" if str(kind).lower().startswith("p") else "commodity"
+    base_h, base_s, base_v = _PROCESS_HSV if kind_n == "process" else _COMMODITY_HSV
+    digest = hashlib.md5(f"{kind_n}:{label}".encode()).hexdigest()
+    hue_jitter = (int(digest[:2], 16) / 255.0 - 0.5) * 24.0
+    val_jitter = (int(digest[2:4], 16) / 255.0 - 0.5) * 0.18
+    h = ((base_h + hue_jitter) % 360.0) / 360.0
+    s = min(0.85, max(0.35, base_s + (int(digest[4:6], 16) / 255.0 - 0.5) * 0.15))
+    v = min(0.95, max(0.45, base_v + val_jitter))
+    r, g, b = colorsys.hsv_to_rgb(h, s, v)
+    return f"rgba({int(r * 255)}, {int(g * 255)}, {int(b * 255)}, 0.92)"
+
+
+def collect_typed_nodes(links: pd.DataFrame) -> list[dict[str, str]]:
+    """Ordered unique typed nodes from link endpoints (needs source_kind/target_kind)."""
+    if links.empty:
+        return []
+    ordered: list[dict[str, str]] = []
+    seen: set[str] = set()
+    has_kinds = {"source_kind", "target_kind"}.issubset(links.columns)
+    if not has_kinds:
+        for name in pd.concat([links["source"], links["target"]]).astype(str).unique():
+            ordered.append(
+                {
+                    "key": name,
+                    "label": name,
+                    "kind": "unknown",
+                    "raw": name,
+                    "color": "rgba(120,120,120,0.85)",
+                }
+            )
+        return ordered
+
+    for _, row in links.iterrows():
+        for kind_col, name_col in (("source_kind", "source"), ("target_kind", "target")):
+            label = str(row[name_col])
+            kind = str(row.get(kind_col) or "").strip().lower()
+            if kind not in {"process", "commodity"}:
+                continue
+            key = node_key(kind, label)
+            if key in seen:
+                continue
+            seen.add(key)
+            ordered.append(
+                {
+                    "key": key,
+                    "label": node_display_label(kind, label),
+                    "kind": kind,
+                    "raw": label,
+                    "color": node_kind_color(kind, label),
+                }
+            )
+    return ordered
+
+
 def links_to_records(
     links: pd.DataFrame,
     *,
@@ -49,6 +123,7 @@ def links_to_records(
         return []
 
     label = unit_label(units)
+    has_kinds = {"source_kind", "target_kind"}.issubset(links.columns)
     records: list[dict[str, Any]] = []
     for _, row in links.iterrows():
         v_pj = float(row["value"])
@@ -57,15 +132,29 @@ def links_to_records(
         status = link_export_status(row)
         color = export_status_color(status)
 
-        tip = f"{row['source']} → {row['target']}<br>{v:.2f} {label}"
+        src = str(row["source"])
+        tgt = str(row["target"])
+        if has_kinds:
+            sk = str(row["source_kind"])
+            tk = str(row["target_kind"])
+            source_key = node_key(sk, src)
+            target_key = node_key(tk, tgt)
+            tip = (
+                f"{node_display_label(sk, src)} → {node_display_label(tk, tgt)}"
+                f"<br>{v:.2f} {label}"
+            )
+        else:
+            source_key = src
+            target_key = tgt
+            tip = f"{src} → {tgt}<br>{v:.2f} {label}"
         if cats:
             tip += f"<br>Categories: {cats.replace('|', ', ')}"
         tip += export_status_hover(status, cats)
 
         records.append(
             {
-                "source": str(row["source"]),
-                "target": str(row["target"]),
+                "source": source_key,
+                "target": target_key,
                 "value": v,
                 "color": color,
                 "hover": tip,
@@ -83,6 +172,7 @@ def build_sankey_dataset(
     gross_by_year: dict[int, list[dict[str, Any]]],
     subtitle: str = "",
     units: EnergyUnit = "twh",
+    nodes_by_year: dict[int, list[dict[str, str]]] | None = None,
 ) -> dict[str, Any]:
     """Build one interactive chart payload keyed by year and netting mode."""
     return {
@@ -93,11 +183,12 @@ def build_sankey_dataset(
         "years": years,
         "netted": {str(y): netted_by_year.get(y, []) for y in years},
         "gross": {str(y): gross_by_year.get(y, []) for y in years},
+        "nodes": {str(y): (nodes_by_year or {}).get(y, []) for y in years},
     }
 
 
 _INTERACTIVE_JS = r"""
-function timesPypsaBuildSankey(containerId, links, title) {
+function timesPypsaBuildSankey(containerId, links, title, nodeMeta) {
   if (!links || links.length === 0) {
     Plotly.react(containerId, [], {
       title: { text: title + " (no data)" },
@@ -107,13 +198,29 @@ function timesPypsaBuildSankey(containerId, links, title) {
     return;
   }
   const nodes = [];
+  const nodeColors = [];
   const nodeIndex = {};
-  function nodeIdx(name) {
-    if (!(name in nodeIndex)) {
-      nodeIndex[name] = nodes.length;
-      nodes.push(String(name));
+  const metaByKey = {};
+  (nodeMeta || []).forEach(function (n) { metaByKey[n.key] = n; });
+
+  function nodeIdx(key) {
+    if (!(key in nodeIndex)) {
+      nodeIndex[key] = nodes.length;
+      const meta = metaByKey[key];
+      if (meta) {
+        nodes.push(meta.label || meta.raw || key);
+        nodeColors.push(meta.color || "rgba(120,120,120,0.85)");
+      } else {
+        const isProc = String(key).startsWith("process::");
+        const isCom = String(key).startsWith("commodity::");
+        let label = key;
+        if (isProc) label = "P · " + key.slice(9);
+        else if (isCom) label = "C · " + key.slice(11);
+        nodes.push(label);
+        nodeColors.push(isProc ? "rgba(70,130,200,0.9)" : (isCom ? "rgba(230,150,50,0.9)" : "rgba(120,120,120,0.85)"));
+      }
     }
-    return nodeIndex[name];
+    return nodeIndex[key];
   }
   const source = [];
   const target = [];
@@ -138,8 +245,9 @@ function timesPypsaBuildSankey(containerId, links, title) {
       node: {
         pad: pad,
         thickness: thickness,
-        line: { color: "black", width: 0.5 },
+        line: { color: "rgba(40,40,40,0.65)", width: 0.6 },
         label: nodes,
+        color: nodeColors,
       },
       link: {
         source: source,
@@ -154,7 +262,14 @@ function timesPypsaBuildSankey(containerId, links, title) {
       title: { text: title },
       height: 700,
       font: { size: 10 },
-      margin: { l: 20, r: 20, t: 60, b: 20 },
+      margin: { l: 20, r: 20, t: 60, b: 40 },
+      annotations: [{
+        text: "Nodes: P · process (blue family) · C · commodity (amber family)",
+        showarrow: false,
+        xref: "paper", yref: "paper",
+        x: 0, y: -0.06, align: "left",
+        font: { size: 11, color: "#444" }
+      }],
     }
   );
 }
@@ -176,13 +291,18 @@ function timesPypsaInitSankeyChart(chart) {
     return variant[year] || [];
   }
 
+  function currentNodes() {
+    const year = years[yearIdx];
+    return (chart.nodes && chart.nodes[year]) || [];
+  }
+
   function render() {
     const year = years[yearIdx];
     yearLabel.textContent = year;
     yearSlider.value = String(yearIdx);
     const mode = nettingToggle.checked ? "netted" : "gross";
     const title = chart.title + " — " + year + " (" + unit + ", " + mode + " flows)";
-    timesPypsaBuildSankey(plotDiv.id, currentLinks(), title);
+    timesPypsaBuildSankey(plotDiv.id, currentLinks(), title, currentNodes());
   }
 
   yearSlider.min = "0";

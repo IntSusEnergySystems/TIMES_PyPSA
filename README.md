@@ -50,16 +50,37 @@ times-pypsa sankey \
   --out-dir output/
 ```
 
-Multi-view extraction QA (export highlighting, balance / coverage CSVs):
+Multi-view extraction QA (full HTML report + balance / coverage CSVs):
 
 ```bash
 times-pypsa qa \
-  --vd /path/to/scen_corrige_251129_0112.vd \
-  --vdt /path/to/scen_corrige_251129_0112.vdt \
-  --out-dir output/qa/
+  --vd data/scen_corrige_251129_0112.vd \
+  --vdt data/scen_corrige_251129_0112.vdt \
+  --out-dir output/qa/ \
+  --agg-level "Aggregation Level 2"
 ```
 
-Omit `--year` to include all model years in the interactive HTML report (year slider + flow-netting toggle on each Sankey). Optional: `--year 2050`, `--year 2030,2040,2050`, or `--year 2025-2050`. Energy values default to **TWh** (`--units pj` for petajoules). `--threshold-export` is interpreted in the selected unit (default ≈ 1 PJ). See [Extraction QA](#extraction-qa) below for views, companion CSVs, and expert questions.
+Coarse overview report (≤20 Sankey nodes; see [Custom aggregation levels](#custom-aggregation-levels)):
+
+```bash
+times-pypsa qa \
+  --vd data/scen_corrige_251129_0112.vd \
+  --vdt data/scen_corrige_251129_0112.vdt \
+  --out-dir output/qa_overview/ \
+  --agg-level sankey_overview
+```
+
+Working / editable aggregation (`custom` starts as a copy of Aggregation Level 2):
+
+```bash
+times-pypsa qa \
+  --vd data/scen_corrige_251129_0112.vd \
+  --vdt data/scen_corrige_251129_0112.vdt \
+  --out-dir output/qa_custom/ \
+  --agg-level custom
+```
+
+Omit `--year` to include all model years in the interactive HTML report (year slider + flow-netting toggle on each Sankey). Optional: `--year 2050`, `--year 2030,2040,2050`, or `--year 2025-2050`. Energy values default to **TWh** (`--units pj` for petajoules). `--threshold-export` is interpreted in the selected unit (default ≈ 1 PJ). `--agg-level` selects the shared mapping CSV column used for process × commodity node labels (default: `Aggregation Level 2`). See [Extraction QA](#extraction-qa) and [Custom aggregation levels](#custom-aggregation-levels).
 
 Use `--mappings-dir` to override the bundled mappings (defaults to the package `times_pypsa/mappings/`).
 
@@ -130,6 +151,7 @@ Files under `data/`:
 
 - `scen_*.vd`: TIMES scenario output files
 - `scen_*.vdt`: TIMES topology (process–commodity wiring, no quantities)
+- `AllProcesses.csv`, `AllCommodities.csv`: full VEDA dictionaries (semicolon-separated) with **Name** + **Description** for nearly all model codes — used to name Sankey fallbacks and to debug unmapped flows
 - `mapping_commodities.csv`, `mapping_processes.csv`: TIMES → PyPSA mappings (also shipped in the package)
 
 **Reference scenario for QA:** `data/scen_corrige_251129_0112.{vd,vdt}`
@@ -155,8 +177,8 @@ Documentation for the TIMES → PyPSA soft-link extraction quality-assurance too
 |----------|--------|
 | Are current extraction rules adequate? | **Partially.** Parent–child heat identities match; no disallowed double-counting after the rail allowlist; topology is clean. But DMD coverage gaps remain large (~330 PJ in 2050), so we cannot claim “no forgotten demand” without TIMES-expert confirmation (see [Questions for TIMES experts](#questions-for-times-experts)). |
 | Former aggregation rules still active? | **Yes.** Extraction still uses `mapping_processes.csv` **Aggregation Level 2** (column `process_agg`), `mapping_commodities.csv` **PyPSA Energy Carrier**, and `extraction_rules.csv` unchanged in formalism. |
-| New aggregation rules / new CSV formalism? | **No new CSV.** Sankey QA uses the same mapping fields. A code-only view level `mapping` = Level 2 × PyPSA carrier. Invented renames (e.g. AGR→“Agriculture”, “Unmapped: …”) were removed. |
-| What changed in the Sankey? | Added **whole-system** energy-flow Sankey; export neighbourhood (n−1/n+1) retained. All Sankeys are **multi-year** with a timeline slider and **flow-netting toggle** (standalone HTML/JS, not SEPIA). |
+| New aggregation rules / new CSV formalism? | **Shared column names.** Any aggregation level is a column present in **both** mapping CSVs; `--agg-level` / `aggregate_flows(level=...)` selects it. Bundled levels: `Sector`, `Aggregation Level 1`, `Aggregation Level 2`, `custom` (editable working copy of Level 2), `sankey_overview`. Alias `mapping` ≡ `Aggregation Level 2`. |
+| What changed in the Sankey? | Added **whole-system** energy-flow Sankey; export neighbourhood (n−1/n+1) retained. All Sankeys are **multi-year** with a timeline slider and **flow-netting toggle** (standalone HTML/JS, not SEPIA). Coarse `sankey_overview` level (~17 nodes) for readable whole-system views. |
 
 #### TIMES data model
 
@@ -195,7 +217,7 @@ Static wiring: `Region, Process, Commodity, Direction` with `IN` or `OUT`. Does 
 | `times_pypsa.qa` | Multi-view HTML report |
 | `times_pypsa.balances` | Balance / loop / double-count helpers |
 
-Enriched flow columns include: `sector`, `agg_level_1`, `agg_level_2`, `process_agg`, `pypsa_carrier`, `commodity_sector`.
+Enriched flow columns include: `sector`, `agg_level_1`, `agg_level_2`, `process_agg`, `pypsa_carrier`, `commodity_sector`, plus `proc_agg__{level}` / `com_agg__{level}` for every shared aggregation column.
 
 ##### `process_agg` naming (important)
 
@@ -206,16 +228,121 @@ Extraction rules filter on **Aggregation Level 2** labels from `mapping_processe
 
 #### Aggregation levels (Sankey / QA only)
 
-Extraction itself is unchanged (filters on Aggregation Level 2 labels).
+Extraction itself is unchanged (filters on Aggregation Level 2 labels). Sankey / QA aggregation is selected by a **single shared CSV column name** (process mapping × commodity mapping).
 
-| Level | Process nodes | Commodity nodes | Use |
-|-------|---------------|-----------------|-----|
-| **`mapping` (default QA)** | `process_agg` = Aggregation Level 2 from CSV | `pypsa_carrier` from CSV | Export neighbourhood Sankey |
-| L0 | Sector **codes** (AGR, COM, …) | Commodity sector / carrier | Optional coarse check (not primary UI) |
-| L1 | Aggregation Level 1 | PyPSA carrier | Optional |
-| L2 | `process_code` | `commodity_code` | Fine drill-down |
+| Level (`--agg-level`) | Process nodes | Commodity nodes | Typical node count | Use |
+|-----------------------|---------------|-----------------|--------------------|-----|
+| **`Aggregation Level 2`** (default; alias `mapping`) | Aggregation Level 2 | Aggregation Level 2 (= PyPSA Energy Carrier) | hundreds | Export neighbourhood / detailed QA |
+| **`custom`** | Editable copy of Level 2 (plus filled gaps) | Editable copy of Level 2 | ~Level 2 | **Working level** for modeller-driven clustering |
+| `Aggregation Level 1` | Aggregation Level 1 | Aggregation Level 1 (= Cluster) | high | Mid drill-down |
+| `Sector` (alias `L0`) | Sector codes | Sector codes | ~15 | Coarse sector check |
+| **`sankey_overview`** | Overview process clusters | Overview carriers | **≤20** | Readable whole-system Sankey |
+| `L2` | `process_code` | `commodity_code` | thousands | Fine drill-down (no collapse) |
 
-**No renaming** beyond those CSV fields (fallback = existing TIMES description or code).
+**No opaque placeholders.** Empty mapping cells fall back to TIMES Description, then code — never `Unknown`.
+
+#### Custom aggregation levels
+
+Sankey readability is controlled by mapping CSVs, not by hard-coded Python clusters. To define a new level:
+
+1. **Pick one column name** (e.g. `sankey_overview`, `my_sector_v2`). The same header must exist in:
+   - `times_pypsa/mappings/mapping_processes.csv`
+   - `times_pypsa/mappings/mapping_commodities.csv`
+2. **Fill every row** with the display label for that process or commodity. Empty cells are **not** shown as `Unknown`: the aggregator falls back to the TIMES **Description**, then the TIMES **code** (from the flow row / `data/AllProcesses.csv` / `data/AllCommodities.csv`). For `sankey_overview`, empty cells are first inferred into the overview clusters using description/code heuristics, then fall back to Description/code only if no cluster matches.
+3. **Pass the column name** as `--agg-level my_column` (CLI) or `aggregate_flows(..., level="my_column")` / `PipelineConfig(agg_level="my_column")`.
+4. **Check node budget.** After aggregation, unique process labels + unique commodity labels = total Sankey nodes. For an overview diagram, aim for **≤20 total**. Mid-level views can be larger; the default Level 2 view is intentionally detailed.
+5. **Never invent opaque buckets** such as `Unknown` / `Unmapped: …`. If a code is missing from the mapping CSVs, its Sankey name must still be understandable from the TIMES description or code.
+
+Which columns count as levels? Any header present in **both** CSVs except identity/metadata (`Process`, `TIMES commodity`, `Description`, `Type`, units, upstream fields, …). Helpers: `shared_aggregation_columns(processes_df, commodities_df)`.
+
+```python
+from times_pypsa import load_times_annual_flows, aggregate_flows, default_mappings_dir
+
+model = load_times_annual_flows("scen.vd", default_mappings_dir())
+flows = model.energy_flows(2030)
+agg = aggregate_flows(flows, level="sankey_overview", apply_netting=True)
+n_proc = agg["process_code"].nunique()
+n_com = agg["commodity_code"].nunique()
+print(n_proc, n_com, n_proc + n_com)  # keep the sum small for overview plots
+```
+
+##### Process vs commodity nodes (Plotly)
+
+Plotly Sankey diagrams do not support different node shapes. This package therefore uses two simultaneous cues:
+
+1. **Label prefix:** `P · …` for processes, `C · …` for commodities  
+2. **Colour family:** processes in a **blue** palette, commodities in an **amber** palette (each node still gets its own shade within the family)
+
+Internal node ids are typed (`process::Label` / `commodity::Label`) so a process and a commodity that share the same name never collapse into one Plotly node. Link colours still encode export status (blue / grey / light red).
+
+##### Designing `custom` (working level)
+
+`custom` is seeded as a copy of **Aggregation Level 2** on both mapping CSVs. Processes that were missing from the mapping were added with clustered labels inferred from TIMES descriptions (heat pumps, CHP, retrofits, PV, industry, H₂, …) so the column has **no empty / Unknown** cells. Edit `custom` freely in:
+
+- `times_pypsa/mappings/mapping_processes.csv`
+- `times_pypsa/mappings/mapping_commodities.csv`
+
+then re-run QA with `--agg-level custom`. Use `qa_sankey_label_map_{year}.csv` to see which TIMES codes sit under each custom label.
+
+##### Designing `sankey_overview` (worked example)
+
+Goal: a whole-system Sankey with **at most ~20 nodes**, still reflecting the main energy story (supply → conversion → end use).
+
+**Process side (9 labels)** — cluster by role, not by TIMES sector alone:
+
+| Label | Criterion |
+|-------|-----------|
+| Imports & trade | `Sector=IMP` or Aggregation Level 2 contains import/export |
+| Power plants | Electricity sector generation (not fuel-tech PRE) |
+| CHP & district heat | `Type=CHP` or district-heating / CHP labels |
+| Fuel supply | `Sector=SUP` |
+| Fuel conversion | “Fuel Tech …” processes in end-use sectors / ELC |
+| Industry / Buildings / Transport / Agriculture | Remaining DMD/PRE activity by sector (`RSD`+`COM` → Buildings) |
+
+**Commodity side (8 labels)** — cluster by energy carrier family (keywords on carrier / cluster / code):
+
+| Label | Examples |
+|-------|----------|
+| Electricity | grid electricity, hydro/wind/nuclear power carriers |
+| Gas | natural gas, network gas, biogas |
+| Oil products | diesel, gasoline, kerosene, LPG, fuel oil, navigation/aviation fuels |
+| Coal & solids | coal, coke, lignite |
+| Heat | heat, geothermal, solar thermal |
+| Biomass & biofuels | wood, biodiesel, ethanol, black liquor, wastes |
+| Hydrogen | H₂ carriers |
+| Other | residual non-energy / accounting (e.g. degree-day corrections) |
+
+That yields **17 distinct labels** in the bundled mappings (9 process + 8 commodity). Criteria that worked well:
+
+- Prefer **physical role** (import, generate, convert, consume) over raw TIMES sector codes for processes.
+- Prefer **carrier family** over sector-specific commodity names (`gas for industry` and `Network gas for Residential` → both `Gas`).
+- Keep a small **Other** bucket for true leftovers; if Other grows, split or reassign before adding new top-level labels.
+- Re-count unique labels after editing: `df["sankey_overview"].nunique()` on each CSV, then sum.
+
+##### Practical tips
+
+- Edit the **package** mappings under `times_pypsa/mappings/` (used by default). Keep `data/mapping_*.csv` in sync if you use that copy.
+- Do **not** invent Sankey display prefixes in code (`Unknown`, `Unmapped: …`); put the intended label in the CSV, or rely on TIMES Description/code fallbacks.
+- Full TIMES dictionaries for names: `data/AllProcesses.csv` and `data/AllCommodities.csv` (semicolon-separated VEDA exports). The loader uses these to fill missing process/commodity descriptions on flows.
+- Extraction rules are independent: they still filter on Aggregation Level 2 / `process_agg`. Changing `sankey_overview` does not change PyPSA demand exports.
+- Legacy aliases: `L0`→`Sector`, `L1`→`Aggregation Level 1`, `mapping`→`Aggregation Level 2`, `L2`→raw codes.
+
+##### Mapping Sankey nodes back to TIMES codes
+
+When debugging a Sankey node, use the QA crosswalk CSV (written next to the HTML report):
+
+- **`qa_sankey_label_map_{year}.csv`** — for each aggregated Sankey label, lists the original TIMES `times_code` / `times_description` members (process or commodity), the raw mapping CSV label (`mapping_label`, empty when inferred), and the contributing energy (`value` in the selected unit).
+
+Related flow-level files (same `out-dir`):
+
+- **`qa_flows_{year}.csv`** — annual VAR_FIn/VAR_FOut rows with original `process_code` / `commodity_code` / descriptions, export tags, and carriers (before Sankey collapse).
+- **`qa_export_neighborhood_{year}.csv`** — neighbourhood subset used for export-focused Sankeys (still at TIMES code resolution).
+
+Example: to see which TIMES processes sit under `Buildings` after `--agg-level sankey_overview`:
+
+```bash
+python -c "import pandas as pd; m=pd.read_csv('output/qa_overview/qa_sankey_label_map_2030.csv'); print(m.query(\"side=='process' and sankey_label=='Buildings'\")[['times_code','times_description','TWh']].head(20))"
+```
 
 ##### Export neighbourhood (n−1 / n / n+1)
 
@@ -232,14 +359,15 @@ The `times-pypsa qa` command (see [CLI usage](#cli-usage)) writes `qa_report.htm
 
 | View | Content |
 |------|---------|
-| **A** | Whole TIMES energy flows (mapping level; year slider + netting toggle) |
-| **B** | Export neighbourhood Sankey (Level 2 × PyPSA carrier; blue=exported, grey=n−1/n+1) |
+| **A** | Whole TIMES energy flows (selected `--agg-level`; year slider + netting toggle) |
+| **B** | Export neighbourhood Sankey (same agg level; blue=exported, grey=n−1/n+1) |
 | **C** | Per-category neighbourhoods (same rule, matched + n−1 + n+1) |
 | **D** | Tables: coverage, empty rules, parent–child, double-count, Comnet, loops, DMD gaps |
 
 ##### Companion CSVs
 
-- `qa_flows_{year}.csv` — tagged annual energy flows
+- `qa_flows_{year}.csv` — tagged annual energy flows at TIMES process/commodity resolution
+- `qa_sankey_label_map_{year}.csv` — **Sankey label → TIMES code crosswalk** (see [Mapping Sankey nodes back to TIMES codes](#mapping-sankey-nodes-back-to-times-codes))
 - `qa_export_neighborhood_{year}.csv` — matched + n−1 + n+1 rows before Sankey aggregation
 - `qa_export_coverage_{year}.csv` — exported energy per category (in selected units)
 - `qa_node_balance_{year}.csv` — ΣFOut−ΣFIn vs `VAR_Comnet`
@@ -270,13 +398,21 @@ pip install -e ".[dev]"
 pytest tests/ -q
 ```
 
-Fixtures resolve `pypsa-wal/TIMES_data/scen_corrige_251129_0112.vd` (sibling checkout) or `TIMES_PyPSA/data/` if present.
+Integration tests use toy fixtures under `tests/fixtures/` (pre-aggregated soft-link years from `scen_corrige_251129_0112`, ~50× smaller than the full `.vd`). Regenerate them with:
+
+```bash
+python scripts/build_toy_fixtures.py
+```
+
+That writes `toy_scen.*` (coverage / balances) and a leaner `toy_qa.*` (two years, top export-category neighbourhood) for `generate_qa_report` tests. To run against the full scenario instead: `TIMES_PYPSA_FULL_DATA=1 pytest tests/ -q`.
 
 | Test module | Checks |
 |-------------|--------|
 | `test_topology.py` | `.vdt` parse, IN/OUT counts |
 | `test_balances.py` | Comnet residuals, loops API, node residuals |
 | `test_extraction_coverage.py` | empty rules allowlist, double-count allowlist, parent–child, tagging |
+| `test_aggregation_levels.py` | shared CSV columns, column-based `aggregate_flows`, aliases, unknown level (synthetic / fast) |
+| `test_qa_html.py` | interactive QA HTML, Sankey colours/netting, multi-year report |
 
 Known-zero allowlist (SOFTLINKING Q3): `ammonia`, `methanol`, `total international navigation`, `coal`.
 
@@ -311,3 +447,4 @@ Filled from QA run on `scen_corrige_251129_0112`, year **2050** (`output/qa_2050
 |------|--------|----------|-------------------|
 | 2026-07-18 | Introduced QA toolkit; canonical filter column `process_agg` (legacy `agg_level_1` alias). Allowlist: `total rail`⊃`electricity rail`; known-zero `coal`. No `extraction_rules.csv` edits. | `output/qa_2050/` | None |
 | 2026-07-18 | Sankey HTML: whole-system view + multi-year timeline + netting toggle on all Sankeys; `--year` optional (defaults to all model years). | `output/qa/` | None |
+| 2026-07-18 | Column-based Sankey aggregation (`--agg-level`); shared CSV columns including `sankey_overview` (≤20 nodes). Commodities gained `Aggregation Level 1/2` aligned with process headers. | mappings + `test_aggregation_levels.py` | None |

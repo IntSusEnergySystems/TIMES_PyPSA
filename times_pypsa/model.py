@@ -9,6 +9,17 @@ from typing import TYPE_CHECKING
 
 import pandas as pd
 
+from times_pypsa.aggregation import (
+    com_agg_col,
+    proc_agg_col,
+    shared_aggregation_columns,
+)
+from times_pypsa.descriptions import (
+    fill_flow_descriptions,
+    load_commodity_descriptions,
+    load_process_descriptions,
+    resolve_data_dir,
+)
 from times_pypsa.pipeline import (
     PipelineConfig,
     _build_commodity_pypsa_map,
@@ -35,7 +46,7 @@ class TimesAnnualFlows:
     Columns on ``flows`` (energy VAR_FIn/VAR_FOut rows):
         year, region, variable, commodity_code, commodity, process_code, process,
         value, sector, agg_level_1, agg_level_2, process_agg, pypsa_carrier,
-        commodity_sector (optional)
+        commodity_sector (optional), proc_agg__*, com_agg__* (shared mapping columns)
     """
 
     flows: pd.DataFrame
@@ -95,11 +106,50 @@ def _process_column_map(processes_df: pd.DataFrame) -> dict[str, dict[str, str]]
     return out
 
 
+def _load_commodity_mapping_df(commodity_mapping_file: Path) -> pd.DataFrame:
+    """Load commodity mapping CSV preserving original column headers."""
+    if not commodity_mapping_file.exists():
+        return pd.DataFrame()
+    return pd.read_csv(commodity_mapping_file, engine="python")
+
+
+def _commodity_code_column(df: pd.DataFrame) -> str | None:
+    for candidate in ("TIMES commodity", "times commodity", "Commodity", "times"):
+        if candidate in df.columns:
+            return candidate
+    for col in df.columns:
+        if col.strip().lower() in {"times commodity", "times", "commodity"}:
+            return col
+    return None
+
+
+def _code_column_map(
+    mapping_df: pd.DataFrame,
+    code_col: str,
+    value_col: str,
+) -> dict[str, str]:
+    if mapping_df.empty or code_col not in mapping_df.columns:
+        return {}
+    if value_col not in mapping_df.columns:
+        return {}
+    out: dict[str, str] = {}
+    for _, row in mapping_df.iterrows():
+        code = str(row[code_col]).strip()
+        if not code:
+            continue
+        val = str(row.get(value_col, "") or "").strip()
+        if val.lower() == "nan":
+            val = ""
+        out[code] = val
+    return out
+
+
 def enrich_annual_flows(
     annual_df: pd.DataFrame,
     processes_df: pd.DataFrame,
     commodity_pypsa_map: dict[str, str],
     commodity_sectors: dict[str, str] | None = None,
+    commodities_df: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
     """Attach sector / aggregation / pypsa_carrier columns to annual flow rows."""
     if annual_df.empty:
@@ -108,6 +158,7 @@ def enrich_annual_flows(
     df = annual_df.copy()
     proc_map = _process_column_map(processes_df)
     commodity_sectors = commodity_sectors or {}
+    commodities_df = commodities_df if commodities_df is not None else pd.DataFrame()
 
     df["sector"] = df["process_code"].map(
         lambda p: proc_map.get(str(p).strip(), {}).get("sector", "")
@@ -134,6 +185,23 @@ def enrich_annual_flows(
     df["commodity_sector"] = df["commodity_code"].map(
         lambda c: commodity_sectors.get(str(c).strip(), "")
     )
+
+    shared_cols = shared_aggregation_columns(processes_df, commodities_df)
+    com_code_col = _commodity_code_column(commodities_df)
+    for col in shared_cols:
+        proc_values = _code_column_map(processes_df, "Process", col)
+        com_values = (
+            _code_column_map(commodities_df, com_code_col, col)
+            if com_code_col
+            else {}
+        )
+        df[proc_agg_col(col)] = df["process_code"].map(
+            lambda p, m=proc_values: m.get(str(p).strip(), "")
+        )
+        df[com_agg_col(col)] = df["commodity_code"].map(
+            lambda c, m=com_values: m.get(str(c).strip(), "")
+        )
+
     return df
 
 
@@ -242,12 +310,20 @@ def load_times_annual_flows(
         metadata.commodity_mapping_file, metadata.mapping_df
     )
     commodity_sectors = _load_commodity_sectors(metadata.commodity_mapping_file)
+    commodities_raw_df = _load_commodity_mapping_df(metadata.commodity_mapping_file)
 
     flows = enrich_annual_flows(
         annual,
         metadata.processes_df,
         commodity_pypsa_map,
         commodity_sectors=commodity_sectors,
+        commodities_df=commodities_raw_df,
+    )
+    data_dir = resolve_data_dir(mappings_dir)
+    flows = fill_flow_descriptions(
+        flows,
+        commodity_descriptions=load_commodity_descriptions(data_dir),
+        process_info=load_process_descriptions(data_dir),
     )
     comnet = extract_comnet(raw if "timeslice" in raw.columns else annual)
 
