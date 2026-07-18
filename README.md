@@ -52,9 +52,12 @@ Multi-view extraction QA (export highlighting, balance / coverage CSVs) — see 
 times-pypsa qa \
   --vd /path/to/scen_corrige_251129_0112.vd \
   --vdt /path/to/scen_corrige_251129_0112.vdt \
-  --year 2050 \
-  --out-dir output/qa_2050/
+  --out-dir output/qa/
 ```
+
+Omit `--year` to include all model years in the interactive HTML report (year
+slider + flow-netting toggle on each Sankey). Energy values default to **TWh**
+(`--units pj` for petajoules). See [EXTRACTION_QA.md](EXTRACTION_QA.md).
 
 Use `--mappings-dir` to override the bundled mappings (defaults to the package `times_pypsa/mappings/`).
 

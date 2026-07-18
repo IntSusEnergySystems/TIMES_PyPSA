@@ -3,7 +3,7 @@
 Documentation for the TIMES → PyPSA soft-link extraction quality-assurance
 toolkit: data model, aggregation levels, multi-view Sankey report, and tests.
 
-**Reference scenario:** `pypsa-wal/TIMES_data/scen_corrige_251129_0112.{vd,vdt}`
+**Reference scenario:** `data/scen_corrige_251129_0112.{vd,vdt}`
 
 Related: [SOFTLINKING_ANALYSIS.md](SOFTLINKING_ANALYSIS.md).
 
@@ -16,7 +16,7 @@ Related: [SOFTLINKING_ANALYSIS.md](SOFTLINKING_ANALYSIS.md).
 | Are current extraction rules adequate? | **Partially.** Parent–child heat identities match; no disallowed double-counting after the rail allowlist; topology is clean. But DMD coverage gaps remain large (~330 PJ in 2050), so we cannot claim “no forgotten demand” without TIMES-expert confirmation (see §5). |
 | Former aggregation rules still active? | **Yes.** Extraction still uses `mapping_processes.csv` **Aggregation Level 2** (column `process_agg`), `mapping_commodities.csv` **PyPSA Energy Carrier**, and `extraction_rules.csv` unchanged in formalism. |
 | New aggregation rules / new CSV formalism? | **No new CSV.** Sankey QA uses the same mapping fields. A code-only view level `mapping` = Level 2 × PyPSA carrier. Invented renames (e.g. AGR→“Agriculture”, “Unmapped: …”) were removed. |
-| What changed in the Sankey? | Replaced unreadable full-system L0/L1 diagrams with an **export neighbourhood**: matched (exported) flows **plus n−1 and n+1** context sharing those processes/commodities. |
+| What changed in the Sankey? | Added **whole-system** energy-flow Sankey; export neighbourhood (n−1/n+1) retained. All Sankeys are **multi-year** with a timeline slider and **flow-netting toggle** (standalone HTML/JS, not SEPIA). |
 
 ---
 
@@ -118,23 +118,32 @@ Extraction itself is unchanged (filters on Aggregation Level 2 labels).
 times-pypsa qa \
   --vd /path/to/scen_corrige_251129_0112.vd \
   --vdt /path/to/scen_corrige_251129_0112.vdt \
-  --year 2050 \
-  --out-dir output/qa_2050/
+  --out-dir output/qa/
 ```
+
+Omit `--year` to process **all years** in the `.vd` file. Optional:
+`--year 2050`, `--year 2030,2040,2050`, or `--year 2025-2050`.
+
+Use `--units twh` (default) or `--units pj` for Sankeys, CSVs, and HTML tables.
+`--threshold-export` is interpreted in the selected unit (default ≈ 1 PJ).
+
+Output: `qa_report.html` (interactive Sankeys with year timeline and flow-netting
+toggle) plus per-year CSVs `qa_*_{year}.csv`.
 
 ### Views
 
 | View | Content |
 |------|---------|
-| **A** | Export neighbourhood Sankey (Level 2 × PyPSA carrier; blue=exported, grey=n−1/n+1) |
-| **B** | Per-category neighbourhood (same rule, matched + n−1 + n+1) |
-| **C** | Tables: coverage, empty rules, parent–child, double-count, Comnet, loops, DMD gaps |
+| **A** | Whole TIMES energy flows (mapping level; year slider + netting toggle) |
+| **B** | Export neighbourhood Sankey (Level 2 × PyPSA carrier; blue=exported, grey=n−1/n+1) |
+| **C** | Per-category neighbourhoods (same rule, matched + n−1 + n+1) |
+| **D** | Tables: coverage, empty rules, parent–child, double-count, Comnet, loops, DMD gaps |
 
 ### Companion CSVs
 
 - `qa_flows_{year}.csv` — tagged annual energy flows
 - `qa_export_neighborhood_{year}.csv` — matched + n−1 + n+1 rows before Sankey aggregation
-- `qa_export_coverage_{year}.csv` — PJ / TWh / key counts per category
+- `qa_export_coverage_{year}.csv` — exported energy per category (in selected units)
 - `qa_node_balance_{year}.csv` — ΣFOut−ΣFIn vs `VAR_Comnet`
 - `qa_commodity_residuals_{year}.csv` — post-netting commodity residuals
 - `qa_loops_{year}.csv` — SCCs with >1 node after netting
@@ -222,4 +231,4 @@ Filled from QA run on `scen_corrige_251129_0112`, year **2050**
 | Date | Change | Evidence | Demand CSV impact |
 |------|--------|----------|-------------------|
 | 2026-07-18 | Introduced QA toolkit; canonical filter column `process_agg` (legacy `agg_level_1` alias). Allowlist: `total rail`⊃`electricity rail`; known-zero `coal`. No `extraction_rules.csv` edits. | `output/qa_2050/` | None |
-| 2026-07-18 | Sankey redesign: drop invented L0 renames; primary view = export neighbourhood (mapping CSV labels + n−1/n+1). | readability feedback | None |
+| 2026-07-18 | Sankey HTML: whole-system view + multi-year timeline + netting toggle on all Sankeys; `--year` optional (defaults to all model years). | `output/qa/` | None |

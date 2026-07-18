@@ -29,11 +29,29 @@ from times_pypsa.pipeline import (
     load_metadata,
     net_bidirectional_links,
 )
+from times_pypsa.units import (
+    EnergyUnit,
+    default_flow_threshold,
+    display_to_pj,
+    format_energy,
+    pj_to_display,
+    prepare_energy_output,
+    unit_label,
+)
+from times_pypsa.sankey_html import (
+    CONTEXT_COLOR,
+    EXPORTED_COLOR,
+    MIXED_COLOR,
+    assemble_interactive_report_html,
+    build_sankey_dataset,
+    export_status_color,
+    export_status_hover,
+    link_export_status,
+    links_to_records,
+)
 
 logger = logging.getLogger(__name__)
 
-EXPORTED_COLOR = "rgba(31, 119, 180, 0.85)"
-CONTEXT_COLOR = "rgba(160, 160, 160, 0.45)"
 CATEGORY_PALETTE = [
     "rgba(31, 119, 180, 0.8)",
     "rgba(255, 127, 14, 0.8)",
@@ -54,6 +72,23 @@ def _category_color(index: int) -> str:
     h = (index * 0.61803398875) % 1.0
     r, g, b = colorsys.hsv_to_rgb(h, 0.65, 0.85)
     return f"rgba({int(r*255)}, {int(g*255)}, {int(b*255)}, 0.8)"
+
+
+def filter_energy_carrier_flows(df: pd.DataFrame) -> pd.DataFrame:
+    """Drop emission / non-carrier flows so Sankeys stay readable."""
+    if df.empty:
+        return df.copy()
+    carrier = (
+        df["pypsa_carrier"].astype(str).str.strip()
+        if "pypsa_carrier" in df.columns
+        else pd.Series("", index=df.index)
+    )
+    has_carrier = carrier.ne("") & carrier.str.lower().ne("nan")
+    code = df["commodity_code"].astype(str)
+    is_emission = code.str.contains(
+        r"CO2|GHG|SOX|NOX|NH3|PM2|COV|CH4", case=False, na=False
+    )
+    return df.loc[has_carrier & ~is_emission].copy()
 
 
 def select_export_neighborhood(
@@ -81,17 +116,7 @@ def select_export_neighborhood(
 
     df = tagged
     if energy_only:
-        carrier = (
-            df["pypsa_carrier"].astype(str).str.strip()
-            if "pypsa_carrier" in df.columns
-            else pd.Series("", index=df.index)
-        )
-        has_carrier = carrier.ne("") & carrier.str.lower().ne("nan")
-        code = df["commodity_code"].astype(str)
-        is_emission = code.str.contains(
-            r"CO2|GHG|SOX|NOX|NH3|PM2|COV|CH4", case=False, na=False
-        )
-        df = df.loc[has_carrier & ~is_emission].copy()
+        df = filter_energy_carrier_flows(df)
         if df.empty:
             return df
 
@@ -134,6 +159,26 @@ def prepare_export_sankey_links(
             columns=["source", "target", "value", "exported", "matched_categories"]
         )
     agg = aggregate_flows(nb, level="mapping", apply_netting=apply_netting)
+    return sankey_links_from_flows(agg, flow_threshold=flow_threshold)
+
+
+def prepare_system_sankey_links(
+    tagged: pd.DataFrame,
+    *,
+    flow_threshold: float = 1.0,
+    apply_netting: bool = True,
+) -> pd.DataFrame:
+    """
+    Build Sankey links for all TIMES energy carrier flows (no n−1/n+1 filter).
+
+    Aggregation: process_agg (Aggregation Level 2) × pypsa_carrier.
+    """
+    df = filter_energy_carrier_flows(tagged)
+    if df.empty:
+        return pd.DataFrame(
+            columns=["source", "target", "value", "exported", "matched_categories"]
+        )
+    agg = aggregate_flows(df, level="mapping", apply_netting=apply_netting)
     return sankey_links_from_flows(agg, flow_threshold=flow_threshold)
 
 
@@ -208,17 +253,9 @@ def build_colored_sankey(
     links: pd.DataFrame,
     *,
     title: str,
-    color_mode: str = "export",
-    category_color_map: dict[str, str] | None = None,
+    units: EnergyUnit = "twh",
 ) -> go.Figure:
-    """
-    Build a Plotly Sankey with link colors.
-
-    color_mode:
-      - export: blue if exported else grey
-      - category: color by first matched category
-      - plain: single blue
-    """
+    """Build a Plotly Sankey with export-status link colors."""
     if links.empty:
         fig = go.Figure()
         fig.update_layout(title_text=f"{title} (no data)")
@@ -226,25 +263,19 @@ def build_colored_sankey(
 
     nodes = pd.concat([links["source"], links["target"]]).unique().tolist()
     node_index = {n: i for i, n in enumerate(nodes)}
+    label = unit_label(units)
 
     colors = []
     customdata = []
     for _, row in links.iterrows():
-        v = float(row["value"])
+        v = pj_to_display(float(row["value"]), units)
         cats = str(row.get("matched_categories", "") or "")
-        exported = bool(row.get("exported", False))
-        if color_mode == "export":
-            colors.append(EXPORTED_COLOR if exported else CONTEXT_COLOR)
-        elif color_mode == "category" and category_color_map and cats:
-            first = cats.split("|")[0]
-            colors.append(category_color_map.get(first, EXPORTED_COLOR))
-        else:
-            colors.append(EXPORTED_COLOR)
-        tip = f"{row['source']} → {row['target']}<br>{v:.2f} PJ"
+        status = link_export_status(row)
+        colors.append(export_status_color(status))
+        tip = f"{row['source']} → {row['target']}<br>{v:.2f} {label}"
         if cats:
             tip += f"<br>Categories: {cats.replace('|', ', ')}"
-        elif color_mode == "export":
-            tip += "<br>Neighbourhood context (not exported)"
+        tip += export_status_hover(status, cats)
         customdata.append(tip)
 
     n_max = max(len(nodes), 1)
@@ -263,7 +294,7 @@ def build_colored_sankey(
                 link=dict(
                     source=links["source"].map(node_index).tolist(),
                     target=links["target"].map(node_index).tolist(),
-                    value=links["value"].tolist(),
+                    value=links["value"].map(lambda v: pj_to_display(v, units)).tolist(),
                     color=colors,
                     customdata=customdata,
                     hovertemplate="%{customdata}<extra></extra>",
@@ -282,50 +313,29 @@ def _html_table(df: pd.DataFrame, max_rows: int = 50) -> str:
     return show.to_html(index=False, float_format=lambda x: f"{x:.4g}")
 
 
-def generate_qa_report(
-    vd_file: Path | str,
-    out_dir: Path | str,
-    year: int,
+def _resolve_qa_years(model: TimesAnnualFlows, year: int | list[int] | None) -> list[int]:
+    if year is None:
+        return model.years
+    if isinstance(year, int):
+        return [year]
+    return sorted({int(y) for y in year})
+
+
+def _write_qa_csvs_for_year(
     *,
-    vdt_file: Path | str | None = None,
-    mappings_dir: Path | str | None = None,
-    config: PipelineConfig | None = None,
-    flow_threshold_l0: float = 0.5,
-    flow_threshold_l1: float = 0.5,
-    flow_threshold_export: float = 1.0,
-    model: TimesAnnualFlows | None = None,
-) -> dict[str, Path]:
-    """
-    Write multi-view QA HTML + companion CSV tables for one year.
-
-    Returns a dict of artifact name → path.
-    """
-    config = config or PipelineConfig()
-    mappings_dir = Path(mappings_dir or default_mappings_dir())
-    out_dir = Path(out_dir)
-    out_dir.mkdir(parents=True, exist_ok=True)
-
-    if model is None:
-        model = load_times_annual_flows(
-            vd_file,
-            mappings_dir,
-            vdt_file=vdt_file,
-            config=config,
-        )
-
-    metadata = load_metadata(mappings_dir)
-    rules = load_extraction_rules(metadata.extraction_rules_file)
-
-    year_flows = model.energy_flows(year)
-    if year_flows.empty:
-        logger.warning("No energy flows for year %d", year)
-        return {}
-
-    tagged = tag_flows_with_rules(year_flows, rules, apply_netting=False)
-    category_keys = tagged.attrs.get("category_keys", {})
-    totals = category_pj_totals(year_flows, rules, apply_netting=True)
-
-    # --- CSVs ---
+    year: int,
+    model: TimesAnnualFlows,
+    metadata,
+    rules: dict,
+    tagged: pd.DataFrame,
+    totals: dict[str, float],
+    category_keys: dict,
+    out_dir: Path,
+    flow_threshold_pj: float,
+    units: EnergyUnit = "twh",
+) -> dict[str, Path | None]:
+    """Write companion CSV diagnostics for one planning year."""
+    energy_label = unit_label(units)
     flows_path = out_dir / f"qa_flows_{year}.csv"
     export_cols = [
         c
@@ -349,14 +359,14 @@ def generate_qa_report(
     export_df["matched_categories"] = tagged["matched_categories"].map(
         lambda xs: "|".join(xs) if isinstance(xs, list) else str(xs)
     )
+    export_df = prepare_energy_output(export_df, ["value"], units)
     export_df.to_csv(flows_path, index=False)
 
     coverage = pd.DataFrame(
         [
             {
                 "category": cat,
-                "pj": totals.get(cat, 0.0),
-                "twh": totals.get(cat, 0.0) * 0.277778,
+                energy_label: pj_to_display(totals.get(cat, 0.0), units),
                 "n_matched_keys": len(category_keys.get(cat, ())),
                 "known_zero": cat in KNOWN_ZERO_CATEGORIES,
             }
@@ -366,7 +376,6 @@ def generate_qa_report(
     coverage_path = out_dir / f"qa_export_coverage_{year}.csv"
     coverage.to_csv(coverage_path, index=False)
 
-    # PJ commodity codes from mapping
     pj_codes = set()
     if not metadata.mapping_df.empty and "unit" in metadata.mapping_df.columns:
         pj_codes = set(
@@ -380,6 +389,11 @@ def generate_qa_report(
 
     balance = commodity_balance_vs_comnet(
         model.flows, model.comnet, year=year, pj_commodity_codes=pj_codes or None
+    )
+    balance = prepare_energy_output(
+        balance,
+        ["fout", "fin", "net_flows", "comnet", "residual"],
+        units,
     )
     balance_path = out_dir / f"qa_node_balance_{year}.csv"
     balance.to_csv(balance_path, index=False)
@@ -399,6 +413,9 @@ def generate_qa_report(
         ]
     )
     residuals = commodity_node_residuals(netted_raw)
+    residuals = prepare_energy_output(
+        residuals, ["inflow", "outflow", "residual"], units
+    )
     residuals_path = out_dir / f"qa_commodity_residuals_{year}.csv"
     residuals.to_csv(residuals_path, index=False)
 
@@ -420,32 +437,36 @@ def generate_qa_report(
     overlap.to_csv(overlap_path, index=False)
 
     parent_child = parent_child_sum_checks(totals)
+    parent_child = prepare_energy_output(
+        parent_child,
+        ["parent_pj", "children_sum_pj", "residual_pj"],
+        units,
+    )
     parent_path = out_dir / f"qa_parent_child_{year}.csv"
     parent_child.to_csv(parent_path, index=False)
 
     empty_rules = empty_rule_report(totals, rules.keys())
+    empty_rules = prepare_energy_output(empty_rules, ["pj"], units)
     empty_path = out_dir / f"qa_empty_rules_{year}.csv"
     empty_rules.to_csv(empty_path, index=False)
 
-    topo_path = out_dir / f"qa_topology_mismatches_{year}.csv"
+    topo_path: Path | None = out_dir / f"qa_topology_mismatches_{year}.csv"
     if model.topology_mismatches is not None and not model.topology_mismatches.empty:
         mm = model.topology_mismatches
         mm = mm[mm["year"] == year] if "year" in mm.columns else mm
         if not mm.empty:
-            mm.to_csv(topo_path, index=False)
+            mm_out = mm.copy()
+            if "value" in mm_out.columns:
+                mm_out = prepare_energy_output(mm_out, ["value"], units)
+            mm_out.to_csv(topo_path, index=False)
         elif topo_path.exists():
             topo_path.unlink()
-            topo_path = None
-        else:
             topo_path = None
     else:
         if topo_path.exists():
             topo_path.unlink()
         topo_path = None
 
-    # Coverage gap: end-use (DMD) demand-sector flows not matched by any rule.
-    # Intermediate PRE/Fuel-Tech flows are often upstream of extracted demands
-    # and would false-positive as "missing".
     gap_all = tagged[
         (~tagged["exported"])
         & (tagged["sector"].isin(["RSD", "COM", "IND", "TRA", "AGR"]))
@@ -460,169 +481,28 @@ def generate_qa_report(
         .reset_index()
         .sort_values("value", ascending=False)
     )
+    dmd_gap_pj = float(gap_sum["value"].sum()) if not gap_sum.empty else 0.0
+    gap_sum = prepare_energy_output(gap_sum, ["value"], units)
     gap_path = out_dir / f"qa_coverage_gap_{year}.csv"
     gap_sum.to_csv(gap_path, index=False)
-    gap_all_path = out_dir / f"qa_coverage_gap_all_{year}.csv"
-    (
+    gap_all_sum = (
         gap_all.groupby(["sector", "process_agg", "pypsa_carrier", "process_type"], dropna=False)[
             "value"
         ]
         .sum()
         .reset_index()
         .sort_values("value", ascending=False)
-        .to_csv(gap_all_path, index=False)
     )
-
-    # --- Sankey views (mapping CSV labels only; export neighbourhood) ---
-    cat_colors = {cat: _category_color(i) for i, cat in enumerate(rules)}
+    gap_all_sum = prepare_energy_output(gap_all_sum, ["value"], units)
+    gap_all_path = out_dir / f"qa_coverage_gap_all_{year}.csv"
+    gap_all_sum.to_csv(gap_all_path, index=False)
 
     nb_all = select_export_neighborhood(tagged)
-    links_export = prepare_export_sankey_links(
-        tagged, flow_threshold=flow_threshold_export
-    )
-    fig_export = build_colored_sankey(
-        links_export,
-        title=(
-            f"A. PyPSA export neighbourhood — {year} (PJ) "
-            f"[blue=exported, grey=n−1/n+1 context; "
-            f"labels=Aggregation Level 2 × PyPSA carrier]"
-        ),
-        color_mode="export",
-    )
+    nb_out = prepare_energy_output(nb_all, ["value"], units)
     nb_path = out_dir / f"qa_export_neighborhood_{year}.csv"
-    nb_all.to_csv(nb_path, index=False)
+    nb_out.to_csv(nb_path, index=False)
 
-    # View B: per-category neighbourhood (matched + n−1 + n+1)
-    category_figs: list[tuple[str, go.Figure]] = []
-    for cat, pj in sorted(totals.items(), key=lambda x: -x[1]):
-        if pj <= 0:
-            continue
-        core_mask = tagged["matched_categories"].map(
-            lambda xs, c=cat: isinstance(xs, list) and c in xs
-        )
-        if not core_mask.any():
-            continue
-        links = prepare_export_sankey_links(
-            tagged,
-            core_mask=core_mask,
-            flow_threshold=max(0.1, flow_threshold_export * 0.25),
-        )
-        # Prefer category colour on exported links; context stays grey via export mode
-        # Re-tag matched_categories on links for hover when possible
-        fig = build_colored_sankey(
-            links,
-            title=(
-                f"B. {cat} — {pj:.2f} PJ exported ({year}) "
-                f"[neighbourhood = matched + n−1 + n+1]"
-            ),
-            color_mode="export",
-            category_color_map=cat_colors,
-        )
-        category_figs.append((cat, fig))
-        if len(category_figs) >= 15:
-            break
-
-    dmd_gap_pj = float(gap_sum["value"].sum()) if not gap_sum.empty else 0.0
-    adequacy = (
-        "PARTIALLY ADEQUATE"
-        if dmd_gap_pj > 5.0 or int((~empty_rules["ok"]).sum()) > 0
-        else "ADEQUATE (no large DMD gaps / empty rules)"
-    )
-
-    # --- Assemble HTML ---
-    html_path = out_dir / f"qa_report_{year}.html"
-    parts: list[str] = [
-        "<!DOCTYPE html><html><head><meta charset='utf-8'>",
-        f"<title>TIMES Extraction QA — {year}</title>",
-        "<style>",
-        "body{font-family:system-ui,sans-serif;margin:24px;max-width:1400px}",
-        "h1,h2{color:#222} .meta{color:#555} table{border-collapse:collapse;font-size:13px}",
-        "th,td{border:1px solid #ccc;padding:4px 8px} th{background:#f0f0f0}",
-        ".ok{color:green}.bad{color:#b00} .legend span{display:inline-block;padding:2px 8px;margin:2px;border-radius:3px}",
-        ".verdict{padding:12px 16px;background:#f7f7f7;border-left:4px solid #1f77b4;margin:16px 0}",
-        "</style></head><body>",
-        f"<h1>TIMES Extraction QA — {year}</h1>",
-        f"<p class='meta'>VD: {vd_file}"
-        + (f" | VDT: {vdt_file}" if vdt_file else "")
-        + f" | mappings: {mappings_dir}</p>",
-        "<div class='verdict'>",
-        f"<strong>Extraction-rule verdict:</strong> {adequacy}<br>",
-        "Former aggregation CSVs remain active "
-        "(<code>mapping_processes.csv</code> Aggregation Level 2 = <code>process_agg</code>, "
-        "<code>mapping_commodities.csv</code> PyPSA Energy Carrier, "
-        "<code>extraction_rules.csv</code>). "
-        "No new aggregation CSV formalism. Sankey labels use those CSV fields only; "
-        "diagrams show exported flows plus n−1/n+1 neighbourhood context.",
-        "</div>",
-        "<div class='legend'><strong>Legend:</strong> "
-        f"<span style='background:{EXPORTED_COLOR};color:#fff'>Exported to pypsa-wal</span> "
-        f"<span style='background:{CONTEXT_COLOR}'>Neighbourhood context (n−1 / n+1)</span></div>",
-        "<h2>Summary</h2>",
-        "<ul>",
-        f"<li>Energy flow rows: {len(tagged)}</li>",
-        f"<li>Exported flow rows: {int(tagged['exported'].sum())} "
-        f"({100*tagged['exported'].mean():.1f}%)</li>",
-        f"<li>Export-neighbourhood rows (matched + n−1 + n+1): {len(nb_all)}</li>",
-        f"<li>Exported PJ (gross tagged, pre-netting): "
-        f"{tagged.loc[tagged['exported'], 'value'].sum():.1f}</li>",
-        f"<li>Sankey links after mapping aggregation (threshold "
-        f"{flow_threshold_export} PJ): {len(links_export)}</li>",
-        f"<li>Commodity balance failures (|residual|&gt;tol): "
-        f"{int((~balance['ok']).sum()) if not balance.empty else 'n/a'}</li>",
-        f"<li>Unexpected empty rules: "
-        f"{int((~empty_rules['ok']).sum())}</li>",
-        f"<li>Disallowed double-count pairs: {len(overlap)}</li>",
-        f"<li>Loop components after netting: {len(loops)}</li>",
-        f"<li>DMD coverage-gap PJ (not in any rule): {dmd_gap_pj:.1f}</li>",
-        "</ul>",
-        "<h2>A. PyPSA export neighbourhood</h2>",
-        "<p>Processes labeled by <em>Aggregation Level 2</em>; commodities by "
-        "<em>PyPSA Energy Carrier</em> (existing mapping CSVs). "
-        "Blue = flows matched by extraction rules; grey = one-hop upstream/downstream "
-        "context sharing those processes or commodities.</p>",
-        fig_export.to_html(full_html=False, include_plotlyjs="cdn"),
-        "<h2>B. Category neighbourhoods (exported + n−1 + n+1)</h2>",
-    ]
-    for cat, fig in category_figs:
-        parts.append(f"<h3>{cat}</h3>")
-        parts.append(fig.to_html(full_html=False, include_plotlyjs=False))
-
-    parts.extend(
-        [
-            "<h2>C. Diagnostics</h2>",
-            "<h3>Export coverage</h3>",
-            _html_table(coverage),
-            "<h3>Empty / known-zero rules</h3>",
-            _html_table(empty_rules),
-            "<h3>Parent–child sum checks</h3>",
-            _html_table(parent_child),
-            "<h3>Disallowed double-count overlaps</h3>",
-            _html_table(overlap),
-            "<h3>Commodity balance vs VAR_Comnet (failures first)</h3>",
-            _html_table(
-                balance.sort_values("ok").head(40) if not balance.empty else balance
-            ),
-            "<h3>Loop components</h3>",
-            _html_table(loops_df),
-            "<h3>Coverage gaps (DMD demand-sector VAR_FIn not in any rule)</h3>",
-            "<p>Intermediate PRE/Fuel-Tech gaps are in "
-            f"<code>qa_coverage_gap_all_{year}.csv</code>.</p>",
-            _html_table(gap_sum.head(40)),
-            "<h3>Topology mismatches</h3>",
-            (
-                _html_table(model.topology_mismatches.head(40))
-                if model.topology_mismatches is not None
-                and not model.topology_mismatches.empty
-                else "<p><em>No topology file or no mismatches.</em></p>"
-            ),
-            "</body></html>",
-        ]
-    )
-    html_path.write_text("\n".join(parts), encoding="utf-8")
-    logger.info("Wrote QA report to %s", html_path)
-
-    artifacts = {
-        "report": html_path,
+    return {
         "flows": flows_path,
         "coverage": coverage_path,
         "balance": balance_path,
@@ -634,7 +514,317 @@ def generate_qa_report(
         "coverage_gap": gap_path,
         "coverage_gap_all": gap_all_path,
         "export_neighborhood": nb_path,
+        "topology_mismatches": topo_path,
+        "empty_rules_df": empty_rules,
+        "gap_sum": gap_sum,
+        "balance_df": balance,
+        "loops_df": loops_df,
+        "overlap_df": overlap,
+        "parent_child_df": parent_child,
+        "coverage_df": coverage,
+        "nb_all": nb_all,
+        "links_export_count": len(
+            prepare_export_sankey_links(tagged, flow_threshold=flow_threshold_pj)
+        ),
+        "dmd_gap_pj": dmd_gap_pj,
     }
-    if topo_path is not None:
-        artifacts["topology_mismatches"] = topo_path
-    return artifacts
+
+
+def generate_qa_report(
+    vd_file: Path | str,
+    out_dir: Path | str,
+    year: int | list[int] | None = None,
+    *,
+    vdt_file: Path | str | None = None,
+    mappings_dir: Path | str | None = None,
+    config: PipelineConfig | None = None,
+    flow_threshold_l0: float = 0.5,
+    flow_threshold_l1: float = 0.5,
+    flow_threshold_export: float | None = None,
+    units: EnergyUnit = "twh",
+    model: TimesAnnualFlows | None = None,
+) -> dict[str, Path]:
+    """
+    Write multi-view QA HTML + companion CSV tables.
+
+    When ``year`` is omitted, all years present in the model are processed.
+    Energy values in HTML, CSVs, and Sankeys use ``units`` (default: TWh).
+    ``flow_threshold_export`` is interpreted in the selected display unit.
+
+    Returns a dict of artifact name → path.
+    """
+    del flow_threshold_l0, flow_threshold_l1  # kept for CLI compatibility
+    if flow_threshold_export is None:
+        flow_threshold_export = default_flow_threshold(units)
+    flow_threshold_pj = display_to_pj(flow_threshold_export, units)
+    energy_label = unit_label(units)
+    config = config or PipelineConfig()
+    mappings_dir = Path(mappings_dir or default_mappings_dir())
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    if model is None:
+        model = load_times_annual_flows(
+            vd_file,
+            mappings_dir,
+            vdt_file=vdt_file,
+            config=config,
+        )
+
+    years = _resolve_qa_years(model, year)
+    if not years:
+        logger.warning("No years available in model")
+        return {}
+
+    metadata = load_metadata(mappings_dir)
+    rules = load_extraction_rules(metadata.extraction_rules_file)
+
+    year_payloads: dict[int, dict] = {}
+    all_artifacts: dict[str, Path] = {}
+    category_candidates: dict[str, float] = {}
+
+    for yr in years:
+        year_flows = model.energy_flows(yr)
+        if year_flows.empty:
+            logger.warning("No energy flows for year %d — skipping", yr)
+            continue
+
+        tagged = tag_flows_with_rules(year_flows, rules, apply_netting=False)
+        category_keys = tagged.attrs.get("category_keys", {})
+        totals = category_pj_totals(year_flows, rules, apply_netting=True)
+
+        csv_info = _write_qa_csvs_for_year(
+            year=yr,
+            model=model,
+            metadata=metadata,
+            rules=rules,
+            tagged=tagged,
+            totals=totals,
+            category_keys=category_keys,
+            out_dir=out_dir,
+            flow_threshold_pj=flow_threshold_pj,
+            units=units,
+        )
+        for key, path in csv_info.items():
+            if isinstance(path, Path):
+                all_artifacts[f"{key}_{yr}"] = path
+
+        for cat, pj in totals.items():
+            if pj > 0:
+                category_candidates[cat] = max(category_candidates.get(cat, 0.0), pj)
+
+        year_payloads[yr] = {
+            "tagged": tagged,
+            "totals": totals,
+            "csv_info": csv_info,
+        }
+
+    active_years = sorted(year_payloads.keys())
+    if not active_years:
+        logger.warning("No energy flows for requested years")
+        return {}
+
+    # --- Interactive Sankey datasets (all years × netted/gross) ---
+    system_netted: dict[int, list] = {}
+    system_gross: dict[int, list] = {}
+    export_netted: dict[int, list] = {}
+    export_gross: dict[int, list] = {}
+    category_series: dict[str, dict[str, dict[int, list]]] = {}
+
+    for yr in active_years:
+        tagged = year_payloads[yr]["tagged"]
+        totals = year_payloads[yr]["totals"]
+
+        for apply_netting, store in ((True, system_netted), (False, system_gross)):
+            links = prepare_system_sankey_links(
+                tagged,
+                flow_threshold=flow_threshold_pj,
+                apply_netting=apply_netting,
+            )
+            store[yr] = links_to_records(links, units=units)
+
+        for apply_netting, target in ((True, export_netted), (False, export_gross)):
+            links = prepare_export_sankey_links(
+                tagged,
+                flow_threshold=flow_threshold_pj,
+                apply_netting=apply_netting,
+            )
+            target[yr] = links_to_records(links, units=units)
+
+        for cat, pj in sorted(totals.items(), key=lambda x: -x[1]):
+            if pj <= 0:
+                continue
+            core_mask = tagged["matched_categories"].map(
+                lambda xs, c=cat: isinstance(xs, list) and c in xs
+            )
+            if not core_mask.any():
+                continue
+            cat_id = cat.replace(" ", "-").replace("/", "-").lower()
+            if cat_id not in category_series:
+                category_series[cat_id] = {
+                    "title": cat,
+                    "netted": {},
+                    "gross": {},
+                }
+            for apply_netting, variant in ((True, "netted"), (False, "gross")):
+                links = prepare_export_sankey_links(
+                    tagged,
+                    core_mask=core_mask,
+                    flow_threshold=max(0.1, flow_threshold_pj * 0.25),
+                    apply_netting=apply_netting,
+                )
+                category_series[cat_id][variant][yr] = links_to_records(
+                    links, units=units
+                )
+
+    charts: list[dict] = [
+        build_sankey_dataset(
+            chart_id="system",
+            title="A. Whole TIMES energy flows",
+            years=active_years,
+            netted_by_year=system_netted,
+            gross_by_year=system_gross,
+            units=units,
+            subtitle=(
+                "All energy-carrier flows aggregated to "
+                "<em>Aggregation Level 2</em> × <em>PyPSA Energy Carrier</em>. "
+                "Blue = exported; grey = not exported; light red = mixed aggregation."
+            ),
+        ),
+        build_sankey_dataset(
+            chart_id="export",
+            title="B. PyPSA export neighbourhood",
+            years=active_years,
+            netted_by_year=export_netted,
+            gross_by_year=export_gross,
+            units=units,
+            subtitle=(
+                "Exported flows (blue), non-exported flows (grey), and mixed links "
+                "(light red) where mapping aggregation merged both. "
+                "Labels from existing mapping CSVs only."
+            ),
+        ),
+    ]
+
+    top_categories = sorted(category_candidates.items(), key=lambda x: -x[1])[:15]
+    for idx, (cat, _pj) in enumerate(top_categories):
+        cat_id = cat.replace(" ", "-").replace("/", "-").lower()
+        series = category_series.get(cat_id)
+        if series is None:
+            continue
+        charts.append(
+            build_sankey_dataset(
+                chart_id=f"category-{idx}",
+                title=f"C. {cat} — export neighbourhood",
+                years=active_years,
+                netted_by_year=series["netted"],
+                gross_by_year=series["gross"],
+                units=units,
+                subtitle="Matched flows plus n−1/n+1 context for this PyPSA demand category.",
+            )
+        )
+
+    latest = active_years[-1]
+    latest_info = year_payloads[latest]["csv_info"]
+    empty_rules = latest_info["empty_rules_df"]
+    gap_sum = latest_info["gap_sum"]
+    balance = latest_info["balance_df"]
+    loops_df = latest_info["loops_df"]
+    overlap = latest_info["overlap_df"]
+    parent_child = latest_info["parent_child_df"]
+    coverage = latest_info["coverage_df"]
+    tagged_latest = year_payloads[latest]["tagged"]
+    nb_all = latest_info["nb_all"]
+
+    dmd_gap_pj = float(latest_info.get("dmd_gap_pj", 0.0))
+    exported_pj = float(tagged_latest.loc[tagged_latest["exported"], "value"].sum())
+    adequacy = (
+        "PARTIALLY ADEQUATE"
+        if dmd_gap_pj > 5.0 or int((~empty_rules["ok"]).sum()) > 0
+        else "ADEQUATE (no large DMD gaps / empty rules)"
+    )
+
+    year_span = (
+        str(active_years[0])
+        if len(active_years) == 1
+        else f"{active_years[0]}–{active_years[-1]}"
+    )
+    header_html = f"""
+<h1>TIMES Extraction QA — {year_span}</h1>
+<p class='meta'>VD: {vd_file}{f" | VDT: {vdt_file}" if vdt_file else ""} | mappings: {mappings_dir} | units: {energy_label}</p>
+<div class='verdict'>
+  <strong>Extraction-rule verdict ({latest}):</strong> {adequacy}<br>
+  Former aggregation CSVs remain active
+  (<code>mapping_processes.csv</code> Aggregation Level 2 = <code>process_agg</code>,
+  <code>mapping_commodities.csv</code> PyPSA Energy Carrier,
+  <code>extraction_rules.csv</code>).
+  Sankey views use those CSV labels; export neighbourhoods add n−1/n+1 context.
+  Each diagram has a year timeline and a netting toggle.
+</div>
+<div class='legend'><strong>Link colours:</strong>
+  <span style='background:{EXPORTED_COLOR};color:#fff'>Exported to pypsa-wal</span>
+  <span style='background:{CONTEXT_COLOR}'>Not exported</span>
+  <span style='background:{MIXED_COLOR}'>Mixed (exported + non-exported aggregated)</span>
+</div>
+<h2>Summary ({latest})</h2>
+<ul>
+  <li>Years in report: {", ".join(str(y) for y in active_years)}</li>
+  <li>Energy flow rows: {len(tagged_latest)}</li>
+  <li>Exported flow rows: {int(tagged_latest["exported"].sum())}
+    ({100 * tagged_latest["exported"].mean():.1f}%)</li>
+  <li>Export-neighbourhood rows (matched + n−1 + n+1): {len(nb_all)}</li>
+  <li>Exported energy (gross tagged, pre-netting):
+    {format_energy(exported_pj, units)}</li>
+  <li>Sankey links after mapping aggregation (threshold {flow_threshold_export:g} {energy_label}):
+    {latest_info["links_export_count"]}</li>
+  <li>Commodity balance failures (|residual|&gt;tol):
+    {int((~balance["ok"]).sum()) if not balance.empty else "n/a"}</li>
+  <li>Unexpected empty rules: {int((~empty_rules["ok"]).sum())}</li>
+  <li>Disallowed double-count pairs: {len(overlap)}</li>
+  <li>Loop components after netting: {len(loops_df)}</li>
+  <li>DMD coverage-gap (not in any rule): {format_energy(dmd_gap_pj, units)}</li>
+</ul>
+<h2>Interactive Sankey diagrams</h2>
+<p>Use the year slider and <em>Net bidirectional flows</em> checkbox on each chart.
+Companion CSVs are written per year as <code>qa_*_{{year}}.csv</code>.</p>
+"""
+
+    footer_html = f"""
+<h2>Diagnostics ({latest})</h2>
+<h3>Export coverage</h3>
+{_html_table(coverage)}
+<h3>Empty / known-zero rules</h3>
+{_html_table(empty_rules)}
+<h3>Parent–child sum checks</h3>
+{_html_table(parent_child)}
+<h3>Disallowed double-count overlaps</h3>
+{_html_table(overlap)}
+<h3>Commodity balance vs VAR_Comnet (failures first)</h3>
+{_html_table(balance.sort_values("ok").head(40) if not balance.empty else balance)}
+<h3>Loop components</h3>
+{_html_table(loops_df)}
+<h3>Coverage gaps (DMD demand-sector VAR_FIn not in any rule)</h3>
+<p>Intermediate PRE/Fuel-Tech gaps are in <code>qa_coverage_gap_all_{latest}.csv</code>.</p>
+{_html_table(gap_sum.head(40))}
+<h3>Topology mismatches</h3>
+{
+    _html_table(model.topology_mismatches.head(40))
+    if model.topology_mismatches is not None and not model.topology_mismatches.empty
+    else "<p><em>No topology file or no mismatches.</em></p>"
+}
+"""
+
+    html_path = out_dir / "qa_report.html"
+    html_path.write_text(
+        assemble_interactive_report_html(
+            page_title=f"TIMES Extraction QA — {year_span}",
+            header_html=header_html,
+            charts=charts,
+            footer_html=footer_html,
+        ),
+        encoding="utf-8",
+    )
+    logger.info("Wrote QA report to %s", html_path)
+
+    all_artifacts["report"] = html_path
+    return all_artifacts

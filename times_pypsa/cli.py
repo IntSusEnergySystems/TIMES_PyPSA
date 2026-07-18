@@ -16,6 +16,7 @@ from times_pypsa.pipeline import (
     generate_sankey,
 )
 from times_pypsa.qa import generate_qa_report
+from times_pypsa.units import DEFAULT_FLOW_THRESHOLD_TWH
 
 logger = logging.getLogger(__name__)
 
@@ -117,16 +118,22 @@ def cmd_sankey(args: argparse.Namespace) -> int:
 def cmd_qa(args: argparse.Namespace) -> int:
     mappings_dir = _resolve_mappings_dir(args)
     config = _build_config(args)
+    if args.year:
+        parsed = _parse_horizons(args.year)
+        year = parsed[0] if len(parsed) == 1 else parsed
+    else:
+        year = None
     artifacts = generate_qa_report(
         args.vd,
         args.out_dir,
-        args.year,
+        year,
         vdt_file=args.vdt,
         mappings_dir=mappings_dir,
         config=config,
         flow_threshold_l0=args.threshold_l0,
         flow_threshold_l1=args.threshold_l1,
         flow_threshold_export=args.threshold_export,
+        units=args.units,
     )
     if not artifacts:
         logger.error("QA report produced no artifacts (empty flows?)")
@@ -208,9 +215,11 @@ def build_parser() -> argparse.ArgumentParser:
     _add_common_args(qa_parser)
     qa_parser.add_argument(
         "--year",
-        type=int,
-        required=True,
-        help="Planning horizon / model year",
+        default=None,
+        help=(
+            "Planning horizon(s): single year (2050), comma list (2030,2040,2050), "
+            "or range (2025-2050). Default: all years in the .vd file."
+        ),
     )
     qa_parser.add_argument(
         "--out-dir",
@@ -225,10 +234,19 @@ def build_parser() -> argparse.ArgumentParser:
         help="Optional TIMES .vdt topology file for mismatch checks",
     )
     qa_parser.add_argument(
+        "--units",
+        choices=["twh", "pj"],
+        default="twh",
+        help="Energy unit for Sankeys, CSVs, and HTML tables (default: twh)",
+    )
+    qa_parser.add_argument(
         "--threshold-export",
         type=float,
-        default=1.0,
-        help="Minimum flow (PJ) for export-neighbourhood Sankey links (default: 1.0)",
+        default=None,
+        help=(
+            "Minimum Sankey link size in selected --units "
+            f"(default: {DEFAULT_FLOW_THRESHOLD_TWH:g} TWh ≈ 1 PJ when --units twh)"
+        ),
     )
     qa_parser.add_argument(
         "--threshold-l0",

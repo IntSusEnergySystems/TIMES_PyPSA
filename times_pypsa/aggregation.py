@@ -189,8 +189,8 @@ def aggregate_flows(
                     tag_agg.groupby(
                         ["year", "region", "process_node", "commodity_node"]
                     )["exported"]
-                    .any()
-                    .reset_index()
+                    .apply(classify_export_status)
+                    .reset_index(name="export_status")
                 )
                 netted = netted.merge(
                     exp,
@@ -198,7 +198,8 @@ def aggregate_flows(
                     right_on=["year", "region", "process_node", "commodity_node"],
                     how="left",
                 )
-                netted["exported"] = netted["exported"].fillna(False)
+                netted["export_status"] = netted["export_status"].fillna("context")
+                netted["exported"] = netted["export_status"].eq("exported")
                 netted = netted.drop(
                     columns=[c for c in ("process_node", "commodity_node") if c in netted.columns]
                 )
@@ -240,6 +241,36 @@ def aggregate_flows(
     return out
 
 
+def classify_export_status(exported: pd.Series) -> str:
+    """
+    Classify aggregated link export state.
+
+    - exported: all contributing flows are exported to pypsa-wal
+    - context: none are exported
+    - mixed: exported and non-exported flows were merged (e.g. mapping aggregation)
+    """
+    exp = exported.fillna(False).astype(bool)
+    has_exp = bool(exp.any())
+    has_non = bool((~exp).any())
+    if has_exp and has_non:
+        return "mixed"
+    if has_exp:
+        return "exported"
+    return "context"
+
+
+def merge_export_statuses(statuses: pd.Series) -> str:
+    """Combine row-level export statuses when collapsing Sankey links."""
+    values = {str(v) for v in statuses.dropna() if str(v) in {"exported", "context", "mixed"}}
+    if "mixed" in values:
+        return "mixed"
+    if "exported" in values and "context" in values:
+        return "mixed"
+    if "exported" in values:
+        return "exported"
+    return "context"
+
+
 def sankey_links_from_flows(
     flows: pd.DataFrame,
     *,
@@ -250,9 +281,19 @@ def sankey_links_from_flows(
 
     VAR_FIn  : commodity → process
     VAR_FOut : process → commodity
+
+    Adds ``export_status`` in {exported, context, mixed} when export tags exist.
     """
+    empty_cols = [
+        "source",
+        "target",
+        "value",
+        "export_status",
+        "exported",
+        "matched_categories",
+    ]
     if flows.empty:
-        return pd.DataFrame(columns=["source", "target", "value", "exported", "matched_categories"])
+        return pd.DataFrame(columns=empty_cols)
 
     df = flows.copy()
     df["source"] = df.apply(
@@ -269,9 +310,13 @@ def sankey_links_from_flows(
     )
 
     agg_spec: dict = {"value": "sum"}
+    status_source = None
     if "exported" in df.columns:
         df["exported"] = df["exported"].fillna(False).astype(bool)
-        agg_spec["exported"] = "any"
+        status_source = "exported"
+    elif "export_status" in df.columns:
+        status_source = "export_status"
+
     if "matched_categories" in df.columns:
 
         def _join_cats(series):
@@ -286,6 +331,26 @@ def sankey_links_from_flows(
         agg_spec["matched_categories"] = _join_cats
 
     links = df.groupby(["source", "target"], as_index=False).agg(agg_spec)
+
+    if status_source == "exported":
+        status = (
+            df.groupby(["source", "target"])["exported"]
+            .apply(classify_export_status)
+            .reset_index(name="export_status")
+        )
+        links = links.merge(status, on=["source", "target"], how="left")
+    elif status_source == "export_status":
+        status = (
+            df.groupby(["source", "target"])["export_status"]
+            .apply(merge_export_statuses)
+            .reset_index(name="export_status")
+        )
+        links = links.merge(status, on=["source", "target"], how="left")
+
+    if "export_status" in links.columns:
+        links["export_status"] = links["export_status"].fillna("context")
+        links["exported"] = links["export_status"].eq("exported")
+
     if flow_threshold > 0:
         links = links[links["value"] > flow_threshold]
     return links
