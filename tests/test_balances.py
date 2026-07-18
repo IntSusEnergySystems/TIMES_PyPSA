@@ -51,7 +51,7 @@ def test_comnet_balance_majority_ok(year_flows):
     ok_frac = active["ok"].mean()
     assert ok_frac >= 0.3, (
         f"Only {ok_frac:.0%} of active commodities match Comnet within 1 PJ "
-        f"({int((~active['ok']).sum())} failures). See EXTRACTION_QA.md expert Q1."
+        f"({int((~active['ok']).sum())} failures). See README.md § Questions for TIMES experts, Q1."
     )
 
 

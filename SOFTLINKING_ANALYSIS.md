@@ -179,7 +179,7 @@ export_coupling_dir(
 6. PJ → TWh (`× 0.277778`)
 7. Post-process: subtract `electricity rail` from `electricity road`, `total rail` from `total road`
 
-**QA / validation:** use `times-pypsa qa` (multi-level Sankey with export highlighting, balance and coverage CSVs). Full data model, aggregation levels, tests, and expert questions: **[EXTRACTION_QA.md](EXTRACTION_QA.md)**.
+**QA / validation:** use `times-pypsa qa` (multi-level Sankey with export highlighting, balance and coverage CSVs). Full data model, aggregation levels, tests, and expert questions: **[README.md § Extraction QA](README.md#extraction-qa)**.
 
 **Where to edit:**
 | What | File |
@@ -239,7 +239,7 @@ SEPIA HTML + `scripts/rsync_output.sh` → labothap remains a fallback for Sanke
 | **2** | Wire `heating_capacities` into `add_existing_baseyear` | Open (needs Q2) |
 | **3** | Explorer upload orchestration | Operational via `nic5.sh` |
 | **4** | TIMES demands vs ClimAct BEWAL load QA script | Open |
-| **4** | Multi-view extraction QA (`times-pypsa qa`) + pytest balances | **Done** (see [EXTRACTION_QA.md](EXTRACTION_QA.md)) |
+| **4** | Multi-view extraction QA (`times-pypsa qa`) + pytest balances | **Done** (see [README.md § Extraction QA](README.md#extraction-qa)) |
 
 ---
 
@@ -274,7 +274,7 @@ SEPIA HTML + `scripts/rsync_output.sh` → labothap remains a fallback for Sanke
 | Role | Path |
 |------|------|
 | Library core | `TIMES_PyPSA/times_pypsa/pipeline.py` |
-| Extraction QA | `TIMES_PyPSA/EXTRACTION_QA.md`, `times-pypsa qa` |
+| Extraction QA | `TIMES_PyPSA/README.md` (§ Extraction QA), `times-pypsa qa` |
 | CLI | `times-pypsa` → `times_pypsa/cli.py` |
 | Bundled mappings | `TIMES_PyPSA/times_pypsa/mappings/` |
 | Snakemake wrapper | `pypsa-wal/scripts/build_wallon_demands.py` |
