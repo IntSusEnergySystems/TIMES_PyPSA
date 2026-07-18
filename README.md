@@ -48,6 +48,25 @@ times-pypsa sankey \
 
 Use `--mappings-dir` to override the bundled mappings (defaults to the package `times_pypsa/mappings/`).
 
+### Soft-linking bundle (PyPSA-WAL)
+
+Export a coupling directory for pypsa-wal (TIMES `.vd`, mappings, pre-exported demands):
+
+```bash
+times-pypsa export-coupling \
+  --coupling-dir /path/to/coupling_run \
+  --vd data/scen_corrige_251129_0112.vd \
+  --horizons 2025,2030,2040,2050
+```
+
+Or use the helper script (export only by default; add `--snakemake` to build demands in pypsa-wal):
+
+```bash
+./scripts/run_coupled.sh /path/to/coupling_run --snakemake
+```
+
+In pypsa-wal, set `coupling_dir` in `config/config.walloon.yaml` (or via `--config coupling_dir=...`) so `build_wallon_demands` copies pre-exported CSVs instead of re-parsing the `.vd`.
+
 ### Python API
 
 For Snakemake integration in pypsa-wal:

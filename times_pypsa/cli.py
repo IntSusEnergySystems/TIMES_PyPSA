@@ -11,6 +11,7 @@ from times_pypsa.pipeline import (
     PipelineConfig,
     default_mappings_dir,
     export_all_horizons,
+    export_coupling_dir,
     export_horizon,
     generate_sankey,
 )
@@ -66,6 +67,20 @@ def _build_config(args: argparse.Namespace) -> PipelineConfig:
 
 def _resolve_mappings_dir(args: argparse.Namespace) -> Path:
     return args.mappings_dir or default_mappings_dir()
+
+
+def cmd_export_coupling(args: argparse.Namespace) -> int:
+    mappings_dir = _resolve_mappings_dir(args)
+    config = _build_config(args)
+    horizons = _parse_horizons(args.horizons)
+    export_coupling_dir(
+        args.coupling_dir,
+        args.vd,
+        horizons,
+        mappings_dir=mappings_dir,
+        config=config,
+    )
+    return 0
 
 
 def cmd_export(args: argparse.Namespace) -> int:
@@ -127,6 +142,24 @@ def build_parser() -> argparse.ArgumentParser:
         help="What to emit (default: all)",
     )
     export_parser.set_defaults(func=cmd_export)
+
+    coupling_parser = subparsers.add_parser(
+        "export-coupling",
+        help="Export a PyPSA-WAL soft-linking bundle (demands + manifest)",
+    )
+    _add_common_args(coupling_parser)
+    coupling_parser.add_argument(
+        "--coupling-dir",
+        type=Path,
+        required=True,
+        help="Root directory for the coupling bundle",
+    )
+    coupling_parser.add_argument(
+        "--horizons",
+        default="2025,2030,2040,2050",
+        help="Horizons as comma list (2030,2040) or range (2021-2050)",
+    )
+    coupling_parser.set_defaults(func=cmd_export_coupling)
 
     sankey_parser = subparsers.add_parser(
         "sankey", help="Generate Sankey diagram for a single year"

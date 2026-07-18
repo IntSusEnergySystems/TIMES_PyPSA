@@ -4,7 +4,10 @@ from __future__ import annotations
 
 import json
 import logging
+import shutil
 from dataclasses import dataclass
+from datetime import datetime, timezone
+from importlib.metadata import version
 from pathlib import Path
 from typing import Iterable, Literal
 
@@ -14,6 +17,7 @@ import plotly.graph_objects as go
 logger = logging.getLogger(__name__)
 
 PJ_TO_TWH = 0.277778
+LIBRARY_VERSION = "0.1.0"
 EmitMode = Literal["sankey", "demands", "all"]
 
 
@@ -1262,6 +1266,7 @@ def export_all_horizons(
     horizons = list(horizons)
     if emit in ("demands", "all"):
         for horizon in horizons:
+            wallon_path = out_dir / f"wallon_demands_{horizon}.csv"
             extract_demands_for_horizon(
                 annual_values_df,
                 metadata.processes_df,
@@ -1269,9 +1274,10 @@ def export_all_horizons(
                 extraction_rules,
                 metadata.commodity_mapping_file,
                 horizon,
-                out_dir / f"pypsa_demands_{horizon}.csv",
+                wallon_path,
                 apply_netting=config.apply_netting,
             )
+            shutil.copy2(wallon_path, out_dir / f"pypsa_demands_{horizon}.csv")
         for horizon in horizons:
             extract_heating_capacities(
                 raw_flows_df,
@@ -1283,3 +1289,124 @@ def export_all_horizons(
     if emit in ("sankey", "all"):
         for horizon in horizons:
             generate_sankey(vd_file, mappings_dir, horizon, out_dir, config=config)
+
+
+_MAPPING_FILES = (
+    "mapping_commodities.csv",
+    "mapping_processes.csv",
+    "extraction_rules.csv",
+)
+
+
+def _ensure_times_vd(coupling_dir: Path, vd_file: Path) -> Path:
+    """Place the scenario .vd under ``coupling_dir/times/`` if not already present."""
+    times_dir = coupling_dir / "times"
+    times_dir.mkdir(parents=True, exist_ok=True)
+    dest_vd = times_dir / "scenario.vd"
+    if not dest_vd.exists():
+        vd_resolved = vd_file.resolve()
+        try:
+            dest_vd.symlink_to(vd_resolved)
+        except OSError:
+            shutil.copy2(vd_resolved, dest_vd)
+    return dest_vd
+
+
+def _ensure_coupling_mappings(
+    coupling_dir: Path, mappings_dir: Path
+) -> tuple[Path, str]:
+    """Copy bundled mapping CSVs into ``coupling_dir/mappings/`` when missing."""
+    coupling_mappings = coupling_dir / "mappings"
+    coupling_mappings.mkdir(parents=True, exist_ok=True)
+    for name in _MAPPING_FILES:
+        dest = coupling_mappings / name
+        if not dest.exists():
+            shutil.copy2(mappings_dir / name, dest)
+    return coupling_mappings, str(mappings_dir.resolve())
+
+
+def export_coupling_dir(
+    coupling_dir: Path | str,
+    vd_file: Path | str,
+    horizons: Iterable[int],
+    mappings_dir: Path | str | None = None,
+    config: PipelineConfig | None = None,
+) -> None:
+    """
+    Export a soft-linking bundle for PyPSA-WAL under ``coupling_dir``.
+
+    Layout::
+
+        <coupling_dir>/
+          times/scenario.vd
+          mappings/{mapping_commodities,mapping_processes,extraction_rules}.csv
+          pypsa_inputs/
+            wallon_demands_{h}.csv
+            pypsa_demands_{h}.csv
+            heating_capacities_{h}.csv
+            manifest.json
+    """
+    config = config or PipelineConfig()
+    coupling_dir = Path(coupling_dir)
+    vd_file = Path(vd_file)
+    mappings_dir = Path(mappings_dir) if mappings_dir else default_mappings_dir()
+    horizons = list(horizons)
+
+    coupling_dir.mkdir(parents=True, exist_ok=True)
+    scenario_vd = _ensure_times_vd(coupling_dir, vd_file)
+    coupling_mappings, mappings_source = _ensure_coupling_mappings(
+        coupling_dir, mappings_dir
+    )
+
+    pypsa_inputs = coupling_dir / "pypsa_inputs"
+    pypsa_inputs.mkdir(parents=True, exist_ok=True)
+
+    metadata = load_metadata(coupling_mappings)
+    extraction_rules = load_extraction_rules(metadata.extraction_rules_file)
+
+    raw_flows_df, annual_values_df = prepare_annual_values(
+        vd_file, metadata, config
+    )
+    if annual_values_df.empty:
+        logger.warning("No data in %s; nothing to export.", vd_file)
+        return
+
+    for horizon in horizons:
+        wallon_path = pypsa_inputs / f"wallon_demands_{horizon}.csv"
+        extract_demands_for_horizon(
+            annual_values_df,
+            metadata.processes_df,
+            metadata.mapping_df,
+            extraction_rules,
+            metadata.commodity_mapping_file,
+            horizon,
+            wallon_path,
+            apply_netting=config.apply_netting,
+        )
+        shutil.copy2(wallon_path, pypsa_inputs / f"pypsa_demands_{horizon}.csv")
+
+    for horizon in horizons:
+        extract_heating_capacities(
+            raw_flows_df,
+            metadata.processes_df,
+            horizon,
+            pypsa_inputs / f"heating_capacities_{horizon}.csv",
+        )
+
+    try:
+        library_version = version("times-pypsa")
+    except Exception:
+        library_version = LIBRARY_VERSION
+
+    manifest = {
+        "library_version": library_version,
+        "vd_file": str(scenario_vd.resolve()),
+        "vd_name": scenario_vd.name,
+        "horizons": horizons,
+        "mappings_source": mappings_source,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "category_count": len(extraction_rules),
+    }
+    with (pypsa_inputs / "manifest.json").open("w") as f:
+        json.dump(manifest, f, indent=2)
+    logger.info("Wrote coupling manifest to %s", pypsa_inputs / "manifest.json")
