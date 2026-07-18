@@ -23,5 +23,3 @@ times-pypsa = "times_pypsa.cli:main"
 where = ["."]
 include = ["times_pypsa*"]
 
-[tool.setuptools.package-data]
-times_pypsa = ["mappings/*.csv"]

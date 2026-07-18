@@ -47,7 +47,7 @@ def _add_common_args(parser: argparse.ArgumentParser) -> None:
         "--mappings-dir",
         type=Path,
         default=None,
-        help="Directory with mapping CSVs (default: bundled package mappings)",
+        help="Directory with mapping CSVs (default: repository data/)",
     )
     parser.add_argument(
         "--start-year",

@@ -15,7 +15,7 @@ pip install -e .
 
 Dependencies: `pandas`, `plotly` (Python 3.9+).
 
-Bundled mapping files live in `times_pypsa/mappings/` (`mapping_commodities.csv`, `mapping_processes.csv`, `extraction_rules.csv`).
+Bundled mapping files live in `data/` (`mapping_commodities.csv`, `mapping_processes.csv`, `extraction_rules.csv`).
 
 For tests, install dev dependencies: `pip install -e ".[dev]"`.
 
@@ -82,7 +82,7 @@ times-pypsa qa \
 
 Omit `--year` to include all model years in the interactive HTML report (year slider + flow-netting toggle on each Sankey). Optional: `--year 2050`, `--year 2030,2040,2050`, or `--year 2025-2050`. Energy values default to **TWh** (`--units pj` for petajoules). `--threshold-export` is interpreted in the selected unit (default ≈ 1 PJ). `--agg-level` selects the shared mapping CSV column used for process × commodity node labels (default: `Aggregation Level 2`). See [Extraction QA](#extraction-qa) and [Custom aggregation levels](#custom-aggregation-levels).
 
-Use `--mappings-dir` to override the bundled mappings (defaults to the package `times_pypsa/mappings/`).
+Use `--mappings-dir` to override the default mappings (defaults to the repository `data/` directory).
 
 ### Soft-linking bundle (PyPSA-WAL)
 
@@ -112,7 +112,7 @@ from times_pypsa import export_horizon, export_all_horizons, generate_sankey
 
 export_horizon(
     vd_file="path/to/scenario.vd",
-    mappings_dir="times_pypsa/mappings",
+    mappings_dir="data",
     horizon=2030,
     wallon_demands_path="resources/walloon/demands_2030.csv",
     heating_capacities_path="resources/walloon/heating_capacities_2030.csv",
@@ -128,7 +128,7 @@ from times_pypsa import load_times_annual_flows, load_topology
 
 model = load_times_annual_flows(
     "scen.vd",
-    mappings_dir="times_pypsa/mappings",
+    mappings_dir="data",
     vdt_file="scen.vdt",
 )
 ```
@@ -152,7 +152,7 @@ Files under `data/`:
 - `scen_*.vd`: TIMES scenario output files
 - `scen_*.vdt`: TIMES topology (process–commodity wiring, no quantities)
 - `AllProcesses.csv`, `AllCommodities.csv`: full VEDA dictionaries (semicolon-separated) with **Name** + **Description** for nearly all model codes — used to name Sankey fallbacks and to debug unmapped flows
-- `mapping_commodities.csv`, `mapping_processes.csv`: TIMES → PyPSA mappings (also shipped in the package)
+- `mapping_commodities.csv`, `mapping_processes.csv`, `extraction_rules.csv`: TIMES → PyPSA mappings (in `data/`)
 
 **Reference scenario for QA:** `data/scen_corrige_251129_0112.{vd,vdt}`
 
@@ -246,8 +246,8 @@ Extraction itself is unchanged (filters on Aggregation Level 2 labels). Sankey /
 Sankey readability is controlled by mapping CSVs, not by hard-coded Python clusters. To define a new level:
 
 1. **Pick one column name** (e.g. `sankey_overview`, `my_sector_v2`). The same header must exist in:
-   - `times_pypsa/mappings/mapping_processes.csv`
-   - `times_pypsa/mappings/mapping_commodities.csv`
+   - `data/mapping_processes.csv`
+   - `data/mapping_commodities.csv`
 2. **Fill every row** with the display label for that process or commodity. Empty cells are **not** shown as `Unknown`: the aggregator falls back to the TIMES **Description**, then the TIMES **code** (from the flow row / `data/AllProcesses.csv` / `data/AllCommodities.csv`). For `sankey_overview`, empty cells are first inferred into the overview clusters using description/code heuristics, then fall back to Description/code only if no cluster matches.
 3. **Pass the column name** as `--agg-level my_column` (CLI) or `aggregate_flows(..., level="my_column")` / `PipelineConfig(agg_level="my_column")`.
 4. **Check node budget.** After aggregation, unique process labels + unique commodity labels = total Sankey nodes. For an overview diagram, aim for **≤20 total**. Mid-level views can be larger; the default Level 2 view is intentionally detailed.
@@ -279,8 +279,8 @@ Internal node ids are typed (`process::Label` / `commodity::Label`) so a process
 
 `custom` is seeded as a copy of **Aggregation Level 2** on both mapping CSVs. Processes that were missing from the mapping were added with clustered labels inferred from TIMES descriptions (heat pumps, CHP, retrofits, PV, industry, H₂, …) so the column has **no empty / Unknown** cells. Edit `custom` freely in:
 
-- `times_pypsa/mappings/mapping_processes.csv`
-- `times_pypsa/mappings/mapping_commodities.csv`
+- `data/mapping_processes.csv`
+- `data/mapping_commodities.csv`
 
 then re-run QA with `--agg-level custom`. Use `qa_sankey_label_map_{year}.csv` to see which TIMES codes sit under each custom label.
 
@@ -321,7 +321,7 @@ That yields **17 distinct labels** in the bundled mappings (9 process + 8 commod
 
 ##### Practical tips
 
-- Edit the **package** mappings under `times_pypsa/mappings/` (used by default). Keep `data/mapping_*.csv` in sync if you use that copy.
+- Edit the mappings under `data/` (single source of truth for TIMES_PyPSA and pypsa-wal).
 - Do **not** invent Sankey display prefixes in code (`Unknown`, `Unmapped: …`); put the intended label in the CSV, or rely on TIMES Description/code fallbacks.
 - Full TIMES dictionaries for names: `data/AllProcesses.csv` and `data/AllCommodities.csv` (semicolon-separated VEDA exports). The loader uses these to fill missing process/commodity descriptions on flows.
 - Extraction rules are independent: they still filter on Aggregation Level 2 / `process_agg`. Changing `sankey_overview` does not change PyPSA demand exports.
@@ -384,7 +384,7 @@ The `times-pypsa qa` command (see [CLI usage](#cli-usage)) writes `qa_report.htm
 
 | What | File |
 |------|------|
-| Category definitions / filters | `times_pypsa/mappings/extraction_rules.csv` |
+| Category definitions / filters | `data/extraction_rules.csv` |
 | Process aggregation labels | `mapping_processes.csv` |
 | Commodity → PyPSA carrier | `mapping_commodities.csv` |
 | Parser / netting / road-rail | `times_pypsa/pipeline.py` |

@@ -16,7 +16,7 @@ from pathlib import Path
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-PACKAGE_MAPPINGS = REPO_ROOT / "times_pypsa" / "mappings"
+DATA_MAPPINGS = REPO_ROOT / "data"
 TOY_VD = REPO_ROOT / "tests" / "fixtures" / "toy_scen.vd"
 TOY_VDT = REPO_ROOT / "tests" / "fixtures" / "toy_scen.vdt"
 TOY_QA_VD = REPO_ROOT / "tests" / "fixtures" / "toy_qa.vd"
@@ -93,7 +93,7 @@ def qa_vdt_path(qa_vd_path: Path) -> Path | None:
 
 @pytest.fixture(scope="session")
 def mappings_dir() -> Path:
-    return PACKAGE_MAPPINGS
+    return DATA_MAPPINGS
 
 
 @pytest.fixture(scope="session")

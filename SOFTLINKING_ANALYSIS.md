@@ -35,7 +35,7 @@ TIMES .vd
 | ID | Choice |
 |----|--------|
 | D1 | Single extractor: `times_pypsa` package. pypsa-wal keeps a thin Snakemake wrapper only. |
-| D2 | Canonical mappings in `times_pypsa/mappings/`; pypsa-wal may override with `sector.times_mappings_dir` (currently `data/walloon`, byte-identical). |
+| D2 | Canonical mappings in `data/` (`mapping_*.csv`, `extraction_rules.csv`). pypsa-wal uses `default_mappings_dir()` unless `sector.times_mappings_dir` is set. |
 | D3 | Phase 1 soft-links **demands** (+ unused heating capacities). Potentials/costs/NTCs stay manual until modellers agree (Phase 2). |
 | D4 | ClimAct stays separate (pypsa 0.35.x vs pypsa-wal 1.x). |
 
@@ -48,15 +48,15 @@ TIMES_PyPSA/
 ├── pyproject.toml                 # times-pypsa CLI entry point
 ├── times_pypsa/
 │   ├── pipeline.py                # parse .vd, extract, Sankey, coupling export
-│   ├── cli.py                     # export | export-coupling | sankey
-│   └── mappings/                  # bundled defaults (package data)
-│       ├── mapping_commodities.csv
-│       ├── mapping_processes.csv
-│       └── extraction_rules.csv   # 54 categories (incl. retro)
+│   └── cli.py                     # export | export-coupling | sankey
+├── data/
+│   ├── mapping_commodities.csv    # canonical TIMES → PyPSA mappings
+│   ├── mapping_processes.csv
+│   ├── extraction_rules.csv       # 54 categories (incl. retro)
+│   └── …                          # example .vd files, AllCommodities.csv, …
 ├── scripts/
 │   ├── bau_sankey_diagram.py      # thin legacy wrapper
 │   └── run_coupled.sh             # export (+ optional snakemake)
-└── data/                          # example .vd files
 ```
 
 ```bash
@@ -125,7 +125,7 @@ times-pypsa export-coupling \
 sector:
   times_demand: true
   times_file: data/walloon/scen_base_coherence_3110.vd
-  times_mappings_dir: data/walloon
+  # times_mappings_dir: optional override (defaults to TIMES_PyPSA data/)
   # times_use_preexported: true         # require copy from coupling_dir
 ```
 
@@ -184,14 +184,14 @@ export_coupling_dir(
 **Where to edit:**
 | What | File |
 |------|------|
-| Category definitions / filters | `times_pypsa/mappings/extraction_rules.csv` (sync to `pypsa-wal/data/walloon/` if overriding) |
-| Process aggregation labels | `mapping_processes.csv` |
-| Commodity → PyPSA carrier | `mapping_commodities.csv` |
+| Category definitions / filters | `data/extraction_rules.csv` |
+| Process aggregation labels | `data/mapping_processes.csv` |
+| Commodity → PyPSA carrier | `data/mapping_commodities.csv` |
 | Parser / netting / road-rail | `times_pypsa/pipeline.py` |
 | QA report / balances / topology | `times_pypsa/{qa,balances,model,topology,aggregation}.py` |
 | Snakemake I/O only | `pypsa-wal/scripts/build_wallon_demands.py` |
 
-Keep both mapping copies in sync (or drop the pypsa-wal override and use package defaults).
+Keep mapping edits in `data/` only (shared by standalone CLI and pypsa-wal via `default_mappings_dir()`).
 
 ---
 
@@ -260,7 +260,7 @@ SEPIA HTML + `scripts/rsync_output.sh` → labothap remains a fallback for Sanke
 
 | Topic | Note |
 |-------|------|
-| Mapping drift | Two copies (`times_pypsa/mappings/` and `data/walloon/`). Prefer pointing config at the package or syncing in CI. |
+| Mapping drift | Resolved: single canonical copy in `TIMES_PyPSA/data/`. |
 | Silent empty filters | A typo in `extraction_rules.csv` yields 0 demand with no hard failure. Mitigated by `times-pypsa qa` empty-rule table + pytest allowlist (`KNOWN_ZERO_CATEGORIES`). |
 | Params vs TIMES | Nuclear floors, CO₂ baselines, shipping shares, sequestration potentials live in `config.walloon.yaml` / Python (`solve_network.py`) — must stay consistent with the TIMES scenario (future `params.yaml`). |
 | NIC5 + external `coupling_dir` | Materialise `pypsa_inputs/` into `resources/` before `nic5.sh push`, or extend rsync. |
@@ -276,7 +276,7 @@ SEPIA HTML + `scripts/rsync_output.sh` → labothap remains a fallback for Sanke
 | Library core | `TIMES_PyPSA/times_pypsa/pipeline.py` |
 | Extraction QA | `TIMES_PyPSA/README.md` (§ Extraction QA), `times-pypsa qa` |
 | CLI | `times-pypsa` → `times_pypsa/cli.py` |
-| Bundled mappings | `TIMES_PyPSA/times_pypsa/mappings/` |
+| Canonical mappings | `TIMES_PyPSA/data/` |
 | Snakemake wrapper | `pypsa-wal/scripts/build_wallon_demands.py` |
 | Rule | `pypsa-wal/rules/build_sector.smk` → `build_wallon_demands` |
 | Walloon config | `pypsa-wal/config/config.walloon.yaml` |

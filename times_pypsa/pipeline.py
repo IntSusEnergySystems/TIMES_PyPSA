@@ -22,8 +22,16 @@ EmitMode = Literal["sankey", "demands", "all"]
 
 
 def default_mappings_dir() -> Path:
-    """Return the bundled default mappings directory."""
-    return Path(__file__).resolve().parent / "mappings"
+    """Return the repository ``data/`` directory containing mapping CSVs."""
+    repo_data = Path(__file__).resolve().parent.parent / "data"
+    if not (repo_data / "mapping_commodities.csv").exists():
+        raise FileNotFoundError(
+            "Mapping CSVs not found under "
+            f"{repo_data} (expected mapping_commodities.csv, mapping_processes.csv, "
+            "extraction_rules.csv). Install TIMES_PyPSA in editable mode from the "
+            "repository root or pass --mappings-dir."
+        )
+    return repo_data
 
 
 @dataclass

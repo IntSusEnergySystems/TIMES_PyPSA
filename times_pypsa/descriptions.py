@@ -14,7 +14,7 @@ def resolve_data_dir(mappings_dir: Path | str) -> Path | None:
     """Locate the repo ``data/`` directory that holds AllProcesses / AllCommodities."""
     mappings_dir = Path(mappings_dir)
     candidates = [
-        mappings_dir.parent.parent / "data",  # times_pypsa/mappings → repo/data
+        mappings_dir,  # default mappings_dir is repo data/
         mappings_dir.parent / "data",
         mappings_dir / "data",
         Path.cwd() / "data",
