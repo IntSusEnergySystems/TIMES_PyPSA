@@ -1,0 +1,21 @@
+there seem to be more energy going out of the pumped hydro process than coming in. 
+    e.g. in 2030: 0.47 TWh in and 0.93 TWh out. This is not possible for a pumped hydro storage
+7.39 TWh for freight vs 1.03 TWh for passenger aviation in 2030 => plausible? did we miss anything?
+there is a flow from TSTGEVCMIDN01 towards Cars that is not exported. 
+    What is it?
+    Must it be added to pypsa exports?
+in 2050 (and only in 2050), there is a flow from Fuel Tech - Nuclear to "Gas power plants"
+    In the previous years, this flow is correctly directed towards the tihange power plant
+    why do we have that in 2050?
+Residential cooking (commodity: Rsd.Cooking.Existing) does not seem to be exported to pypsa.
+The flow from TSTGEVCMIDN01 to "Cars" is not exported
+    what is TSTGEVCMIDN01?
+    Should it be exported? in what form?
+In 2050, there is hydrogen import (0.63 TWh) feeding process "CHP", which produces only heat for "fuel tech heat". 
+    what is this? 
+    is it correct? no electricity generation?
+heat flow Dum_Retrofit_Commercia -> Buildings built are: 0.34 TWh in 2050
+    What is this
+    it is not exported to pypsa. Should it be?
+"Commercial heat pump" appear "out of the blue". it provides heat to buildings, but does not seem to consume anything
+

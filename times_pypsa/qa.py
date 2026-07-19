@@ -12,6 +12,7 @@ import plotly.graph_objects as go
 from times_pypsa.aggregation import (
     aggregate_flows,
     build_sankey_label_map,
+    collapse_commodity_nodes,
     sankey_links_from_flows,
 )
 from times_pypsa.balances import (
@@ -44,6 +45,7 @@ from times_pypsa.units import (
 )
 from times_pypsa.sankey_html import (
     CONTEXT_COLOR,
+    DOUBLE_COUNT_COLOR,
     EXPORTED_COLOR,
     MIXED_COLOR,
     assemble_interactive_report_html,
@@ -148,6 +150,30 @@ def select_export_neighborhood(
     return touch
 
 
+def _process_activity_units(processes_df: pd.DataFrame | None) -> dict[str, str]:
+    """Map process code → Activity unit from the process mapping CSV."""
+    if processes_df is None or processes_df.empty:
+        return {}
+    code_col = (
+        "Process"
+        if "Process" in processes_df.columns
+        else (
+            "Technology (Process)"
+            if "Technology (Process)" in processes_df.columns
+            else None
+        )
+    )
+    if code_col is None or "Activity unit" not in processes_df.columns:
+        return {}
+    out: dict[str, str] = {}
+    for _, row in processes_df.iterrows():
+        code = str(row[code_col]).strip()
+        if not code:
+            continue
+        out[code] = str(row.get("Activity unit", "") or "").strip()
+    return out
+
+
 def prepare_export_sankey_links(
     tagged: pd.DataFrame,
     *,
@@ -155,18 +181,34 @@ def prepare_export_sankey_links(
     flow_threshold: float = 1.0,
     apply_netting: bool = True,
     agg_level: str = "Aggregation Level 2",
+    collapse_commodities: bool = True,
+    process_activity_units: dict[str, str] | None = None,
+    reference_flows: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
     """
     Build Sankey links for the export neighbourhood using mapping CSV labels only.
 
     Aggregation level is controlled by ``agg_level`` (CSV column name or legacy alias).
+    By default balanced commodity hubs are collapsed to process→process links.
     """
     nb = select_export_neighborhood(tagged, core_mask=core_mask)
     if nb.empty:
         return pd.DataFrame(
             columns=["source", "target", "value", "exported", "matched_categories"]
         )
+    # Full energy-carrier system (same agg) so FOut-only detection is not fooled by
+    # neighbourhood truncation that drops legitimate consumers.
+    energy = filter_energy_carrier_flows(tagged)
+    ref_src = reference_flows if reference_flows is not None else energy
     agg = aggregate_flows(nb, level=agg_level, apply_netting=apply_netting)
+    if collapse_commodities:
+        ref_agg = aggregate_flows(ref_src, level=agg_level, apply_netting=apply_netting)
+        return collapse_commodity_nodes(
+            agg,
+            flow_threshold=flow_threshold,
+            reference_flows=ref_agg,
+            process_activity_units=process_activity_units,
+        )
     return sankey_links_from_flows(agg, flow_threshold=flow_threshold)
 
 
@@ -176,18 +218,38 @@ def prepare_system_sankey_links(
     flow_threshold: float = 1.0,
     apply_netting: bool = True,
     agg_level: str = "Aggregation Level 2",
+    collapse_commodities: bool = True,
+    process_activity_units: dict[str, str] | None = None,
+    reference_flows: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
     """
     Build Sankey links for all TIMES energy carrier flows (no n−1/n+1 filter).
 
     Aggregation level is controlled by ``agg_level`` (CSV column name or legacy alias).
+    By default balanced commodity hubs are collapsed to process→process links
+    (commodities become flow labels; residual imbalance keeps a demand/imbalance sink).
     """
     df = filter_energy_carrier_flows(tagged)
     if df.empty:
         return pd.DataFrame(
             columns=["source", "target", "value", "exported", "matched_categories"]
         )
+    # Unfiltered energy view (same commodity labels after aggregation) for attributing
+    # residuals to non-PJ consumers when those rows were dropped before collapse.
+    ref = reference_flows if reference_flows is not None else df
     agg = aggregate_flows(df, level=agg_level, apply_netting=apply_netting)
+    if collapse_commodities:
+        ref_agg = (
+            aggregate_flows(ref, level=agg_level, apply_netting=apply_netting)
+            if ref is not df
+            else agg
+        )
+        return collapse_commodity_nodes(
+            agg,
+            flow_threshold=flow_threshold,
+            reference_flows=ref_agg,
+            process_activity_units=process_activity_units,
+        )
     return sankey_links_from_flows(agg, flow_threshold=flow_threshold)
 
 
@@ -298,9 +360,14 @@ def build_colored_sankey(
             sk_key = str(row["source"])
             tk_key = str(row["target"])
             tip = f"{row['source']} → {row['target']}<br>{v:.2f} {label}"
-        if cats:
+        if cats and status == "context":
             tip += f"<br>Categories: {cats.replace('|', ', ')}"
-        tip += export_status_hover(status, cats)
+        commodity = str(row.get("commodity", "") or "")
+        if commodity:
+            tip += f"<br>Commodity flow: {commodity.replace('|', ', ')}"
+        tip += export_status_hover(
+            status, cats, export_detail=str(row.get("export_detail", "") or "")
+        )
         customdata.append(tip)
         sources.append(node_index[sk_key])
         targets.append(node_index[tk_key])
@@ -337,7 +404,11 @@ def build_colored_sankey(
         height=700,
         annotations=[
             dict(
-                text="Nodes: P · process (blue) · C · commodity (amber)",
+                text=(
+                    "Nodes: process (green) · U · demand/imbalance residual (magenta). "
+                    "Commodities are flows. Links: blue=exported, purple=double-count "
+                    "(FOut+FIn), grey=context, light red=mixed"
+                ),
                 showarrow=False,
                 xref="paper",
                 yref="paper",
@@ -637,6 +708,7 @@ def generate_qa_report(
 
     metadata = load_metadata(mappings_dir)
     rules = load_extraction_rules(metadata.extraction_rules_file)
+    process_units = _process_activity_units(metadata.processes_df)
 
     year_payloads: dict[int, dict] = {}
     all_artifacts: dict[str, Path] = {}
@@ -708,6 +780,7 @@ def generate_qa_report(
                 flow_threshold=flow_threshold_pj,
                 apply_netting=apply_netting,
                 agg_level=agg_level,
+                process_activity_units=process_units,
             )
             store[yr] = links_to_records(links, units=units)
             year_system_links.append(links)
@@ -722,6 +795,7 @@ def generate_qa_report(
                 flow_threshold=flow_threshold_pj,
                 apply_netting=apply_netting,
                 agg_level=agg_level,
+                process_activity_units=process_units,
             )
             target[yr] = links_to_records(links, units=units)
             year_export_links.append(links)
@@ -754,6 +828,7 @@ def generate_qa_report(
                     flow_threshold=max(0.1, flow_threshold_pj * 0.25),
                     apply_netting=apply_netting,
                     agg_level=agg_level,
+                    process_activity_units=process_units,
                 )
                 category_series[cat_id][variant][yr] = links_to_records(
                     links, units=units
@@ -774,10 +849,15 @@ def generate_qa_report(
             units=units,
             subtitle=(
                 "All energy-carrier flows aggregated to "
-                f"<em>{agg_level}</em> (process × commodity mapping columns). "
-                "Node colours: <strong>P · process</strong> (blue family) vs "
-                "<strong>C · commodity</strong> (amber family). "
-                "Link colours: blue = exported; grey = not exported; light red = mixed."
+                f"<em>{agg_level}</em>. Commodity hubs are collapsed to "
+                "<strong>process→process</strong> flows (commodity name on hover). "
+                "Expected final-demand / non-PJ sinks become magenta <strong>U ·</strong> "
+                "nodes named after the demand process (hover explains). "
+                "Only unexplained imbalances keep an <em>Unbalanced …</em> label and "
+                "are logged as errors. "
+                "Process nodes are green; link colours: blue = exported; "
+                "purple = double-count (FOut+FIn both exported); "
+                "grey = not exported; light red = mixed."
             ),
         ),
         build_sankey_dataset(
@@ -789,8 +869,12 @@ def generate_qa_report(
             nodes_by_year=export_nodes,
             units=units,
             subtitle=(
-                "Exported flows (blue links), non-exported flows (grey), and mixed links "
-                "(light red). Nodes: P · process (blue) vs C · commodity (amber)."
+                "Exported flows (blue links), double-count FOut+FIn (purple), "
+                "non-exported flows (grey), and mixed links (light red). "
+                "Process nodes green; U · magenta = demand / view-truncation residual. "
+                "Unlike view A, this diagram keeps only the export neighbourhood "
+                "(matched flows ± one hop), so many magenta nodes are omitted "
+                "upstream producers or downstream consumers — not TIMES errors."
             ),
         ),
     ]
@@ -852,8 +936,9 @@ def generate_qa_report(
 </div>
 <div class='legend'><strong>Link colours:</strong>
   <span style='background:{EXPORTED_COLOR};color:#fff'>Exported to pypsa-wal</span>
+  <span style='background:{DOUBLE_COUNT_COLOR};color:#fff'>Double-count (FOut+FIn both exported)</span>
   <span style='background:{CONTEXT_COLOR}'>Not exported</span>
-  <span style='background:{MIXED_COLOR}'>Mixed (exported + non-exported aggregated)</span>
+  <span style='background:{MIXED_COLOR}'>Mixed (same endpoint mixes exported + non-exported)</span>
 </div>
 <h2>Summary ({latest})</h2>
 <ul>

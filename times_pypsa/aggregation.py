@@ -575,16 +575,113 @@ def classify_export_status(exported: pd.Series) -> str:
     return "context"
 
 
-def merge_export_statuses(statuses: pd.Series) -> str:
-    """Combine row-level export statuses when collapsing Sankey links."""
-    values = {str(v) for v in statuses.dropna() if str(v) in {"exported", "context", "mixed"}}
+def merge_export_statuses(
+    statuses: pd.Series,
+    *,
+    any_exported: bool = False,
+) -> str:
+    """
+    Combine row-level export statuses when collapsing or aggregating Sankey links.
+
+    Statuses: ``exported``, ``context``, ``mixed``, ``double_count``.
+
+    Default (``any_exported=False``): ``exported`` + ``context`` → ``mixed``
+    (strict; used when several physical rows share one bipartite link).
+
+    With ``any_exported=True`` (commodity-hub collapse to process→process):
+    ``exported`` + ``context`` → ``exported``. A balanced collapse is one Sankey
+    flow; a single exported endpoint is enough to colour it blue for PyPSA.
+
+    ``double_count`` = both FOut and FIn endpoints exported (soft-link overlap risk).
+    ``mixed`` on either side still wins over blue/grey.
+    """
+    values = {
+        str(v)
+        for v in statuses.dropna()
+        if str(v) in {"exported", "context", "mixed", "double_count"}
+    }
     if "mixed" in values:
         return "mixed"
+    if "double_count" in values:
+        return "double_count"
     if "exported" in values and "context" in values:
-        return "mixed"
+        return "exported" if any_exported else "mixed"
     if "exported" in values:
         return "exported"
     return "context"
+
+
+def collapse_pair_export_status(prod_status: str, cons_status: str) -> str:
+    """
+    Colour a collapsed producer→consumer link from the two endpoint statuses.
+
+    - both ``exported`` → ``double_count`` (purple; FOut and FIn both soft-linked)
+    - exactly one ``exported`` → ``exported`` (blue)
+    - either ``mixed`` → ``mixed``
+    - else ``context``
+    """
+    p = str(prod_status or "context")
+    c = str(cons_status or "context")
+    if p == "mixed" or c == "mixed":
+        return "mixed"
+    if p == "double_count" or c == "double_count":
+        return "double_count"
+    if p == "exported" and c == "exported":
+        return "double_count"
+    if p == "exported" or c == "exported":
+        return "exported"
+    return "context"
+
+
+def format_export_via(attribute: str, process: str) -> str:
+    """Human-readable export pathway for hover text, e.g. ``VAR_FIn of TRADST00``."""
+    attr = str(attribute or "").strip()
+    proc = str(process or "").strip()
+    if not attr or not proc:
+        return ""
+    return f"{attr} of {proc}"
+
+
+def collapse_export_detail(
+    prod_status: str,
+    cons_status: str,
+    prod_name: str,
+    cons_name: str,
+) -> str:
+    """Describe which endpoint(s) drive PyPSA export on a collapsed link."""
+    parts: list[str] = []
+    p = str(prod_status or "context")
+    c = str(cons_status or "context")
+    if p in {"exported", "mixed", "double_count"}:
+        via = format_export_via("VAR_FOut", prod_name)
+        if via:
+            parts.append(via)
+    if c in {"exported", "mixed", "double_count"}:
+        via = format_export_via("VAR_FIn", cons_name)
+        if via:
+            parts.append(via)
+    return " and ".join(parts)
+
+
+def _join_export_details(series) -> str:
+    """Merge export_detail strings from several collapsed contributions."""
+    seen: set[str] = set()
+    out: list[str] = []
+    for item in series:
+        text = str(item or "").strip()
+        if not text:
+            continue
+        for piece in text.split("; "):
+            piece = piece.strip()
+            if piece and piece not in seen:
+                seen.add(piece)
+                out.append(piece)
+    return "; ".join(out)
+
+
+def _merge_export_statuses_any(statuses: pd.Series) -> str:
+    """groupby-compatible wrapper: collapse links use any-exported colouring."""
+    return merge_export_statuses(statuses, any_exported=True)
 
 
 def build_sankey_label_map(
@@ -741,6 +838,7 @@ def sankey_links_from_flows(
         "export_status",
         "exported",
         "matched_categories",
+        "commodity",
     ]
     if flows.empty:
         return pd.DataFrame(columns=empty_cols)
@@ -756,6 +854,10 @@ def sankey_links_from_flows(
     df["target_kind"] = pd.Series(
         ["process" if fin else "commodity" for fin in is_fin], index=df.index
     )
+    if "commodity" in df.columns:
+        df["commodity"] = df["commodity"].fillna(df["commodity_code"]).astype(str)
+    else:
+        df["commodity"] = df["commodity_code"].astype(str)
 
     agg_spec: dict = {"value": "sum"}
     status_source = None
@@ -777,6 +879,11 @@ def sankey_links_from_flows(
             return "|".join(sorted(cats))
 
         agg_spec["matched_categories"] = _join_cats
+
+    def _join_commodities(series):
+        return "|".join(sorted({str(x) for x in series if str(x).strip()}))
+
+    agg_spec["commodity"] = _join_commodities
 
     group_cols = ["source", "target", "source_kind", "target_kind"]
     links = df.groupby(group_cols, as_index=False).agg(agg_spec)
@@ -803,3 +910,769 @@ def sankey_links_from_flows(
     if flow_threshold > 0:
         links = links[links["value"] > flow_threshold]
     return links
+
+
+def commodity_fin_fout_balance(
+    flows: pd.DataFrame,
+    *,
+    abs_tol: float = 1e-6,
+) -> pd.DataFrame:
+    """
+    Compare Σ VAR_FOut vs Σ VAR_FIn for each commodity hub.
+
+    Returns columns:
+        commodity_code, fout, fin, residual, rel_err, balanced
+    """
+    empty = pd.DataFrame(
+        columns=["commodity_code", "fout", "fin", "residual", "rel_err", "balanced"]
+    )
+    if flows.empty:
+        return empty
+
+    df = flows[flows["variable"].str.upper().isin(["VAR_FIN", "VAR_FOUT"])].copy()
+    if df.empty:
+        return empty
+
+    fout = (
+        df[df["variable"].str.upper() == "VAR_FOUT"]
+        .groupby("commodity_code")["value"]
+        .sum()
+    )
+    fin = (
+        df[df["variable"].str.upper() == "VAR_FIN"]
+        .groupby("commodity_code")["value"]
+        .sum()
+    )
+    codes = sorted(set(fout.index) | set(fin.index))
+    rows = []
+    for code in codes:
+        fo = float(fout.get(code, 0.0))
+        fi = float(fin.get(code, 0.0))
+        residual = fo - fi
+        scale = max(abs(fo), abs(fi), abs_tol)
+        rel_err = abs(residual) / scale
+        rows.append(
+            {
+                "commodity_code": code,
+                "fout": fo,
+                "fin": fi,
+                "residual": residual,
+                "rel_err": rel_err,
+                "balanced": abs(residual) <= abs_tol,
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+class CommodityImbalanceError(ValueError):
+    """Raised when a commodity hub has relative FIN/FOUT imbalance ≥ threshold."""
+
+    def __init__(self, message: str, balance: pd.DataFrame):
+        super().__init__(message)
+        self.balance = balance
+
+
+def _join_category_values(values) -> str:
+    cats: set[str] = set()
+    for item in values:
+        if isinstance(item, list):
+            cats.update(str(x) for x in item if x)
+        elif isinstance(item, str) and item:
+            cats.update(x for x in item.split("|") if x)
+    return "|".join(sorted(cats))
+
+
+def imbalance_process_label(
+    commodity: str,
+    *,
+    fout: float,
+    fin: float,
+    rel_err: float,
+    warn_rel: float = 0.10,
+) -> str:
+    """
+    Artificial process-node name for *unexplained* imbalances.
+
+    Examples:
+        Unbalanced ≥10%: Oil products (FOut>FIn, 78.9%)
+        Unbalanced <10%: Electricity (FOut>FIn, 3.6%)
+    """
+    direction = "FOut>FIn" if fout >= fin else "FIn>FOut"
+    pct = 100.0 * float(rel_err)
+    if rel_err >= warn_rel:
+        return f"Unbalanced ≥{100.0 * warn_rel:.0f}%: {commodity} ({direction}, {pct:.1f}%)"
+    return f"Unbalanced <{100.0 * warn_rel:.0f}%: {commodity} ({direction}, {pct:.1f}%)"
+
+
+def is_pj_activity_unit(unit: str | None) -> bool:
+    return str(unit or "").strip().upper() == "PJ"
+
+
+def excluded_non_pj_consumers(
+    reference_flows: pd.DataFrame,
+    commodity_code: str,
+    *,
+    process_activity_units: dict[str, str],
+    abs_tol: float = 1e-6,
+) -> pd.DataFrame:
+    """
+    VAR_FIn consumers of ``commodity_code`` whose process Activity unit is not PJ.
+
+    Only processes present in ``process_activity_units`` are considered. Aggregated
+    Sankey labels (absent from that map) are ignored — otherwise every unknown code
+    would look like a non-PJ exclusion.
+
+    Returns columns: process_code, process, value, activity_unit.
+    """
+    empty = pd.DataFrame(
+        columns=["process_code", "process", "value", "activity_unit"]
+    )
+    if reference_flows.empty or not process_activity_units:
+        return empty
+    df = reference_flows[
+        (reference_flows["commodity_code"].astype(str) == str(commodity_code))
+        & (reference_flows["variable"].str.upper() == "VAR_FIN")
+    ].copy()
+    if df.empty:
+        return empty
+    rows: list[dict] = []
+    for proc, sub in df.groupby("process_code", sort=False):
+        if str(proc) not in process_activity_units:
+            continue
+        unit = process_activity_units[str(proc)]
+        if is_pj_activity_unit(unit):
+            continue
+        proc_label = (
+            str(sub["process"].iloc[0])
+            if "process" in sub.columns and len(sub)
+            else str(proc)
+        )
+        value = float(sub["value"].sum())
+        if value <= abs_tol:
+            continue
+        rows.append(
+            {
+                "process_code": str(proc),
+                "process": proc_label if proc_label.strip() else str(proc),
+                "value": value,
+                "activity_unit": str(unit or "").strip() or "?",
+            }
+        )
+    if not rows:
+        return empty
+    return pd.DataFrame(rows).sort_values("value", ascending=False).reset_index(drop=True)
+
+
+def _reference_side_outside_view(
+    reference_flows: pd.DataFrame,
+    commodity_code: str,
+    *,
+    variable: str,
+    present_processes: set[str],
+    abs_tol: float = 1e-6,
+) -> pd.DataFrame:
+    """Reference FIN/FOUT rows for a commodity whose process is absent from the view."""
+    empty = pd.DataFrame(columns=["process_code", "process", "value"])
+    if reference_flows is None or reference_flows.empty:
+        return empty
+    df = reference_flows[
+        (reference_flows["commodity_code"].astype(str) == str(commodity_code))
+        & (reference_flows["variable"].str.upper() == variable.upper())
+    ].copy()
+    if df.empty:
+        return empty
+    rows: list[dict] = []
+    for proc, sub in df.groupby("process_code", sort=False):
+        if str(proc) in present_processes:
+            continue
+        value = float(sub["value"].sum())
+        if value <= abs_tol:
+            continue
+        proc_label = (
+            str(sub["process"].iloc[0])
+            if "process" in sub.columns and len(sub)
+            else str(proc)
+        )
+        rows.append(
+            {
+                "process_code": str(proc),
+                "process": proc_label if proc_label.strip() else str(proc),
+                "value": value,
+            }
+        )
+    if not rows:
+        return empty
+    return pd.DataFrame(rows).sort_values("value", ascending=False).reset_index(drop=True)
+
+
+def _residual_sink_plan(
+    *,
+    com_label: str,
+    commodity_code: str,
+    f_out: float,
+    f_in: float,
+    rel_err: float,
+    producers: pd.DataFrame,
+    consumers: pd.DataFrame,
+    warn_rel: float,
+    abs_tol: float,
+    reference_flows: pd.DataFrame | None,
+    process_activity_units: dict[str, str] | None,
+) -> dict:
+    """
+    Decide how to label/log a commodity residual (FOut≠FIn).
+
+    Returns dict with keys:
+        expected (bool), class (str), label (str), tooltip (str),
+        excluded (DataFrame|None) — non-PJ consumers when attributable.
+    """
+    residual = f_out - f_in
+    slack = max(abs_tol, 1e-3 * max(abs(f_out), abs(f_in), 1.0))
+    unexplained = {
+        "expected": False,
+        "class": "unexplained",
+        "label": imbalance_process_label(
+            com_label,
+            fout=f_out,
+            fin=f_in,
+            rel_err=rel_err,
+            warn_rel=warn_rel,
+        ),
+        "tooltip": (
+            f"Unexplained commodity imbalance for '{com_label}': "
+            f"ΣFOut={f_out:.4g} PJ, ΣFIn={f_in:.4g} PJ "
+            f"(rel_err={100.0 * rel_err:.1f}%). "
+            "Residual energy has no matching process on the opposite side."
+        ),
+        "excluded": None,
+    }
+
+    present_prod = (
+        set(producers["process_code"].astype(str)) if not producers.empty else set()
+    )
+    present_cons = (
+        set(consumers["process_code"].astype(str)) if not consumers.empty else set()
+    )
+
+    # FOut-only hub: typical TIMES DEM output (final demand), not an accounting error.
+    # When ``reference_flows`` is provided (e.g. full system vs export neighbourhood),
+    # require FIn≈0 there too — otherwise missing consumers are a view artifact.
+    if residual > abs_tol and f_in <= abs_tol:
+        ref_fin = 0.0
+        if reference_flows is not None and not reference_flows.empty:
+            ref = reference_flows[
+                (reference_flows["commodity_code"].astype(str) == str(commodity_code))
+                & (reference_flows["variable"].str.upper() == "VAR_FIN")
+            ]
+            ref_fin = float(ref["value"].sum()) if not ref.empty else 0.0
+        if ref_fin <= abs_tol:
+            if not producers.empty and len(producers) == 1:
+                proc_name = str(producers.iloc[0]["process_code"])
+            elif not producers.empty:
+                # Dominant producer name when one process carries ≥90% of FOut.
+                top = producers.sort_values("value", ascending=False).iloc[0]
+                if float(top["value"]) >= 0.9 * f_out - abs_tol:
+                    proc_name = str(top["process_code"])
+                else:
+                    proc_name = com_label
+            else:
+                proc_name = com_label
+            return {
+                "expected": True,
+                "class": "final_demand",
+                "label": proc_name,
+                "tooltip": (
+                    f"Final energy demand sink for commodity '{com_label}'. "
+                    "No process consumes this commodity in the energy Sankey "
+                    "(typical TIMES DEM / end-use output). "
+                    f"Node '{proc_name}' is the demand-side process (or demand label); "
+                    "magenta marks a non-energy accounting endpoint, not a conversion tech."
+                ),
+                "excluded": None,
+            }
+
+    # Missing FIN explained by non-PJ consumers dropped upstream of this frame.
+    if (
+        residual > abs_tol
+        and reference_flows is not None
+        and process_activity_units
+    ):
+        excluded = excluded_non_pj_consumers(
+            reference_flows,
+            str(commodity_code),
+            process_activity_units=process_activity_units,
+            abs_tol=abs_tol,
+        )
+        excl_sum = float(excluded["value"].sum()) if not excluded.empty else 0.0
+        # Allow small numerical slack; residual should match excluded FIN mass.
+        if excl_sum > abs_tol and abs(excl_sum - residual) <= slack:
+            if len(excluded) == 1:
+                proc_name = str(excluded.iloc[0]["process"])
+                unit = str(excluded.iloc[0]["activity_unit"])
+                tip = (
+                    f"Energy delivered to process '{proc_name}' via commodity "
+                    f"'{com_label}'. That process is excluded from the energy "
+                    f"Sankey because its Activity unit is '{unit}' (not PJ). "
+                    "Magenta marks the non-energy demand endpoint."
+                )
+            else:
+                # Prefer a single shared process display name when all match.
+                names = excluded["process"].astype(str)
+                if names.nunique() == 1:
+                    proc_name = str(names.iloc[0])
+                else:
+                    # Dominant consumer by energy; keep label short.
+                    proc_name = str(
+                        excluded.sort_values("value", ascending=False).iloc[0]["process"]
+                    )
+                units = sorted({str(u) for u in excluded["activity_unit"].unique()})
+                tip = (
+                    f"Energy delivered to {len(excluded)} non-PJ consumer process(es) "
+                    f"via commodity '{com_label}' (Activity unit "
+                    f"{', '.join(units)}). Those processes are excluded from the "
+                    "energy Sankey; magenta marks the non-energy demand endpoint. "
+                    f"Shown as '{proc_name}'."
+                )
+            return {
+                "expected": True,
+                "class": "excluded_consumer",
+                "label": proc_name,
+                "tooltip": tip,
+                "excluded": excluded,
+            }
+
+    # Export-neighbourhood (or other) view truncation: the *full* reference hub is
+    # approximately balanced, but this subset omits producers and/or consumers.
+    if reference_flows is not None and abs(residual) > abs_tol:
+        omitted_cons = _reference_side_outside_view(
+            reference_flows,
+            str(commodity_code),
+            variable="VAR_FIN",
+            present_processes=present_cons,
+            abs_tol=abs_tol,
+        )
+        omitted_prod = _reference_side_outside_view(
+            reference_flows,
+            str(commodity_code),
+            variable="VAR_FOUT",
+            present_processes=present_prod,
+            abs_tol=abs_tol,
+        )
+        omitted_fin = (
+            float(omitted_cons["value"].sum()) if not omitted_cons.empty else 0.0
+        )
+        omitted_fout = (
+            float(omitted_prod["value"].sum()) if not omitted_prod.empty else 0.0
+        )
+        if omitted_fin > abs_tol or omitted_fout > abs_tol:
+            ref = reference_flows[
+                reference_flows["commodity_code"].astype(str) == str(commodity_code)
+            ]
+            if not ref.empty:
+                ref_fout = float(
+                    ref.loc[ref["variable"].str.upper() == "VAR_FOUT", "value"].sum()
+                )
+                ref_fin = float(
+                    ref.loc[ref["variable"].str.upper() == "VAR_FIN", "value"].sum()
+                )
+                ref_scale = max(abs(ref_fout), abs(ref_fin), abs_tol)
+                ref_residual = ref_fout - ref_fin
+                ref_rel = abs(ref_residual) / ref_scale
+                expected_view_residual = ref_residual + omitted_fin - omitted_fout
+                # Full system roughly balanced; view residual matches omitted sides.
+                if (
+                    ref_rel < warn_rel
+                    and abs(expected_view_residual - residual) <= slack
+                ):
+                    if residual >= 0:
+                        outside = (
+                            omitted_cons if not omitted_cons.empty else omitted_prod
+                        )
+                        role = "consumer" if not omitted_cons.empty else "producer"
+                    else:
+                        outside = (
+                            omitted_prod if not omitted_prod.empty else omitted_cons
+                        )
+                        role = "producer" if not omitted_prod.empty else "consumer"
+                    proc_name = (
+                        str(outside.iloc[0]["process"])
+                        if not outside.empty
+                        else com_label
+                    )
+                    tip = (
+                        f"View truncation for commodity '{com_label}': "
+                        f"the full system is nearly balanced "
+                        f"(ΣFOut={ref_fout:.4g} / ΣFIn={ref_fin:.4g}), "
+                        f"but this Sankey subset omits {len(omitted_cons)} consumer(s) "
+                        f"({omitted_fin:.4g} PJ) and {len(omitted_prod)} producer(s) "
+                        f"({omitted_fout:.4g} PJ) — typical of the export neighbourhood. "
+                        f"Dominant omitted {role}: '{proc_name}'. "
+                        "Not a TIMES accounting error."
+                    )
+                    return {
+                        "expected": True,
+                        "class": "neighbourhood_truncation",
+                        "label": proc_name,
+                        "tooltip": tip,
+                        "excluded": None,
+                    }
+
+    return unexplained
+
+
+def collapse_commodity_nodes(
+    flows: pd.DataFrame,
+    *,
+    flow_threshold: float = 0.0,
+    warn_rel: float = 0.10,
+    abs_tol: float = 1e-6,
+    raise_on_imbalance: bool = False,
+    reference_flows: pd.DataFrame | None = None,
+    process_activity_units: dict[str, str] | None = None,
+) -> pd.DataFrame:
+    """
+    Remove commodity hubs so Sankey links run process → process.
+
+    For each commodity ``C`` with producers (VAR_FOut) and consumers (VAR_FIn):
+
+    - If ΣFOut ≈ ΣFIn: allocate flows proportionally and drop ``C``.
+    - If the residual is an *expected* sink (final-demand FOut-only commodity, or
+      FIN only on non-PJ processes visible in ``reference_flows``): route residual
+      to a magenta node named after the demand process, log at INFO (not error).
+    - If relative imbalance is unexplained and ``< warn_rel``: log a warning and
+      route residual to an ``Unbalanced <…`` magenta node.
+    - If unexplained and ``≥ warn_rel``: log an error (and optionally raise
+      :class:`CommodityImbalanceError`), still collapsing matched energy.
+
+    Pass ``reference_flows`` + ``process_activity_units`` (Process → Activity unit)
+    when non-PJ consumers may have been filtered out of ``flows`` before collapse.
+
+    Link colours still use ``export_status`` (exported / mixed / context).
+    Collapsed links carry a ``commodity`` label for hover text; imbalance links
+    also carry ``imbalance_class`` and ``imbalance_tooltip``.
+    """
+    empty_cols = [
+        "source",
+        "target",
+        "source_kind",
+        "target_kind",
+        "value",
+        "export_status",
+        "exported",
+        "matched_categories",
+        "commodity",
+        "export_detail",
+        "imbalance_class",
+        "imbalance_tooltip",
+    ]
+    if flows.empty:
+        return pd.DataFrame(columns=empty_cols)
+
+    balance = commodity_fin_fout_balance(flows, abs_tol=abs_tol)
+    if balance.empty:
+        return pd.DataFrame(columns=empty_cols)
+
+    bal_by_code = balance.set_index("commodity_code")
+
+    df = flows[flows["variable"].str.upper().isin(["VAR_FIN", "VAR_FOUT"])].copy()
+    if "commodity" not in df.columns:
+        df["commodity"] = df["commodity_code"].astype(str)
+    else:
+        df["commodity"] = df["commodity"].fillna(df["commodity_code"]).astype(str)
+    if "matched_categories" not in df.columns:
+        df["matched_categories"] = ""
+    if "exported" in df.columns:
+        df["exported"] = df["exported"].fillna(False).astype(bool)
+    elif "export_status" in df.columns:
+        df["exported"] = df["export_status"].map(
+            lambda s: str(s) in {"exported", "mixed"}
+        )
+    else:
+        df["exported"] = False
+        df["export_status"] = "context"
+
+    # Pre-compute sink plans so logging matches the labels used on links.
+    sink_plans: dict[str, dict] = {}
+    unexplained_err_codes: list[str] = []
+    for code, row in bal_by_code.iterrows():
+        if bool(row["balanced"]):
+            continue
+        code_s = str(code)
+        grp = df[df["commodity_code"].astype(str) == code_s]
+        com_label = (
+            str(grp["commodity"].iloc[0]) if len(grp) else code_s
+        )
+        fout = grp[grp["variable"].str.upper() == "VAR_FOUT"]
+        fin = grp[grp["variable"].str.upper() == "VAR_FIN"]
+        producers = (
+            fout.groupby("process_code", sort=False)["value"]
+            .sum()
+            .rename("value")
+            .reset_index()
+            if not fout.empty
+            else pd.DataFrame(columns=["process_code", "value"])
+        )
+        consumers = (
+            fin.groupby("process_code", sort=False)["value"]
+            .sum()
+            .rename("value")
+            .reset_index()
+            if not fin.empty
+            else pd.DataFrame(columns=["process_code", "value"])
+        )
+        plan = _residual_sink_plan(
+            com_label=com_label,
+            commodity_code=code_s,
+            f_out=float(row["fout"]),
+            f_in=float(row["fin"]),
+            rel_err=float(row["rel_err"]),
+            producers=producers,
+            consumers=consumers,
+            warn_rel=warn_rel,
+            abs_tol=abs_tol,
+            reference_flows=reference_flows,
+            process_activity_units=process_activity_units,
+        )
+        sink_plans[code_s] = plan
+        if plan["expected"]:
+            logger.info(
+                "Commodity hub %r residual is expected (%s): FOut=%.4g, FIn=%.4g; "
+                "routing to magenta sink %r.",
+                code_s,
+                plan["class"],
+                float(row["fout"]),
+                float(row["fin"]),
+                plan["label"],
+            )
+        elif float(row["rel_err"]) < warn_rel:
+            logger.warning(
+                "Commodity hub %r is unbalanced (rel_err=%.1f%%, FOut=%.4g, FIn=%.4g); "
+                "collapsing matched flows and routing residual to %r.",
+                code_s,
+                100.0 * float(row["rel_err"]),
+                float(row["fout"]),
+                float(row["fin"]),
+                plan["label"],
+            )
+        else:
+            unexplained_err_codes.append(code_s)
+            logger.error(
+                "Commodity hub %r is unbalanced by ≥%.0f%% (rel_err=%.1f%%, "
+                "FOut=%.4g, FIn=%.4g); collapsing matched flows anyway and routing "
+                "residual to %r.",
+                code_s,
+                100.0 * warn_rel,
+                100.0 * float(row["rel_err"]),
+                float(row["fout"]),
+                float(row["fin"]),
+                plan["label"],
+            )
+
+    if raise_on_imbalance and unexplained_err_codes:
+        worst = (
+            bal_by_code.loc[unexplained_err_codes]
+            .sort_values("rel_err", ascending=False)
+            .iloc[0]
+        )
+        raise CommodityImbalanceError(
+            f"Commodity hub {worst.name!r} unbalanced by "
+            f"{100.0 * float(worst['rel_err']):.1f}% "
+            f"(threshold {100.0 * warn_rel:.0f}%).",
+            balance=balance,
+        )
+
+    link_rows: list[dict] = []
+
+    for code, grp in df.groupby("commodity_code", sort=False):
+        com_label = str(grp["commodity"].iloc[0]) if len(grp) else str(code)
+        fout = grp[grp["variable"].str.upper() == "VAR_FOUT"]
+        fin = grp[grp["variable"].str.upper() == "VAR_FIN"]
+
+        def _agg_process_side(side: pd.DataFrame) -> pd.DataFrame:
+            if side.empty:
+                return pd.DataFrame(
+                    columns=[
+                        "process_code",
+                        "value",
+                        "export_status",
+                        "matched_categories",
+                    ]
+                )
+            rows = []
+            for proc, sub in side.groupby("process_code", sort=False):
+                rows.append(
+                    {
+                        "process_code": proc,
+                        "value": float(sub["value"].sum()),
+                        "export_status": classify_export_status(sub["exported"]),
+                        "matched_categories": _join_category_values(
+                            sub["matched_categories"]
+                        ),
+                    }
+                )
+            return pd.DataFrame(rows)
+
+        producers = _agg_process_side(fout)
+        consumers = _agg_process_side(fin)
+
+        f_out = float(producers["value"].sum()) if not producers.empty else 0.0
+        f_in = float(consumers["value"].sum()) if not consumers.empty else 0.0
+
+        if f_out <= abs_tol and f_in <= abs_tol:
+            continue
+
+        bal = bal_by_code.loc[code] if code in bal_by_code.index else None
+        rel_err = float(bal["rel_err"]) if bal is not None else 0.0
+        plan = sink_plans.get(str(code))
+        if plan is None and abs(f_out - f_in) > abs_tol:
+            plan = _residual_sink_plan(
+                com_label=com_label,
+                commodity_code=str(code),
+                f_out=f_out,
+                f_in=f_in,
+                rel_err=rel_err,
+                producers=producers,
+                consumers=consumers,
+                warn_rel=warn_rel,
+                abs_tol=abs_tol,
+                reference_flows=reference_flows,
+                process_activity_units=process_activity_units,
+            )
+        artificial = str(plan["label"]) if plan else imbalance_process_label(
+            com_label,
+            fout=f_out,
+            fin=f_in,
+            rel_err=rel_err,
+            warn_rel=warn_rel,
+        )
+        imb_class = str(plan["class"]) if plan else ""
+        imb_tip = str(plan["tooltip"]) if plan else ""
+
+        transferable = min(f_out, f_in)
+        if transferable > abs_tol and f_out > abs_tol and f_in > abs_tol:
+            for _, prod in producers.iterrows():
+                transfer_p = float(prod["value"]) * (transferable / f_out)
+                if transfer_p <= abs_tol:
+                    continue
+                for _, cons in consumers.iterrows():
+                    share = float(cons["value"]) / f_in
+                    value = transfer_p * share
+                    if value <= abs_tol:
+                        continue
+                    if str(prod["process_code"]) == str(cons["process_code"]):
+                        # Plotly Sankey cannot draw self-loops; drop internal recycle.
+                        continue
+                    status = collapse_pair_export_status(
+                        str(prod["export_status"]), str(cons["export_status"])
+                    )
+                    detail = collapse_export_detail(
+                        str(prod["export_status"]),
+                        str(cons["export_status"]),
+                        str(prod["process_code"]),
+                        str(cons["process_code"]),
+                    )
+                    cats = _join_category_values(
+                        [prod["matched_categories"], cons["matched_categories"]]
+                    )
+                    link_rows.append(
+                        {
+                            "source": str(prod["process_code"]),
+                            "target": str(cons["process_code"]),
+                            "source_kind": "process",
+                            "target_kind": "process",
+                            "value": value,
+                            "export_status": status,
+                            "exported": status in {"exported", "double_count"},
+                            "matched_categories": cats,
+                            "commodity": com_label,
+                            "export_detail": detail,
+                            "imbalance_class": "",
+                            "imbalance_tooltip": "",
+                        }
+                    )
+
+        # Residual → magenta sink (expected demand process or unexplained label).
+        if f_out > f_in + abs_tol and not producers.empty:
+            scale_resid = (f_out - transferable) / f_out
+            for _, prod in producers.iterrows():
+                value = float(prod["value"]) * scale_resid
+                if value <= abs_tol:
+                    continue
+                pstat = str(prod["export_status"])
+                link_rows.append(
+                    {
+                        "source": str(prod["process_code"]),
+                        "target": artificial,
+                        "source_kind": "process",
+                        "target_kind": "imbalance",
+                        "value": value,
+                        "export_status": pstat,
+                        "exported": pstat in {"exported", "double_count"},
+                        "matched_categories": prod["matched_categories"],
+                        "commodity": com_label,
+                        "export_detail": (
+                            format_export_via("VAR_FOut", str(prod["process_code"]))
+                            if pstat in {"exported", "mixed", "double_count"}
+                            else ""
+                        ),
+                        "imbalance_class": imb_class,
+                        "imbalance_tooltip": imb_tip,
+                    }
+                )
+        elif f_in > f_out + abs_tol and not consumers.empty:
+            scale_resid = (f_in - transferable) / f_in
+            for _, cons in consumers.iterrows():
+                value = float(cons["value"]) * scale_resid
+                if value <= abs_tol:
+                    continue
+                cstat = str(cons["export_status"])
+                link_rows.append(
+                    {
+                        "source": artificial,
+                        "target": str(cons["process_code"]),
+                        "source_kind": "imbalance",
+                        "target_kind": "process",
+                        "value": value,
+                        "export_status": cstat,
+                        "exported": cstat in {"exported", "double_count"},
+                        "matched_categories": cons["matched_categories"],
+                        "commodity": com_label,
+                        "export_detail": (
+                            format_export_via("VAR_FIn", str(cons["process_code"]))
+                            if cstat in {"exported", "mixed", "double_count"}
+                            else ""
+                        ),
+                        "imbalance_class": imb_class,
+                        "imbalance_tooltip": imb_tip,
+                    }
+                )
+
+    if not link_rows:
+        return pd.DataFrame(columns=empty_cols)
+
+    links = pd.DataFrame(link_rows)
+    group_cols = ["source", "target", "source_kind", "target_kind"]
+
+    def _first_nonempty(series: pd.Series) -> str:
+        for item in series:
+            text = str(item or "").strip()
+            if text:
+                return text
+        return ""
+
+    agg = (
+        links.groupby(group_cols, as_index=False)
+        .agg(
+            value=("value", "sum"),
+            matched_categories=("matched_categories", _join_category_values),
+            commodity=("commodity", lambda s: "|".join(sorted(set(map(str, s))))),
+            export_status=("export_status", _merge_export_statuses_any),
+            export_detail=("export_detail", _join_export_details),
+            imbalance_class=("imbalance_class", _first_nonempty),
+            imbalance_tooltip=("imbalance_tooltip", _first_nonempty),
+        )
+    )
+    agg["exported"] = agg["export_status"].isin(["exported", "double_count"])
+    if flow_threshold > 0:
+        agg = agg[agg["value"] > flow_threshold]
+    return agg.reset_index(drop=True)

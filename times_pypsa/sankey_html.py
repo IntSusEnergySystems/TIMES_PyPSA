@@ -14,15 +14,36 @@ from times_pypsa.units import EnergyUnit, pj_to_display, unit_label
 EXPORTED_COLOR = "rgba(31, 119, 180, 0.85)"
 CONTEXT_COLOR = "rgba(160, 160, 160, 0.45)"
 MIXED_COLOR = "rgba(255, 152, 152, 0.75)"
+# Both FOut and FIn endpoints exported on a collapsed link (soft-link double-count risk)
+DOUBLE_COUNT_COLOR = "rgba(142, 68, 173, 0.85)"
 
-# Process nodes → blue family; commodity nodes → amber family (Plotly has no shapes).
-_PROCESS_HSV = (205.0, 0.55, 0.72)
-_COMMODITY_HSV = (32.0, 0.70, 0.88)
+# Process / commodity nodes → green (distinct from blue exported links);
+# imbalance residual → magenta.
+_PROCESS_HSV = (135.0, 0.55, 0.68)
+_COMMODITY_HSV = (145.0, 0.50, 0.72)
+_IMBALANCE_HSV = (310.0, 0.65, 0.78)
+
+_NODE_KINDS = frozenset({"process", "commodity", "imbalance"})
+
+
+def _normalize_kind(kind: str) -> str:
+    k = str(kind or "").strip().lower()
+    if k in _NODE_KINDS:
+        return k
+    if k.startswith("p"):
+        return "process"
+    if k.startswith("c"):
+        return "commodity"
+    if k.startswith("i") or k.startswith("u"):
+        return "imbalance"
+    return "process"
 
 
 def export_status_color(export_status: str) -> str:
     if export_status == "exported":
         return EXPORTED_COLOR
+    if export_status == "double_count":
+        return DOUBLE_COUNT_COLOR
     if export_status == "mixed":
         return MIXED_COLOR
     return CONTEXT_COLOR
@@ -30,37 +51,92 @@ def export_status_color(export_status: str) -> str:
 
 def link_export_status(row: pd.Series) -> str:
     status = str(row.get("export_status", "") or "").strip()
-    if status in {"exported", "context", "mixed"}:
+    if status in {"exported", "context", "mixed", "double_count"}:
         return status
     if bool(row.get("exported", False)):
         return "exported"
     return "context"
 
 
-def export_status_hover(export_status: str, cats: str) -> str:
-    return {
-        "exported": "<br>Exported to pypsa-wal",
-        "mixed": "<br>Mixed link (exported and non-exported flows aggregated)",
-        "context": "<br>Not exported to pypsa-wal",
-    }.get(export_status, "")
+def _format_category_phrase(cats: str) -> str:
+    """Turn ``a|b`` / ``a, b`` into a short phrase for hover text."""
+    parts: list[str] = []
+    seen: set[str] = set()
+    raw = str(cats or "").replace("|", ",")
+    for part in raw.split(","):
+        name = part.strip()
+        if name and name not in seen:
+            seen.add(name)
+            parts.append(name)
+    if not parts:
+        return ""
+    if len(parts) == 1:
+        return f"category '{parts[0]}'"
+    joined = ", ".join(f"'{p}'" for p in parts)
+    return f"categories {joined}"
+
+
+def export_status_hover(
+    export_status: str,
+    cats: str = "",
+    *,
+    export_detail: str = "",
+) -> str:
+    """Hover fragment for link export colouring (HTML ``<br>…``)."""
+    detail = str(export_detail or "").strip()
+    cat_bit = _format_category_phrase(cats)
+    if export_status == "exported":
+        bits = ["Exported to pypsa-wal"]
+        if cat_bit:
+            bits.append(cat_bit)
+        if detail:
+            bits.append(f"via {detail}")
+        return "<br>" + " ".join(bits)
+    if export_status == "double_count":
+        bits = ["Double-count risk: both FOut and FIn exported"]
+        if cat_bit:
+            bits.append(f"({cat_bit})")
+        if detail:
+            bits.append(f"via {detail}")
+        return "<br>" + " ".join(bits)
+    if export_status == "mixed":
+        tip = "<br>Mixed link (exported and non-exported on the same endpoint)"
+        if cat_bit:
+            tip += f"<br>Export {cat_bit}"
+        if detail:
+            tip += f"<br>Export side: {detail}"
+        return tip
+    if export_status == "context":
+        return "<br>Not exported to pypsa-wal"
+    return ""
 
 
 def node_key(kind: str, label: str) -> str:
-    """Unique id so a process and commodity sharing a name stay distinct nodes."""
-    kind_n = "process" if str(kind).lower().startswith("p") else "commodity"
-    return f"{kind_n}::{label}"
+    """Unique id so typed nodes that share a display name stay distinct."""
+    return f"{_normalize_kind(kind)}::{label}"
 
 
 def node_display_label(kind: str, label: str) -> str:
-    kind_n = "process" if str(kind).lower().startswith("p") else "commodity"
-    marker = "P" if kind_n == "process" else "C"
-    return f"{marker} · {label}"
+    """Display label for a typed Sankey node.
+
+    Process/commodity nodes use the raw name (commodities are flows after collapse,
+    so a P/C prefix is unnecessary). Imbalance / expected-demand residuals keep
+    the ``U ·`` marker (magenta non-energy endpoints).
+    """
+    kind_n = _normalize_kind(kind)
+    if kind_n == "imbalance":
+        return f"U · {label}"
+    return str(label)
 
 
 def node_kind_color(kind: str, label: str) -> str:
-    """Vary colour within the process (blue) or commodity (amber) hue family."""
-    kind_n = "process" if str(kind).lower().startswith("p") else "commodity"
-    base_h, base_s, base_v = _PROCESS_HSV if kind_n == "process" else _COMMODITY_HSV
+    """Vary colour within the process / commodity / imbalance hue family."""
+    kind_n = _normalize_kind(kind)
+    base_h, base_s, base_v = {
+        "process": _PROCESS_HSV,
+        "commodity": _COMMODITY_HSV,
+        "imbalance": _IMBALANCE_HSV,
+    }[kind_n]
     digest = hashlib.md5(f"{kind_n}:{label}".encode()).hexdigest()
     hue_jitter = (int(digest[:2], 16) / 255.0 - 0.5) * 24.0
     val_jitter = (int(digest[2:4], 16) / 255.0 - 0.5) * 0.18
@@ -87,6 +163,7 @@ def collect_typed_nodes(links: pd.DataFrame) -> list[dict[str, str]]:
                     "kind": "unknown",
                     "raw": name,
                     "color": "rgba(120,120,120,0.85)",
+                    "hover": name,
                 }
             )
         return ordered
@@ -94,13 +171,14 @@ def collect_typed_nodes(links: pd.DataFrame) -> list[dict[str, str]]:
     for _, row in links.iterrows():
         for kind_col, name_col in (("source_kind", "source"), ("target_kind", "target")):
             label = str(row[name_col])
-            kind = str(row.get(kind_col) or "").strip().lower()
-            if kind not in {"process", "commodity"}:
-                continue
+            kind = _normalize_kind(str(row.get(kind_col) or ""))
             key = node_key(kind, label)
             if key in seen:
                 continue
             seen.add(key)
+            tip = node_display_label(kind, label)
+            if kind == "imbalance":
+                tip = str(row.get("imbalance_tooltip") or "").strip() or tip
             ordered.append(
                 {
                     "key": key,
@@ -108,6 +186,7 @@ def collect_typed_nodes(links: pd.DataFrame) -> list[dict[str, str]]:
                     "kind": kind,
                     "raw": label,
                     "color": node_kind_color(kind, label),
+                    "hover": tip,
                 }
             )
     return ordered
@@ -147,9 +226,21 @@ def links_to_records(
             source_key = src
             target_key = tgt
             tip = f"{src} → {tgt}<br>{v:.2f} {label}"
-        if cats:
+        # Categories are folded into the export line when the link is exported.
+        if cats and status == "context":
             tip += f"<br>Categories: {cats.replace('|', ', ')}"
-        tip += export_status_hover(status, cats)
+        commodity = str(row.get("commodity", "") or "")
+        if commodity:
+            tip += f"<br>Commodity flow: {commodity.replace('|', ', ')}"
+        tip += export_status_hover(
+            status, cats, export_detail=str(row.get("export_detail", "") or "")
+        )
+        imb_tip = str(row.get("imbalance_tooltip", "") or "").strip()
+        if imb_tip and has_kinds and (
+            str(row.get("source_kind", "")) == "imbalance"
+            or str(row.get("target_kind", "")) == "imbalance"
+        ):
+            tip += f"<br>{imb_tip}"
 
         records.append(
             {
@@ -199,6 +290,7 @@ function timesPypsaBuildSankey(containerId, links, title, nodeMeta) {
   }
   const nodes = [];
   const nodeColors = [];
+  const nodeHover = [];
   const nodeIndex = {};
   const metaByKey = {};
   (nodeMeta || []).forEach(function (n) { metaByKey[n.key] = n; });
@@ -208,16 +300,25 @@ function timesPypsaBuildSankey(containerId, links, title, nodeMeta) {
       nodeIndex[key] = nodes.length;
       const meta = metaByKey[key];
       if (meta) {
-        nodes.push(meta.label || meta.raw || key);
+        const label = meta.label || meta.raw || key;
+        nodes.push(label);
         nodeColors.push(meta.color || "rgba(120,120,120,0.85)");
+        nodeHover.push(meta.hover || label);
       } else {
         const isProc = String(key).startsWith("process::");
         const isCom = String(key).startsWith("commodity::");
+        const isImb = String(key).startsWith("imbalance::");
         let label = key;
-        if (isProc) label = "P · " + key.slice(9);
-        else if (isCom) label = "C · " + key.slice(11);
+        if (isProc) label = key.slice(9);
+        else if (isCom) label = key.slice(11);
+        else if (isImb) label = "U · " + key.slice(11);
         nodes.push(label);
-        nodeColors.push(isProc ? "rgba(70,130,200,0.9)" : (isCom ? "rgba(230,150,50,0.9)" : "rgba(120,120,120,0.85)"));
+        nodeColors.push(
+          isProc ? "rgba(90,194,111,0.92)"
+            : (isCom ? "rgba(90,194,111,0.92)"
+              : (isImb ? "rgba(180,60,160,0.9)" : "rgba(120,120,120,0.85)"))
+        );
+        nodeHover.push(label);
       }
     }
     return nodeIndex[key];
@@ -248,6 +349,8 @@ function timesPypsaBuildSankey(containerId, links, title, nodeMeta) {
         line: { color: "rgba(40,40,40,0.65)", width: 0.6 },
         label: nodes,
         color: nodeColors,
+        customdata: nodeHover,
+        hovertemplate: "%{customdata}<extra></extra>",
       },
       link: {
         source: source,
@@ -264,7 +367,7 @@ function timesPypsaBuildSankey(containerId, links, title, nodeMeta) {
       font: { size: 10 },
       margin: { l: 20, r: 20, t: 60, b: 40 },
       annotations: [{
-        text: "Nodes: P · process (blue family) · C · commodity (amber family)",
+        text: "Nodes: process (green) · U · demand/imbalance residual (magenta). Commodities are flows. Links: blue=exported, purple=double-count (FOut+FIn), grey=context, light red=mixed",
         showarrow: false,
         xref: "paper", yref: "paper",
         x: 0, y: -0.06, align: "left",

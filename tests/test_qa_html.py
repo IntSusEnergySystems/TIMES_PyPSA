@@ -13,7 +13,14 @@ from times_pypsa.qa import (
     prepare_system_sankey_links,
     tag_flows_with_rules,
 )
-from times_pypsa.sankey_html import CONTEXT_COLOR, EXPORTED_COLOR, MIXED_COLOR, links_to_records
+from times_pypsa.sankey_html import (
+    CONTEXT_COLOR,
+    DOUBLE_COUNT_COLOR,
+    EXPORTED_COLOR,
+    MIXED_COLOR,
+    collect_typed_nodes,
+    links_to_records,
+)
 from times_pypsa.pipeline import load_extraction_rules, load_metadata
 
 
@@ -53,20 +60,35 @@ def test_export_status_mixed_when_aggregated(tagged_2030):
         if col in sample.columns:
             sample.loc[sample.index[0], col] = "Electricity"
             sample.loc[sample.index[1], col] = "Electricity"
-    links = prepare_system_sankey_links(sample, flow_threshold=0.0, apply_netting=False)
+    links = prepare_system_sankey_links(
+        sample, flow_threshold=0.0, apply_netting=False, collapse_commodities=False
+    )
     mixed = links[links["export_status"] == "mixed"]
     assert not mixed.empty
 
 
-def test_system_sankey_has_three_export_colours(tagged_2030):
+def test_collapsed_system_sankey_is_mostly_process_nodes(tagged_2030):
+    year, tagged, totals, rules = tagged_2030
+    links = prepare_system_sankey_links(
+        tagged, flow_threshold=1.0, apply_netting=True, collapse_commodities=True
+    )
+    kinds = set(links["source_kind"]) | set(links["target_kind"])
+    assert "process" in kinds
+    assert "commodity" not in kinds
+    # Imbalance residuals may appear as artificial process nodes
+    assert kinds <= {"process", "imbalance"}
+    nodes = collect_typed_nodes(links)
+    assert any(n["kind"] == "process" for n in nodes)
     year, tagged, totals, rules = tagged_2030
     links = prepare_system_sankey_links(tagged, flow_threshold=1.0, apply_netting=True)
     statuses = set(links.get("export_status", pd.Series(dtype=str)).unique())
-    assert statuses.issubset({"exported", "context", "mixed"})
-    assert "context" in statuses or "exported" in statuses
+    assert statuses.issubset({"exported", "context", "mixed", "double_count"})
+    assert "context" in statuses or "exported" in statuses or "double_count" in statuses
     records = links_to_records(links)
     colours = {r["color"] for r in records}
-    assert colours.issubset({EXPORTED_COLOR, CONTEXT_COLOR, MIXED_COLOR})
+    assert colours.issubset(
+        {EXPORTED_COLOR, CONTEXT_COLOR, MIXED_COLOR, DOUBLE_COUNT_COLOR}
+    )
 
 
 def test_system_sankey_wider_than_export_neighbourhood(tagged_2030):
@@ -104,7 +126,8 @@ def test_generate_qa_report_all_years(
     assert "PyPSA export neighbourhood" in html
     assert "year-slider" in html
     assert "netting-toggle" in html
-    assert "Mixed (exported + non-exported aggregated)" in html
+    assert "Mixed (same endpoint mixes exported + non-exported)" in html
+    assert "Double-count (FOut+FIn both exported)" in html
     assert '"unit": "TWh"' in html
     assert any(p.name.startswith("qa_flows_") for p in out_dir.glob("qa_flows_*.csv"))
 

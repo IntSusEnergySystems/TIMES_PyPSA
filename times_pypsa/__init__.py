@@ -6,6 +6,7 @@ from times_pypsa.aggregation import (
     proc_agg_col,
     shared_aggregation_columns,
     build_sankey_label_map,
+    collapse_commodity_nodes,
 )
 from times_pypsa.pipeline import (
     PipelineConfig,
@@ -25,6 +26,7 @@ __all__ = [
     "Topology",
     "aggregate_flows",
     "build_sankey_label_map",
+    "collapse_commodity_nodes",
     "com_agg_col",
     "default_mappings_dir",
     "export_all_horizons",
