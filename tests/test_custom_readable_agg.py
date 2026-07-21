@@ -244,6 +244,113 @@ def test_net_collapsed_process_links_nets_reciprocal():
     assert float(netted.iloc[0]["value"]) == 20.0
     assert netted.iloc[0]["source"] == "Power plants"
     assert netted.iloc[0]["target"] == "Fuel Tech - Electricity (IND)"
+    # any_exported colouring: exported + context → exported
+    assert netted.iloc[0]["export_status"] == "exported"
+    commodities = set(str(netted.iloc[0]["commodity"]).split("|"))
+    assert commodities == {"HV", "Electricity (context)"}
+
+
+def test_net_collapsed_leaves_imbalance_links():
+    from times_pypsa.aggregation import net_collapsed_process_links
+
+    links = pd.DataFrame(
+        [
+            {
+                "source": "A",
+                "target": "B",
+                "source_kind": "process",
+                "target_kind": "process",
+                "value": 10.0,
+                "export_status": "context",
+                "exported": False,
+                "commodity": "Elc",
+                "matched_categories": "",
+                "export_detail": "",
+                "imbalance_class": "",
+                "imbalance_tooltip": "",
+            },
+            {
+                "source": "A",
+                "target": "Unbalanced X",
+                "source_kind": "process",
+                "target_kind": "imbalance",
+                "value": 2.0,
+                "export_status": "context",
+                "exported": False,
+                "commodity": "Elc",
+                "matched_categories": "",
+                "export_detail": "",
+                "imbalance_class": "unexplained",
+                "imbalance_tooltip": "tip",
+            },
+        ]
+    )
+    netted = net_collapsed_process_links(links)
+    assert len(netted) == 2
+    imb = netted[netted["target_kind"] == "imbalance"]
+    assert len(imb) == 1
+    assert float(imb.iloc[0]["value"]) == 2.0
+
+
+def test_collapse_cartesian_conserves_transferable_mass():
+    """Multi-producer × multi-consumer collapse must conserve min(ΣFOut, ΣFIn)."""
+    flows = pd.DataFrame(
+        {
+            "variable": ["VAR_FOUT", "VAR_FOUT", "VAR_FIN", "VAR_FIN"],
+            "process_code": ["P1", "P2", "C1", "C2"],
+            "commodity_code": ["ELC"] * 4,
+            "commodity": ["Electricity"] * 4,
+            "value": [6.0, 4.0, 3.0, 7.0],
+            "exported": [True, False, True, False],
+            "matched_categories": ["a", "", "b", ""],
+        }
+    )
+    links = collapse_commodity_nodes(flows, flow_threshold=0.0)
+    proc_links = links[
+        (links["source_kind"] == "process") & (links["target_kind"] == "process")
+    ]
+    # transferable = min(10, 10) = 10; no residual
+    assert abs(float(proc_links["value"].sum()) - 10.0) < 1e-9
+    # No self-loops
+    assert (proc_links["source"] != proc_links["target"]).all()
+    # Proportional shares: P1→C1 = 6*(3/10)=1.8, P1→C2=4.2, P2→C1=1.2, P2→C2=2.8
+    by_pair = {
+        (r.source, r.target): float(r.value)
+        for r in proc_links.itertuples(index=False)
+    }
+    assert abs(by_pair[("P1", "C1")] - 1.8) < 1e-9
+    assert abs(by_pair[("P1", "C2")] - 4.2) < 1e-9
+    assert abs(by_pair[("P2", "C1")] - 1.2) < 1e-9
+    assert abs(by_pair[("P2", "C2")] - 2.8) < 1e-9
+
+
+def test_aggregate_export_status_mixed_without_python_apply():
+    """Vectorized export-status path: mixed when exported+context share a node pair."""
+    flows = pd.DataFrame(
+        {
+            "year": [2050, 2050],
+            "region": ["RW", "RW"],
+            "variable": ["VAR_FIN", "VAR_FIN"],
+            "process_code": ["P1", "P2"],
+            "process": ["Proc1", "Proc2"],
+            "commodity_code": ["ELC", "ELC"],
+            "commodity": ["Electricity", "Electricity"],
+            "value": [5.0, 3.0],
+            "exported": [True, False],
+            "matched_categories": ["cat", ""],
+            "process_agg": ["Same", "Same"],
+            "agg_level_2": ["Same", "Same"],
+            "pypsa_carrier": ["Electricity", "Electricity"],
+            "proc_agg__Aggregation Level 2": ["Same", "Same"],
+            "com_agg__Aggregation Level 2": ["Electricity", "Electricity"],
+            "sector": ["ELC", "ELC"],
+            "process_type": ["PRE", "PRE"],
+        }
+    )
+    agg = aggregate_flows(flows, level="Aggregation Level 2", apply_netting=True)
+    assert len(agg) == 1
+    assert agg.iloc[0]["export_status"] == "mixed"
+    assert bool(agg.iloc[0]["exported"]) is False
 
 
 def test_chp_and_district_heating_are_separate():
@@ -348,6 +455,67 @@ def test_dum_retrofit_not_imports():
         )
         == "Building retrofits"
     )
+
+
+def test_hydrogen_imports_friendly_rename_and_solar_fuel_tech_as_pv():
+    """INDGH2C01_i displays as imported H2 delivery; RSDSOL00/COMSOL00 join PV."""
+    from times_pypsa.aggregation import (
+        _generation_split_label,
+        friendly_custom_process_label,
+        refine_custom_labels_for_readability,
+    )
+
+    assert friendly_custom_process_label("hydrogen imports") == "imported H2 delivery"
+    assert (
+        _generation_split_label(
+            pd.Series(
+                {
+                    "process_code": "RSDSOL00",
+                    "process": "Fuel Tech - Solar (RSD)",
+                    "agg_level_2": "Solar",
+                    "sector": "RSD",
+                }
+            )
+        )
+        == "PV"
+    )
+
+    df = pd.DataFrame(
+        [
+            {
+                "process_code": "INDGH2C01_i",
+                "process": "Fuel Tech - H2 Delivery from imported H2",
+                "process_agg": "hydrogen imports",
+                "agg_level_2": "hydrogen imports",
+                "proc_agg__custom": "imported H2 delivery",
+                "proc_agg__sankey_overview": "Fuel refining",
+                "com_agg__custom": "hydrogen for industry",
+                "commodity_code": "INDHH2",
+                "commodity": "hydrogen for industry",
+                "pypsa_carrier": "hydrogen for industry",
+                "exported": True,
+            },
+            {
+                "process_code": "RSDSOL00",
+                "process": "Fuel Tech - Solar (RSD)",
+                "process_agg": "Solar",
+                "agg_level_2": "Solar",
+                "proc_agg__custom": "PV",
+                "proc_agg__sankey_overview": "PV",
+                "com_agg__custom": "Renewable: Solar",
+                "commodity_code": "RENSOL",
+                "commodity": "Renewable: Solar",
+                "pypsa_carrier": "Renewable: Solar",
+                "exported": False,
+                "sector": "RSD",
+            },
+        ]
+    )
+    proc_out, _ = refine_custom_labels_for_readability(
+        df["proc_agg__custom"], df["com_agg__custom"], df
+    )
+    assert proc_out.iloc[0] == "imported H2 delivery"
+    assert proc_out.iloc[1] == "PV"
 
 
 def test_energy_filter_keeps_retrofit_heat_fout():

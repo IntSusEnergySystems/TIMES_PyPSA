@@ -204,7 +204,7 @@ COMLPG00,Fuel Tech - Liquified Petroleum Gas,COM,.PRE.,Fuel Tech - Liquified Pet
 COMOIL00,Fuel Tech - Oil,COM,.PRE.,Fuel Tech - Oil (COM),PJ,PJA,PRE,COMOIL,ANNUAL,"0,00",Fuel Tech - Oil,Oil,End-use fuel tech,End-use fuel tech
 COMPEL00,Fuel Tech - Pellets,COM,.PRE.,Fuel Tech - Pellets (COM),PJ,PJA,PRE,COMPEL,ANNUAL,"0,00",Fuel Tech - Pellets,Fuel Tech - Wood Pellets,End-use fuel tech,End-use fuel tech
 COMPVELC,PV commercial,COM,.ELE.,PV commercial,PJ,GW,ELE,COMPVELC_NRGO,DAYNITE,"0,00",PV commercial,PV commercial,Buildings,PV
-COMSOL00,Fuel Tech - Solar,COM,.PRE.,Fuel Tech - Solar (COM),PJ,PJA,PRE,COMSOL,ANNUAL,"0,00",Fuel Tech - Solar,Solar,End-use fuel tech,End-use fuel tech
+COMSOL00,Fuel Tech - Solar,COM,.PRE.,Fuel Tech - Solar (COM),PJ,PJA,PRE,COMSOL,ANNUAL,"0,00",Fuel Tech - Solar,Solar,PV,PV
 COM_CBAT_BA,Commercial buildings,COM,.DMD.,Building Existing BA,MM2,MM2-A,DMD,CBATBA,ANNUAL,"0,00",Building Existing BA,Building Existing BA,Buildings,Buildings (other)
 COM_CBAT_BP,Commercial buildings,COM,.DMD.,Building Existing BP,MM2,MM2-A,DMD,CBATBP,ANNUAL,"0,00",Building Existing BP,Building Existing BP,Buildings,Buildings (other)
 COM_CBAT_CO,Commercial buildings,COM,.DMD.,Building Existing CO,MM2,MM2-A,DMD,CBATCO,ANNUAL,"0,00",Building Existing CO,Building Existing CO,Buildings,Buildings (other)
@@ -473,7 +473,7 @@ INDGAS00,Fuel Tech - Natural Gas transport,IND,.PRE.,Fuel Tech - Natural Gas tra
 INDGASCOG01,Fuel Tech New - Gas and Cog industry,IND,.PRE.,Fuel Tech New - Gas and Cog industry (IND),PJ,PJA,PRE,INDGASCOG,ANNUAL,"1,00",Fuel Tech New - Gas and Cog industry,Fuel Tech New - Gas and Cog industry (IND),End-use fuel tech,Fuel Tech New - Gas and Cog industry (IND)
 INDGEO00,Geothermal (IND),IND,.PRE.,Geothermal (IND),PJ,PJA,PRE,INDGEO,ANNUAL,"0,00",Geothermal (IND),Geothermal (IND),Industry,Geothermal (IND)
 INDGH2C01,hydrogen for industry,SUP,.PRE.,Fuel Tech - H2 Delivery from centralized production (COMP+TR+DP - Industrial),PJ,PJ-A,PRE,INDHH2,DAYNITE,,hydrogen for industry,hydrogen for industry,Fuel refining,hydrogen for industry
-INDGH2C01_i,Imports,SUP,.PRE.,INDGH2C01_i,PJ,PJ-A,PRE,INDHH2,DAYNITE,,Imports,hydrogen imports,Imports & trade,hydrogen imports
+INDGH2C01_i,Imports,SUP,.PRE.,Fuel Tech - H2 Delivery from imported H2 (COMP+TR+DP - Industrial),PJ,PJ-A,PRE,INDHH2,DAYNITE,,Imports,hydrogen imports,Fuel refining,imported H2 delivery
 INDGMX00,Fuel Tech - Natural Gas and biogas mixed,IND,.PRE.,Fuel Tech - Natural Gas and biogas mixed  (IND),PJ,PJA,PRE,INDGMX,ANNUAL,"0,00",Fuel Tech - Natural Gas and biogas mixed,Fuel Tech - Natural Gas and biogas mixed  (IND),End-use fuel tech,Fuel Tech - Natural Gas and biogas mixed  (IND)
 INDHFO00,Fuel Tech - Heavy Fuel Oil ,IND,.PRE.,Fuel Tech - Heavy Fuel Oil (IND),PJ,PJA,PRE,INDHFO,ANNUAL,"0,00",Fuel Tech - Heavy Fuel Oil ,Fuel Tech - Heavy Fuel Oil (IND),End-use fuel tech,Fuel Tech - Heavy Fuel Oil (IND)
 INDHTH00,Fuel Tech - Heat,IND,.PRE.,industry high temperature heat,PJ,PJA,PRE,INDHET,ANNUAL,"0,00",Fuel Tech - Heat,Fuel Tech - Heat,End-use fuel tech,End-use fuel tech
@@ -736,7 +736,7 @@ RSDLPG00,Fuel Tech - Liquified Petroleum Gas,RSD,.PRE.,Fuel Tech - Liquified Pet
 RSDOIL00,Fuel Tech - Diesel,RSD,.PRE.,Fuel Tech - Diesel (RSD),PJ,PJA,PRE,RSDOIL,ANNUAL,"0,00",Fuel Tech - Diesel,Fuel Tech - Diesel,End-use fuel tech,End-use fuel tech
 RSDPEL00,Fuel Tech - pellets,RSD,.PRE.,Fuel Tech - pellets (RSD),PJ,PJA,PRE,RSDPEL,ANNUAL,"0,00",Fuel Tech - pellets,Fuel Tech - Wood Pellets,End-use fuel tech,End-use fuel tech
 RSDPVELC,PV residential,RSD,.ELE.,PV residential,PJ,GW,ELE,RSDPVELC_NRGO,DAYNITE,"0,00",PV residential,PV residential,Buildings,PV
-RSDSOL00,Fuel Tech - Solar,RSD,.PRE.,Fuel Tech - Solar (RSD),PJ,PJA,PRE,RSDSOL,ANNUAL,"0,00",Fuel Tech - Solar,Solar,End-use fuel tech,End-use fuel tech
+RSDSOL00,Fuel Tech - Solar,RSD,.PRE.,Fuel Tech - Solar (RSD),PJ,PJA,PRE,RSDSOL,ANNUAL,"0,00",Fuel Tech - Solar,Solar,PV,PV
 RW2FCOA100,residential hot water,RSD,.PRE.,Rsd.Water Heat.Dwelling.2F.COA.00.Furnace.,PJ,GW,PRE,RW2F,ANNUAL,"0,00",residential hot water,Residential urban decentral Coal heater,Buildings,Residential urban decentral Coal heater
 RW2FELC100,residential hot water,RSD,.PRE.,Rsd.Water Heat.Dwelling.2F.ELC.00.Water Heater.,PJ,GW,PRE,RW2F,ANNUAL,"0,00",residential hot water,Residential urban decentral electric heater,Buildings,Residential urban decentral electric heater
 RW2FELC101,residential hot water,RSD,.PRE.,Rsd.Water Heat.Dwelling.2F.ELC.00.Heat Pump.,PJ,GW,PRE,RW2F,ANNUAL,"0,00",residential hot water,Residential urban decentral Heat pump,Buildings,Residential urban decentral Heat pump
@@ -1059,7 +1059,6 @@ TLCVETHLCN01,Road Freight,TRA,.DMD.,Light Commercial Vehicles Gas Light New,PJ,P
 TLCVGH2LCN01,Road Freight,TRA,.DMD.,Light Commercial Vehicles Gas Light New,PJ,PJA,PRE,TLCV,ANNUAL,,Road Freight,Road Freight,Transport,Road Freight
 TLCVGSLLCN01,Road Freight,TRA,.DMD.,Light Commercial Vehicles Gas Light New,PJ,PJA,PRE,TLCV,ANNUAL,,Road Freight,Road Freight,Transport,Road Freight
 TNAINLBDLN01,Road Freight,TRA,.DMD.,Light Commercial Vehicles Gas Light New,PJ,PJA,PRE,TLCV,ANNUAL,,Road Freight,Road Freight,Transport,Road Freight
--,,,,-,PJ,,,,,,System aggregate,System aggregate,-,-
 CHBAELCHP202,,COM,,Com Space Heat New Heat Pump - CO - ELC202,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,Buildings,Commercial Heat pump
 CHENELCHP202,,COM,,Com Space Heat New Heat Pump - CO - ELC202,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,Buildings,Commercial Heat pump
 CHSALTH101,,COM,,Com Space Heat New Heat Exchanger - SA - HET101,PJ,,PRE,,,,Commercial Heat Exchanger,Commercial Heat Exchanger,District heating,Commercial Heat Exchanger
@@ -1147,7 +1146,7 @@ INMSTMELC01,,IND,,INMSTMELC01,PJ,,PRE,,,,Industry,Industry,Industry,Industry
 IPOHTHSTMELC01,,IND,,IPO.Preparation.of.potatoes.Process Heat.ELC.01,PJ,,PRE,,,,Industry,Industry,Industry,Industry
 ICHSTMHH201,,IND,,ICHSTMHH201,PJ,,PRE,,,,Industry,Industry,Industry,Industry
 RHN3FELCHPN1,,RSD,,Air heat pump with electric boiler-RHN3F-New1,PJ,,PRE,,,,Residential urban decentral Heat pump,Residential urban decentral Heat pump,Buildings,Residential urban decentral Heat pump
-RSDLIONBATS01,,,,RSDLIONBATS01,PJ,,,,,,residential other,residential other,Buildings,Household electrical appliances
+RSDLIONBATS01,,RSD,,Residential Li-ion battery storage,PJ,,STG,,,,residential battery storage,residential battery storage,Buildings,Household battery storage
 RH4FLPGN2,,RSD,,LPG boiler-RH4F-New2,PJ,,PRE,,,,Residential urban decentral oil heater,Residential urban decentral oil heater,Buildings,Residential urban decentral oil heater
 Retrofit-M_R_3Fac2005,,RSD,,Retrofit Murs Dwellings R_3Fac2005,PJ,,PRE,,,,Retrofitting improvements,Retrofitting improvements,Buildings,Building retrofits
 CCOKELC101,,COM,,Com.Cooking.ELC.01.Stove.,PJ,,DMD,,,,commercial other,commercial other,Buildings,Commercial electrical appliances
@@ -1202,3 +1201,5 @@ Retrofit-S_R_2Fac1945,,RSD,,Retrofit Sols Dwellings R_2Fac1945,PJ,,PRE,,,,Retrof
 Retrofit-F_R_4Fac1945,,RSD,,Retrofit Fenetres Dwellings R_4Fac1945,PJ,,PRE,,,,Retrofitting improvements,Retrofitting improvements,Buildings,Building retrofits
 Retrofit-M_R_4Fac1945,,RSD,,Retrofit Murs Dwellings R_4Fac1945,PJ,,PRE,,,,Retrofitting improvements,Retrofitting improvements,Buildings,Building retrofits
 Retrofit-T_R_4Fac1958,,RSD,,Retrofit Toits Dwellings R_4Fac1958,PJ,,PRE,,,,Retrofitting improvements,Retrofitting improvements,Buildings,Building retrofits
+MINRSDAHT,Ambient heat,SUP,.MIN.IRE.,Mining Ambient Heat,PJ,-,IRE,RSDAHT,ANNUAL,"0,00",Local production,Local production,Local production,Local production
+MINCOMAHT,Ambient heat,SUP,.MIN.IRE.,Mining Commercial Ambient Heat,PJ,-,IRE,COMAHT,ANNUAL,"0,00",Local production,Local production,Local production,Local production

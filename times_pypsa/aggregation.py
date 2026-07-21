@@ -360,59 +360,109 @@ def _mapping_commodity_label(row: pd.Series) -> str:
     return identity_label(row.get("commodity"), row.get("commodity_code"))
 
 
+def _col_or_empty(df: pd.DataFrame, name: str) -> list:
+    """Column values as a Python list, or empty strings aligned to ``df``."""
+    if name in df.columns:
+        return df[name].tolist()
+    return [""] * len(df)
+
+
+def _mapping_process_series(df: pd.DataFrame) -> pd.Series:
+    """Vectorized equivalent of ``_mapping_process_label`` over a frame."""
+    out = pd.Series("", index=df.index, dtype=object)
+    for key in ("process_agg", "agg_level_2"):
+        if key in df.columns:
+            cand = _nonempty_labels(df[key])
+            out = out.where(out.ne(""), cand)
+    still = out.eq("")
+    if still.any():
+        out = out.where(~still, _process_identity_series(df))
+    return out
+
+
+def _mapping_commodity_series(df: pd.DataFrame) -> pd.Series:
+    """Vectorized equivalent of ``_mapping_commodity_label`` over a frame."""
+    if "pypsa_carrier" in df.columns:
+        out = _nonempty_labels(df["pypsa_carrier"])
+    else:
+        out = pd.Series("", index=df.index, dtype=object)
+    still = out.eq("")
+    if still.any():
+        out = out.where(~still, _commodity_identity_series(df))
+    return out
+
+
 def _carrier_label(carrier: str, commodity: str, commodity_code: str) -> str:
     """Legacy helper: CSV carrier, else TIMES description/code."""
     return identity_label(carrier, commodity, commodity_code)
 
 
 def _process_identity_series(df: pd.DataFrame) -> pd.Series:
-    desc = df["process"] if "process" in df.columns else pd.Series("", index=df.index)
-    code = df["process_code"] if "process_code" in df.columns else pd.Series("", index=df.index)
+    desc = _col_or_empty(df, "process")
+    code = _col_or_empty(df, "process_code")
     return pd.Series(
-        [identity_label(d, c) for d, c in zip(desc.tolist(), code.tolist())],
+        [identity_label(d, c) for d, c in zip(desc, code)],
         index=df.index,
+        dtype=object,
     )
 
 
 def _commodity_identity_series(df: pd.DataFrame) -> pd.Series:
-    desc = df["commodity"] if "commodity" in df.columns else pd.Series("", index=df.index)
-    code = (
-        df["commodity_code"] if "commodity_code" in df.columns else pd.Series("", index=df.index)
-    )
+    desc = _col_or_empty(df, "commodity")
+    code = _col_or_empty(df, "commodity_code")
     return pd.Series(
-        [identity_label(d, c) for d, c in zip(desc.tolist(), code.tolist())],
+        [identity_label(d, c) for d, c in zip(desc, code)],
         index=df.index,
+        dtype=object,
     )
 
 
 def _overview_process_series(df: pd.DataFrame) -> pd.Series:
+    """Overview process labels without ``DataFrame.iterrows`` (avoids deepcopies)."""
+    sector = _col_or_empty(df, "sector")
+    process_type = _col_or_empty(df, "process_type")
+    description = _col_or_empty(df, "process")
+    if "agg_level_2" in df.columns:
+        agg_level_2 = df["agg_level_2"].tolist()
+    elif "process_agg" in df.columns:
+        agg_level_2 = df["process_agg"].tolist()
+    else:
+        agg_level_2 = [""] * len(df)
+    code = _col_or_empty(df, "process_code")
     return pd.Series(
         [
             infer_overview_process_label(
-                sector=r.get("sector", ""),
-                process_type=r.get("process_type", ""),
-                description=r.get("process", ""),
-                agg_level_2=r.get("agg_level_2", r.get("process_agg", "")),
-                code=r.get("process_code", ""),
+                sector=s,
+                process_type=pt,
+                description=d,
+                agg_level_2=a,
+                code=c,
             )
-            for _, r in df.iterrows()
+            for s, pt, d, a, c in zip(sector, process_type, description, agg_level_2, code)
         ],
         index=df.index,
+        dtype=object,
     )
 
 
 def _overview_commodity_series(df: pd.DataFrame) -> pd.Series:
+    """Overview commodity labels without ``DataFrame.iterrows``."""
+    description = _col_or_empty(df, "commodity")
+    code = _col_or_empty(df, "commodity_code")
+    carrier = _col_or_empty(df, "pypsa_carrier")
+    cluster = _col_or_empty(df, "com_agg__Aggregation Level 1")
     return pd.Series(
         [
             infer_overview_commodity_label(
-                description=r.get("commodity", ""),
-                code=r.get("commodity_code", ""),
-                carrier=r.get("pypsa_carrier", ""),
-                cluster=r.get("com_agg__Aggregation Level 1", ""),
+                description=d,
+                code=c,
+                carrier=car,
+                cluster=clu,
             )
-            for _, r in df.iterrows()
+            for d, c, car, clu in zip(description, code, carrier, cluster)
         ],
         index=df.index,
+        dtype=object,
     )
 
 
@@ -422,6 +472,8 @@ CUSTOM_PROCESS_FRIENDLY: dict[str, str] = {
     "residential other": "Household electrical appliances",
     "commercial other": "Commercial electrical appliances",
     "Retrofitting improvements": "Building retrofits",
+    # Import-path H₂ delivery (INDGH2C01_i), not the IMPH2 trade process itself
+    "hydrogen imports": "imported H2 delivery",
 }
 
 _CONTEXT_CARRIER_FAMILIES = frozenset(
@@ -530,18 +582,19 @@ _PROCESS_AGG_TO_RULE_COMMODITY: dict[str, str] = {
     "Fuel Tech - Biogas (TRA)": "methane",
     "Fuel Tech - biogaz enrichi": "methane",
     "BioGas (TAR)": "methane",
-    # oils / naphtha
+    # oils / naphtha (industry soft-link) vs transport/other oil fuel-tech display labels
     "Fuel Tech - Heavy Fuel Oil (IND)": "naphtha",
     "Fuel Tech - Light Fuel Oil (IND)": "naphtha",
     "Non-energy": "naphtha",
-    "Fuel Tech - Oil": "naphtha",
-    "Oil": "naphtha",
-    "Fuel Tech - Diesel (TRA)": "naphtha",
-    "Fuel Tech - Gasoline (TRA)": "naphtha",
-    "Fuel Tech - GSL": "naphtha",
-    "Fuel Tech - Kerosene - Jet Fuels": "naphtha",
-    "Fuel Tech - Liquified Petroleum Gas": "naphtha",
-    "Fuel Tech - Liquified Petroleum Gas (TRA)": "naphtha",
+    "Fuel Tech - Oil": "oil",
+    "Oil": "oil",
+    "Fuel Tech - Diesel (TRA)": "diesel",
+    "Fuel Tech - Gasoline (TRA)": "gasoline",
+    "Fuel Tech - GSL": "gasoline",
+    "Fuel Tech - Kerosene - Jet Fuels": "kerosene",
+    "Fuel Tech - Liquified Petroleum Gas": "lpg",
+    "Fuel Tech - Liquified Petroleum Gas (TRA)": "lpg",
+    "Gasoline": "gasoline",
     # biofuels transport
     "Fuel Tech - Biodiesel (TRA)": "solid biomass",
     "Fuel Tech – Biodiesel": "solid biomass",
@@ -636,9 +689,9 @@ def _generation_split_label(row: pd.Series) -> str:
     if (
         "PV-" in code
         or code.endswith("PVELC")
-        or code == "ELCSOL00"
+        or code in {"ELCSOL00", "RSDSOL00", "COMSOL00"}
         or l2 in {"pv", "pv residential", "pv commercial", "pv industrial"}
-        or (l2 == "solar" and _clean_text(row.get("sector")).upper() == "ELC")
+        or (l2 == "solar" and _clean_text(row.get("sector")).upper() in {"ELC", "RSD", "COM"})
         or re.search(r"\bpv\b", desc)
     ):
         if "water heat" in desc or "solar thermal" in l2:
@@ -776,25 +829,51 @@ def refine_custom_labels_for_readability(
     # Prefer a specific display name per exported commodity code (avoid bare
     # "Electricity"/"Heat" that collide with context carriers).
     export_com_label: dict[str, str] = {}
-    for idx in df.index[exported]:
-        code = _clean_text(df.at[idx, "commodity_code"] if "commodity_code" in df.columns else "")
+    exp_idx = df.index[exported]
+    com_lab_list = com_labels.tolist()
+    index_pos = {idx: i for i, idx in enumerate(df.index)}
+    com_codes = _col_or_empty(df, "commodity_code")
+    com_descs = _col_or_empty(df, "commodity")
+    carriers = _col_or_empty(df, "pypsa_carrier")
+    for idx in exp_idx:
+        pos = index_pos[idx]
+        code = _clean_text(com_codes[pos])
         if not code or code in export_com_label:
             continue
-        csv_lab = _clean_text(com_labels.loc[idx])
-        desc = _clean_text(df.at[idx, "commodity"] if "commodity" in df.columns else "")
-        carrier = _clean_text(df.at[idx, "pypsa_carrier"] if "pypsa_carrier" in df.columns else "")
-        # Bare family names are too coarse for export hubs — prefer description.
-        if csv_lab and csv_lab not in _CONTEXT_CARRIER_FAMILIES and csv_lab not in {
-            "Natural Gas",
-            "Network gas",
-        }:
+        csv_lab = _clean_text(com_lab_list[pos])
+        desc = _clean_text(com_descs[pos])
+        carrier = _clean_text(carriers[pos])
+        # Bare family names / pre-baked "{family} (context)" are too coarse for
+        # export hubs — prefer description (avoids OILDST stuck as Oil products
+        # (context) and merging with kerosene).
+        if (
+            csv_lab
+            and csv_lab not in _CONTEXT_CARRIER_FAMILIES
+            and not csv_lab.endswith("(context)")
+            and csv_lab not in {
+                "Natural Gas",
+                "Network gas",
+            }
+        ):
             export_com_label[code] = csv_lab
         else:
             export_com_label[code] = identity_label(desc, carrier, csv_lab, code)
 
+    # Materialize rows once — much faster than DataFrame.iterrows().
+    rows = df.to_dict("records")
+    proc_lab_list = proc_labels.tolist()
+    l2_list = l2.tolist()
+    _coarse_custom = {
+        "",
+        "End-use fuel tech",
+        "CHP & district heat",
+        "Fuel conversion",
+    }
+    friendly_values = frozenset(CUSTOM_PROCESS_FRIENDLY.values())
+
     new_proc = []
-    for idx, row in df.iterrows():
-        csv_lab = _clean_text(proc_labels.loc[idx])
+    for pos, row in enumerate(rows):
+        csv_lab = _clean_text(proc_lab_list[pos])
         # PV / onshore wind before coarser Power plants buckets.
         split = _generation_split_label(row)
         if csv_lab in CUSTOM_GENERATION_SPLIT_LABELS:
@@ -810,12 +889,6 @@ def refine_custom_labels_for_readability(
         overview = _clean_text(row.get("proc_agg__sankey_overview"))
         # Prefer a specific custom / L2 label over a coarse overview supply-chain
         # bucket (e.g. heat pumps wrongly tagged sankey_overview=CHP).
-        _coarse_custom = {
-            "",
-            "End-use fuel tech",
-            "CHP & district heat",
-            "Fuel conversion",
-        }
         if overview in CUSTOM_SUPPLY_CHAIN_LABELS and csv_lab in _coarse_custom:
             new_proc.append(overview)
             continue
@@ -834,7 +907,7 @@ def refine_custom_labels_for_readability(
             )
             continue
 
-        row_l2 = _clean_text(l2.loc[idx])
+        row_l2 = _clean_text(l2_list[pos])
         # End-use fuel techs: keep export-touching L2; else split by rule commodity.
         if csv_lab == "End-use fuel tech" or csv_lab.startswith("Fuel tech ·") or overview == "End-use fuel tech":
             if row_l2 and row_l2 in export_l2:
@@ -854,7 +927,7 @@ def refine_custom_labels_for_readability(
 
         if row_l2 and row_l2 in export_l2:
             friendly = friendly_custom_process_label(row_l2)
-            if csv_lab in CUSTOM_PROCESS_FRIENDLY.values():
+            if csv_lab in friendly_values:
                 new_proc.append(csv_lab)
             elif csv_lab and csv_lab == friendly:
                 new_proc.append(csv_lab)
@@ -865,33 +938,47 @@ def refine_custom_labels_for_readability(
     proc_out = pd.Series(new_proc, index=df.index, dtype=object)
 
     overview_com = _overview_commodity_series(df)
+    overview_com_list = overview_com.tolist()
     new_com = []
-    for idx, row in df.iterrows():
+    for pos, row in enumerate(rows):
         code = _clean_text(row.get("commodity_code"))
         if code and code in export_com_codes:
             # Same label for every row of an export-touching commodity code so
             # producers and consumers stay in one hub (needed for collapse).
-            new_com.append(export_com_label.get(code) or _clean_text(com_labels.loc[idx]))
+            new_com.append(export_com_label.get(code) or _clean_text(com_lab_list[pos]))
         else:
-            csv = _clean_text(com_labels.loc[idx])
+            csv = _clean_text(com_lab_list[pos])
             # Strict family from TIMES text — never put gas under Electricity (context).
             fam = infer_carrier_family(
                 description=row.get("commodity", ""),
                 code=code,
                 carrier=row.get("pypsa_carrier", ""),
                 cluster=row.get("com_agg__Aggregation Level 1", ""),
-            ) or _clean_text(overview_com.loc[idx])
+            ) or _clean_text(overview_com_list[pos])
             # Keep specific CSV labels (e.g. Imported electricity / ELCIMP) so they
             # do not dissolve into Electricity (context) and create cross-links.
             # But never keep a label that contradicts the carrier family
             # (e.g. a gas commodity wrongly tagged Electricity (context)).
+            # Also never keep a pre-baked "{family} (context)" CSV label when a
+            # more specific Description/Cluster exists — those merges create
+            # spurious process→process ribbons (diesel↔kerosene, INDELC↔BATELCOUT).
             csv_fam = ""
             if csv.endswith("(context)"):
                 csv_fam = csv[: -len(" (context)")].strip()
             elif csv in _CONTEXT_CARRIER_FAMILIES:
                 csv_fam = csv
+            desc = _clean_text(row.get("commodity", ""))
+            specific = identity_label(
+                desc,
+                _clean_text(row.get("pypsa_carrier", "")),
+                "" if csv_fam else csv,
+                code,
+            )
             if fam and csv_fam and fam != csv_fam:
                 new_com.append(_context_commodity_label(fam))
+            elif csv_fam:
+                # Prefer description over coarse context bucket.
+                new_com.append(specific if specific and specific != csv else _context_commodity_label(fam or csv_fam))
             elif (
                 csv
                 and csv not in _CONTEXT_CARRIER_FAMILIES
@@ -906,8 +993,8 @@ def refine_custom_labels_for_readability(
 
 
 def _apply_legacy_mapping_labels(df: pd.DataFrame) -> None:
-    df["process_node"] = df.apply(_mapping_process_label, axis=1)
-    df["commodity_node"] = df.apply(_mapping_commodity_label, axis=1)
+    df["process_node"] = _mapping_process_series(df)
+    df["commodity_node"] = _mapping_commodity_series(df)
 
 
 def _apply_column_agg_labels(df: pd.DataFrame, resolved: str) -> None:
@@ -921,11 +1008,11 @@ def _apply_column_agg_labels(df: pd.DataFrame, resolved: str) -> None:
         com_labels = com_labels.where(com_labels.ne(""), _overview_commodity_series(df))
     else:
         if resolved in {"Aggregation Level 1", "Aggregation Level 2", "custom"}:
-            proc_fallback = df.apply(_mapping_process_label, axis=1)
+            proc_fallback = _mapping_process_series(df)
         else:
             proc_fallback = _process_identity_series(df)
         if resolved in {"Aggregation Level 2", "custom"}:
-            com_fallback = df.apply(_mapping_commodity_label, axis=1)
+            com_fallback = _mapping_commodity_series(df)
         else:
             com_fallback = _commodity_identity_series(df)
         proc_labels = proc_labels.where(proc_labels.ne(""), proc_fallback)
@@ -1000,27 +1087,27 @@ def aggregate_flows(
         df["process_node"] = df["process_node"].where(
             df["process_node"].ne(""), _process_identity_series(df)
         )
+        carriers = _col_or_empty(df, "pypsa_carrier")
+        commodities = _col_or_empty(df, "commodity")
+        commodity_codes = _col_or_empty(df, "commodity_code")
         if "commodity_sector" in df.columns:
-            com_nodes = df.apply(
-                lambda r: _sector_label(r["commodity_sector"])
-                if str(r.get("commodity_sector") or "").strip()
-                else _carrier_label(
-                    r.get("pypsa_carrier", ""),
-                    r.get("commodity", ""),
-                    r.get("commodity_code", ""),
-                ),
-                axis=1,
-            )
+            com_sectors = df["commodity_sector"].tolist()
+            com_nodes = [
+                (
+                    _sector_label(cs)
+                    if str(cs or "").strip()
+                    else _carrier_label(car, com, code)
+                )
+                for cs, car, com, code in zip(
+                    com_sectors, carriers, commodities, commodity_codes
+                )
+            ]
         else:
-            com_nodes = df.apply(
-                lambda r: _carrier_label(
-                    r.get("pypsa_carrier", ""),
-                    r.get("commodity", ""),
-                    r.get("commodity_code", ""),
-                ),
-                axis=1,
-            )
-        df["commodity_node"] = _nonempty_labels(com_nodes)
+            com_nodes = [
+                _carrier_label(car, com, code)
+                for car, com, code in zip(carriers, commodities, commodity_codes)
+            ]
+        df["commodity_node"] = _nonempty_labels(pd.Series(com_nodes, index=df.index))
         df["commodity_node"] = df["commodity_node"].where(
             df["commodity_node"].ne(""), _commodity_identity_series(df)
         )
@@ -1049,47 +1136,45 @@ def aggregate_flows(
             & (df["commodity_node"].astype(str).str.strip() != "")
         ]
 
-    out = df.copy()
-    out["process_code"] = out["process_node"]
-    out["process"] = out["process_node"]
-    out["commodity_code"] = out["commodity_node"]
-    out["commodity"] = out["commodity_node"]
-
-    keep = [
-        "year",
-        "region",
-        "variable",
-        "commodity_code",
-        "commodity",
-        "process_code",
-        "process",
-        "value",
-    ]
+    # Select Sankey columns without a second full deep-copy of enriched frames.
+    out_cols = {
+        "year": df["year"],
+        "region": df["region"],
+        "variable": df["variable"],
+        "commodity_code": df["commodity_node"],
+        "commodity": df["commodity_node"],
+        "process_code": df["process_node"],
+        "process": df["process_node"],
+        "value": df["value"],
+    }
     for extra in ("matched_categories", "exported"):
-        if extra in out.columns:
-            keep.append(extra)
-    out = out[keep]
+        if extra in df.columns:
+            out_cols[extra] = df[extra]
+    out = pd.DataFrame(out_cols)
 
     if apply_netting:
         tags = None
         if "matched_categories" in df.columns or "exported" in df.columns:
-            tags = df[
-                ["year", "region", "process_node", "commodity_node", "variable"]
-                + [c for c in ("matched_categories", "exported") if c in df.columns]
-            ].copy()
+            tag_cols = ["year", "region", "process_node", "commodity_node", "variable"]
+            tag_cols.extend(
+                c for c in ("matched_categories", "exported") if c in df.columns
+            )
+            tags = df.loc[:, tag_cols]
 
         netted = net_bidirectional_links(out)
         if tags is not None and not netted.empty:
-            tag_agg = tags.copy()
+            tag_agg = tags
             if "exported" in tag_agg.columns:
-                tag_agg["exported"] = tag_agg["exported"].fillna(False).astype(bool)
-                exp = (
-                    tag_agg.groupby(
-                        ["year", "region", "process_node", "commodity_node"]
-                    )["exported"]
-                    .apply(classify_export_status)
-                    .reset_index(name="export_status")
-                )
+                exp_bool = tag_agg["exported"].fillna(False).astype(bool)
+                keys = ["year", "region", "process_node", "commodity_node"]
+                grouped = exp_bool.groupby([tag_agg[k] for k in keys], sort=False)
+                any_exp = grouped.any()
+                all_exp = grouped.all()
+                status = pd.Series("context", index=any_exp.index, dtype=object)
+                status = status.mask(any_exp & all_exp, "exported")
+                status = status.mask(any_exp & ~all_exp, "mixed")
+                exp = status.reset_index(name="export_status")
+                exp.columns = keys + ["export_status"]
                 netted = netted.merge(
                     exp,
                     left_on=["year", "region", "process_code", "commodity_code"],
@@ -1116,7 +1201,8 @@ def aggregate_flows(
 
                 cats = (
                     tag_agg.groupby(
-                        ["year", "region", "process_node", "commodity_node"]
+                        ["year", "region", "process_node", "commodity_node"],
+                        sort=False,
                     )["matched_categories"]
                     .agg(_join_cats)
                     .reset_index()
@@ -1960,6 +2046,8 @@ def collapse_commodity_nodes(
         return pd.DataFrame(columns=empty_cols)
 
     bal_by_code = balance.set_index("commodity_code")
+    # String keys for O(1) lookup regardless of original index dtype.
+    bal_by_code.index = bal_by_code.index.map(str)
 
     df = flows[flows["variable"].str.upper().isin(["VAR_FIN", "VAR_FOUT"])].copy()
     if "commodity" not in df.columns:
@@ -1978,6 +2066,37 @@ def collapse_commodity_nodes(
         df["exported"] = False
         df["export_status"] = "context"
 
+    # Pre-index by commodity once (avoids repeated full-frame scans).
+    df["_var"] = df["variable"].astype(str).str.upper()
+    groups_by_code = {
+        str(code): grp for code, grp in df.groupby(df["commodity_code"].astype(str), sort=False)
+    }
+
+    def _agg_process_side(side: pd.DataFrame) -> list[dict]:
+        """Aggregate one FIN/FOUT side to per-process dicts (no DataFrame.iterrows)."""
+        if side.empty:
+            return []
+        rows: list[dict] = []
+        for proc, sub in side.groupby("process_code", sort=False):
+            exp = sub["exported"].fillna(False).astype(bool)
+            has_exp = bool(exp.any())
+            has_non = bool((~exp).any())
+            if has_exp and has_non:
+                status = "mixed"
+            elif has_exp:
+                status = "exported"
+            else:
+                status = "context"
+            rows.append(
+                {
+                    "process_code": proc,
+                    "value": float(sub["value"].sum()),
+                    "export_status": status,
+                    "matched_categories": _join_category_values(sub["matched_categories"]),
+                }
+            )
+        return rows
+
     # Pre-compute sink plans so logging matches the labels used on links.
     sink_plans: dict[str, dict] = {}
     unexplained_err_codes: list[str] = []
@@ -1985,36 +2104,27 @@ def collapse_commodity_nodes(
         if bool(row["balanced"]):
             continue
         code_s = str(code)
-        grp = df[df["commodity_code"].astype(str) == code_s]
-        com_label = (
-            str(grp["commodity"].iloc[0]) if len(grp) else code_s
-        )
-        fout = grp[grp["variable"].str.upper() == "VAR_FOUT"]
-        fin = grp[grp["variable"].str.upper() == "VAR_FIN"]
-        producers = (
-            fout.groupby("process_code", sort=False)["value"]
-            .sum()
-            .rename("value")
-            .reset_index()
-            if not fout.empty
-            else pd.DataFrame(columns=["process_code", "value"])
-        )
-        consumers = (
-            fin.groupby("process_code", sort=False)["value"]
-            .sum()
-            .rename("value")
-            .reset_index()
-            if not fin.empty
-            else pd.DataFrame(columns=["process_code", "value"])
-        )
+        grp = groups_by_code.get(code_s)
+        if grp is None or grp.empty:
+            com_label = code_s
+            producers: list[dict] = []
+            consumers: list[dict] = []
+        else:
+            com_label = str(grp["commodity"].iloc[0]) if len(grp) else code_s
+            producers = _agg_process_side(grp[grp["_var"] == "VAR_FOUT"])
+            consumers = _agg_process_side(grp[grp["_var"] == "VAR_FIN"])
         plan = _residual_sink_plan(
             com_label=com_label,
             commodity_code=code_s,
             f_out=float(row["fout"]),
             f_in=float(row["fin"]),
             rel_err=float(row["rel_err"]),
-            producers=producers,
-            consumers=consumers,
+            producers=pd.DataFrame(producers) if producers else pd.DataFrame(
+                columns=["process_code", "value"]
+            ),
+            consumers=pd.DataFrame(consumers) if consumers else pd.DataFrame(
+                columns=["process_code", "value"]
+            ),
             warn_rel=warn_rel,
             abs_tol=abs_tol,
             reference_flows=reference_flows,
@@ -2070,56 +2180,33 @@ def collapse_commodity_nodes(
 
     link_rows: list[dict] = []
 
-    for code, grp in df.groupby("commodity_code", sort=False):
-        com_label = str(grp["commodity"].iloc[0]) if len(grp) else str(code)
-        fout = grp[grp["variable"].str.upper() == "VAR_FOUT"]
-        fin = grp[grp["variable"].str.upper() == "VAR_FIN"]
+    for code_s, grp in groups_by_code.items():
+        com_label = str(grp["commodity"].iloc[0]) if len(grp) else code_s
+        producers = _agg_process_side(grp[grp["_var"] == "VAR_FOUT"])
+        consumers = _agg_process_side(grp[grp["_var"] == "VAR_FIN"])
 
-        def _agg_process_side(side: pd.DataFrame) -> pd.DataFrame:
-            if side.empty:
-                return pd.DataFrame(
-                    columns=[
-                        "process_code",
-                        "value",
-                        "export_status",
-                        "matched_categories",
-                    ]
-                )
-            rows = []
-            for proc, sub in side.groupby("process_code", sort=False):
-                rows.append(
-                    {
-                        "process_code": proc,
-                        "value": float(sub["value"].sum()),
-                        "export_status": classify_export_status(sub["exported"]),
-                        "matched_categories": _join_category_values(
-                            sub["matched_categories"]
-                        ),
-                    }
-                )
-            return pd.DataFrame(rows)
-
-        producers = _agg_process_side(fout)
-        consumers = _agg_process_side(fin)
-
-        f_out = float(producers["value"].sum()) if not producers.empty else 0.0
-        f_in = float(consumers["value"].sum()) if not consumers.empty else 0.0
+        f_out = sum(p["value"] for p in producers)
+        f_in = sum(c["value"] for c in consumers)
 
         if f_out <= abs_tol and f_in <= abs_tol:
             continue
 
-        bal = bal_by_code.loc[code] if code in bal_by_code.index else None
+        bal = bal_by_code.loc[code_s] if code_s in bal_by_code.index else None
         rel_err = float(bal["rel_err"]) if bal is not None else 0.0
-        plan = sink_plans.get(str(code))
+        plan = sink_plans.get(code_s)
         if plan is None and abs(f_out - f_in) > abs_tol:
             plan = _residual_sink_plan(
                 com_label=com_label,
-                commodity_code=str(code),
+                commodity_code=code_s,
                 f_out=f_out,
                 f_in=f_in,
                 rel_err=rel_err,
-                producers=producers,
-                consumers=consumers,
+                producers=pd.DataFrame(producers) if producers else pd.DataFrame(
+                    columns=["process_code", "value"]
+                ),
+                consumers=pd.DataFrame(consumers) if consumers else pd.DataFrame(
+                    columns=["process_code", "value"]
+                ),
                 warn_rel=warn_rel,
                 abs_tol=abs_tol,
                 reference_flows=reference_flows,
@@ -2137,34 +2224,31 @@ def collapse_commodity_nodes(
 
         transferable = min(f_out, f_in)
         if transferable > abs_tol and f_out > abs_tol and f_in > abs_tol:
-            for _, prod in producers.iterrows():
-                transfer_p = float(prod["value"]) * (transferable / f_out)
+            scale_out = transferable / f_out
+            inv_in = 1.0 / f_in
+            for prod in producers:
+                transfer_p = float(prod["value"]) * scale_out
                 if transfer_p <= abs_tol:
                     continue
-                for _, cons in consumers.iterrows():
-                    share = float(cons["value"]) / f_in
-                    value = transfer_p * share
-                    if value <= abs_tol:
-                        continue
-                    if str(prod["process_code"]) == str(cons["process_code"]):
+                p_code = str(prod["process_code"])
+                p_stat = str(prod["export_status"])
+                p_cats = prod["matched_categories"]
+                for cons in consumers:
+                    c_code = str(cons["process_code"])
+                    if p_code == c_code:
                         # Plotly Sankey cannot draw self-loops; drop internal recycle.
                         continue
-                    status = collapse_pair_export_status(
-                        str(prod["export_status"]), str(cons["export_status"])
-                    )
-                    detail = collapse_export_detail(
-                        str(prod["export_status"]),
-                        str(cons["export_status"]),
-                        str(prod["process_code"]),
-                        str(cons["process_code"]),
-                    )
-                    cats = _join_category_values(
-                        [prod["matched_categories"], cons["matched_categories"]]
-                    )
+                    value = transfer_p * (float(cons["value"]) * inv_in)
+                    if value <= abs_tol:
+                        continue
+                    c_stat = str(cons["export_status"])
+                    status = collapse_pair_export_status(p_stat, c_stat)
+                    detail = collapse_export_detail(p_stat, c_stat, p_code, c_code)
+                    cats = _join_category_values([p_cats, cons["matched_categories"]])
                     link_rows.append(
                         {
-                            "source": str(prod["process_code"]),
-                            "target": str(cons["process_code"]),
+                            "source": p_code,
+                            "target": c_code,
                             "source_kind": "process",
                             "target_kind": "process",
                             "value": value,
@@ -2179,16 +2263,17 @@ def collapse_commodity_nodes(
                     )
 
         # Residual → magenta sink (expected demand process or unexplained label).
-        if f_out > f_in + abs_tol and not producers.empty:
+        if f_out > f_in + abs_tol and producers:
             scale_resid = (f_out - transferable) / f_out
-            for _, prod in producers.iterrows():
+            for prod in producers:
                 value = float(prod["value"]) * scale_resid
                 if value <= abs_tol:
                     continue
                 pstat = str(prod["export_status"])
+                p_code = str(prod["process_code"])
                 link_rows.append(
                     {
-                        "source": str(prod["process_code"]),
+                        "source": p_code,
                         "target": artificial,
                         "source_kind": "process",
                         "target_kind": "imbalance",
@@ -2198,7 +2283,7 @@ def collapse_commodity_nodes(
                         "matched_categories": prod["matched_categories"],
                         "commodity": com_label,
                         "export_detail": (
-                            format_export_via("VAR_FOut", str(prod["process_code"]))
+                            format_export_via("VAR_FOut", p_code)
                             if pstat in {"exported", "mixed", "double_count"}
                             else ""
                         ),
@@ -2206,17 +2291,18 @@ def collapse_commodity_nodes(
                         "imbalance_tooltip": imb_tip,
                     }
                 )
-        elif f_in > f_out + abs_tol and not consumers.empty:
+        elif f_in > f_out + abs_tol and consumers:
             scale_resid = (f_in - transferable) / f_in
-            for _, cons in consumers.iterrows():
+            for cons in consumers:
                 value = float(cons["value"]) * scale_resid
                 if value <= abs_tol:
                     continue
                 cstat = str(cons["export_status"])
+                c_code = str(cons["process_code"])
                 link_rows.append(
                     {
                         "source": artificial,
-                        "target": str(cons["process_code"]),
+                        "target": c_code,
                         "source_kind": "imbalance",
                         "target_kind": "process",
                         "value": value,
@@ -2225,7 +2311,7 @@ def collapse_commodity_nodes(
                         "matched_categories": cons["matched_categories"],
                         "commodity": com_label,
                         "export_detail": (
-                            format_export_via("VAR_FIn", str(cons["process_code"]))
+                            format_export_via("VAR_FIn", c_code)
                             if cstat in {"exported", "mixed", "double_count"}
                             else ""
                         ),
@@ -2247,12 +2333,15 @@ def collapse_commodity_nodes(
                 return text
         return ""
 
+    def _join_commodity_labels(series: pd.Series) -> str:
+        return "|".join(sorted({str(x) for x in series}))
+
     agg = (
-        links.groupby(group_cols, as_index=False)
+        links.groupby(group_cols, as_index=False, sort=False)
         .agg(
             value=("value", "sum"),
             matched_categories=("matched_categories", _join_category_values),
-            commodity=("commodity", lambda s: "|".join(sorted(set(map(str, s))))),
+            commodity=("commodity", _join_commodity_labels),
             export_status=("export_status", _merge_export_statuses_any),
             export_detail=("export_detail", _join_export_details),
             imbalance_class=("imbalance_class", _first_nonempty),
@@ -2282,26 +2371,40 @@ def net_collapsed_process_links(links: pd.DataFrame) -> pd.DataFrame:
     is_proc_pair = (links["source_kind"].astype(str) == "process") & (
         links["target_kind"].astype(str) == "process"
     )
-    proc = links.loc[is_proc_pair].copy()
-    other = links.loc[~is_proc_pair].copy()
+    proc = links.loc[is_proc_pair]
+    other = links.loc[~is_proc_pair]
     if proc.empty:
         return links.reset_index(drop=True)
 
-    # Directed totals
-    directed = (
-        proc.groupby(["source", "target"], as_index=False)["value"]
-        .sum()
-    )
-    # Pick a representative row per directed edge for metadata
-    meta = proc.sort_values("value", ascending=False).drop_duplicates(
-        subset=["source", "target"], keep="first"
-    )
+    # Directed totals via plain dicts (avoids O(n²) DataFrame boolean scans).
+    directed_vals: dict[tuple[str, str], float] = {}
+    sources = proc["source"].astype(str).tolist()
+    targets = proc["target"].astype(str).tolist()
+    values = proc["value"].tolist()
+    for a, b, v in zip(sources, targets, values):
+        directed_vals[(a, b)] = directed_vals.get((a, b), 0.0) + float(v)
+
+    # Representative metadata row per directed edge (largest value wins).
+    meta_map: dict[tuple[str, str], dict] = {}
+    status_map: dict[tuple[str, str], str] = {}
+    commodity_map: dict[tuple[str, str], set[str]] = {}
+    records = proc.to_dict("records")
+    # Sort by value descending so first write is the max-value row.
+    records.sort(key=lambda r: float(r.get("value") or 0.0), reverse=True)
+    for row in records:
+        key = (str(row["source"]), str(row["target"]))
+        if key not in meta_map:
+            meta_map[key] = dict(row)
+            status_map[key] = str(row.get("export_status", "context") or "context")
+        labels = commodity_map.setdefault(key, set())
+        for part in str(row.get("commodity") or "").split("|"):
+            part = part.strip()
+            if part:
+                labels.add(part)
 
     seen: set[tuple[str, str]] = set()
-    keep_rows: list[pd.Series] = []
-    for _, edge in directed.iterrows():
-        a = str(edge["source"])
-        b = str(edge["target"])
+    keep_rows: list[dict] = []
+    for (a, b), fv in directed_vals.items():
         if a == b:
             continue
         canon = (a, b) if a < b else (b, a)
@@ -2309,16 +2412,7 @@ def net_collapsed_process_links(links: pd.DataFrame) -> pd.DataFrame:
             continue
         seen.add(canon)
 
-        fv = float(
-            directed.loc[
-                (directed["source"] == a) & (directed["target"] == b), "value"
-            ].sum()
-        )
-        rv = float(
-            directed.loc[
-                (directed["source"] == b) & (directed["target"] == a), "value"
-            ].sum()
-        )
+        rv = float(directed_vals.get((b, a), 0.0))
         net = fv - rv
         if abs(net) < 1e-12:
             continue
@@ -2327,20 +2421,19 @@ def net_collapsed_process_links(links: pd.DataFrame) -> pd.DataFrame:
         else:
             src, tgt, val = b, a, -net
 
-        base = meta[(meta["source"] == src) & (meta["target"] == tgt)]
-        if base.empty:
-            base = meta[(meta["source"] == tgt) & (meta["target"] == src)]
-        row = base.iloc[0].copy()
+        base = meta_map.get((src, tgt)) or meta_map.get((tgt, src))
+        if base is None:
+            continue
+        row = dict(base)
         row["source"] = src
         row["target"] = tgt
         row["value"] = val
         # Merge export status from both directions when both existed
-        if fv > 0 and rv > 0 and "export_status" in row.index:
+        if fv > 0 and rv > 0 and "export_status" in row:
             statuses = []
-            for s, t in ((a, b), (b, a)):
-                hit = meta[(meta["source"] == s) & (meta["target"] == t)]
-                if not hit.empty:
-                    statuses.append(hit.iloc[0].get("export_status", "context"))
+            for key in ((a, b), (b, a)):
+                if key in status_map:
+                    statuses.append(status_map[key])
             row["export_status"] = merge_export_statuses(
                 pd.Series(statuses), any_exported=True
             )
@@ -2349,16 +2442,11 @@ def net_collapsed_process_links(links: pd.DataFrame) -> pd.DataFrame:
                 "double_count",
             }
         # Combine commodity labels
-        if "commodity" in row.index:
-            labels: set[str] = set()
-            for s, t in ((a, b), (b, a)):
-                hit = proc[(proc["source"] == s) & (proc["target"] == t)]
-                for lab in hit.get("commodity", pd.Series(dtype=object)).astype(str):
-                    for part in lab.split("|"):
-                        if part.strip():
-                            labels.add(part.strip())
-            if labels:
-                row["commodity"] = "|".join(sorted(labels))
+        labels: set[str] = set()
+        for key in ((a, b), (b, a)):
+            labels.update(commodity_map.get(key, ()))
+        if labels:
+            row["commodity"] = "|".join(sorted(labels))
         keep_rows.append(row)
 
     netted = pd.DataFrame(keep_rows) if keep_rows else proc.iloc[0:0].copy()
@@ -2367,6 +2455,8 @@ def net_collapsed_process_links(links: pd.DataFrame) -> pd.DataFrame:
     if netted.empty:
         return other.reset_index(drop=True)
     cols = list(dict.fromkeys(list(netted.columns) + list(other.columns)))
+    netted = netted.copy()
+    other = other.copy()
     for frame in (netted, other):
         for c in cols:
             if c not in frame.columns:

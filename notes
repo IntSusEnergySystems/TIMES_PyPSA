@@ -22,3 +22,18 @@ heat flow Dum_Retrofit_Commercia -> Buildings built are: 0.34 TWh in 2050
 retrofit_T_C_en
 Electric Washing Machine
 Com.Refrigeration.ELC.301.Refrigerator
+
+
+
+is correct to say that "domestic navigation" is not captured in the soft-linking (not exported to pypsa)
+    if yes, how should this be corrected?
+there is large flow from commercial electrical appliances towards Buildings
+    the commodities seem ver divers (cooling, heat, etc). shoun't they be separated?
+    isn't there a confusion between residential buildings and commercial buildings? 
+About the fuel refining uncertainty:
+    it would be nice to have a log at the biogas transformation pathways
+    how are they modeled in times?
+    The number of TWh in 2050 seems to correspond to biogas potential of wallonia...
+    if this is confermed, it should be linked to a local production. 
+    "refining" is also a poorly selected name...
+    
