@@ -271,6 +271,59 @@ def test_chp_and_district_heating_are_separate():
     )
 
 
+def test_heat_pumps_not_classified_as_chp():
+    """Codes like *ELCHP* must not be treated as combined heat & power."""
+    from times_pypsa.aggregation import infer_overview_process_label
+
+    assert (
+        infer_overview_process_label(
+            sector="COM",
+            process_type="PRE",
+            description="Com Space Heat New heat pump - CS - ELC401",
+            agg_level_2="Commercial Heat pump",
+            code="CHCSELCHP401",
+        )
+        == "Buildings"
+    )
+    assert (
+        infer_overview_process_label(
+            sector="RSD",
+            process_type="PRE",
+            description="Air heat pump with electric boiler-RH2F-New4",
+            agg_level_2="Residential urban decentral Heat pump",
+            code="RH2FELCHPN4",
+        )
+        == "Buildings"
+    )
+
+
+def test_specific_custom_not_overridden_by_overview_chp():
+    """Wrong sankey_overview=CHP must not steal a specific custom heat-pump label."""
+    from times_pypsa.aggregation import refine_custom_labels_for_readability
+
+    df = pd.DataFrame(
+        [
+            {
+                "process_code": "CHCSELCHP401",
+                "process": "Com Space Heat New heat pump",
+                "process_agg": "Commercial Heat pump",
+                "agg_level_2": "Commercial Heat pump",
+                "proc_agg__custom": "Commercial Heat pump",
+                "proc_agg__sankey_overview": "CHP",
+                "com_agg__custom": "Heat",
+                "commodity_code": "CHCS",
+                "commodity": "Space heating",
+                "pypsa_carrier": "Heat",
+                "exported": True,
+            }
+        ]
+    )
+    proc_out, _ = refine_custom_labels_for_readability(
+        df["proc_agg__custom"], df["com_agg__custom"], df
+    )
+    assert proc_out.iloc[0] == "Commercial Heat pump"
+
+
 def test_end_use_fuel_tech_splits_by_rule_commodity():
     from times_pypsa.aggregation import end_use_fuel_tech_label, rule_commodity_for_fuel_tech
 

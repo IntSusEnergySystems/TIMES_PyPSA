@@ -286,8 +286,18 @@ def infer_overview_process_label(
         "district heat" in blob and "chp" not in blob
     ):
         return "District heating"
-    if ptype == "CHP" or l2 in {"chp", "tertiary chp"} or (
-        "chp" in blob and "heat exchanger" not in blob
+    # Heat pumps often have codes like *ELCHP* / *CHPN* — do not treat as CHP.
+    is_heat_pump = (
+        "heat pump" in blob
+        or "heatpump" in blob
+        or "ELCHP" in code_u
+        or l2.endswith("heat pump")
+        or " heat pump" in l2
+    )
+    if not is_heat_pump and (
+        ptype == "CHP"
+        or l2 in {"chp", "tertiary chp"}
+        or ("chp" in blob and "heat exchanger" not in blob)
     ):
         return "CHP"
     if sector_u == "ELC":
@@ -798,11 +808,21 @@ def refine_custom_labels_for_readability(
             new_proc.append(csv_lab)
             continue
         overview = _clean_text(row.get("proc_agg__sankey_overview"))
-        if overview in CUSTOM_SUPPLY_CHAIN_LABELS:
+        # Prefer a specific custom / L2 label over a coarse overview supply-chain
+        # bucket (e.g. heat pumps wrongly tagged sankey_overview=CHP).
+        _coarse_custom = {
+            "",
+            "End-use fuel tech",
+            "CHP & district heat",
+            "Fuel conversion",
+        }
+        if overview in CUSTOM_SUPPLY_CHAIN_LABELS and csv_lab in _coarse_custom:
             new_proc.append(overview)
             continue
         # Legacy merged CHP/DH bucket
-        if csv_lab == "CHP & district heat" or overview == "CHP & district heat":
+        if csv_lab == "CHP & district heat" or (
+            overview == "CHP & district heat" and csv_lab in _coarse_custom
+        ):
             new_proc.append(
                 infer_overview_process_label(
                     sector=row.get("sector", ""),

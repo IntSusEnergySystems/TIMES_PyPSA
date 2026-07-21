@@ -301,3 +301,48 @@ python -c "import pandas as pd; m=pd.read_csv('output/qa_overview/qa_sankey_labe
 2. Keep every energy flow that shares a core process **or** core commodity
 3. That includes upstream producers / other inputs (n−1) and downstream consumers / other outputs (n+1)
 4. Aggregate with the selected `--agg-level` labels; colour blue = exported, grey = context, light red = mixed
+
+---
+
+## Investigated Sankey issues (`custom`)
+
+Working notes while reading the whole-system energy Sankey. Goal: understand first, then fix aggregation / mappings; leave explicit open points for TIMES experts. Do not drop soft-link flows to “clean” the diagram.
+
+### CHP: small inputs, large outputs
+
+**What it looked like.** The `CHP` node had much more FOut than FIn (energy conservation apparently violated).
+
+**Causes (stacking):**
+
+1. **Heat pumps wrongly under `CHP`.** Many residential/commercial heat-pump codes contain the substring `ELCHP` / `CHPN` (electric heat pump). `sankey_overview` was incorrectly set to `CHP`, and `refine_custom_labels_for_readability` preferred that overview supply-chain label over the correct `custom` / L2 heat-pump label. Heat pumps have COP ≫ 1, so they inflate CHP outputs vs electricity inputs. Ambient heat (`RSDAHT`) is still unmapped (no `pypsa_carrier`), so even correctly labelled heat pumps can look “creative” of energy.
+2. **Missing fuel / process-heat commodities.** The energy Sankey keeps only rows with a mapped `pypsa_carrier`. Fuels `ELCPEL` / `ELCWST` / `ELCSLU` and industrial CHP heat `IPPHTH` / `IOFHTH` / … were absent from `mapping_commodities.csv`, so true CHP plants lost fuel FIn and/or useful-heat FOut.
+3. **CO₂ / pollutants** dominate raw FOut if the carrier filter is skipped — QA already drops them via `filter_energy_carrier_flows`.
+
+**Fixes applied.** Heat-pump `sankey_overview` → `Buildings`; heuristic + refine no longer classify `*ELCHP*` / “heat pump” as CHP; map the missing ELC fuels and industrial HTH commodities. After fix (2030 energy view): CHP ≈ 30 PJ FIn / 19 PJ FOut (out/in ≈ 0.63) — **FIn > FOut is expected** (conversion losses); the previous FOut ≫ FIn was the artifact.
+
+**Still open.** `ETSTP_TVC_WST_E11` is `Type=CHP` in the TIMES dictionary but described as “Pure ELC” (it does emit some `ELCHET`). Dummy commercial heat `CHSADUM` remains unmapped. Ambient heat `RSDAHT` still unmapped (heat-pump COP on the Sankey). Confirm with TIMES experts whether waste-to-energy should stay under CHP vs Power plants.
+
+### Fuel tech · methane: looks like primary energy
+
+**What it looked like.** `Fuel tech · methane` had large FOut (sector network gas) and no Sankey inputs.
+
+**Cause.** End-use gas fuel techs (`RSDGMX00`, `COMGMX00`, `INDGMX00`, …) take **`SUPGMX`** (and some **`BIOGAS`**). Those commodities were **not in** `mapping_commodities.csv`, so the energy filter dropped all methane fuel-tech FIn while sector outputs (`RSDGMX`, `COMGMX`, …) stayed. Not a missing import on the Sankey side of the fuel tech — the import is one step upstream:
+
+`IMPGASNAT` → `GASNAT` → `SUPGMX00` (+ upgraded `BIOGZH`) → **`SUPGMX`** → end-use fuel techs → sector gas → boilers.
+
+Local biogas: methanisation → `BIOGAS` → upgrade → `BIOGZH` → same mix.
+
+**Fixes applied.** Map `SUPGMX`, `BIOGAS`, `BIOGZH` (and keep Imports / Fuel refining as the upstream nodes).
+
+**Still open.** Whether `BIOEFF` (effluents, Mt) should ever appear on an energy Sankey (currently excluded — no PJ carrier). Soft-link methane rules still export **VAR_FIn** into industry/TRA gas fuel techs; residential/commercial `Fuel tech · methane` is mostly context unless those L2 labels are in `extraction_rules.csv`.
+
+---
+
+## Change log (aggregation / Sankey understanding)
+
+| Date | Change | Reason |
+|------|--------|--------|
+| 2026-07-21 | Heat pumps: `sankey_overview` CHP→Buildings; `infer_overview_process_label` excludes heat-pump / `ELCHP`; refine no longer lets overview `CHP` override a specific custom label | CHP node mixed heat pumps (COP) with true CHP → FOut ≫ FIn |
+| 2026-07-21 | Map commodities `SUPGMX`, `BIOGAS`, `BIOGZH` | Methane fuel techs lost FIn under energy filter → looked primary |
+| 2026-07-21 | Map `ELCPEL`, `ELCWST`, `ELCSLU` and industrial HTH `IPPHTH`/`IOFHTH`/`IBOHTH`/`IPOHTH`/`IMLHTH`/`INMHTH` | True CHP fuel in / process-heat out were dropped |
+| 2026-07-21 | Document CHP + methane findings and open TIMES questions (this section) | Keep uncertainties visible; no silent “fixes” |

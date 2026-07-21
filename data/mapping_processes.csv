@@ -1060,8 +1060,8 @@ TLCVGH2LCN01,Road Freight,TRA,.DMD.,Light Commercial Vehicles Gas Light New,PJ,P
 TLCVGSLLCN01,Road Freight,TRA,.DMD.,Light Commercial Vehicles Gas Light New,PJ,PJA,PRE,TLCV,ANNUAL,,Road Freight,Road Freight,Transport,Road Freight
 TNAINLBDLN01,Road Freight,TRA,.DMD.,Light Commercial Vehicles Gas Light New,PJ,PJA,PRE,TLCV,ANNUAL,,Road Freight,Road Freight,Transport,Road Freight
 -,,,,-,PJ,,,,,,System aggregate,System aggregate,-,-
-CHBAELCHP202,,COM,,Com Space Heat New Heat Pump - CO - ELC202,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,CHP,Commercial Heat pump
-CHENELCHP202,,COM,,Com Space Heat New Heat Pump - CO - ELC202,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,CHP,Commercial Heat pump
+CHBAELCHP202,,COM,,Com Space Heat New Heat Pump - CO - ELC202,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,Buildings,Commercial Heat pump
+CHENELCHP202,,COM,,Com Space Heat New Heat Pump - CO - ELC202,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,Buildings,Commercial Heat pump
 CHSALTH101,,COM,,Com Space Heat New Heat Exchanger - SA - HET101,PJ,,PRE,,,,Commercial Heat Exchanger,Commercial Heat Exchanger,District heating,Commercial Heat Exchanger
 ISGHTHSTMBGS01,,IND,,ISG.Preparation.of.sugar.Process Heat.BIO.01,PJ,,PRE,,,,Industry,Industry,Industry,Industry
 IISFINPRO01,,IND,,IIS.Finishing Processes.01,PJ,,DMD,,,,Industry,Industry,Industry,Industry
@@ -1075,12 +1075,12 @@ ICHSTMGMX01,,IND,,ICHSTMGMX01,PJ,,PRE,,,,Industry,Industry,Industry,Industry
 INFSTMGMX01,,IND,,INFSTMGMX01,PJ,,PRE,,,,Industry,Industry,Industry,Industry
 INMSTMGMX01,,IND,,INMSTMGMX01,PJ,,PRE,,,,Industry,Industry,Industry,Industry
 IOISTMGMX01,,IND,,IOISTMGMX01,PJ,,PRE,,,,Industry,Industry,Industry,Industry
-RH2FELCHPN4,,RSD,,Air heat pump with electric boiler-RH2F-New4,PJ,,PRE,,,,Residential urban decentral Heat pump,Residential urban decentral Heat pump,CHP,Residential urban decentral Heat pump
-RHAPELCHPN4,,RSD,,Air heat pump with electric boiler-RHAP-New4,PJ,,PRE,,,,Residential urban decentral Heat pump,Residential urban decentral Heat pump,CHP,Residential urban decentral Heat pump
-RHN2FELCHPN4,,RSD,,Air heat pump with electric boiler-RHN2F-New4,PJ,,PRE,,,,Residential urban decentral Heat pump,Residential urban decentral Heat pump,CHP,Residential urban decentral Heat pump
-RHN3FELCHPN4,,RSD,,Air heat pump with electric boiler-RHN3F-New4,PJ,,PRE,,,,Residential urban decentral Heat pump,Residential urban decentral Heat pump,CHP,Residential urban decentral Heat pump
-RHN4FELCHPN4,,RSD,,Air heat pump with electric boiler-RHN4F-New4,PJ,,PRE,,,,Residential urban decentral Heat pump,Residential urban decentral Heat pump,CHP,Residential urban decentral Heat pump
-RHNAPELCHPN4,,RSD,,Air heat pump with electric boiler-RHNAP-New4,PJ,,PRE,,,,Residential urban decentral Heat pump,Residential urban decentral Heat pump,CHP,Residential urban decentral Heat pump
+RH2FELCHPN4,,RSD,,Air heat pump with electric boiler-RH2F-New4,PJ,,PRE,,,,Residential urban decentral Heat pump,Residential urban decentral Heat pump,Buildings,Residential urban decentral Heat pump
+RHAPELCHPN4,,RSD,,Air heat pump with electric boiler-RHAP-New4,PJ,,PRE,,,,Residential urban decentral Heat pump,Residential urban decentral Heat pump,Buildings,Residential urban decentral Heat pump
+RHN2FELCHPN4,,RSD,,Air heat pump with electric boiler-RHN2F-New4,PJ,,PRE,,,,Residential urban decentral Heat pump,Residential urban decentral Heat pump,Buildings,Residential urban decentral Heat pump
+RHN3FELCHPN4,,RSD,,Air heat pump with electric boiler-RHN3F-New4,PJ,,PRE,,,,Residential urban decentral Heat pump,Residential urban decentral Heat pump,Buildings,Residential urban decentral Heat pump
+RHN4FELCHPN4,,RSD,,Air heat pump with electric boiler-RHN4F-New4,PJ,,PRE,,,,Residential urban decentral Heat pump,Residential urban decentral Heat pump,Buildings,Residential urban decentral Heat pump
+RHNAPELCHPN4,,RSD,,Air heat pump with electric boiler-RHNAP-New4,PJ,,PRE,,,,Residential urban decentral Heat pump,Residential urban decentral Heat pump,Buildings,Residential urban decentral Heat pump
 RHAPGMXN1,,RSD,,Natural gas stove condensing-RHAP-New1,PJ,,PRE,,,,Residential urban decentral gas heater,Residential urban decentral gas heater,Buildings,Residential urban decentral gas heater
 RW2FGMXN3,,,,RW2FGMXN3,PJ,,,,,,Residential urban decentral gas heater,Residential urban decentral gas heater,Buildings,Residential urban decentral gas heater
 RW4FGMXN3,,,,RW4FGMXN3,PJ,,,,,,Residential urban decentral gas heater,Residential urban decentral gas heater,Buildings,Residential urban decentral gas heater
@@ -1100,24 +1100,24 @@ ETSTP_TGV_GAS_New_E12,,,,ETSTP_TGV_GAS_New_E12,PJ,,,,,,Gas power plants,Gas powe
 ERNW_PV-RES_Homes_SOL_N,,ELC,,New Public - Solar PV RES Homes  3kW (1-10kw),PJ,,ELE,,,,PV residential,PV residential,Power plants,PV
 RH2FLPGN2,,RSD,,LPG boiler-RH2F-New2,PJ,,PRE,,,,Residential urban decentral oil heater,Residential urban decentral oil heater,Buildings,Residential urban decentral oil heater
 Retrofit-M_C_BA,,COM,,Retrofit-M_C_BA,PJ,,PRE,,,,Dum_Retrofit_Commercial,Dum_Retrofit_Commercial,Buildings,Buildings (other)
-CHBAELCHP201,,COM,,Com Space Heat New Heat Pump - CO - ELC201,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,CHP,Commercial Heat pump
-CHBPELCHP201,,COM,,Com Space Heat New Heat pump - BP - ELC201,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,CHP,Commercial Heat pump
-CHCOELCHP201,,COM,,Com Space Heat New Heat Pump - CO - ELC201,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,CHP,Commercial Heat pump
-CHCSELCHP301,,COM,,Com Space Heat New heat pump - CS - ELC301,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,CHP,Commercial Heat pump
-CHCSELCHP401,,COM,,Com Space Heat New heat pump - CS - ELC401,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,CHP,Commercial Heat pump
-CHCSELCHP402,,COM,,Com Space Heat New heat pump - CS - ELC402,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,CHP,Commercial Heat pump
-CHENELCHP201,,COM,,Com Space Heat New Heat Pump - CO - ELC201,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,CHP,Commercial Heat pump
-CHNCSELCHP402,,COM,,Com Space Heat New heat pump - NCS - ELC402,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,CHP,Commercial Heat pump
-CHSAELCHP201,,COM,,Com Space Heat New Heat pump - SA - ELC201,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,CHP,Commercial Heat pump
+CHBAELCHP201,,COM,,Com Space Heat New Heat Pump - CO - ELC201,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,Buildings,Commercial Heat pump
+CHBPELCHP201,,COM,,Com Space Heat New Heat pump - BP - ELC201,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,Buildings,Commercial Heat pump
+CHCOELCHP201,,COM,,Com Space Heat New Heat Pump - CO - ELC201,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,Buildings,Commercial Heat pump
+CHCSELCHP301,,COM,,Com Space Heat New heat pump - CS - ELC301,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,Buildings,Commercial Heat pump
+CHCSELCHP401,,COM,,Com Space Heat New heat pump - CS - ELC401,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,Buildings,Commercial Heat pump
+CHCSELCHP402,,COM,,Com Space Heat New heat pump - CS - ELC402,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,Buildings,Commercial Heat pump
+CHENELCHP201,,COM,,Com Space Heat New Heat Pump - CO - ELC201,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,Buildings,Commercial Heat pump
+CHNCSELCHP402,,COM,,Com Space Heat New heat pump - NCS - ELC402,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,Buildings,Commercial Heat pump
+CHSAELCHP201,,COM,,Com Space Heat New Heat pump - SA - ELC201,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,Buildings,Commercial Heat pump
 ETSTP_TGV_GAS_New_E13,,,,ETSTP_TGV_GAS_New_E13,PJ,,,,,,Gas power plants,Gas power plants,Power plants,Power plants
 INFPRCCPS01,,IND,,INFPRCCPS01,PJ,,PRE,,,,Industry,Industry,Industry,Industry
 INFSTMCPS01,,IND,,INFSTMCPS01,PJ,,PRE,,,,Industry,Industry,Industry,Industry
 IISFINELC01,,IND,,IISFINELC01,PJ,,DMD,,,,Industry,Industry,Industry,Industry
 CHPINDGMXIPPN00_N,,IND,,CHP.Autoproducer.Industry.Pulp&Paper_GMX-New 00_N,PJ,,CHP,,,,CHP,CHP,CHP,CHP
-RW2FELCHPN1,,RSD,,Electric heat pump water heater-RW2F-New1,PJ,,PRE,,,,Residential urban decentral Heat pump,Residential urban decentral Heat pump,CHP,Residential urban decentral Heat pump
-RW3FELCHPN1,,RSD,,Electric heat pump water heater-RW3F-New1,PJ,,PRE,,,,Residential urban decentral Heat pump,Residential urban decentral Heat pump,CHP,Residential urban decentral Heat pump
-RW4FELCHPN1,,RSD,,Electric heat pump water heater-RW4F-New1,PJ,,PRE,,,,Residential urban decentral Heat pump,Residential urban decentral Heat pump,CHP,Residential urban decentral Heat pump
-RWAPELCHPN1,,RSD,,Electric heat pump water heater-RWAP-New1,PJ,,PRE,,,,Residential urban decentral Heat pump,Residential urban decentral Heat pump,CHP,Residential urban decentral Heat pump
+RW2FELCHPN1,,RSD,,Electric heat pump water heater-RW2F-New1,PJ,,PRE,,,,Residential urban decentral Heat pump,Residential urban decentral Heat pump,Buildings,Residential urban decentral Heat pump
+RW3FELCHPN1,,RSD,,Electric heat pump water heater-RW3F-New1,PJ,,PRE,,,,Residential urban decentral Heat pump,Residential urban decentral Heat pump,Buildings,Residential urban decentral Heat pump
+RW4FELCHPN1,,RSD,,Electric heat pump water heater-RW4F-New1,PJ,,PRE,,,,Residential urban decentral Heat pump,Residential urban decentral Heat pump,Buildings,Residential urban decentral Heat pump
+RWAPELCHPN1,,RSD,,Electric heat pump water heater-RWAP-New1,PJ,,PRE,,,,Residential urban decentral Heat pump,Residential urban decentral Heat pump,Buildings,Residential urban decentral Heat pump
 RH3FLOGN2,,RSD,,Log Boiler.HeatHotwater New-RH3F-New2,PJ,,PRE,,,,Residential urban decentral biomass heater,Residential urban decentral biomass heater,Buildings,Residential urban decentral biomass heater
 RH4FLOGN2,,RSD,,Log Boiler.HeatHotwater New-RH4F-New2,PJ,,PRE,,,,Residential urban decentral biomass heater,Residential urban decentral biomass heater,Buildings,Residential urban decentral biomass heater
 RH3FLPGN2,,RSD,,LPG boiler-RH3F-New2,PJ,,PRE,,,,Residential urban decentral oil heater,Residential urban decentral oil heater,Buildings,Residential urban decentral oil heater
@@ -1129,11 +1129,11 @@ CWNSAPEL101,,COM,,Com Water Heat New Boiler - NSA - PEL101,PJ,,PRE,,,,Commercial
 ECHPP_CHP_WOO_N,,ELC,,New Public - Biomass CHP,PJ,,CHP,,,,CHP,CHP,CHP,CHP
 Retrofit-M_R_2Fac1976,,RSD,,Retrofit Murs Dwellings R_2Fac1976,PJ,,PRE,,,,Retrofitting improvements,Retrofitting improvements,Buildings,Building retrofits
 Retrofit-M_R_3Fac1958,,RSD,,Retrofit Murs Dwellings R_3Fac1958,PJ,,PRE,,,,Retrofitting improvements,Retrofitting improvements,Buildings,Building retrofits
-CHNCSELCHP401,,COM,,Com Space Heat New heat pump - NCS - ELC401,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,CHP,Commercial Heat pump
+CHNCSELCHP401,,COM,,Com Space Heat New heat pump - NCS - ELC401,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,Buildings,Commercial Heat pump
 SELCH2EC01,,SUP,,"H2 Production-Alkaline Electrolyser, large size, centralized",PJ,,PRE,,,,Fuel Tech - H2,Fuel Tech - H2,Fuel refining,Fuel Tech - H2
 IGHHOLLOWELC01,,IND,,IGH.glass production.04,PJ,,DMD,,,,Industry,Industry,Industry,Industry
 INMSTMHH201,,IND,,INMSTMHH201,PJ,,PRE,,,,Industry,Industry,Industry,Industry
-RH4FELCHPN4,,RSD,,Air heat pump with electric boiler-RH4F-New4,PJ,,PRE,,,,Residential urban decentral Heat pump,Residential urban decentral Heat pump,CHP,Residential urban decentral Heat pump
+RH4FELCHPN4,,RSD,,Air heat pump with electric boiler-RH4F-New4,PJ,,PRE,,,,Residential urban decentral Heat pump,Residential urban decentral Heat pump,Buildings,Residential urban decentral Heat pump
 RH2FLOGN2,,RSD,,Log Boiler.HeatHotwater New-RH2F-New2,PJ,,PRE,,,,Residential urban decentral biomass heater,Residential urban decentral biomass heater,Buildings,Residential urban decentral biomass heater
 STH2SGT,,SUP,,Centralised Hydrogen Gas Tank Storage: DayNite/Seasonal,PJ,,STS,,,,Fuel Tech - H2,Fuel Tech - H2,Fuel refining,Fuel Tech - H2
 CWNCSPEL101,,COM,,Com Water Heat New Boiler - NCS - PEL101,PJ,,PRE,,,,Commercial Biomass boiler,Commercial Biomass boiler,Buildings,Commercial Biomass boiler
@@ -1146,16 +1146,16 @@ ICMPRC22,,IND,,ICM.Dry Process Production oxycomb.03,PJ,,PRE,,,,Industry,Industr
 INMSTMELC01,,IND,,INMSTMELC01,PJ,,PRE,,,,Industry,Industry,Industry,Industry
 IPOHTHSTMELC01,,IND,,IPO.Preparation.of.potatoes.Process Heat.ELC.01,PJ,,PRE,,,,Industry,Industry,Industry,Industry
 ICHSTMHH201,,IND,,ICHSTMHH201,PJ,,PRE,,,,Industry,Industry,Industry,Industry
-RHN3FELCHPN1,,RSD,,Air heat pump with electric boiler-RHN3F-New1,PJ,,PRE,,,,Residential urban decentral Heat pump,Residential urban decentral Heat pump,CHP,Residential urban decentral Heat pump
+RHN3FELCHPN1,,RSD,,Air heat pump with electric boiler-RHN3F-New1,PJ,,PRE,,,,Residential urban decentral Heat pump,Residential urban decentral Heat pump,Buildings,Residential urban decentral Heat pump
 RSDLIONBATS01,,,,RSDLIONBATS01,PJ,,,,,,residential other,residential other,Buildings,Household electrical appliances
 RH4FLPGN2,,RSD,,LPG boiler-RH4F-New2,PJ,,PRE,,,,Residential urban decentral oil heater,Residential urban decentral oil heater,Buildings,Residential urban decentral oil heater
 Retrofit-M_R_3Fac2005,,RSD,,Retrofit Murs Dwellings R_3Fac2005,PJ,,PRE,,,,Retrofitting improvements,Retrofitting improvements,Buildings,Building retrofits
 CCOKELC101,,COM,,Com.Cooking.ELC.01.Stove.,PJ,,DMD,,,,commercial other,commercial other,Buildings,Commercial electrical appliances
-CHNBAELCHP201,,COM,,Com Space Heat New heat pump - NBA - ELC201,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,CHP,Commercial Heat pump
-CHNBPELCHP201,,COM,,Com Space Heat New Heat pump - NBP - ELC201,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,CHP,Commercial Heat pump
-CHNCOELCHP201,,COM,,Com Space Heat New Heat pump - NCO - ELC201,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,CHP,Commercial Heat pump
-CHNENELCHP201,,COM,,Com Space Heat New Heat pump - NEN - ELC201,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,CHP,Commercial Heat pump
-CHNSAELCHP201,,COM,,Com Space Heat New Heat pump - NSA - ELC201,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,CHP,Commercial Heat pump
+CHNBAELCHP201,,COM,,Com Space Heat New heat pump - NBA - ELC201,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,Buildings,Commercial Heat pump
+CHNBPELCHP201,,COM,,Com Space Heat New Heat pump - NBP - ELC201,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,Buildings,Commercial Heat pump
+CHNCOELCHP201,,COM,,Com Space Heat New Heat pump - NCO - ELC201,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,Buildings,Commercial Heat pump
+CHNENELCHP201,,COM,,Com Space Heat New Heat pump - NEN - ELC201,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,Buildings,Commercial Heat pump
+CHNSAELCHP201,,COM,,Com Space Heat New Heat pump - NSA - ELC201,PJ,,PRE,,,,Commercial Heat pump,Commercial Heat pump,Buildings,Commercial Heat pump
 CWNCOSOL101,,COM,,Com Water Heat New Boiler - NCO - SOL101,PJ,,PRE,,,,commercial hot water,commercial hot water,Buildings,Buildings (other)
 ICHPRCHH202,,IND,,ICHPRCHH202,PJ,,PRE,,,,CHP,CHP,CHP,CHP
 IOFSTMHH201,,IND,,IOFSTMHH201,PJ,,PRE,,,,Industry,Industry,Industry,Industry
@@ -1196,7 +1196,7 @@ TRAGH2C02,,SUP,,Fuel Tech - H2 Delivery from centralized production (COMP+TR+LIQ
 ETSTP_NUC-LWR-GEN3_NUC_N,,ELC,,New Thermal Public - Nuclear - Generation III light water reactor.,PJ,,ELE,,,,Gas power plants,Gas power plants,Power plants,Power plants
 INFPRCHH202,,IND,,INFPRCHH202,PJ,,PRE,,,,Industry,Industry,Industry,Industry
 INMPRCHH202,,IND,,INMPRCHH202,PJ,,PRE,,,,Industry,Industry,Industry,Industry
-RH3FELCHPN4,,RSD,,Air heat pump with electric boiler-RH3F-New4,PJ,,PRE,,,,Residential urban decentral Heat pump,Residential urban decentral Heat pump,CHP,Residential urban decentral Heat pump
+RH3FELCHPN4,,RSD,,Air heat pump with electric boiler-RH3F-New4,PJ,,PRE,,,,Residential urban decentral Heat pump,Residential urban decentral Heat pump,Buildings,Residential urban decentral Heat pump
 Retrofit-M_R_2Fac1945,,RSD,,Retrofit Murs Dwellings R_2Fac1945,PJ,,PRE,,,,Retrofitting improvements,Retrofitting improvements,Buildings,Building retrofits
 Retrofit-S_R_2Fac1945,,RSD,,Retrofit Sols Dwellings R_2Fac1945,PJ,,PRE,,,,Retrofitting improvements,Retrofitting improvements,Buildings,Building retrofits
 Retrofit-F_R_4Fac1945,,RSD,,Retrofit Fenetres Dwellings R_4Fac1945,PJ,,PRE,,,,Retrofitting improvements,Retrofitting improvements,Buildings,Building retrofits
