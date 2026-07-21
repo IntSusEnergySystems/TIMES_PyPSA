@@ -254,6 +254,69 @@ def links_to_records(
     return records
 
 
+def _fallback_node_entry(key: str) -> dict[str, str]:
+    """Minimal node metadata when a link endpoint was not in collect_typed_nodes."""
+    kind_raw, _, raw = str(key).partition("::")
+    kind = _normalize_kind(kind_raw if raw else "process")
+    label_raw = raw or kind_raw or key
+    tip = node_display_label(kind, label_raw)
+    return {
+        "key": key,
+        "label": tip,
+        "kind": kind,
+        "raw": label_raw,
+        "color": node_kind_color(kind, label_raw),
+        "hover": tip,
+    }
+
+
+def ensure_sankey_node_coverage(
+    nodes: list[dict[str, str]],
+    links: list[dict[str, Any]],
+) -> list[dict[str, str]]:
+    """Ensure every link source/target key has node metadata (netted ∪ gross)."""
+    known = {n["key"] for n in nodes}
+    out = list(nodes)
+    for link in links:
+        for side in ("source", "target"):
+            key = str(link.get(side) or "")
+            if not key or key in known:
+                continue
+            known.add(key)
+            out.append(_fallback_node_entry(key))
+    return out
+
+
+def validate_sankey_chart(chart: dict[str, Any]) -> list[str]:
+    """Return human-readable issues in an embedded Sankey chart payload."""
+    issues: list[str] = []
+    chart_id = str(chart.get("id", ""))
+    for y in chart.get("years", []):
+        ys = str(y)
+        node_keys = {n["key"] for n in chart.get("nodes", {}).get(ys, [])}
+        for mode in ("netted", "gross"):
+            variant = chart.get(mode) or {}
+            links = variant.get(ys, [])
+            if links is None:
+                issues.append(f"{chart_id}/{ys}: {mode} links is null")
+                continue
+            for i, link in enumerate(links):
+                for side in ("source", "target"):
+                    key = link.get(side)
+                    if not key:
+                        issues.append(f"{chart_id}/{ys}/{mode}[{i}]: missing {side}")
+                    elif key not in node_keys:
+                        issues.append(
+                            f"{chart_id}/{ys}/{mode}[{i}]: {side} {key!r} not in nodes"
+                        )
+                value = link.get("value")
+                if value is None or not isinstance(value, (int, float)):
+                    issues.append(f"{chart_id}/{ys}/{mode}[{i}]: invalid value")
+                elif value <= 0:
+                    issues.append(f"{chart_id}/{ys}/{mode}[{i}]: non-positive value")
+    return issues
+
+
 def build_sankey_dataset(
     *,
     chart_id: str,
@@ -266,26 +329,57 @@ def build_sankey_dataset(
     nodes_by_year: dict[int, list[dict[str, str]]] | None = None,
 ) -> dict[str, Any]:
     """Build one interactive chart payload keyed by year and netting mode."""
+    netted: dict[str, list[dict[str, Any]]] = {}
+    gross: dict[str, list[dict[str, Any]]] = {}
+    nodes: dict[str, list[dict[str, str]]] = {}
+    for y in years:
+        netted_links = netted_by_year.get(y, [])
+        gross_links = gross_by_year.get(y, [])
+        netted[str(y)] = netted_links
+        gross[str(y)] = gross_links
+        nodes[str(y)] = ensure_sankey_node_coverage(
+            (nodes_by_year or {}).get(y, []),
+            netted_links + gross_links,
+        )
     return {
         "id": chart_id,
         "title": title,
         "subtitle": subtitle,
         "unit": unit_label(units),
         "years": years,
-        "netted": {str(y): netted_by_year.get(y, []) for y in years},
-        "gross": {str(y): gross_by_year.get(y, []) for y in years},
-        "nodes": {str(y): (nodes_by_year or {}).get(y, []) for y in years},
+        "netted": netted,
+        "gross": gross,
+        "nodes": nodes,
     }
 
 
 _INTERACTIVE_JS = r"""
+function timesPypsaSankeyPlot(containerId, data, layout) {
+  // Plotly.react can crash when Sankey node/link counts change (netted ↔ gross).
+  if (typeof Plotly.purge === "function") {
+    Plotly.purge(containerId);
+  }
+  return Plotly.newPlot(containerId, data, layout, { responsive: true });
+}
+
 function timesPypsaBuildSankey(containerId, links, title, nodeMeta) {
+  const layout = {
+    title: { text: title },
+    height: 700,
+    font: { size: 10 },
+    margin: { l: 20, r: 20, t: 60, b: 40 },
+    annotations: [{
+      text: "Nodes: process (green) · U · demand/imbalance residual (magenta). Commodities are flows. Links: blue=exported, purple=double-count (FOut+FIn), grey=context, light red=mixed",
+      showarrow: false,
+      xref: "paper", yref: "paper",
+      x: 0, y: -0.06, align: "left",
+      font: { size: 11, color: "#444" }
+    }],
+  };
   if (!links || links.length === 0) {
-    Plotly.react(containerId, [], {
+    timesPypsaSankeyPlot(containerId, [], Object.assign({}, layout, {
       title: { text: title + " (no data)" },
-      height: 700,
-      font: { size: 10 },
-    });
+    }));
     return;
   }
   const nodes = [];
@@ -293,52 +387,73 @@ function timesPypsaBuildSankey(containerId, links, title, nodeMeta) {
   const nodeHover = [];
   const nodeIndex = {};
   const metaByKey = {};
-  (nodeMeta || []).forEach(function (n) { metaByKey[n.key] = n; });
+  (nodeMeta || []).forEach(function (n) {
+    if (n && n.key != null) metaByKey[n.key] = n;
+  });
 
-  function nodeIdx(key) {
-    if (!(key in nodeIndex)) {
-      nodeIndex[key] = nodes.length;
-      const meta = metaByKey[key];
-      if (meta) {
-        const label = meta.label || meta.raw || key;
-        nodes.push(label);
-        nodeColors.push(meta.color || "rgba(120,120,120,0.85)");
-        nodeHover.push(meta.hover || label);
-      } else {
-        const isProc = String(key).startsWith("process::");
-        const isCom = String(key).startsWith("commodity::");
-        const isImb = String(key).startsWith("imbalance::");
-        let label = key;
-        if (isProc) label = key.slice(9);
-        else if (isCom) label = key.slice(11);
-        else if (isImb) label = "U · " + key.slice(11);
-        nodes.push(label);
-        nodeColors.push(
-          isProc ? "rgba(90,194,111,0.92)"
-            : (isCom ? "rgba(90,194,111,0.92)"
-              : (isImb ? "rgba(180,60,160,0.9)" : "rgba(120,120,120,0.85)"))
-        );
-        nodeHover.push(label);
-      }
+  function addNode(key, meta) {
+    if (key == null || key in nodeIndex) return;
+    nodeIndex[key] = nodes.length;
+    if (meta) {
+      const label = meta.label || meta.raw || key;
+      nodes.push(label);
+      nodeColors.push(meta.color || "rgba(120,120,120,0.85)");
+      nodeHover.push(meta.hover || label);
+      return;
     }
-    return nodeIndex[key];
+    const keyStr = String(key);
+    const isProc = keyStr.startsWith("process::");
+    const isCom = keyStr.startsWith("commodity::");
+    const isImb = keyStr.startsWith("imbalance::");
+    let label = keyStr;
+    if (isProc) label = keyStr.slice(9);
+    else if (isCom) label = keyStr.slice(11);
+    else if (isImb) label = "U · " + keyStr.slice(11);
+    nodes.push(label);
+    nodeColors.push(
+      isProc ? "rgba(90,194,111,0.92)"
+        : (isCom ? "rgba(90,194,111,0.92)"
+          : (isImb ? "rgba(180,60,160,0.9)" : "rgba(120,120,120,0.85)"))
+    );
+    nodeHover.push(label);
   }
+
+  (nodeMeta || []).forEach(function (n) {
+    if (n && n.key != null) addNode(n.key, n);
+  });
+
   const source = [];
   const target = [];
   const value = [];
   const color = [];
   const customdata = [];
   for (const link of links) {
-    source.push(nodeIdx(link.source));
-    target.push(nodeIdx(link.target));
-    value.push(link.value);
+    if (!link) continue;
+    const srcKey = link.source;
+    const tgtKey = link.target;
+    const v = Number(link.value);
+    if (srcKey == null || tgtKey == null || !isFinite(v) || v <= 0) continue;
+    addNode(srcKey, metaByKey[srcKey]);
+    addNode(tgtKey, metaByKey[tgtKey]);
+    const srcIdx = nodeIndex[srcKey];
+    const tgtIdx = nodeIndex[tgtKey];
+    if (srcIdx == null || tgtIdx == null) continue;
+    source.push(srcIdx);
+    target.push(tgtIdx);
+    value.push(v);
     color.push(link.color);
     customdata.push(link.hover);
+  }
+  if (source.length === 0) {
+    timesPypsaSankeyPlot(containerId, [], Object.assign({}, layout, {
+      title: { text: title + " (no data)" },
+    }));
+    return;
   }
   const nMax = Math.max(nodes.length, 1);
   const pad = Math.max(4, Math.min(20, Math.floor(300 / nMax)));
   const thickness = Math.max(10, Math.min(30, Math.floor(600 / nMax)));
-  Plotly.react(
+  timesPypsaSankeyPlot(
     containerId,
     [{
       type: "sankey",
@@ -361,19 +476,7 @@ function timesPypsaBuildSankey(containerId, links, title, nodeMeta) {
         hovertemplate: "%{customdata}<extra></extra>",
       },
     }],
-    {
-      title: { text: title },
-      height: 700,
-      font: { size: 10 },
-      margin: { l: 20, r: 20, t: 60, b: 40 },
-      annotations: [{
-        text: "Nodes: process (green) · U · demand/imbalance residual (magenta). Commodities are flows. Links: blue=exported, purple=double-count (FOut+FIn), grey=context, light red=mixed",
-        showarrow: false,
-        xref: "paper", yref: "paper",
-        x: 0, y: -0.06, align: "left",
-        font: { size: 11, color: "#444" }
-      }],
-    }
+    layout
   );
 }
 
@@ -390,7 +493,7 @@ function timesPypsaInitSankeyChart(chart) {
 
   function currentLinks() {
     const year = years[yearIdx];
-    const variant = nettingToggle.checked ? chart.netted : chart.gross;
+    const variant = nettingToggle.checked ? (chart.netted || {}) : (chart.gross || {});
     return variant[year] || [];
   }
 
@@ -400,12 +503,22 @@ function timesPypsaInitSankeyChart(chart) {
   }
 
   function render() {
+    if (!plotDiv || !yearLabel || !yearSlider || !nettingToggle) return;
     const year = years[yearIdx];
     yearLabel.textContent = year;
     yearSlider.value = String(yearIdx);
     const mode = nettingToggle.checked ? "netted" : "gross";
     const title = chart.title + " — " + year + " (" + unit + ", " + mode + " flows)";
-    timesPypsaBuildSankey(plotDiv.id, currentLinks(), title, currentNodes());
+    try {
+      timesPypsaBuildSankey(plotDiv.id, currentLinks(), title, currentNodes());
+    } catch (err) {
+      console.error("Sankey render failed:", chart.id, mode, year, err);
+      timesPypsaSankeyPlot(plotDiv.id, [], {
+        title: { text: title + " (render error)" },
+        height: 700,
+        font: { size: 10 },
+      });
+    }
   }
 
   yearSlider.min = "0";

@@ -9,7 +9,7 @@ Extraction itself is unchanged (filters on Aggregation Level 2 labels). Sankey /
 | Level (`--agg-level`) | Process nodes | Commodity nodes | Typical node count | Use |
 |-----------------------|---------------|-----------------|--------------------|-----|
 | **`Aggregation Level 2`** (default; alias `mapping`) | Aggregation Level 2 | Aggregation Level 2 (= PyPSA Energy Carrier) | hundreds | Export neighbourhood / detailed QA |
-| **`custom`** | Description for exported process codes; else Level 2 | Description for exported (+ partner) commodities; else Level 2 | hundreds (export-detailed) | **Working level**: keep PyPSA exports individual / blue under netting |
+| **`custom`** | Export-touching Aggregation Level 2 (+ friendly renames); else overview / `(other)` | Export-touching commodity codes (specific labels); else `{family} (context)` | **~45** after collapse | **Working level**: readable whole-system + blue soft-link paths |
 | `Aggregation Level 1` | Aggregation Level 1 | Aggregation Level 1 (= Cluster) | high | Mid drill-down |
 | `Sector` (alias `L0`) | Sector codes | Sector codes | ~15 | Coarse sector check |
 | **`sankey_overview`** | Overview process clusters | Overview carriers | **≤20** | Readable whole-system Sankey |
@@ -92,14 +92,67 @@ collide. Optional bipartite view (commodity nodes kept) is still available via
 
 ## Designing `custom` (working level)
 
-`custom` is the **editable working aggregation** for export QA. Goal: PyPSA-exported flows appear as **individual blue links** wherever aggregation alone can keep export status pure.
+`custom` is the **editable working aggregation** for export QA. Goal: a **readable** whole-system Sankey that still shows PyPSA-exported flows as **blue** links at soft-link resolution.
 
-**Current design (2026-07-19)** — individualized around the soft-link export set on `scen_corrige_251129_0112`:
+Extraction filters on **Aggregation Level 2** (`process_agg` in `extraction_rules.csv`), not on individual process Descriptions. Description-level nodes are therefore over-detailed for the soft-link objective and make the diagram unreadable once small links are kept (threshold 0).
 
-| Side | Rule for `custom` |
-|------|-------------------|
-| **Processes** | Every TIMES process code that appears on at least one extraction-matched (exported) flow uses its TIMES **Description** (code suffix if needed for uniqueness). All other processes keep **Aggregation Level 2**. |
-| **Commodities** | Every commodity code on an exported flow, plus **partner** commodities that share a coarse L2/carrier label with an export on the same process (the ones that used to turn netting mixed), use TIMES **Description**. All other commodities keep **Aggregation Level 2**. |
+### Runtime rules (when flows are export-tagged)
+
+`aggregate_flows(..., level="custom")` applies `refine_custom_labels_for_readability` on top of the CSV `custom` column:
+
+| Side | Keep individual | Collapse |
+|------|-----------------|----------|
+| **Processes** | **Supply-chain roles** (parallel, same direction): `Imports & trade`, `Local production` (MIN*), `Fuel refining`, `Power plants` (incl. ELC generation fuel-tech). **Plus** Aggregation Level 2 labels on any exported row (soft-link grain, with friendly renames). | Remaining context → `End-use fuel tech`, sector `(other)`, … — never merge upstream primary with downstream end-use |
+| **Commodities** | Export-touching codes keep one specific label for all rows of that code | Other carriers → `{family} (context)` |
+
+After commodity-hub collapse, **reciprocal process↔process ribbons are netted** when the netting toggle is on (`net_collapsed_process_links`), so A→B and B→A from coarse hubs do not appear as loops.
+
+**Friendly process renames**
+
+| Aggregation Level 2 | `custom` display |
+|---------------------|------------------|
+| `residential other` | Household electrical appliances |
+| `commercial other` | Commercial electrical appliances |
+| `Retrofitting improvements` | Building retrofits |
+
+**Supply-chain roles (do not merge across steps)**
+
+| Label | Meaning |
+|-------|---------|
+| Imports & trade | `.IMP.IRE.` / import processes |
+| Local production | `.MIN.IRE.` domestic potentials (solar/wind/biomass/…) |
+| Fuel refining | SUP synthesis / refining |
+| Power plants | Generation (thermal, hydro, …) — **excluding** PV / onshore wind splits below |
+| PV | Utility + rooftop / sector PV generation (`ERNW_PV*`, `*PVELC`, solar fuel-tech ELC) |
+| Onshore wind | Onshore turbines (`ERNW_WINON*`, `ERNW_Eolien*`, wind fuel-tech ELC) |
+| CHP | Combined heat & power plants (`Type=CHP`, public/industrial/tertiary CHP) |
+| District heating | Network heat exchangers (`District heating`, `Commercial Heat Exchanger`) |
+| Fuel tech · {category} | End-use fuel-tech PRE, **split by extraction_rules commodity** (electricity, methane, coal, …) |
+| Building retrofits | Envelope retrofit techs + `Dum_Retrofit*` options (demand-side efficiency; see note below) |
+
+Offshore-wind imports (`IMPELCOFFWIN*`) stay under **Imports & trade** (outside Wallonia).
+
+Commodity context hubs never mix fundamentally different carriers (e.g. gas vs electricity; uranium stays **Nuclear fuel**, not Electricity).
+
+### Building retrofits (labelling, not dropping)
+
+TIMES structure (understood):
+
+1. `Dum_Retrofit` / `Dum_Retrofit_Commercial` (`.IMP.IRE.`) create dummy MM2 option commodities `Dum-Retrofit-*` — capacity/availability accounting. They have **no** `pypsa_carrier`, so they never enter the energy Sankey (same universal carrier filter as any unmapped non-energy commodity). They are labelled **Building retrofits**, not Imports & trade.
+2. `Retrofit-*` processes take those dummies (+ `NRGI`) and **produce useful-heat commodities** (`RH*`, `CH*`) — the same hubs that boilers feed. Soft-link rule `retro` tags `VAR_FOut` on `Retrofitting improvements`.
+3. On the energy Sankey those heat FOuts therefore appear with **no energy FIn** (dummies were non-carrier). That can look like a primary source; it is demand-side efficiency accounting in TIMES, not a fuel import.
+
+**Do not drop these flows.** Soft-linking is universal: every matched export flow stays in QA views. If the left-side placement remains confusing, improve labels/layout — never hide the soft-link.
+
+Open modeller note: whether PyPSA should receive retrofit useful-heat FOut as a positive heat supply, a demand reduction, or a separate efficiency signal is a coupling-design question; the extractor must still show what TIMES reports.
+
+### Export link colours (blue vs light red)
+
+- **Blue**: collapsed link has soft-link mass on the path (`any_exported`: exactly one endpoint exported, or both → purple double-count).
+- **Light red (mixed)**: a single aggregated endpoint still mixes exported + non-exported *rows* before collapse.
+- **Grey**: no export on either endpoint.
+
+Blue PJ on the Sankey is **path energy**, not a 1:1 sum of tagged export rows. Some tagged export mass ends in magenta residual sinks (FOut-only DEM / hub imbalance) rather than a process→process ribbon — that is why blue share can be below 100% of tagged export PJ without those leftovers appearing light red.
 
 Edit `custom` freely in:
 
@@ -191,7 +244,8 @@ Goal: a whole-system Sankey with **at most ~20 nodes**, still reflecting the mai
 |-------|-----------|
 | Imports & trade | `Sector=IMP` or Aggregation Level 2 contains import/export |
 | Power plants | Electricity sector generation (not fuel-tech PRE) |
-| CHP & district heat | `Type=CHP` or district-heating / CHP labels |
+| CHP | `Type=CHP` or CHP Aggregation Level 2 |
+| District heating | District heating / heat-exchanger labels |
 | Fuel supply | `Sector=SUP` |
 | Fuel conversion | “Fuel Tech …” processes in end-use sectors / ELC |
 | Industry / Buildings / Transport / Agriculture | Remaining DMD/PRE activity by sector (`RSD`+`COM` → Buildings) |

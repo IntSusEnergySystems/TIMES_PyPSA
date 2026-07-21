@@ -10,8 +10,11 @@ from times_pypsa.pipeline import PJ_TO_TWH
 
 EnergyUnit = Literal["twh", "pj"]
 
-DEFAULT_FLOW_THRESHOLD_TWH = PJ_TO_TWH  # ≈ 1 PJ
-DEFAULT_FLOW_THRESHOLD_PJ = 1.0
+# Keep all post-collapse ribbons by default. A non-zero threshold (historically ≈1 PJ)
+# dropped split electricity inflows into appliances / heat pumps while keeping larger
+# FOut residuals, which made end-use processes look like left-side sources.
+DEFAULT_FLOW_THRESHOLD_TWH = 0.0
+DEFAULT_FLOW_THRESHOLD_PJ = 0.0
 
 
 def unit_label(units: EnergyUnit) -> str:

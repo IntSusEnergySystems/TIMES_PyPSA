@@ -5,6 +5,14 @@ Soft-linking between the TIMES-WAL and PyPSA-WAL models. This repository provide
 Related: [SOFTLINKING_ANALYSIS.md](SOFTLINKING_ANALYSIS.md) for architecture, coupling workflow, verification, and open modeller questions. [aggregation.md](aggregation.md) for Sankey aggregation levels, and export colouring limits.
 Important note: when testing, and troubleshooting, always use the 'custom' aggregation level.
 
+### Soft-linking is universal (no ad-hoc flow drops)
+
+Every soft-link category in `extraction_rules.csv` is treated the same way in QA and Sankeys:
+
+- **Do not** drop, hide, or special-case individual soft-linked processes or categories to “clean up” a diagram (e.g. building retrofits).
+- If a TIMES structure looks wrong or obscure on the Sankey, **understand it**, fix **labels/mappings**, or leave an explicit note — never remove matched export flows from the pipeline.
+- The only energy-Sankey scope filter is universal and carrier-based (`filter_energy_carrier_flows`): keep flows with a mapped `pypsa_carrier`, drop emission/pollutant codes. That filter applies to all categories equally; it is not a soft-link exception list.
+
 ### Install
 
 From the repository root:
@@ -81,7 +89,7 @@ times-pypsa qa \
   --agg-level custom
 ```
 
-Omit `--year` to include all model years in the interactive HTML report (year slider + flow-netting toggle on each Sankey). Optional: `--year 2050`, `--year 2030,2040,2050`, or `--year 2025-2050`. Energy values default to **TWh** (`--units pj` for petajoules). `--threshold-export` is interpreted in the selected unit (default ≈ 1 PJ). `--agg-level` selects the shared mapping CSV column used for process × commodity node labels (default: `Aggregation Level 2`). See [Extraction QA](#extraction-qa) and [aggregation.md](aggregation.md).
+Omit `--year` to include all model years in the interactive HTML report (year slider + flow-netting toggle on each Sankey). Optional: `--year 2050`, `--year 2030,2040,2050`, or `--year 2025-2050`. Energy values default to **TWh** (`--units pj` for petajoules). `--threshold-export` is interpreted in the selected unit (default **0**, keep all links). `--agg-level` selects the shared mapping CSV column used for process × commodity node labels (default: `Aggregation Level 2`). See [Extraction QA](#extraction-qa) and [aggregation.md](aggregation.md).
 
 Use `--mappings-dir` to override the default mappings (defaults to the repository `data/` directory).
 
@@ -178,7 +186,7 @@ Documentation for the TIMES → PyPSA soft-link extraction quality-assurance too
 |----------|--------|
 | Are current extraction rules adequate? | **Partially.** Parent–child heat identities match; no disallowed double-counting after the rail allowlist; topology is clean. But DMD coverage gaps remain large (~330 PJ in 2050), so we cannot claim “no forgotten demand” without TIMES-expert confirmation (see [Questions for TIMES experts](#questions-for-times-experts)). |
 | Former aggregation rules still active? | **Yes.** Extraction still uses `mapping_processes.csv` **Aggregation Level 2** (column `process_agg`), `mapping_commodities.csv` **PyPSA Energy Carrier**, and `extraction_rules.csv` unchanged in formalism. |
-| New aggregation rules / new CSV formalism? | **Shared column names.** Any aggregation level is a column present in **both** mapping CSVs; `--agg-level` / `aggregate_flows(level=...)` selects it. Bundled levels: `Sector`, `Aggregation Level 1`, `Aggregation Level 2`, `custom` (export-individualized working level), `sankey_overview`. Details: [aggregation.md](aggregation.md). Alias `mapping` ≡ `Aggregation Level 2`. |
+| New aggregation rules / new CSV formalism? | **Shared column names.** Any aggregation level is a column present in **both** mapping CSVs; `--agg-level` / `aggregate_flows(level=...)` selects it. Bundled levels: `Sector`, `Aggregation Level 1`, `Aggregation Level 2`, `custom` (readable working level: export L2 + context collapse), `sankey_overview`. Details: [aggregation.md](aggregation.md). Alias `mapping` ≡ `Aggregation Level 2`. |
 | What changed in the Sankey? | **Commodity hubs collapsed** to process→process flows (commodities are link labels). Expected final-demand / non-PJ residuals become magenta `U ·` nodes named after the demand process (not logged as errors); unexplained imbalances keep `Unbalanced …` labels and error/warn. Process nodes are **green**. Whole-system + export-neighbourhood views; multi-year timeline + netting toggle; `sankey_overview` (~17 process labels before collapse). |
 
 #### TIMES data model
@@ -234,7 +242,7 @@ Extraction itself is unchanged (filters on Aggregation Level 2 labels). Sankey /
 | Level (`--agg-level`) | Typical use |
 |-----------------------|-------------|
 | **`Aggregation Level 2`** (default; alias `mapping`) | Export neighbourhood / detailed QA |
-| **`custom`** | Working level: individualize PyPSA exports (blue under netting) |
+| **`custom`** | Working level: export-touching L2 kept, context collapsed (~45 nodes) |
 | `Aggregation Level 1` / `Sector` / `L2` | Mid / coarse / fine drill-down |
 | **`sankey_overview`** | Whole-system Sankey (≤20 nodes) |
 
@@ -374,3 +382,6 @@ Filled from QA run on `scen_corrige_251129_0112`, year **2050** (`output/qa_2050
 | 2026-07-19 | Collapse colouring: exported+context → blue (any-exported); diesel import→fuel-tech and heat→buildings now blue. | `merge_export_statuses(any_exported=True)` + [aggregation.md](aggregation.md) | None |
 | 2026-07-19 | Plotly has no Sankey link gradients; purple = both FOut+FIn exported (`double_count`). | `DOUBLE_COUNT_COLOR` + `collapse_pair_export_status` | None |
 | 2026-07-19 | Expected Sankey sinks (FOut-only DEM / non-PJ consumers): magenta `U ·` named after the demand process, INFO log + tooltip; unexplained imbalances still warn/error. | `collapse_commodity_nodes` + `test_collapse_commodities.py` | None |
+| 2026-07-19 | Default Sankey link threshold **0** (was ≈1 PJ); `custom` bundles household/commercial electrical appliances and building retrofits. | `units.py` + `mapping_*.csv` `custom` | None |
+| 2026-07-19 | Aggressive readable `custom`: keep export-touching Aggregation Level 2, collapse context to overview/`(other)`/`(context)`; ~45 nodes while preserving blue soft-link mass. | `refine_custom_labels_for_readability` + mappings | None |
+| 2026-07-20 | Supply-chain split (Local production / Imports / Fuel refining / Power plants); post-collapse reciprocal netting; Sankey netting-toggle uses Plotly.newPlot. | mappings + `net_collapsed_process_links` + `sankey_html.py` | None |

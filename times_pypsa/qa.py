@@ -13,6 +13,7 @@ from times_pypsa.aggregation import (
     aggregate_flows,
     build_sankey_label_map,
     collapse_commodity_nodes,
+    net_collapsed_process_links,
     sankey_links_from_flows,
 )
 from times_pypsa.balances import (
@@ -84,7 +85,19 @@ def _category_color(index: int) -> str:
 
 
 def filter_energy_carrier_flows(df: pd.DataFrame) -> pd.DataFrame:
-    """Drop emission / non-carrier flows so Sankeys stay readable."""
+    """
+    Keep energy-carrier flows for Sankeys (universal scope filter).
+
+    Scope (applies equally to all soft-link categories — no process- or
+    category-specific exceptions):
+
+    - keep rows with a non-empty ``pypsa_carrier`` (mapped energy commodity)
+    - drop emission / pollutant commodity codes (CO₂, GHG, SOX, …)
+
+    Do **not** add ad-hoc drops of soft-linked processes (e.g. retrofits).
+    If a TIMES structure looks odd on the Sankey, fix labelling / mapping or
+    document the quirk — never hide matched export flows.
+    """
     if df.empty:
         return df.copy()
     carrier = (
@@ -178,7 +191,7 @@ def prepare_export_sankey_links(
     tagged: pd.DataFrame,
     *,
     core_mask: pd.Series | None = None,
-    flow_threshold: float = 1.0,
+    flow_threshold: float = 0.0,
     apply_netting: bool = True,
     agg_level: str = "Aggregation Level 2",
     collapse_commodities: bool = True,
@@ -203,19 +216,22 @@ def prepare_export_sankey_links(
     agg = aggregate_flows(nb, level=agg_level, apply_netting=apply_netting)
     if collapse_commodities:
         ref_agg = aggregate_flows(ref_src, level=agg_level, apply_netting=apply_netting)
-        return collapse_commodity_nodes(
+        links = collapse_commodity_nodes(
             agg,
             flow_threshold=flow_threshold,
             reference_flows=ref_agg,
             process_activity_units=process_activity_units,
         )
+        if apply_netting:
+            links = net_collapsed_process_links(links)
+        return links
     return sankey_links_from_flows(agg, flow_threshold=flow_threshold)
 
 
 def prepare_system_sankey_links(
     tagged: pd.DataFrame,
     *,
-    flow_threshold: float = 1.0,
+    flow_threshold: float = 0.0,
     apply_netting: bool = True,
     agg_level: str = "Aggregation Level 2",
     collapse_commodities: bool = True,
@@ -244,12 +260,15 @@ def prepare_system_sankey_links(
             if ref is not df
             else agg
         )
-        return collapse_commodity_nodes(
+        links = collapse_commodity_nodes(
             agg,
             flow_threshold=flow_threshold,
             reference_flows=ref_agg,
             process_activity_units=process_activity_units,
         )
+        if apply_netting:
+            links = net_collapsed_process_links(links)
+        return links
     return sankey_links_from_flows(agg, flow_threshold=flow_threshold)
 
 
@@ -855,9 +874,12 @@ def generate_qa_report(
                 "nodes named after the demand process (hover explains). "
                 "Only unexplained imbalances keep an <em>Unbalanced …</em> label and "
                 "are logged as errors. "
-                "Process nodes are green; link colours: blue = exported; "
-                "purple = double-count (FOut+FIn both exported); "
-                "grey = not exported; light red = mixed."
+                "Process nodes are green; link colours: blue = soft-link path "
+                "(exported endpoint); purple = double-count (FOut+FIn both exported); "
+                "grey = context; light red = mixed endpoint "
+                "(same node still mixes exported + non-exported rows). "
+                "Blue PJ is path energy after collapse/netting — residual export "
+                "mass may sit in magenta U · sinks rather than light-red links."
             ),
         ),
         build_sankey_dataset(

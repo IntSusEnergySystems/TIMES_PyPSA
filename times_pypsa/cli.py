@@ -257,7 +257,7 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help=(
             "Minimum Sankey link size in selected --units "
-            f"(default: {DEFAULT_FLOW_THRESHOLD_TWH:g} TWh ≈ 1 PJ when --units twh)"
+            f"(default: {DEFAULT_FLOW_THRESHOLD_TWH:g}; set >0 to hide small ribbons)"
         ),
     )
     qa_parser.add_argument(

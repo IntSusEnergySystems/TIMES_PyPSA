@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import re
 
 import pandas as pd
 
@@ -106,6 +107,20 @@ def identity_label(*candidates: object) -> str:
     return "Unspecified"
 
 
+_OVERVIEW_CARRIER_FAMILIES = frozenset(
+    {
+        "Electricity",
+        "Gas",
+        "Heat",
+        "Oil products",
+        "Hydrogen",
+        "Coal & solids",
+        "Biomass & biofuels",
+        "Nuclear fuel",
+    }
+)
+
+
 def infer_overview_commodity_label(
     *,
     description: str = "",
@@ -119,20 +134,18 @@ def infer_overview_commodity_label(
     code_l = code_u.lower()
     carrier_l = _clean_text(carrier).lower()
 
+    # Nuclear fuel is not electricity — keep it out of Electricity hubs.
+    if code_u == "NUCRSV" or "uranium" in text:
+        return "Nuclear fuel"
+
     if code_u == "TRAETH" or "ethanol" in text:
         return "Biomass & biofuels"
     if "batelc" in code_l or "battery" in text:
         return "Electricity"
     if any(k in text for k in ("hydrogen", "h2 for", "h2 ")) or code_u.startswith("H2"):
         return "Hydrogen"
-    if code_u.endswith("SOL") or "solar" in carrier_l or "solar" in text:
-        if code_u in {"RENSOL"} or "renewable: solar" in carrier_l or "electricity: solar" in carrier_l:
-            return "Electricity"
-        return "Heat"
-    if code_u == "NUCRSV" or "uranium" in text:
-        return "Electricity"
-    if "electricity" in text or any(k in carrier_l for k in ("hydro", "nuclear", "wind")):
-        return "Electricity"
+
+    # Gas before electricity: "natural gas for electricity" is still Gas.
     if any(
         k in text
         for k in (
@@ -147,6 +160,17 @@ def infer_overview_commodity_label(
         )
     ) or ("GMX" in code_u) or (code_u.endswith("GAS") and "BIOGAS" not in code_u):
         return "Gas"
+
+    # Cooling / service DEM commodities — not grid electricity.
+    if "space cool" in text or "cooling" in text:
+        return "Commercial cooling"
+
+    if code_u.endswith("SOL") or "solar" in carrier_l or "solar" in text:
+        if code_u in {"RENSOL"} or "renewable: solar" in carrier_l or "electricity: solar" in carrier_l:
+            return "Electricity"
+        return "Heat"
+    if "electricity" in text or any(k in carrier_l for k in ("hydro", "nuclear", "wind")):
+        return "Electricity"
     if any(k in text for k in ("coal", "coke", "lignite", "hard coal")) or any(
         x in code_u for x in ("COA", "COK", "COL")
     ):
@@ -190,6 +214,40 @@ def infer_overview_commodity_label(
     return identity_label(description, carrier, cluster, code)
 
 
+def infer_carrier_family(
+    *,
+    description: str = "",
+    code: str = "",
+    carrier: str = "",
+    cluster: str = "",
+) -> str:
+    """
+    Strict energy-carrier family for a commodity.
+
+    Prevents collapsing fundamentally different carriers (e.g. gas into
+    Electricity (context)). Returns an overview family name, or "".
+    """
+    fam = infer_overview_commodity_label(
+        description=description, code=code, carrier=carrier, cluster=cluster
+    )
+    if fam in _OVERVIEW_CARRIER_FAMILIES:
+        return fam
+    text = f"{carrier} {cluster} {description} {code}".lower()
+    for family, keys in (
+        ("Electricity", ("electric", "elc", "hydro", "wind", "pv", "battery", "batelc")),
+        ("Gas", ("natural gas", "network gas", "biogas", "gmx")),
+        ("Heat", ("heat", "chaleur", "geothermal", "district", "hot water", "space heat")),
+        ("Oil products", ("diesel", "gasoline", "kerosene", "oil", "lpg", "naphtha", "petroleum")),
+        ("Hydrogen", ("hydrogen", "h2")),
+        ("Coal & solids", ("coal", "coke", "lignite")),
+        ("Biomass & biofuels", ("biomass", "biofuel", "biodiesel", "wood", "ethanol", "black liquor")),
+        ("Nuclear fuel", ("uranium", "nuclear fuel", "nucrsv")),
+    ):
+        if any(k in text for k in keys):
+            return family
+    return ""
+
+
 def infer_overview_process_label(
     *,
     sector: str = "",
@@ -209,22 +267,46 @@ def infer_overview_process_label(
 
     if code_u in {"", "-"}:
         return identity_label(description, "System aggregate")
-    if sector_u == "IMP" or "import" in blob or "export" in blob:
+    # Supply-chain roles — keep parallel flows parallel (never merge MIN into imports,
+    # or generation fuel-tech into end-use fuel-tech).
+    if code_u.startswith("MIN") or l2 == "local production" or ".min.ire." in blob:
+        return "Local production"
+    if (
+        sector_u == "IMP"
+        or code_u.startswith(("IMP", "EXP"))
+        or "import" in blob
+        or "export" in blob
+        or l2 == "imports"
+    ):
+        # Building retrofit dummies are IRE but not energy imports.
+        if "dum_retrofit" in code_l or "retrofit" in l2:
+            return "Building retrofits"
         return "Imports & trade"
-    if ptype == "CHP" or "district heating" in blob or "chp" in blob:
-        return "CHP & district heat"
+    if l2 in {"district heating", "commercial heat exchanger"} or (
+        "district heat" in blob and "chp" not in blob
+    ):
+        return "District heating"
+    if ptype == "CHP" or l2 in {"chp", "tertiary chp"} or (
+        "chp" in blob and "heat exchanger" not in blob
+    ):
+        return "CHP"
     if sector_u == "ELC":
-        return "Fuel conversion" if "fuel tech" in blob else "Power plants"
+        # Generation fuel-tech feeds power plants (same chain direction).
+        return "Power plants"
     if sector_u == "SUP":
-        return "Fuel supply"
+        return "Fuel refining" if "fuel tech" in blob or ptype in {"PRE", ""} else "Fuel supply"
+    if "fuel tech" in blob:
+        return "End-use fuel tech"
+    if l2 == "retrofitting improvements" or code_u.startswith("Retrofit-") or "dum_retrofit" in code_l:
+        return "Building retrofits"
     if sector_u == "IND":
-        return "Fuel conversion" if "fuel tech" in blob else "Industry"
+        return "Industry"
     if sector_u in {"RSD", "COM"}:
-        return "Fuel conversion" if "fuel tech" in blob else "Buildings"
+        return "Buildings"
     if sector_u == "TRA":
-        return "Fuel conversion" if "fuel tech" in blob else "Transport"
+        return "Transport"
     if sector_u == "AGR":
-        return "Fuel conversion" if "fuel tech" in blob else "Agriculture"
+        return "Agriculture"
 
     # Code-prefix fallbacks when Sector is missing from dictionaries
     if code_u.startswith(("RW", "RH", "CW", "CH", "CC", "COM", "RSD")):
@@ -324,6 +406,485 @@ def _overview_commodity_series(df: pd.DataFrame) -> pd.Series:
     )
 
 
+# Soft-link QA working view: keep export-touching Aggregation Level 2 labels,
+# collapse everything else so the whole-system Sankey stays readable.
+CUSTOM_PROCESS_FRIENDLY: dict[str, str] = {
+    "residential other": "Household electrical appliances",
+    "commercial other": "Commercial electrical appliances",
+    "Retrofitting improvements": "Building retrofits",
+}
+
+_CONTEXT_CARRIER_FAMILIES = frozenset(
+    {
+        "Electricity",
+        "Heat",
+        "Gas",
+        "Oil products",
+        "Coal & solids",
+        "Biomass & biofuels",
+        "Hydrogen",
+        "Nuclear fuel",
+    }
+)
+
+
+def friendly_custom_process_label(l2: str) -> str:
+    """Rename a few Aggregation Level 2 buckets for the working Sankey."""
+    text = _clean_text(l2)
+    return CUSTOM_PROCESS_FRIENDLY.get(text, text)
+
+
+# Primary / generation supply-chain roles (parallel upstream steps).
+# Do NOT include "End-use fuel tech" here — export-touching fuel-tech L2 must win.
+CUSTOM_SUPPLY_CHAIN_LABELS = frozenset(
+    {
+        "Imports & trade",
+        "Local production",
+        "Fuel supply",
+        "Fuel refining",
+        "Power plants",
+        "CHP",
+        "District heating",
+        # Wallonia renewable generation kept separate in the working Sankey
+        "PV",
+        "Onshore wind",
+        "Building retrofits",
+    }
+)
+
+# Prefer these over coarser Power plants when set in CSV custom.
+# Offshore wind is outside Wallonia — leave IMPELCOFFWIN* under Imports & trade.
+CUSTOM_GENERATION_SPLIT_LABELS = frozenset({"PV", "Onshore wind"})
+
+# Soft-link commodity buckets from extraction_rules.csv (fuel / carrier side).
+# Used to disaggregate leftover "End-use fuel tech" by rule commodity.
+_RULE_FUEL_CATEGORIES = frozenset(
+    {
+        "electricity",
+        "coal",
+        "coke",
+        "hydrogen",
+        "methane",
+        "methanol",
+        "naphtha",
+        "solid biomass",
+        "ammonia",
+        "low-temperature heat",
+        "total electricity residential",
+        "total electricity services",
+        "electricity road",
+        "electricity rail",
+        "hydrogen road",
+        "total agriculture electricity",
+        "total agriculture heat",
+        "total agriculture machinery",
+    }
+)
+
+# process_agg (Aggregation Level 2) → extraction_rules commodity category
+_PROCESS_AGG_TO_RULE_COMMODITY: dict[str, str] = {
+    # electricity
+    "Fuel Tech - Electricity": "electricity",
+    "Fuel Tech - Electricity (IND)": "electricity",
+    "Fuel Tech - Electricity (TRA)": "electricity road",
+    "Fuel Tech - Solar (IND)": "electricity",
+    "PV industrial": "electricity",
+    "residential other": "total electricity residential",
+    "commercial other": "total electricity services",
+    "rail transport": "electricity rail",
+    "TRA_STG_PJ_GW": "electricity road",
+    # solid fuels / industry
+    "Fuel Tech - Hard Coal (IND)": "coal",
+    "Fuel Tech - Lignite (IND)": "coal",
+    "Fuel Tech - Coke (IND)": "coke",
+    "Fuel Tech - Wood material (IND)": "solid biomass",
+    "Fuel Tech - Waste Renewable (IND)": "solid biomass",
+    "Fuel Tech - Wood CHIPS (IND)": "solid biomass",
+    "Fuel Tech - Biofuel (IND)": "solid biomass",
+    "Fuel Tech - Wood Chips": "solid biomass",
+    "Fuel Tech - Pellets": "solid biomass",
+    "Fuel Tech - Wood Pellets": "solid biomass",
+    # methane / gas
+    "Fuel Tech - Biogas (IND)": "methane",
+    "Fuel Tech - Natural Gas transport (IND)": "methane",
+    "Fuel Tech New - Gas and Cog industry (IND)": "methane",
+    "Fuel Tech - Natural Gas and biogas mixed  (IND)": "methane",
+    "Fuel Tech - Liquified Petroleum Gas (IND)": "methane",
+    "Fuel Tech New - biogaz epure (IND)": "methane",
+    "Fuel Tech - Biogas": "methane",
+    "Fuel Tech - Natural Gas biogas mixed": "methane",
+    "Fuel Tech - gas mix réseau": "methane",
+    "Fuel Tech  - Natural Gas": "methane",
+    "Fuel Tech - Natural Gas (TRA)": "methane",
+    "Fuel Tech - Reseau gas mixed (TRA)": "methane",
+    "Fuel Tech - Biogas (TRA)": "methane",
+    "Fuel Tech - biogaz enrichi": "methane",
+    "BioGas (TAR)": "methane",
+    # oils / naphtha
+    "Fuel Tech - Heavy Fuel Oil (IND)": "naphtha",
+    "Fuel Tech - Light Fuel Oil (IND)": "naphtha",
+    "Non-energy": "naphtha",
+    "Fuel Tech - Oil": "naphtha",
+    "Oil": "naphtha",
+    "Fuel Tech - Diesel (TRA)": "naphtha",
+    "Fuel Tech - Gasoline (TRA)": "naphtha",
+    "Fuel Tech - GSL": "naphtha",
+    "Fuel Tech - Kerosene - Jet Fuels": "naphtha",
+    "Fuel Tech - Liquified Petroleum Gas": "naphtha",
+    "Fuel Tech - Liquified Petroleum Gas (TRA)": "naphtha",
+    # biofuels transport
+    "Fuel Tech - Biodiesel (TRA)": "solid biomass",
+    "Fuel Tech – Biodiesel": "solid biomass",
+    "Fuel Tech - Ethanol (TRA)": "solid biomass",
+    "Biofuels": "solid biomass",
+    # hydrogen
+    "Fuel Tech - H2": "hydrogen",
+    "hydrogen for industry": "hydrogen",
+    "hydrogen imports": "hydrogen",
+    # heat
+    "Geothermal (IND)": "low-temperature heat",
+    "Fuel Tech - Geothermal": "low-temperature heat",
+    "Fuel Tech - Low Temperature Heat": "low-temperature heat",
+    "Fuel Tech - Low Temparature Heat": "low-temperature heat",
+    "Fuel Tech - Heat": "low-temperature heat",
+    "Fuel Tech 1 - Heat": "low-temperature heat",
+    "Fuel Tech 2 - Heat": "low-temperature heat",
+    "Fuel Tech 0 - Heat": "low-temperature heat",
+    "industry high temperature heat": "low-temperature heat",
+}
+
+
+def rule_commodity_for_fuel_tech(
+    *,
+    process_agg: str = "",
+    description: str = "",
+    code: str = "",
+    carrier: str = "",
+) -> str:
+    """
+    Map an end-use fuel-tech process to an extraction_rules commodity category.
+
+    Prefer Aggregation Level 2 labels used in ``extraction_rules.csv``; fall back
+    to carrier-family heuristics aligned with those rule commodities.
+    """
+    l2 = _clean_text(process_agg)
+    if l2 in _PROCESS_AGG_TO_RULE_COMMODITY:
+        return _PROCESS_AGG_TO_RULE_COMMODITY[l2]
+    # Partial match on known Fuel Tech prefixes
+    for key, cat in _PROCESS_AGG_TO_RULE_COMMODITY.items():
+        if key.lower() in l2.lower() or key.lower() in _clean_text(description).lower():
+            return cat
+    fam = infer_carrier_family(
+        description=description, code=code, carrier=carrier, cluster=process_agg
+    )
+    fam_to_rule = {
+        "Electricity": "electricity",
+        "Gas": "methane",
+        "Oil products": "naphtha",
+        "Coal & solids": "coal",
+        "Biomass & biofuels": "solid biomass",
+        "Hydrogen": "hydrogen",
+        "Heat": "low-temperature heat",
+    }
+    return fam_to_rule.get(fam, "other")
+
+
+def end_use_fuel_tech_label(
+    *,
+    process_agg: str = "",
+    description: str = "",
+    code: str = "",
+    carrier: str = "",
+) -> str:
+    """Disaggregated end-use fuel-tech label: ``Fuel tech · {rule commodity}``."""
+    cat = rule_commodity_for_fuel_tech(
+        process_agg=process_agg,
+        description=description,
+        code=code,
+        carrier=carrier,
+    )
+    return f"Fuel tech · {cat}"
+
+
+def _generation_split_label(row: pd.Series) -> str:
+    """Detect PV / onshore wind generation from code or description."""
+    code = _clean_text(row.get("process_code") or row.get("Technology (Process)"))
+    desc = _clean_text(row.get("process") or row.get("Description")).lower()
+    l2 = _clean_text(row.get("agg_level_2") or row.get("process_agg")).lower()
+    # Offshore wind is outside Wallonia — do not split out of Imports & trade.
+    if "offwin" in code.lower() or "off wind" in desc or "offshore" in f"{code} {desc} {l2}".lower():
+        return ""
+    if (
+        code.startswith("ERNW_WINON")
+        or "Eolien" in code
+        or code == "ELCWIN00"
+        or l2 in {"wind turbine", "fuel tech - wind"}
+        or "wind onshore" in desc
+        or (l2 == "renewables" and "wind" in desc and "off" not in desc)
+    ):
+        return "Onshore wind"
+    if (
+        "PV-" in code
+        or code.endswith("PVELC")
+        or code == "ELCSOL00"
+        or l2 in {"pv", "pv residential", "pv commercial", "pv industrial"}
+        or (l2 == "solar" and _clean_text(row.get("sector")).upper() == "ELC")
+        or re.search(r"\bpv\b", desc)
+    ):
+        if "water heat" in desc or "solar thermal" in l2:
+            return ""
+        return "PV"
+    return ""
+
+
+def _context_process_label_row(row: pd.Series) -> str:
+    """Coarse role label for processes that are not export-touching at L2."""
+    # Honour PV / wind splits and other supply-chain custom labels first.
+    for key in ("proc_agg__custom", "proc_agg__sankey_overview"):
+        lab = _clean_text(row.get(key))
+        if lab in CUSTOM_GENERATION_SPLIT_LABELS or lab in CUSTOM_SUPPLY_CHAIN_LABELS:
+            if lab == "Power plants":
+                split = _generation_split_label(row)
+                if split:
+                    return split
+            return lab
+        if lab == "End-use fuel tech" or lab.startswith("Fuel tech ·"):
+            if lab.startswith("Fuel tech ·"):
+                return lab
+            return end_use_fuel_tech_label(
+                process_agg=row.get("agg_level_2", row.get("process_agg", "")),
+                description=row.get("process", ""),
+                code=row.get("process_code", ""),
+                carrier=row.get("pypsa_carrier", ""),
+            )
+        if lab == "CHP & district heat":
+            # Legacy merged label — split using type / L2.
+            return infer_overview_process_label(
+                sector=row.get("sector", ""),
+                process_type=row.get("process_type", ""),
+                description=row.get("process", ""),
+                agg_level_2=row.get("agg_level_2", row.get("process_agg", "")),
+                code=row.get("process_code", ""),
+            )
+    split = _generation_split_label(row)
+    if split:
+        return split
+    overview = _clean_text(row.get("proc_agg__sankey_overview"))
+    if overview:
+        # Distinguish leftover sector mass from named export end-uses.
+        if overview in {"Buildings", "Industry", "Transport", "Agriculture"}:
+            return f"{overview} (other)"
+        if overview == "Fuel conversion" or overview == "End-use fuel tech":
+            return end_use_fuel_tech_label(
+                process_agg=row.get("agg_level_2", row.get("process_agg", "")),
+                description=row.get("process", ""),
+                code=row.get("process_code", ""),
+                carrier=row.get("pypsa_carrier", ""),
+            )
+        if overview == "CHP & district heat":
+            return infer_overview_process_label(
+                sector=row.get("sector", ""),
+                process_type=row.get("process_type", ""),
+                description=row.get("process", ""),
+                agg_level_2=row.get("agg_level_2", row.get("process_agg", "")),
+                code=row.get("process_code", ""),
+            )
+        return overview
+    label = infer_overview_process_label(
+        sector=row.get("sector", ""),
+        process_type=row.get("process_type", ""),
+        description=row.get("process", ""),
+        agg_level_2=row.get("agg_level_2", row.get("process_agg", "")),
+        code=row.get("process_code", ""),
+    )
+    if label in {"Buildings", "Industry", "Transport", "Agriculture"}:
+        return f"{label} (other)"
+    if label == "Fuel conversion" or label == "End-use fuel tech":
+        return end_use_fuel_tech_label(
+            process_agg=row.get("agg_level_2", row.get("process_agg", "")),
+            description=row.get("process", ""),
+            code=row.get("process_code", ""),
+            carrier=row.get("pypsa_carrier", ""),
+        )
+    if label == "Power plants":
+        split = _generation_split_label(row)
+        if split:
+            return split
+    return label
+
+
+def _context_commodity_label(family: str) -> str:
+    """Keep context carriers from colliding with exported sector electricity/heat."""
+    fam = _clean_text(family)
+    if fam == "Nuclear fuel":
+        return "Nuclear fuel"
+    if fam in _CONTEXT_CARRIER_FAMILIES:
+        return f"{fam} (context)"
+    return fam or "Other"
+
+
+def refine_custom_labels_for_readability(
+    proc_labels: pd.Series,
+    com_labels: pd.Series,
+    df: pd.DataFrame,
+) -> tuple[pd.Series, pd.Series]:
+    """
+    Tighten ``custom`` Sankey labels when export tags are available.
+
+    Rules (readable working view):
+    - Process: keep supply-chain role labels (Imports, Local production, Power
+      plants, …). Keep Aggregation Level 2 that appears on any exported row
+      (soft-link grain, with friendly renames). Collapse remaining context to
+      overview / ``(other)`` buckets — never merge upstream with downstream.
+    - Commodity: codes that appear on any exported row keep one specific label
+      for all rows of that code (hub stays intact for collapse); other carriers
+      become ``{family} (context)``. Bare family names like ``Electricity`` are
+      replaced by TIMES descriptions when used as export hubs.
+    """
+    if "exported" not in df.columns or df.empty:
+        return proc_labels, com_labels
+
+    exported = df["exported"].fillna(False).astype(bool)
+    if not bool(exported.any()):
+        return proc_labels, com_labels
+
+    l2 = pd.Series("", index=df.index, dtype=object)
+    for key in ("process_agg", "agg_level_2", "proc_agg__Aggregation Level 2"):
+        if key in df.columns:
+            cand = _nonempty_labels(df[key])
+            l2 = l2.where(l2.ne(""), cand)
+    export_l2 = set(l2.loc[exported].tolist()) - {""}
+
+    export_com_codes: set[str] = set()
+    if "commodity_code" in df.columns:
+        export_com_codes = {
+            str(c)
+            for c in df.loc[exported, "commodity_code"].tolist()
+            if _clean_text(c)
+        }
+
+    # Prefer a specific display name per exported commodity code (avoid bare
+    # "Electricity"/"Heat" that collide with context carriers).
+    export_com_label: dict[str, str] = {}
+    for idx in df.index[exported]:
+        code = _clean_text(df.at[idx, "commodity_code"] if "commodity_code" in df.columns else "")
+        if not code or code in export_com_label:
+            continue
+        csv_lab = _clean_text(com_labels.loc[idx])
+        desc = _clean_text(df.at[idx, "commodity"] if "commodity" in df.columns else "")
+        carrier = _clean_text(df.at[idx, "pypsa_carrier"] if "pypsa_carrier" in df.columns else "")
+        # Bare family names are too coarse for export hubs — prefer description.
+        if csv_lab and csv_lab not in _CONTEXT_CARRIER_FAMILIES and csv_lab not in {
+            "Natural Gas",
+            "Network gas",
+        }:
+            export_com_label[code] = csv_lab
+        else:
+            export_com_label[code] = identity_label(desc, carrier, csv_lab, code)
+
+    new_proc = []
+    for idx, row in df.iterrows():
+        csv_lab = _clean_text(proc_labels.loc[idx])
+        # PV / onshore wind before coarser Power plants buckets.
+        split = _generation_split_label(row)
+        if csv_lab in CUSTOM_GENERATION_SPLIT_LABELS:
+            new_proc.append(csv_lab)
+            continue
+        if split:
+            new_proc.append(split)
+            continue
+        # Always keep explicit supply-chain roles (parallel primary/conversion).
+        if csv_lab in CUSTOM_SUPPLY_CHAIN_LABELS:
+            new_proc.append(csv_lab)
+            continue
+        overview = _clean_text(row.get("proc_agg__sankey_overview"))
+        if overview in CUSTOM_SUPPLY_CHAIN_LABELS:
+            new_proc.append(overview)
+            continue
+        # Legacy merged CHP/DH bucket
+        if csv_lab == "CHP & district heat" or overview == "CHP & district heat":
+            new_proc.append(
+                infer_overview_process_label(
+                    sector=row.get("sector", ""),
+                    process_type=row.get("process_type", ""),
+                    description=row.get("process", ""),
+                    agg_level_2=row.get("agg_level_2", row.get("process_agg", "")),
+                    code=row.get("process_code", ""),
+                )
+            )
+            continue
+
+        row_l2 = _clean_text(l2.loc[idx])
+        # End-use fuel techs: keep export-touching L2; else split by rule commodity.
+        if csv_lab == "End-use fuel tech" or csv_lab.startswith("Fuel tech ·") or overview == "End-use fuel tech":
+            if row_l2 and row_l2 in export_l2:
+                new_proc.append(friendly_custom_process_label(row_l2))
+            elif csv_lab.startswith("Fuel tech ·"):
+                new_proc.append(csv_lab)
+            else:
+                new_proc.append(
+                    end_use_fuel_tech_label(
+                        process_agg=row_l2 or row.get("process_agg", ""),
+                        description=row.get("process", ""),
+                        code=row.get("process_code", ""),
+                        carrier=row.get("pypsa_carrier", ""),
+                    )
+                )
+            continue
+
+        if row_l2 and row_l2 in export_l2:
+            friendly = friendly_custom_process_label(row_l2)
+            if csv_lab in CUSTOM_PROCESS_FRIENDLY.values():
+                new_proc.append(csv_lab)
+            elif csv_lab and csv_lab == friendly:
+                new_proc.append(csv_lab)
+            else:
+                new_proc.append(friendly)
+        else:
+            new_proc.append(_context_process_label_row(row))
+    proc_out = pd.Series(new_proc, index=df.index, dtype=object)
+
+    overview_com = _overview_commodity_series(df)
+    new_com = []
+    for idx, row in df.iterrows():
+        code = _clean_text(row.get("commodity_code"))
+        if code and code in export_com_codes:
+            # Same label for every row of an export-touching commodity code so
+            # producers and consumers stay in one hub (needed for collapse).
+            new_com.append(export_com_label.get(code) or _clean_text(com_labels.loc[idx]))
+        else:
+            csv = _clean_text(com_labels.loc[idx])
+            # Strict family from TIMES text — never put gas under Electricity (context).
+            fam = infer_carrier_family(
+                description=row.get("commodity", ""),
+                code=code,
+                carrier=row.get("pypsa_carrier", ""),
+                cluster=row.get("com_agg__Aggregation Level 1", ""),
+            ) or _clean_text(overview_com.loc[idx])
+            # Keep specific CSV labels (e.g. Imported electricity / ELCIMP) so they
+            # do not dissolve into Electricity (context) and create cross-links.
+            # But never keep a label that contradicts the carrier family
+            # (e.g. a gas commodity wrongly tagged Electricity (context)).
+            csv_fam = ""
+            if csv.endswith("(context)"):
+                csv_fam = csv[: -len(" (context)")].strip()
+            elif csv in _CONTEXT_CARRIER_FAMILIES:
+                csv_fam = csv
+            if fam and csv_fam and fam != csv_fam:
+                new_com.append(_context_commodity_label(fam))
+            elif (
+                csv
+                and csv not in _CONTEXT_CARRIER_FAMILIES
+                and not csv.endswith("(context)")
+                and csv.lower() not in {"natural gas", "network gas"}
+            ):
+                new_com.append(csv)
+            else:
+                new_com.append(_context_commodity_label(fam or csv))
+    com_out = pd.Series(new_com, index=df.index, dtype=object)
+    return proc_out, com_out
+
+
 def _apply_legacy_mapping_labels(df: pd.DataFrame) -> None:
     df["process_node"] = df.apply(_mapping_process_label, axis=1)
     df["commodity_node"] = df.apply(_mapping_commodity_label, axis=1)
@@ -363,6 +924,12 @@ def _apply_column_agg_labels(df: pd.DataFrame, resolved: str) -> None:
         proc_labels = proc_labels.where(~still_p, _process_identity_series(df))
     if still_c.any():
         com_labels = com_labels.where(~still_c, _commodity_identity_series(df))
+
+    # Working `custom` view: keep PyPSA export L2 grain, collapse context (B2).
+    if resolved == "custom":
+        proc_labels, com_labels = refine_custom_labels_for_readability(
+            proc_labels, com_labels, df
+        )
 
     df["process_node"] = proc_labels
     df["commodity_node"] = com_labels
@@ -1676,3 +2243,112 @@ def collapse_commodity_nodes(
     if flow_threshold > 0:
         agg = agg[agg["value"] > flow_threshold]
     return agg.reset_index(drop=True)
+
+
+def net_collapsed_process_links(links: pd.DataFrame) -> pd.DataFrame:
+    """
+    Net reciprocal process↔process ribbons after commodity-hub collapse.
+
+    Aggregation can place related energy on both A→B and B→A (e.g. fuel-tech
+    grid FIn and a context electricity FOut into the power pool). Keep the net
+    direction only. Links that touch imbalance nodes are left unchanged.
+    """
+    if links is None or links.empty:
+        return links
+    required = {"source", "target", "value", "source_kind", "target_kind"}
+    if not required.issubset(links.columns):
+        return links
+
+    is_proc_pair = (links["source_kind"].astype(str) == "process") & (
+        links["target_kind"].astype(str) == "process"
+    )
+    proc = links.loc[is_proc_pair].copy()
+    other = links.loc[~is_proc_pair].copy()
+    if proc.empty:
+        return links.reset_index(drop=True)
+
+    # Directed totals
+    directed = (
+        proc.groupby(["source", "target"], as_index=False)["value"]
+        .sum()
+    )
+    # Pick a representative row per directed edge for metadata
+    meta = proc.sort_values("value", ascending=False).drop_duplicates(
+        subset=["source", "target"], keep="first"
+    )
+
+    seen: set[tuple[str, str]] = set()
+    keep_rows: list[pd.Series] = []
+    for _, edge in directed.iterrows():
+        a = str(edge["source"])
+        b = str(edge["target"])
+        if a == b:
+            continue
+        canon = (a, b) if a < b else (b, a)
+        if canon in seen:
+            continue
+        seen.add(canon)
+
+        fv = float(
+            directed.loc[
+                (directed["source"] == a) & (directed["target"] == b), "value"
+            ].sum()
+        )
+        rv = float(
+            directed.loc[
+                (directed["source"] == b) & (directed["target"] == a), "value"
+            ].sum()
+        )
+        net = fv - rv
+        if abs(net) < 1e-12:
+            continue
+        if net > 0:
+            src, tgt, val = a, b, net
+        else:
+            src, tgt, val = b, a, -net
+
+        base = meta[(meta["source"] == src) & (meta["target"] == tgt)]
+        if base.empty:
+            base = meta[(meta["source"] == tgt) & (meta["target"] == src)]
+        row = base.iloc[0].copy()
+        row["source"] = src
+        row["target"] = tgt
+        row["value"] = val
+        # Merge export status from both directions when both existed
+        if fv > 0 and rv > 0 and "export_status" in row.index:
+            statuses = []
+            for s, t in ((a, b), (b, a)):
+                hit = meta[(meta["source"] == s) & (meta["target"] == t)]
+                if not hit.empty:
+                    statuses.append(hit.iloc[0].get("export_status", "context"))
+            row["export_status"] = merge_export_statuses(
+                pd.Series(statuses), any_exported=True
+            )
+            row["exported"] = str(row["export_status"]) in {
+                "exported",
+                "double_count",
+            }
+        # Combine commodity labels
+        if "commodity" in row.index:
+            labels: set[str] = set()
+            for s, t in ((a, b), (b, a)):
+                hit = proc[(proc["source"] == s) & (proc["target"] == t)]
+                for lab in hit.get("commodity", pd.Series(dtype=object)).astype(str):
+                    for part in lab.split("|"):
+                        if part.strip():
+                            labels.add(part.strip())
+            if labels:
+                row["commodity"] = "|".join(sorted(labels))
+        keep_rows.append(row)
+
+    netted = pd.DataFrame(keep_rows) if keep_rows else proc.iloc[0:0].copy()
+    if other.empty:
+        return netted.reset_index(drop=True)
+    if netted.empty:
+        return other.reset_index(drop=True)
+    cols = list(dict.fromkeys(list(netted.columns) + list(other.columns)))
+    for frame in (netted, other):
+        for c in cols:
+            if c not in frame.columns:
+                frame[c] = 0.0 if c in {"value", "exported"} else ""
+    return pd.concat([netted[cols], other[cols]], ignore_index=True)

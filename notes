@@ -17,5 +17,8 @@ In 2050, there is hydrogen import (0.63 TWh) feeding process "CHP", which produc
 heat flow Dum_Retrofit_Commercia -> Buildings built are: 0.34 TWh in 2050
     What is this
     it is not exported to pypsa. Should it be?
-"Commercial heat pump" appear "out of the blue". it provides heat to buildings, but does not seem to consume anything
+"Commercial heat pump" appear "out of the blue". it provides heat, but does not seem to consume anything
 
+retrofit_T_C_en
+Electric Washing Machine
+Com.Refrigeration.ELC.301.Refrigerator

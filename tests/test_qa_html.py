@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+import re
 from pathlib import Path
 
 import pandas as pd
@@ -18,10 +20,23 @@ from times_pypsa.sankey_html import (
     DOUBLE_COUNT_COLOR,
     EXPORTED_COLOR,
     MIXED_COLOR,
+    build_sankey_dataset,
     collect_typed_nodes,
+    ensure_sankey_node_coverage,
     links_to_records,
+    validate_sankey_chart,
 )
 from times_pypsa.pipeline import load_extraction_rules, load_metadata
+
+
+def _charts_from_qa_html(html: str) -> list[dict]:
+    match = re.search(
+        r"const TIMES_PYSA_SANKEYS = (\[.*?\]);\s*\nfunction timesPypsaSankeyPlot",
+        html,
+        re.S,
+    )
+    assert match is not None, "embedded Sankey chart payload missing"
+    return json.loads(match.group(1))
 
 
 @pytest.fixture(scope="module")
@@ -106,6 +121,38 @@ def test_netting_reduces_or_equal_link_values(tagged_2030):
     assert netted["value"].sum() <= gross["value"].sum() + 1e-6
 
 
+def test_sankey_chart_payload_covers_gross_endpoints(tagged_2030):
+    year, tagged, totals, rules = tagged_2030
+    netted_links = prepare_system_sankey_links(
+        tagged, flow_threshold=0.0, apply_netting=True
+    )
+    gross_links = prepare_system_sankey_links(
+        tagged, flow_threshold=0.0, apply_netting=False
+    )
+    chart = build_sankey_dataset(
+        chart_id="system",
+        title="test",
+        years=[year],
+        netted_by_year={year: links_to_records(netted_links)},
+        gross_by_year={year: links_to_records(gross_links)},
+        nodes_by_year={
+            year: collect_typed_nodes(
+                pd.concat([netted_links, gross_links], ignore_index=True)
+            )
+        },
+    )
+    assert validate_sankey_chart(chart) == []
+    assert len(chart["gross"][str(year)]) >= len(chart["netted"][str(year)])
+
+
+def test_ensure_sankey_node_coverage_adds_missing_keys():
+    nodes = [{"key": "process::A", "label": "A", "kind": "process", "raw": "A", "color": "", "hover": "A"}]
+    links = [{"source": "process::A", "target": "process::B", "value": 1.0, "color": "", "hover": ""}]
+    covered = ensure_sankey_node_coverage(nodes, links)
+    keys = {n["key"] for n in covered}
+    assert keys == {"process::A", "process::B"}
+
+
 def test_generate_qa_report_all_years(
     tmp_path, qa_vd_path, qa_vdt_path, mappings_dir, qa_model
 ):
@@ -126,6 +173,11 @@ def test_generate_qa_report_all_years(
     assert "PyPSA export neighbourhood" in html
     assert "year-slider" in html
     assert "netting-toggle" in html
+    assert "Plotly.purge" in html
+    assert "Plotly.newPlot" in html
+    charts = _charts_from_qa_html(html)
+    issues = [issue for chart in charts for issue in validate_sankey_chart(chart)]
+    assert issues == []
     assert "Mixed (same endpoint mixes exported + non-exported)" in html
     assert "Double-count (FOut+FIn both exported)" in html
     assert '"unit": "TWh"' in html
