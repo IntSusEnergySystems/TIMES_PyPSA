@@ -488,7 +488,7 @@ def test_hydrogen_imports_friendly_rename_and_solar_fuel_tech_as_pv():
                 "process_agg": "hydrogen imports",
                 "agg_level_2": "hydrogen imports",
                 "proc_agg__custom": "imported H2 delivery",
-                "proc_agg__sankey_overview": "Fuel refining",
+                "proc_agg__sankey_overview": "Fuel conversion",
                 "com_agg__custom": "hydrogen for industry",
                 "commodity_code": "INDHH2",
                 "commodity": "hydrogen for industry",
@@ -550,3 +550,77 @@ def test_energy_filter_keeps_retrofit_heat_fout():
     kept = filter_energy_carrier_flows(df)
     assert len(kept) == 1
     assert kept.iloc[0]["process_code"] == "Retrofit-T_R_2Fac1945"
+
+
+def test_commercial_other_and_buildings_custom_splits():
+    """Sankey splits services end-uses and residential vs commercial buildings."""
+    from times_pypsa.aggregation import refine_custom_labels_for_readability
+
+    rows = [
+        {
+            "process_code": "CCCOELC100",
+            "process": "Com space cool",
+            "process_agg": "commercial other",
+            "agg_level_2": "commercial other",
+            "proc_agg__custom": "Commercial cooling",
+            "proc_agg__sankey_overview": "Buildings",
+            "com_agg__custom": "Electricity",
+            "commodity_code": "COMELC",
+            "commodity": "Electricity",
+            "pypsa_carrier": "Electricity",
+            "exported": True,
+            "sector": "COM",
+        },
+        {
+            "process_code": "CLIGCOELC501",
+            "process": "Com lighting",
+            "process_agg": "commercial other",
+            "agg_level_2": "commercial other",
+            "proc_agg__custom": "Commercial lighting",
+            "proc_agg__sankey_overview": "Buildings",
+            "com_agg__custom": "Electricity",
+            "commodity_code": "COMELC",
+            "commodity": "Electricity",
+            "pypsa_carrier": "Electricity",
+            "exported": True,
+            "sector": "COM",
+        },
+        {
+            "process_code": "COM_CBAT_CO",
+            "process": "Building Existing CO",
+            "process_agg": "Building Existing CO",
+            "agg_level_2": "Building Existing CO",
+            "proc_agg__custom": "Commercial buildings",
+            "proc_agg__sankey_overview": "Buildings",
+            "com_agg__custom": "Commercial cooling",
+            "commodity_code": "CCCO",
+            "commodity": "cooling",
+            "pypsa_carrier": "Commercial cooling",
+            "exported": False,
+            "sector": "COM",
+        },
+        {
+            "process_code": "RDW_R_4Fac",
+            "process": "Existing Building_4 façades",
+            "process_agg": "Buildings: built area",
+            "agg_level_2": "Buildings: built area",
+            "proc_agg__custom": "Residential buildings",
+            "proc_agg__sankey_overview": "Buildings",
+            "com_agg__custom": "Heat",
+            "commodity_code": "RH4F",
+            "commodity": "heat",
+            "pypsa_carrier": "Heat",
+            "exported": False,
+            "sector": "RSD",
+        },
+    ]
+    df = pd.DataFrame(rows)
+    proc_out, _ = refine_custom_labels_for_readability(
+        df["proc_agg__custom"], df["com_agg__custom"], df
+    )
+    assert proc_out.tolist() == [
+        "Commercial cooling",
+        "Commercial lighting",
+        "Commercial buildings",
+        "Residential buildings",
+    ]

@@ -304,7 +304,25 @@ def infer_overview_process_label(
         # Generation fuel-tech feeds power plants (same chain direction).
         return "Power plants"
     if sector_u == "SUP":
-        return "Fuel refining" if "fuel tech" in blob or ptype in {"PRE", ""} else "Fuel supply"
+        # Biogas methanisation / upgrading = Wallonia local potential (Mt feedstocks
+        # are off the energy Sankey; Local production stands in for them).
+        if any(
+            k in blob
+            for k in (
+                "methanisation",
+                "biogas production",
+                "épuration",
+                "epuration",
+                "digesteur",
+                "digestor",
+            )
+        ) or code_u.startswith(("BWBIOGAZ", "BWSUPGZH", "DIGE")):
+            return "Local production"
+        return (
+            "Fuel conversion"
+            if "fuel tech" in blob or ptype in {"PRE", ""}
+            else "Fuel supply"
+        )
     if "fuel tech" in blob:
         return "End-use fuel tech"
     if l2 == "retrofitting improvements" or code_u.startswith("Retrofit-") or "dum_retrofit" in code_l:
@@ -474,7 +492,38 @@ CUSTOM_PROCESS_FRIENDLY: dict[str, str] = {
     "Retrofitting improvements": "Building retrofits",
     # Import-path H₂ delivery (INDGH2C01_i), not the IMPH2 trade process itself
     "hydrogen imports": "imported H2 delivery",
+    # EV charge path: chargers → TRA_STG → vehicles
+    "TRA_STG_PJ_GW": "EV battery storage",
+    "EV charger": "EV chargers",
 }
+
+# Context labels kept as-is (not collapsed to ``Transport (other)`` / sector other).
+CUSTOM_KEEP_CONTEXT_LABELS = frozenset(
+    {
+        "EV chargers",
+        "EV battery storage",
+    }
+)
+
+# Allowed ``custom`` subclasses when Aggregation Level 2 is export-touching
+# ``commercial other`` (soft-link stays on L2; Sankey splits end-use types).
+CUSTOM_COMMERCIAL_OTHER_SPLITS = frozenset(
+    {
+        "Commercial electrical appliances",
+        "Commercial cooling",
+        "Commercial lighting",
+        "Commercial cooking",
+    }
+)
+
+# Building stock sinks (context): keep residential vs commercial distinct.
+CUSTOM_BUILDINGS_SPLIT_LABELS = frozenset(
+    {
+        "Residential buildings",
+        "Commercial buildings",
+        "Residential cooking",
+    }
+)
 
 _CONTEXT_CARRIER_FAMILIES = frozenset(
     {
@@ -501,9 +550,9 @@ def friendly_custom_process_label(l2: str) -> str:
 CUSTOM_SUPPLY_CHAIN_LABELS = frozenset(
     {
         "Imports & trade",
-        "Local production",
+        "Local production",  # includes Wallonia biogas methanisation / upgrading
         "Fuel supply",
-        "Fuel refining",
+        "Fuel conversion",
         "Power plants",
         "CHP",
         "District heating",
@@ -511,12 +560,19 @@ CUSTOM_SUPPLY_CHAIN_LABELS = frozenset(
         "PV",
         "Onshore wind",
         "Building retrofits",
+        # Electricity storage (charge in / discharge out) — keep out of Power plants
+        "Grid battery storage",
+        "Pumped hydro",
+        "Household battery storage",
+        "EV battery storage",
     }
 )
 
 # Prefer these over coarser Power plants when set in CSV custom.
 # Offshore wind is outside Wallonia — leave IMPELCOFFWIN* under Imports & trade.
-CUSTOM_GENERATION_SPLIT_LABELS = frozenset({"PV", "Onshore wind"})
+CUSTOM_GENERATION_SPLIT_LABELS = frozenset(
+    {"PV", "Onshore wind", "Grid battery storage", "Pumped hydro"}
+)
 
 # Soft-link commodity buckets from extraction_rules.csv (fuel / carrier side).
 # Used to disaggregate leftover "End-use fuel tech" by rule commodity.
@@ -700,11 +756,44 @@ def _generation_split_label(row: pd.Series) -> str:
     return ""
 
 
+def _buildings_split_label(row: pd.Series) -> str:
+    """Residential vs commercial building sinks from CSV custom / L2 / sector."""
+    csv = _clean_text(row.get("proc_agg__custom"))
+    if csv in CUSTOM_BUILDINGS_SPLIT_LABELS:
+        return csv
+    l2 = _clean_text(row.get("agg_level_2") or row.get("process_agg"))
+    sector = _clean_text(row.get("sector")).upper()
+    code = _clean_text(row.get("process_code"))
+    if l2 == "Buildings: built area" or code.startswith("RDW_"):
+        return "Residential buildings"
+    if (
+        l2.startswith("Building Existing")
+        or l2.startswith("Building New")
+        or code.startswith("COM_CBAT_")
+        or code.startswith("COM_CNBAT_")
+    ):
+        return "Commercial buildings"
+    if l2 == "residential cooking":
+        return "Residential cooking"
+    if l2 == "degree-days correction for the base year":
+        return "Residential buildings"
+    if sector == "RSD" and l2.lower().startswith("building"):
+        return "Residential buildings"
+    if sector == "COM" and "building" in l2.lower():
+        return "Commercial buildings"
+    return ""
+
+
 def _context_process_label_row(row: pd.Series) -> str:
     """Coarse role label for processes that are not export-touching at L2."""
+    bldg = _buildings_split_label(row)
+    if bldg:
+        return bldg
     # Honour PV / wind splits and other supply-chain custom labels first.
     for key in ("proc_agg__custom", "proc_agg__sankey_overview"):
         lab = _clean_text(row.get(key))
+        if lab in CUSTOM_BUILDINGS_SPLIT_LABELS:
+            return lab
         if lab in CUSTOM_GENERATION_SPLIT_LABELS or lab in CUSTOM_SUPPLY_CHAIN_LABELS:
             if lab == "Power plants":
                 split = _generation_split_label(row)
@@ -736,6 +825,10 @@ def _context_process_label_row(row: pd.Series) -> str:
     if overview:
         # Distinguish leftover sector mass from named export end-uses.
         if overview in {"Buildings", "Industry", "Transport", "Agriculture"}:
+            if overview == "Buildings":
+                bldg = _buildings_split_label(row)
+                if bldg:
+                    return bldg
             return f"{overview} (other)"
         if overview == "Fuel conversion" or overview == "End-use fuel tech":
             return end_use_fuel_tech_label(
@@ -761,6 +854,10 @@ def _context_process_label_row(row: pd.Series) -> str:
         code=row.get("process_code", ""),
     )
     if label in {"Buildings", "Industry", "Transport", "Agriculture"}:
+        if label == "Buildings":
+            bldg = _buildings_split_label(row)
+            if bldg:
+                return bldg
         return f"{label} (other)"
     if label == "Fuel conversion" or label == "End-use fuel tech":
         return end_use_fuel_tech_label(
@@ -927,12 +1024,19 @@ def refine_custom_labels_for_readability(
 
         if row_l2 and row_l2 in export_l2:
             friendly = friendly_custom_process_label(row_l2)
-            if csv_lab in friendly_values:
+            # Keep commercial-other subclasses (cooling / lighting / …) so the
+            # Sankey does not dump all services electricity into one node.
+            if row_l2 == "commercial other" and csv_lab in CUSTOM_COMMERCIAL_OTHER_SPLITS:
+                new_proc.append(csv_lab)
+            elif csv_lab in friendly_values:
                 new_proc.append(csv_lab)
             elif csv_lab and csv_lab == friendly:
                 new_proc.append(csv_lab)
             else:
                 new_proc.append(friendly)
+        elif csv_lab in CUSTOM_KEEP_CONTEXT_LABELS:
+            # EV chargers etc.: context but intentionally named (not Transport (other)).
+            new_proc.append(csv_lab)
         else:
             new_proc.append(_context_process_label_row(row))
     proc_out = pd.Series(new_proc, index=df.index, dtype=object)

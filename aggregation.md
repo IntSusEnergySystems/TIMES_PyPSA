@@ -102,7 +102,7 @@ Extraction filters on **Aggregation Level 2** (`process_agg` in `extraction_rule
 
 | Side | Keep individual | Collapse |
 |------|-----------------|----------|
-| **Processes** | **Supply-chain roles** (parallel, same direction): `Imports & trade`, `Local production` (MIN*), `Fuel refining`, `Power plants` (incl. ELC generation fuel-tech). **Plus** Aggregation Level 2 labels on any exported row (soft-link grain, with friendly renames). | Remaining context → `End-use fuel tech`, sector `(other)`, … — never merge upstream primary with downstream end-use |
+| **Processes** | **Supply-chain roles** (parallel, same direction): `Imports & trade`, `Local production` (MIN* + Wallonia biogas), `Fuel conversion`, `Power plants`, electricity storage / EV chargers. **Plus** Aggregation Level 2 labels on any exported row (soft-link grain, with friendly renames). | Remaining context → `End-use fuel tech`, sector `(other)`, … — never merge upstream primary with downstream end-use |
 | **Commodities** | Export-touching codes keep one specific label for all rows of that code | Other carriers → `{family} (context)` |
 
 After commodity-hub collapse, **reciprocal process↔process ribbons are netted** when the netting toggle is on (`net_collapsed_process_links`), so A→B and B→A from coarse hubs do not appear as loops.
@@ -112,18 +112,23 @@ After commodity-hub collapse, **reciprocal process↔process ribbons are netted*
 | Aggregation Level 2 | `custom` display |
 |---------------------|------------------|
 | `residential other` | Household electrical appliances |
-| `commercial other` | Commercial electrical appliances |
+| `commercial other` | Commercial electrical appliances (default); CSV subclasses kept: **Commercial cooling**, **Commercial lighting**, **Commercial cooking** |
 | `Retrofitting improvements` | Building retrofits |
 | `hydrogen imports` | imported H2 delivery |
+| `Buildings: built area` (`RDW_*`) | **Residential buildings** |
+| `Building Existing/New *` (`COM_CBAT_*`) | **Commercial buildings** |
+| `residential cooking` | Residential cooking |
 
 **Supply-chain roles (do not merge across steps)**
 
 | Label | Meaning |
 |-------|---------|
 | Imports & trade | `.IMP.IRE.` / import processes |
-| Local production | `.MIN.IRE.` domestic potentials (solar/wind/biomass/…) |
-| Fuel refining | SUP synthesis / refining |
-| Power plants | Generation (thermal, hydro, …) — **excluding** PV / onshore wind splits below |
+| Local production | `.MIN.IRE.` domestic potentials **and** Wallonia biogas methanisation/upgrading (`BWBIOGAZ100`, `BWSUPGZH100`, digestor heat) — stands in for Mt feedstocks off the energy Sankey |
+| Fuel conversion | SUP synthesis / blending / H₂ (formerly misnamed “Fuel refining”) |
+| Power plants | Generation (thermal, nuclear, …) — **excluding** PV / onshore wind / electricity storage |
+| Grid / pumped / household / EV battery storage | Electricity STG with charge FIn + discharge FOut (kept out of Power plants) |
+| EV chargers | Home/work chargers (`TCHARG*`) — electricity → `BATELCIN` (context; not soft-linked) |
 | PV | Utility + rooftop / sector PV (`ERNW_PV*`, `*PVELC`, `ELCSOL00` / `RSDSOL00` / `COMSOL00`) |
 | Onshore wind | Onshore turbines (`ERNW_WINON*`, `ERNW_Eolien*`, wind fuel-tech ELC) |
 | CHP | Combined heat & power plants (`Type=CHP`, public/industrial/tertiary CHP) |
@@ -247,8 +252,7 @@ Goal: a whole-system Sankey with **at most ~20 nodes**, still reflecting the mai
 | Power plants | Electricity sector generation (not fuel-tech PRE) |
 | CHP | `Type=CHP` or CHP Aggregation Level 2 |
 | District heating | District heating / heat-exchanger labels |
-| Fuel supply | `Sector=SUP` |
-| Fuel conversion | “Fuel Tech …” processes in end-use sectors / ELC |
+| Fuel supply / Fuel conversion | `Sector=SUP` (overview uses **Fuel conversion** for SUP synthesis + end-use SUP fuel techs) |
 | Industry / Buildings / Transport / Agriculture | Remaining DMD/PRE activity by sector (`RSD`+`COM` → Buildings) |
 
 **Commodity side (8 labels)** — cluster by energy carrier family (keywords on carrier / cluster / code):
@@ -333,7 +337,7 @@ Working notes while reading the whole-system energy Sankey. Goal: understand fir
 
 Local biogas: methanisation → `BIOGAS` → upgrade → `BIOGZH` → same mix.
 
-**Fixes applied.** Map `SUPGMX`, `BIOGAS`, `BIOGZH` (and keep Imports / Fuel refining as the upstream nodes).
+**Fixes applied.** Map `SUPGMX`, `BIOGAS`, `BIOGZH` (and keep Imports / Fuel conversion / Biogas production as the upstream nodes).
 
 **Still open.** Whether `BIOEFF` (effluents, Mt) should ever appear on an energy Sankey (currently excluded — no PJ carrier). Soft-link methane rules still export **VAR_FIn** into industry/TRA gas fuel techs; residential/commercial `Fuel tech · methane` is mostly context unless those L2 labels are in `extraction_rules.csv`.
 
@@ -343,7 +347,7 @@ Local biogas: methanisation → `BIOGAS` → upgrade → `BIOGZH` → same mix.
 
 **Cause.** Real TIMES structure, not wrong process lumping. Only `INDGH2C01_i` sits under that label: import-path twin of `INDGH2C01` (delivery COMP+TR+DP). Topology: `IMPH2` (trade) → commodity `IMPH2` + `ELCHIG` (compression) → `INDGH2C01_i` → `INDHH2`. Electricity / H₂-in ≈ 6.6% (same as domestic path). The Sankey hid ~20 PJ (2050) `IMPH2` FIn because **`IMPH2` was absent from `mapping_commodities.csv`**. Node appears from **2045** onward (absent in 2030).
 
-**Fixes applied.** Map `IMPH2`; display rename → **imported H2 delivery** (Agg Level 2 stays `hydrogen imports` for extraction); `sankey_overview` → Fuel refining.
+**Fixes applied.** Map `IMPH2`; display rename → **imported H2 delivery** (Agg Level 2 stays `hydrogen imports` for extraction); `sankey_overview` → Fuel conversion.
 
 ### Commercial Heat pump COP ≈ 10?
 
@@ -379,11 +383,11 @@ Local biogas: methanisation → `BIOGAS` → upgrade → `BIOGZH` → same mix.
 | **B** Heat pump / lighting service | Residential/commercial HP; household LED (`RLIG*`) | Ambient mapped; lighting 5× is TIMES (documented) |
 | **C** Aggregation / missing map | LTH solar→PV; pellet `RSDPEL`; home battery under appliances | **Fixed** |
 | **D** Retrofit | Building retrofits | Expected FOut-only heat savings — no fix |
-| **E** Other | Fuel refining surplus (~20 PJ Sankey gap in 2050) | Partly physical (biogas/`BBLQH2G110`); not fully drilled — see still open |
+| **E** Other | (was Fuel refining surplus) | **Resolved** as biogas Mt-feedstock gap + CO₂ misread on `BBLQH2G110` — see Biogas / Fuel conversion section |
 
 CHP, Power plants, PV, Onshore wind, Fuel tech · methane, imported H2 delivery: balanced or FIn>FOut after fixes.
 
-**Still open.** Fuel refining Sankey surplus (biogas / black-liquor H₂ pathways) — confirm missing fuel maps vs expected primary conversion. `RSDCPS` chips if used by heaters.
+**Still open.** `RSDCPS` chips if used by heaters.
 
 ### Transport (other) → Industry; low efficiency; not blue
 
@@ -417,18 +421,119 @@ CHP, Power plants, PV, Onshore wind, Fuel tech · methane, imported H2 delivery:
 
 **Fixes applied.** Specific `custom` labels for `OILDST`/`OILKER`/`TRAKER`/…; refine treats `{family} (context)` as coarse for export hubs; process display split → `Fuel tech · kerosene` / `· oil` / `· diesel` / `· gasoline` (industry HFO/LFO/NEO stay `naphtha` for soft-link). Remaining small **biodiesel → diesel TRA** ribbon is real blending (`TRABDL` into `TRADST00`).
 
+### Domestic navigation — “not exported”?
+
+**Verdict:** **No** — it **is** soft-linked. Category `total domestic navigation` exports **0.45 TWh (1.62 PJ) in 2030** (`wallon_demands_*.csv`).
+
+**TIMES structure**
+
+| Piece | Code | Role | Soft-link |
+|-------|------|------|-----------|
+| Existing inland freight | `TNDFDST00` | DEM; FIn `TRADST` diesel (~0.57 PJ); FOut `TNDF` (~1.62) | Process L2 = `domestic navigation` |
+| New biodiesel inland | `TNAINLBDLN01` | Same `TNDF` commodity; **zero** in this scenario | Was wrongly mapped as Road Freight — **fixed** → `domestic navigation` |
+| Service commodity | `TNDF` | Inland freight activity (VEDA unit **Btkm**; mapping treats as PJ like aviation `TAIF`/`TAIP`) | Carrier `domestic navigation`; rule = **VAR_FOUT** |
+
+**Why the Sankey looks like it is missing**
+
+1. Soft-link quantity is **FOut-only** `TNDF` → after commodity collapse it becomes a magenta **`U · domestic navigation`** sink (same pattern as aviation), not a blue process→process ribbon.
+2. The **diesel energy** into ships sits on `TRADST` / `Fuel Tech - Diesel (TRA)` and is counted under **`total road`**, not under `total domestic navigation` (rule filters `pypsa_carrier=domestic navigation`, which only matches `TNDF`).
+
+**Do not “fix” by dropping road diesel or inventing a second energy export** without modeller agreement — that would double-count or break the aviation-parallel design. Optional follow-ups (open): export `VAR_FIN` diesel into navigation **and** subtract from `total road`; or keep activity export and accept magenta sink as the QA view of the soft-link.
+
+### Commercial appliances → Buildings; residential vs commercial mix
+
+**What it looked like.** Large ribbon from **Commercial electrical appliances** into **Buildings (other)**; hover commodities mixed cooling, lighting, refrigeration, etc.; commercial heat exchangers also fed the same generic Buildings node.
+
+**Causes**
+
+1. Process L2 `commercial other` (soft-link `total electricity services`) bundled **cooling (`CC*`)**, **lighting (`CLIG*`)**, servers/refrigeration/other electric into one friendly Sankey label.
+2. Lighting commodities `CLIG*` / `COEL` were **unmapped** → energy filter dropped much of the lighting FOut (diagram understated / skewed toward mapped cooling + `COSE`/`CREF`).
+3. Context refine collapsed all building DEM to **`Buildings (other)`**: residential `RDW_*` **and** commercial `COM_CBAT_*` together — so commercial heat (`CH*` / `CW*` from **Commercial Heat Exchanger**) looked like it heated “Buildings” in general.
+
+**Fixes applied (Sankey / mappings only — extraction L2 unchanged)**
+
+- Split `custom` process labels: **Commercial cooling** / **Commercial lighting** / **Commercial cooking** / **Commercial electrical appliances**; refine keeps subclasses when L2 is export-touching `commercial other`.
+- Split building sinks: **Residential buildings** vs **Commercial buildings** (+ **Residential cooking**).
+- Map `CLIG*` → carrier/custom **Commercial lighting**; map `COEL` → **Commercial appliance services**.
+- Heat exchanger → **Commercial buildings** is now the expected path.
+
+**Still open.** Soft-link remains a **single** `total electricity services` total (all `commercial other` electricity FIn). Whether PyPSA should later split cooling vs appliances is a coupling-design question. Leftover `Buildings (other)` may still hold commercial retrofit dummies (`Retrofit-M_C_*`) / `CHSADUM-DEM`. `COEN` stays unmapped (Mm², not PJ).
+
+### Power plants → CHP (not electricity)
+
+**What it looked like.** A ribbon from **Power plants** into **CHP** with unclear commodities; expectation was that Power plants only export electricity.
+
+**Cause (2030, ~3.6 TWh).** Not generator electricity. ELC-sector **fuel-tech PRE** processes (`ELCWST00`, `ELCSLU00`, `ELCPEL00`, `ELCBIO00`) were labelled `custom`/`sankey_overview` = **Power plants**. They produce waste/pellet/biomass commodities (`ELCWST`, `ELCSLU`, `ELCPEL`, `ELCBIO`) that true CHP / waste plants consume (`ETSTP_TVC_WST_E11`, `ECHPP_CHP_WOO_N`, `ECHPP_COM_BGS_E05`). Collapse therefore drew **Power plants → CHP** for **fuels**.
+
+There is also a smaller reverse path **CHP → grid** (`ELCHIG` into `EVTRANS_*` / pumped hydro) — real electricity; direction opposite.
+
+**Fixes applied.** Move ELC `ELC*00` fuel techs to **`Fuel tech · {solid biomass, methane, oil, nuclear, hydro}`** (overview Fuel conversion). Power plants keep generators (+ grid/storage still under that bucket for now). Expected Sankey: **Fuel tech · solid biomass → CHP**, not PP→CHP.
+
+**Still open.** `ETSTP_TVC_WST_E11` remains Type=CHP but description “Pure ELC” (waste condensation turbine).
+
+### Fuel refining → biogas / Fuel conversion
+
+**What it looked like.** A large **Fuel refining** node in 2050 (~biogas scale in TWh) with little visible FIn — as if refining were a primary source. Name also poorly matched the processes.
+
+**TIMES biogas pathway (confirmed)**
+
+| Step | Process | Role | 2050 |
+|------|---------|------|------|
+| Local feedstocks (Mt) | `MINBIOEFF`, `MINBIOCUL`, `MINBIOBOU`, (+ `IMPBIOEFF`) | Effluents / energy crops / boues | mass — **not** on energy Sankey |
+| Local sludge (PJ) | `MINBIOSLUH` → `BIOSLUH` | Sludge for methanisation | ~1.3 PJ |
+| Existing / landfill biogas | `MINBIOGAS`, `MINCETGAS` | Direct `BIOGAS` | ~2.6 PJ |
+| Digestor heat | `DIGEOIL100` (diesel → `SUPHET`) | Heat for methanisation | ~1.2 PJ |
+| Methanisation | `BWBIOGAZ100` | → `BIOGAS` | **26.4 PJ** |
+| Upgrading | `BWSUPGZH100` (was unmapped) | `BIOGAS` → `BIOGZH` | **29.1 PJ** |
+| Already-injected | `MINBIOGZH` | Direct `BIOGZH` | ~0.27 PJ |
+| Network mix | `SUPGMX00` | In 2050: **only** `BIOGZH` → `SUPGMX` (no fossil `GASNAT`) | **29.3 PJ ≈ 8.1 TWh** |
+
+So the ~8 TWh “refining” story in 2050 is **Wallonia biomethane potential** (methanisation + upgrade), not oil refining. 2030 is only ~1.1 TWh BIOGZH; ramp completes by ~2040.
+
+**Why FOut ≫ FIn on the old node.** Energy filter keeps only mapped PJ carriers. Mt feedstocks (`BIOEFF`/`BIOCUL`/`BIOBOU`) stay out (correct — not PJ). Only digestor heat + sludge + some MIN biogas were visible → methanisation looked primary.
+
+**Black-liquor H₂ (`BBLQH2G110`).** Apparent huge FOut was **`INDCO2b` biomass CO₂** (dropped by emission filter). Real energy: ~4 PJ `INDBLQ` → ~2.4 PJ `SYNH2CT`.
+
+**Fixes applied.** Rename **Fuel refining → Fuel conversion**; put methanisation/upgrading under **Local production** (stands in for Mt feedstocks); add `BWSUPGZH100` to mapping; map `BIOSLUH`. Local production FOut now includes ~29 PJ BIOGAS + ~29 PJ BIOGZH in 2050.
+
+**Still open.** Whether soft-link/Phase-2 should treat Wallonia biogas potential as a PyPSA local supply.
+
+### EV chargers / `TRA_STG_PJ_GW` (was Transport (other) → TRA_STG)
+
+**What `TRA_STG_PJ_GW` is.** Process `TSTGEVCMIDN01` (`Type=STG`): Wallonia **EV fleet battery storage** buffer. Topology: `BATELCIN` IN (from chargers) → `BATELCOUT` OUT (to electric vehicles). Soft-linked under `electricity road` / `total road` (charge FIn).
+
+**What looked like a self-loop.** Opaque labels **Transport (other)** → **TRA_STG_PJ_GW**. Transport (other) was almost only `TCHARG*` (home/work EV chargers: electricity in → `BATELCIN` out). Not a self-loop — the real path is:
+
+`… electricity → EV chargers → EV battery storage → Cars`
+
+**Fixes applied.** Rename Transport (other) → **EV chargers**; TRA_STG → **EV battery storage**; keep L2 `TRA_STG_PJ_GW` for extraction. Protect EV charger label from collapsing back to `(other)`.
+
+### Electricity storage (batteries / pumped hydro)
+
+**What it looked like.** No clear storage nodes with charge in / discharge out — grid batteries and pumped hydro were swallowed by **Power plants**; household battery existed but looked FIn-only after netting.
+
+**Cause.** TIMES storage uses the **same** electricity commodity for charge and discharge (`ELCHIG` for grid/pumped; `RSDELC` for home). Under one Power plants label those become self-loops (dropped). Merging `ELCHIG`+`RSDELC` as custom `Electricity` also mixed hubs. Contrast **EV battery storage** (`TRA_STG`), which has distinct `BATELCIN` / `BATELCOUT`.
+
+**Fixes applied.** Separate process labels: **Grid battery storage** (`ESTBATS*`), **Pumped hydro**, **Household battery storage**. Distinct customs: `Grid electricity (HV)` / `Residential electricity`.
+
+**Still open.** Proportional collapse still spreads discharge across all consumers of that electricity hub. Optional: storage-specific charge/discharge commodity aliases.
+
 ---
 
 ## Change log (aggregation / Sankey understanding)
 
 | Date | Change | Reason |
 |------|--------|--------|
+| 2026-07-22 | Biogas under Local production; EV chargers + EV battery storage renames | LP replaces Mt feedstocks; clarify TRA_STG path |
+| 2026-07-22 | Rename Fuel refining→Fuel conversion; map `BWSUPGZH100`/`BIOSLUH`; storage nodes + split HV/residential electricity | Biogas≈8 TWh Wallonia potential; storage charge/discharge invisible under PP |
+| 2026-07-21 | ELC `ELC*00` fuel techs: Power plants → `Fuel tech · …` | Fake PP→CHP fuel ribbon; PP should mainly show electricity |
+| 2026-07-21 | Split commercial other + residential/commercial buildings on `custom`; map `CLIG*`/`COEL`; fix `TNAINLBDLN01` → domestic navigation; document navigation soft-link | Notes: nav “missing”; appliances→Buildings mix; HX→Buildings |
 | 2026-07-21 | Map `BATELCIN`; distinct `BATELCOUT`/`INDELC`/`OILDST`/kerosene/`BIOCPS` customs; refine rejects `{family} (context)` as export-hub labels; fuel-tech display split kerosene/oil/diesel/gasoline | TO→Industry + naphtha↔diesel artifacts; TRA_STG swallowed by Transport (other) |
 | 2026-07-21 | Heat pumps: `sankey_overview` CHP→Buildings; `infer_overview_process_label` excludes heat-pump / `ELCHP`; refine no longer lets overview `CHP` override a specific custom label | CHP node mixed heat pumps (COP) with true CHP → FOut ≫ FIn |
 | 2026-07-21 | Map commodities `SUPGMX`, `BIOGAS`, `BIOGZH` | Methane fuel techs lost FIn under energy filter → looked primary |
 | 2026-07-21 | Map `ELCPEL`, `ELCWST`, `ELCSLU` and industrial HTH `IPPHTH`/`IOFHTH`/`IBOHTH`/`IPOHTH`/`IMLHTH`/`INMHTH` | True CHP fuel in / process-heat out were dropped |
 | 2026-07-21 | Document CHP + methane findings and open TIMES questions (this section) | Keep uncertainties visible; no silent “fixes” |
-| 2026-07-21 | Map `IMPH2`; rename `hydrogen imports` → `imported H2 delivery`; overview Fuel refining | Missing IMPH2 hid H₂ FIn; electricity is real compression |
+| 2026-07-21 | Map `IMPH2`; rename `hydrogen imports` → `imported H2 delivery`; overview Fuel conversion | Missing IMPH2 hid H₂ FIn; electricity is real compression |
 | 2026-07-21 | Map `RSDAHT`/`COMAHT`; fix `CC*` to Commercial cooling | Residential Sankey COP; cooling mislabelled as appliances |
 | 2026-07-21 | `RSDSOL00`/`COMSOL00` → PV; map `INDHTH`/`RENMINGEO` | LTH FOut≫FIn was solar→PV feedstock mis-bucketed as heat |
 | 2026-07-21 | Map `RSDPEL`/`COMPEL`; move `RSDLIONBATS01` out of household appliances; document LED lighting 5× | Appliances/biomass FOut>FIn: lighting service + missing pellets + battery mislabel |
