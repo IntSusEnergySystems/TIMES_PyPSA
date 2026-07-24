@@ -10,7 +10,10 @@ import pandas as pd
 import plotly.graph_objects as go
 
 from times_pypsa.aggregation import (
+    PYPSA_SECTOR_COLORS,
+    PYPSA_SECTOR_ORDER,
     aggregate_flows,
+    assign_export_sectors,
     build_sankey_label_map,
     collapse_commodity_nodes,
     net_collapsed_process_links,
@@ -54,6 +57,7 @@ from times_pypsa.sankey_html import (
     collect_typed_nodes,
     export_status_color,
     export_status_hover,
+    link_color,
     link_export_status,
     links_to_records,
     node_display_label,
@@ -224,8 +228,9 @@ def prepare_export_sankey_links(
         )
         if apply_netting:
             links = net_collapsed_process_links(links)
-        return links
-    return sankey_links_from_flows(agg, flow_threshold=flow_threshold)
+        return assign_export_sectors(links, agg, anchor=True)
+    links = sankey_links_from_flows(agg, flow_threshold=flow_threshold)
+    return assign_export_sectors(links, agg, anchor=False)
 
 
 def prepare_system_sankey_links(
@@ -268,8 +273,9 @@ def prepare_system_sankey_links(
         )
         if apply_netting:
             links = net_collapsed_process_links(links)
-        return links
-    return sankey_links_from_flows(agg, flow_threshold=flow_threshold)
+        return assign_export_sectors(links, agg, anchor=True)
+    links = sankey_links_from_flows(agg, flow_threshold=flow_threshold)
+    return assign_export_sectors(links, agg, anchor=False)
 
 
 def tag_flows_with_rules(
@@ -365,7 +371,8 @@ def build_colored_sankey(
         v = pj_to_display(float(row["value"]), units)
         cats = str(row.get("matched_categories", "") or "")
         status = link_export_status(row)
-        colors.append(export_status_color(status))
+        sector = str(row.get("export_sector", "") or "").strip()
+        colors.append(link_color(status, sector))
         if has_kinds:
             sk = str(row["source_kind"])
             tk = str(row["target_kind"])
@@ -385,7 +392,10 @@ def build_colored_sankey(
         if commodity:
             tip += f"<br>Commodity flow: {commodity.replace('|', ', ')}"
         tip += export_status_hover(
-            status, cats, export_detail=str(row.get("export_detail", "") or "")
+            status,
+            cats,
+            export_detail=str(row.get("export_detail", "") or ""),
+            export_sector=sector,
         )
         customdata.append(tip)
         sources.append(node_index[sk_key])
@@ -425,14 +435,16 @@ def build_colored_sankey(
             dict(
                 text=(
                     "Nodes: process (green) · U · demand/imbalance residual (magenta). "
-                    "Commodities are flows. Links: blue=exported, purple=double-count "
-                    "(FOut+FIn), grey=context, light red=mixed"
+                    "Commodities are flows. Exported links coloured by PyPSA sector: "
+                    "Industry (blue) · Transport (orange) · Residential (red) · "
+                    "Services (teal) · Agriculture (brown). Grey = not exported; "
+                    "purple = double-count (should not occur)."
                 ),
                 showarrow=False,
                 xref="paper",
                 yref="paper",
                 x=0,
-                y=-0.06,
+                y=-0.08,
                 align="left",
                 font=dict(size=11, color="#444"),
             )
@@ -874,12 +886,14 @@ def generate_qa_report(
                 "nodes named after the demand process (hover explains). "
                 "Only unexplained imbalances keep an <em>Unbalanced …</em> label and "
                 "are logged as errors. "
-                "Process nodes are green; link colours: blue = soft-link path "
-                "(exported endpoint); purple = double-count (FOut+FIn both exported); "
-                "grey = context; light red = mixed endpoint "
-                "(same node still mixes exported + non-exported rows). "
-                "Blue PJ is path energy after collapse/netting — residual export "
-                "mass may sit in magenta U · sinks rather than light-red links."
+                "Process nodes are green; exported links are coloured by PyPSA "
+                "<strong>sector</strong> — Industry (blue), Transport (orange), "
+                "Residential (red), Services (teal), Agriculture (brown); grey = "
+                "not exported. Soft-linked fuel inputs are anchored to the demand "
+                "inflow (e.g. industry fuel exports on the <em>Fuel Tech (IND) → "
+                "Industry</em> links). Coloured PJ is path energy after "
+                "collapse/netting — some residual export mass sits in magenta U · "
+                "sinks rather than coloured links."
             ),
         ),
         build_sankey_dataset(
@@ -891,12 +905,13 @@ def generate_qa_report(
             nodes_by_year=export_nodes,
             units=units,
             subtitle=(
-                "Exported flows (blue links), double-count FOut+FIn (purple), "
-                "non-exported flows (grey), and mixed links (light red). "
-                "Process nodes green; U · magenta = demand / view-truncation residual. "
-                "Unlike view A, this diagram keeps only the export neighbourhood "
-                "(matched flows ± one hop), so many magenta nodes are omitted "
-                "upstream producers or downstream consumers — not TIMES errors."
+                "Exported flows coloured by PyPSA sector (Industry blue, Transport "
+                "orange, Residential red, Services teal, Agriculture brown); grey = "
+                "not exported. Process nodes green; U · magenta = demand / "
+                "view-truncation residual. Unlike view A, this diagram keeps only "
+                "the export neighbourhood (matched flows ± one hop), so many magenta "
+                "nodes are omitted upstream producers or downstream consumers — not "
+                "TIMES errors."
             ),
         ),
     ]
@@ -956,12 +971,14 @@ def generate_qa_report(
   Sankey views use those CSV labels; export neighbourhoods add n−1/n+1 context.
   Each diagram has a year timeline and a netting toggle.
 </div>
-<div class='legend'><strong>Link colours:</strong>
-  <span style='background:{EXPORTED_COLOR};color:#fff'>Exported to pypsa-wal</span>
-  <span style='background:{DOUBLE_COUNT_COLOR};color:#fff'>Double-count (FOut+FIn both exported)</span>
+<div class='legend'><strong>Exported link colours (by PyPSA sector):</strong>
+  {"".join(f"<span style='background:{PYPSA_SECTOR_COLORS[s]};color:#fff'>{s}</span>" for s in PYPSA_SECTOR_ORDER)}
   <span style='background:{CONTEXT_COLOR}'>Not exported</span>
-  <span style='background:{MIXED_COLOR}'>Mixed (same endpoint mixes exported + non-exported)</span>
+  <span style='background:{DOUBLE_COUNT_COLOR};color:#fff'>Double-count (should not occur)</span>
 </div>
+<p class='meta'>Soft-linked fuel inputs are anchored to the demand inflow: e.g. industry
+fuel exports appear on the <em>Fuel Tech (IND) → Industry</em> links, not on the
+upstream import/power-plant links.</p>
 <h2>Summary ({latest})</h2>
 <ul>
   <li>Years in report: {", ".join(str(y) for y in active_years)}</li>

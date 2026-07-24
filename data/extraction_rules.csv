@@ -52,4 +52,5 @@ services oil boiler,VAR_FOUT,combined,process_agg,Commercial Oil boiler,pypsa_ca
 services geothermal,VAR_FOUT,combined,process_agg,commercial Geothermal,pypsa_carrier,Heat
 services electric heater,VAR_FOUT,combined,process_agg,Commercial electrical stove,pypsa_carrier,Heat
 services solar thermal,VAR_FOUT,combined,process_agg,Commercial solar thermal,pypsa_carrier,Heat
+residential cooking,VAR_FIN,process_agg,process_agg,residential cooking,,
 retro,VAR_FOUT,combined,process_agg,Retrofitting improvements,,

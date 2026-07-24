@@ -1,39 +1,26 @@
-there seem to be more energy going out of the pumped hydro process than coming in. 
-    e.g. in 2030: 0.47 TWh in and 0.93 TWh out. This is not possible for a pumped hydro storage
-7.39 TWh for freight vs 1.03 TWh for passenger aviation in 2030 => plausible? did we miss anything?
-there is a flow from TSTGEVCMIDN01 towards Cars that is not exported. 
-    What is it?
-    Must it be added to pypsa exports?
+we are solving the issues in the sankey in the pypsa export one by one, following the above instruction and logging briefly the issues that have been solved and more extensively the issues that could not be solved and still require attention. 
+Focus on these issues:
+
 in 2050 (and only in 2050), there is a flow from Fuel Tech - Nuclear to "Gas power plants"
     In the previous years, this flow is correctly directed towards the tihange power plant
     why do we have that in 2050?
 Residential cooking (commodity: Rsd.Cooking.Existing) does not seem to be exported to pypsa.
-The flow from TSTGEVCMIDN01 to "Cars" is not exported
-    what is TSTGEVCMIDN01?
-    Should it be exported? in what form?
+
 In 2050, there is hydrogen import (0.63 TWh) feeding process "CHP", which produces only heat for "fuel tech heat". 
     what is this? 
     is it correct? no electricity generation?
 heat flow Dum_Retrofit_Commercia -> Buildings built are: 0.34 TWh in 2050
     What is this
     it is not exported to pypsa. Should it be?
-"Commercial heat pump" appear "out of the blue". it provides heat, but does not seem to consume anything
 
-retrofit_T_C_en
-Electric Washing Machine
-Com.Refrigeration.ELC.301.Refrigerator
+- wy is there a flow from pumped hydro to "grid battery storage". To be corrected if necessary
+    → SOLVED (Sankey artifact): both charge/discharge on shared ELCHIG. Proportional
+      commodity-hub collapse invented Pumped hydro → Grid battery. Now drop links
+      between ELECTRICITY_STORAGE_SANKEY_LABELS (grid battery / pumped / household).
+      Real path remains grid/generators ↔ each storage; FIn>FOut on each storage = losses.
+- "tranport (other)" a right hand side node, is too vague. Is it individual passengeer transport? public? freight? This should be clarified
+    → SOLVED (labels): was a refine dump of *all* vehicle DEM (Cars + Road Freight +
+      buses + mopeds) because those L2 labels are not soft-linked (fuel techs are).
+      Keep context customs: **Cars** (private passenger), **Road Freight**,
+      **Road transport (public)**, **2 and 3 wheelers**. Soft-link unchanged.
 
-
-
-is correct to say that "domestic navigation" is not captured in the soft-linking (not exported to pypsa)
-    if yes, how should this be corrected?
-there is large flow from commercial electrical appliances towards Buildings
-    the commodities seem ver divers (cooling, heat, etc). shoun't they be separated?
-    isn't there a confusion between residential buildings and commercial buildings? 
-About the fuel refining uncertainty:
-    it would be nice to have a log at the biogas transformation pathways
-    how are they modeled in times?
-    The number of TWh in 2050 seems to correspond to biogas potential of wallonia...
-    if this is confermed, it should be linked to a local production. 
-    "refining" is also a poorly selected name...
-    

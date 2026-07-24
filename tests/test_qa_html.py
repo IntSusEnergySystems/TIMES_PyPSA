@@ -15,6 +15,7 @@ from times_pypsa.qa import (
     prepare_system_sankey_links,
     tag_flows_with_rules,
 )
+from times_pypsa.aggregation import PYPSA_SECTOR_COLORS
 from times_pypsa.sankey_html import (
     CONTEXT_COLOR,
     DOUBLE_COUNT_COLOR,
@@ -101,9 +102,13 @@ def test_collapsed_system_sankey_is_mostly_process_nodes(tagged_2030):
     assert "context" in statuses or "exported" in statuses or "double_count" in statuses
     records = links_to_records(links)
     colours = {r["color"] for r in records}
-    assert colours.issubset(
-        {EXPORTED_COLOR, CONTEXT_COLOR, MIXED_COLOR, DOUBLE_COUNT_COLOR}
-    )
+    allowed = set(PYPSA_SECTOR_COLORS.values()) | {
+        EXPORTED_COLOR,
+        CONTEXT_COLOR,
+        MIXED_COLOR,
+        DOUBLE_COUNT_COLOR,
+    }
+    assert colours.issubset(allowed)
 
 
 def test_system_sankey_wider_than_export_neighbourhood(tagged_2030):
@@ -178,8 +183,11 @@ def test_generate_qa_report_all_years(
     charts = _charts_from_qa_html(html)
     issues = [issue for chart in charts for issue in validate_sankey_chart(chart)]
     assert issues == []
-    assert "Mixed (same endpoint mixes exported + non-exported)" in html
-    assert "Double-count (FOut+FIn both exported)" in html
+    # New sector-based export legend (replaces the old blue/light-red scheme).
+    assert "by PyPSA sector" in html
+    for sector in ("Industry", "Transport", "Residential", "Services", "Agriculture"):
+        assert sector in html
+    assert "Not exported" in html
     assert '"unit": "TWh"' in html
     assert any(p.name.startswith("qa_flows_") for p in out_dir.glob("qa_flows_*.csv"))
 

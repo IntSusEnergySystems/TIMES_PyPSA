@@ -1,11 +1,11 @@
 Technology (Process),PyPSA technology,Sector,Set,Description,Activity unit,Capacity unit,Type,Primary commodity group,Time slice level,Vintage,Aggregation Level 1,Aggregation Level 2,sankey_overview,custom
 AGRAPP00,agriculture electricity,AGR,.DMD.,Base year electrical appliances,PJ,PJA,DMD,AGRAP,ANNUAL,"0,00",Agriculture,Agriculture,Agriculture,Agriculture
-AGRBDL00,Fuel Tech – Biodiesel,AGR,.PRE.,Fuel Tech - Biodiesel (AGR),PJ,PJA,PRE,AGRBDL,ANNUAL,"0,00",Fuel Tech – Biodiesel,Fuel Tech – Biodiesel,End-use fuel tech,End-use fuel tech
-AGRBGS00,Fuel Tech - Biogas,AGR,.PRE.,Fuel Tech - Biogas(AGR),PJ,PJA,PRE,AGRBGS,ANNUAL,"0,00",Fuel Tech - Biogas,Fuel Tech - Natural Gas biogas mixed,End-use fuel tech,End-use fuel tech
-AGRCPS00,Fuel - Tech - bois chips,AGR,.PRE.,Fuel - Tech - bois chips (AGR),PJ,PJA,PRE,AGRCPS,ANNUAL,"0,00",Fuel - Tech - bois chips,Biofuels,Agriculture,Agriculture (other)
-AGRELC00,Fuel Tech - Electricity ,AGR,.PRE.,Fuel Tech - Electricity (AGR),PJ,PJA,PRE,AGRELC,DAYNITE,"0,00",Fuel Tech - Electricity ,Fuel Tech - Electricity ,End-use fuel tech,End-use fuel tech
-AGRGMX00,Fuel Tech - gas mix réseau,AGR,.PRE.,Fuel Tech - gas mix réseau,PJ,PJA,PRE,AGRGMX,ANNUAL,"0,00",Fuel Tech - gas mix réseau,Fuel Tech - Natural Gas biogas mixed,End-use fuel tech,End-use fuel tech
-AGRHET00,Fuel Tech - Low Temperature Heat,AGR,.PRE.,Fuel Tech - Low Temperature Heat (AGR),PJ,PJA,PRE,AGRHET,SEASON,"0,00",Fuel Tech - Low Temperature Heat,Fuel Tech - Low Temperature Heat,End-use fuel tech,End-use fuel tech
+AGRBDL00,Fuel Tech – Biodiesel,AGR,.PRE.,Fuel Tech - Biodiesel (AGR),PJ,PJA,PRE,AGRBDL,ANNUAL,"0,00",Fuel Tech – Biodiesel,Fuel Tech – Biodiesel,End-use fuel tech,Biodiesel production
+AGRBGS00,Fuel Tech - Biogas,AGR,.PRE.,Fuel Tech - Biogas(AGR),PJ,PJA,PRE,AGRBGS,ANNUAL,"0,00",Fuel Tech - Biogas,Fuel Tech - Natural Gas biogas mixed,End-use fuel tech,Biogas production
+AGRCPS00,Fuel - Tech - bois chips,AGR,.PRE.,Fuel - Tech - bois chips (AGR),PJ,PJA,PRE,AGRCPS,ANNUAL,"0,00",Fuel - Tech - bois chips,Biofuels,Agriculture,Biomass production
+AGRELC00,Fuel Tech - Electricity ,AGR,.PRE.,Fuel Tech - Electricity (AGR),PJ,PJA,PRE,AGRELC,DAYNITE,"0,00",Fuel Tech - Electricity ,Fuel Tech - Electricity ,End-use fuel tech,Fuel Tech - Electricity 
+AGRGMX00,Fuel Tech - gas mix réseau,AGR,.PRE.,Fuel Tech - gas mix réseau,PJ,PJA,PRE,AGRGMX,ANNUAL,"0,00",Fuel Tech - gas mix réseau,Fuel Tech - Natural Gas biogas mixed,End-use fuel tech,Fuel Tech - Natural Gas biogas mixed
+AGRHET00,Fuel Tech - Low Temperature Heat,AGR,.PRE.,Fuel Tech - Low Temperature Heat (AGR),PJ,PJA,PRE,AGRHET,SEASON,"0,00",Fuel Tech - Low Temperature Heat,Fuel Tech - Low Temperature Heat,End-use fuel tech,Fuel Tech - Low Temperature Heat
 AGRHH00,heat for agriculture,AGR,.DMD.,Base year oil  boiler  small,PJ,PJA,DMD,AGRHH,ANNUAL,"0,00",Agriculture,Agriculture,Agriculture,Agriculture
 AGROFR00,oil for agriculture,AGR,.DMD.,Base year offroad,PJ,PJA,DMD,AGROF,ANNUAL,"0,00",Agriculture,Agriculture,Agriculture,Agriculture
 AGROIL00,Fuel Tech - Oil,AGR,.PRE.,Fuel Tech - Oil (AGR),PJ,PJA,PRE,AGROIL,ANNUAL,"0,00",Fuel Tech - Oil,Oil,End-use fuel tech,End-use fuel tech
@@ -294,8 +294,8 @@ CWSAOIL100,services hot water,COM,.PRE.,Com.Water Heat.SA.OIL.00.Furnace.,PJ,GW,
 CWSAPEL100,services hot water,COM,.PRE.,Com.Water Heat.SA.BIOPEL.00.Stove.,PJ,GW,PRE,CWSA,ANNUAL,"0,00",commercial hot water,Commercial Biomass boiler,Buildings,Commercial Biomass boiler
 CWSASOL100,services hot water,COM,.PRE.,Com.Water Heat.SA.SOL.00.Furnace.,PJ,GW,PRE,CWSA,ANNUAL,"0,00",commercial hot water,Commercial solar thermal,Buildings,Commercial solar thermal
 CWSASOL101,services hot water,COM,.PRE.,Com Water Heat New Boiler - SA - SOL101,PJ,GW,PRE,CWSA,ANNUAL,,commercial hot water,Commercial solar thermal,Buildings,Commercial solar thermal
-DIGEGAS100,Heat from COM sector,SUP,.PRE.,Chaleur digesteur biogaz,PJ,GW,PRE,SUPHET,ANNUAL,"0,00",Heat from COM sector,Heat from COM sector,Local production,Local production
-DIGEOIL100,Heat from COM sector,SUP,.PRE.,Chaleur digesteur mazout,PJ,GW,PRE,SUPHET,ANNUAL,"0,00",Heat from COM sector,Heat from COM sector,Local production,Local production
+DIGEGAS100,Heat from COM sector,SUP,.PRE.,Chaleur digesteur biogaz,PJ,GW,PRE,SUPHET,ANNUAL,"0,00",Heat from COM sector,Heat from COM sector,Fuel conversion,Fuel conversion
+DIGEOIL100,Heat from COM sector,SUP,.PRE.,Chaleur digesteur mazout,PJ,GW,PRE,SUPHET,ANNUAL,"0,00",Heat from COM sector,Heat from COM sector,Fuel conversion,Fuel conversion
 DJ_2F_process,degree-days correction for the base year,RSD,.DMD.,degree-days correction for the base year (2F),PJ,PJA,DMD,DJ2F,ANNUAL,"0,00",degree-days correction for the base year,degree-days correction for the base year,Buildings,Residential buildings
 DJ_3F_process,degree-days correction for the base year,RSD,.DMD.,degree-days correction for the base year (3F),PJ,PJA,DMD,DJ3F,ANNUAL,"0,00",degree-days correction for the base year,degree-days correction for the base year,Buildings,Residential buildings
 DJ_4F_process,degree-days correction for the base year,RSD,.DMD.,degree-days correction for the base year (4F),PJ,PJA,DMD,DJ4F,ANNUAL,"0,00",degree-days correction for the base year,degree-days correction for the base year,Buildings,Residential buildings
@@ -813,17 +813,17 @@ Retrofit-T_C_BP,COM_PRE_PJ_MM2,COM,.PRE.,Retrofit-T_C_BP,PJ,MM2,PRE,Retrofit-T_C
 Retrofit-T_C_CO,COM_PRE_PJ_MM2,COM,.PRE.,Retrofit-T_C_CO,PJ,MM2,PRE,Retrofit-T_C_CO_NRGI,ANNUAL,"0,00",COM_PRE_PJ_MM2,Retrofitting improvements,Buildings,Building retrofits
 Retrofit-T_C_EN,COM_PRE_PJ_MM2,COM,.PRE.,Retrofit-T_C_EN,PJ,MM2,PRE,Retrofit-T_C_EN_NRGI,ANNUAL,"0,00",COM_PRE_PJ_MM2,Retrofitting improvements,Buildings,Building retrofits
 Retrofit-T_C_SA,COM_PRE_PJ_MM2,COM,.PRE.,Retrofit-T_C_SA,PJ,MM2,PRE,Retrofit-T_C_SA_NRGI,ANNUAL,"0,00",COM_PRE_PJ_MM2,Retrofitting improvements,Buildings,Building retrofits
-SELCH2EC01_LowAF,SUP_PRE_PJ_GW (Centralized CHP - Pseudo with LowAF),SUP,.PRE.,"H2 Production-Alkaline Electrolyser, large size, centralized - Pseudo with LowAF",PJ,GW,PRE,MEOOXY,DAYNITE,"1,00",SUP_PRE_PJ_GW (Centralized CHP - Pseudo with LowAF),SUP_PRE_PJ_GW (Centralized CHP - Pseudo with LowAF),Fuel conversion,Fuel conversion
-SELCH2PEM01_LowAF,SUP_PRE_PJ_GW,SUP,.PRE.,PEM Electrolyzer - Proton Exchange Membrane - Pseudo with LowAF,PJ,GW,PRE,MEOOXY,DAYNITE,"1,00",SUP_PRE_PJ_GW,SUP_PRE_PJ_GW,Fuel conversion,Fuel conversion
-SGASH2RC01,SUP_PRE_PJ_GW (Centralized CHP),SUP,.PRE.,"H2 Production-Methane Steam Reforming, large size, centralized",PJ,GW,PRE,SGASH2RC01_MATO,DAYNITE,"1,00",SUP_PRE_PJ_GW (Centralized CHP),SUP_PRE_PJ_GW (Centralized CHP),Fuel conversion,Fuel conversion
-SGASH2RC02,SUP_PRE_PJ_GW (Centralized CHP),SUP,.PRE.,"H2 Production-Methane Steam Reforming, small size, centralized",PJ,GW,PRE,SGASH2RC02_MATO,DAYNITE,"1,00",SUP_PRE_PJ_GW (Centralized CHP),SUP_PRE_PJ_GW (Centralized CHP),Fuel conversion,Fuel conversion
+SELCH2EC01_LowAF,SUP_PRE_PJ_GW (Centralized CHP - Pseudo with LowAF),SUP,.PRE.,"H2 Production-Alkaline Electrolyser, large size, centralized - Pseudo with LowAF",PJ,GW,PRE,MEOOXY,DAYNITE,"1,00",SUP_PRE_PJ_GW (Centralized CHP - Pseudo with LowAF),SUP_PRE_PJ_GW (Centralized CHP - Pseudo with LowAF),Fuel conversion,H2 production
+SELCH2PEM01_LowAF,SUP_PRE_PJ_GW,SUP,.PRE.,PEM Electrolyzer - Proton Exchange Membrane - Pseudo with LowAF,PJ,GW,PRE,MEOOXY,DAYNITE,"1,00",SUP_PRE_PJ_GW,SUP_PRE_PJ_GW,Fuel conversion,H2 production
+SGASH2RC01,SUP_PRE_PJ_GW (Centralized CHP),SUP,.PRE.,"H2 Production-Methane Steam Reforming, large size, centralized",PJ,GW,PRE,SGASH2RC01_MATO,DAYNITE,"1,00",SUP_PRE_PJ_GW (Centralized CHP),SUP_PRE_PJ_GW (Centralized CHP),Fuel conversion,H2 production
+SGASH2RC02,SUP_PRE_PJ_GW (Centralized CHP),SUP,.PRE.,"H2 Production-Methane Steam Reforming, small size, centralized",PJ,GW,PRE,SGASH2RC02_MATO,DAYNITE,"1,00",SUP_PRE_PJ_GW (Centralized CHP),SUP_PRE_PJ_GW (Centralized CHP),Fuel conversion,H2 production
 STORAGEMINELC,SUP_PRE_KT_MTA,SUP,.PRE.CCSSTG.,STORAGEMINELC,KT,MTA,PRE,CO2STOCK,ANNUAL,"1,00",SUP_PRE_KT_MTA,SUP_PRE_KT_MTA,Fuel conversion,CO2 storage
 STORAGEMININD,SUP_PRE_KT_MTA,SUP,.PRE.CCSSTG.,STORAGEMININD,KT,MTA,PRE,CO2STOCK,ANNUAL,"1,00",SUP_PRE_KT_MTA,SUP_PRE_KT_MTA,Fuel conversion,CO2 storage
-SUPBGS00,Fuel Tech - biogas,SUP,.PRE.,Fuel Tech - biogas,PJ,PJA,PRE,SUPBGS,ANNUAL,"0,00",Fuel Tech - biogas,Fuel Tech - Natural Gas biogas mixed,Fuel conversion,Fuel conversion
-SUPDST00,Fuel Tech - Mazout,SUP,.PRE.,Fuel Tech - Mazout (SUP),PJ,PJA,PRE,SUPDST,ANNUAL,"0,00",Fuel Tech - Mazout,Fuel Tech - Mazout,Fuel conversion,Fuel conversion
-SUPELC00,Fuel Tech - Electricity,SUP,.PRE.,Fuel Tech - Electricity (SUP),PJ,PJA,PRE,SUPELC,ANNUAL,"0,00",Fuel Tech - Electricity,Fuel Tech - Electricity,Fuel conversion,Fuel conversion
-SUPGAS00,Fuel Tech - Natural Gas,SUP,.PRE.,Fuel Tech - Natural Gas (SUP),PJ,PJA,PRE,SUPGAS,ANNUAL,"0,00",Fuel Tech - Natural Gas,Fuel Tech - Natural Gas,Fuel conversion,Fuel conversion
-SUPGMX00,Fuel Tech - Natural Gas biogas mixed,SUP,.PRE.,Fuel Tech - Natural Gas biogas mixed (SUP),PJ,PJA,PRE,SUPGMX,ANNUAL,"0,00",Fuel Tech - Natural Gas biogas mixed,Fuel Tech - Natural Gas biogas mixed,Fuel conversion,Fuel conversion
+SUPBGS00,Fuel Tech - biogas,SUP,.PRE.,Fuel Tech - biogas,PJ,PJA,PRE,SUPBGS,ANNUAL,"0,00",Fuel Tech - biogas,Fuel Tech - Natural Gas biogas mixed,Fuel conversion,Biogas production
+SUPDST00,Fuel Tech - Mazout,SUP,.PRE.,Fuel Tech - Mazout (SUP),PJ,PJA,PRE,SUPDST,ANNUAL,"0,00",Fuel Tech - Mazout,Fuel Tech - Mazout,Fuel conversion,Fuel Tech - Mazout
+SUPELC00,Fuel Tech - Electricity,SUP,.PRE.,Fuel Tech - Electricity (SUP),PJ,PJA,PRE,SUPELC,ANNUAL,"0,00",Fuel Tech - Electricity,Fuel Tech - Electricity,Fuel conversion,Fuel Tech - Electricity
+SUPGAS00,Fuel Tech - Natural Gas,SUP,.PRE.,Fuel Tech - Natural Gas (SUP),PJ,PJA,PRE,SUPGAS,ANNUAL,"0,00",Fuel Tech - Natural Gas,Fuel Tech - Natural Gas,Fuel conversion,Fuel Tech - Natural Gas
+SUPGMX00,Fuel Tech - Natural Gas biogas mixed,SUP,.PRE.,Fuel Tech - Natural Gas biogas mixed (SUP),PJ,PJA,PRE,SUPGMX,ANNUAL,"0,00",Fuel Tech - Natural Gas biogas mixed,Fuel Tech - Natural Gas biogas mixed,Fuel conversion,Fuel Tech - Natural Gas biogas mixed
 TADFKER00,Aviation,TRA,.DMD.,Aviation Domestic Freight Kerosene Tech Existing,PJ,PJA,DMD,TADF,ANNUAL,"0,00",international aviation,domestic aviation,Transport,domestic aviation
 TADPKER00,Aviation,TRA,.DMD.,Aviation Domestic Passengers Kerosene Tech Existing,PJ,PJA,DMD,TADP,ANNUAL,"0,00",international aviation,domestic aviation,Transport,domestic aviation
 TAIFKER00,Aviation,TRA,.DMD.,Aviation International Freight Kerosene Tech Existing,PJ,PJA,DMD,TAIF,ANNUAL,"0,00",international aviation,international aviation,Transport,international aviation
@@ -909,7 +909,7 @@ TRAGH2C04,Fuel Tech - H2,SUP,.PRE.,Fuel Tech - H2 Delivery from centralized prod
 TRAGMX00,Fuel Tech - Reseau gas mixed (TRA),TRA,.PRE.,Fuel Tech - Reseau gas mixed (TRA),PJ,PJA,PRE,TRAGMX,ANNUAL,"0,00",Fuel Tech - Reseau gas mixed,Fuel Tech - Reseau gas mixed (TRA),End-use fuel tech,Fuel Tech - Reseau gas mixed (TRA)
 TRAKER00,Fuel Tech - Kerosene - Jet Fuels (TRA),TRA,.PRE.,Fuel Tech - Kerosene - Jet Fuels (TRA),PJ,PJA,PRE,TRAKER,ANNUAL,"0,00",Fuel Tech - Kerosene - Jet Fuels,Fuel Tech - Kerosene - Jet Fuels,End-use fuel tech,End-use fuel tech
 TRALH2C01,Fuel Tech - H2,SUP,.PRE.,Fuel Tech - H2 Delivery from centralized production (COMP+USTOR+TR+LIQ+LSTORB+RTS+REFLL(large)),PJ,PJ-A,PRE,TRALH2,DAYNITE,,Fuel Tech - H2,Fuel Tech - H2,Fuel conversion,Fuel Tech - H2
-TRALH2C02_i,SUP_PRE_PJ_PJ-A,SUP,.PRE.,TRALH2C02_i,PJ,PJ-A,PRE,TRALH2,DAYNITE,,SUP_PRE_PJ_PJ-A,SUP_PRE_PJ_PJ-A,Fuel conversion,Fuel conversion
+TRALH2C02_i,SUP_PRE_PJ_PJ-A,SUP,.PRE.,TRALH2C02_i,PJ,PJ-A,PRE,TRALH2,DAYNITE,,SUP_PRE_PJ_PJ-A,Transport (other),Fuel conversion,Fuel conversion
 TRALPG00,Fuel Tech - Liquified Petroleum Gas (TRA),TRA,.PRE.,Fuel Tech - Liquified Petroleum Gas (TRA),PJ,PJA,PRE,TRALPG,ANNUAL,"0,00",Fuel Tech - Liquified Petroleum Gas,Fuel Tech - Liquified Petroleum Gas (TRA),End-use fuel tech,Fuel Tech - Liquified Petroleum Gas (TRA)
 TSTGEVCMIDN01,TRA_STG_PJ_GW,TRA,.STG.,EV fleet battery storage (TRA_STG),PJ,GW,STG,BATELCOUT,DAYNITE,"0,00",TRA_STG_PJ_GW,TRA_STG_PJ_GW,Transport,EV battery storage
 TTFELCDST00,rail transport,TRA,.DMD.,Train Freigh Tech Existing,BTKM,BTKMA,DMD,TTF,ANNUAL,"0,00",rail transport,rail transport,Transport,rail transport

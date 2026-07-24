@@ -47,8 +47,9 @@ def totals_all_horizons(times_model, rules):
     return max_pj
 
 
-def test_fifty_four_rules(rules):
-    assert len(rules) == 54
+def test_rule_count(rules):
+    # 54 original + 1 (residential cooking, added 2026-07-24).
+    assert len(rules) == 55
 
 
 def test_empty_rules_only_allowlisted(totals_all_horizons, rules):

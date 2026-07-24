@@ -342,3 +342,23 @@ def test_balance_helper_and_label():
     label = imbalance_process_label("X", fout=12.0, fin=10.0, rel_err=0.166, warn_rel=0.1)
     assert label.startswith("Unbalanced ≥10%:")
     assert "FOut>FIn" in label
+
+
+def test_collapse_drops_spurious_storage_to_storage_links():
+    """Pumped hydro and grid battery share ELCHIG; do not invent storage→storage."""
+    links = collapse_commodity_nodes(
+        _flows(
+            [
+                ("VAR_FOUT", "Pumped hydro", "ELCHIG", 8.0, False),
+                ("VAR_FOUT", "Power plants", "ELCHIG", 2.0, False),
+                ("VAR_FIN", "Grid battery storage", "ELCHIG", 5.0, False),
+                ("VAR_FIN", "Buildings", "ELCHIG", 5.0, False),
+            ]
+        )
+    )
+    pairs = {(str(s), str(t)) for s, t in zip(links["source"], links["target"])}
+    assert ("Pumped hydro", "Grid battery storage") not in pairs
+    assert ("Grid battery storage", "Pumped hydro") not in pairs
+    # Real consumers of discharge / producers of charge still get ribbons.
+    assert ("Pumped hydro", "Buildings") in pairs
+    assert ("Power plants", "Grid battery storage") in pairs

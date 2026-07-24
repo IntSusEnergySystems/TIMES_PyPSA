@@ -9,6 +9,11 @@ from typing import Any
 
 import pandas as pd
 
+from times_pypsa.aggregation import (
+    PYPSA_SECTOR_COLORS,
+    PYPSA_SECTOR_ORDER,
+    sector_color,
+)
 from times_pypsa.units import EnergyUnit, pj_to_display, unit_label
 
 EXPORTED_COLOR = "rgba(31, 119, 180, 0.85)"
@@ -49,6 +54,20 @@ def export_status_color(export_status: str) -> str:
     return CONTEXT_COLOR
 
 
+def link_color(export_status: str, export_sector: str = "") -> str:
+    """Colour a Sankey link by PyPSA sector when exported, else by status.
+
+    Exported links are coloured by their PyPSA end-use sector (Industry,
+    Transport, Residential, Services, Agriculture). ``double_count`` (both FOut
+    and FIn soft-linked — a genuine overlap that should not occur) keeps its
+    purple warning colour; context links are grey.
+    """
+    sec = str(export_sector or "").strip()
+    if sec:
+        return sector_color(sec)
+    return export_status_color(export_status)
+
+
 def link_export_status(row: pd.Series) -> str:
     status = str(row.get("export_status", "") or "").strip()
     if status in {"exported", "context", "mixed", "double_count"}:
@@ -81,12 +100,15 @@ def export_status_hover(
     cats: str = "",
     *,
     export_detail: str = "",
+    export_sector: str = "",
 ) -> str:
     """Hover fragment for link export colouring (HTML ``<br>…``)."""
     detail = str(export_detail or "").strip()
+    sector = str(export_sector or "").strip()
     cat_bit = _format_category_phrase(cats)
     if export_status == "exported":
-        bits = ["Exported to pypsa-wal"]
+        head = f"Exported to pypsa-wal · {sector}" if sector else "Exported to pypsa-wal"
+        bits = [head]
         if cat_bit:
             bits.append(cat_bit)
         if detail:
@@ -209,7 +231,8 @@ def links_to_records(
         v = pj_to_display(v_pj, units)
         cats = str(row.get("matched_categories", "") or "")
         status = link_export_status(row)
-        color = export_status_color(status)
+        sector = str(row.get("export_sector", "") or "").strip()
+        color = link_color(status, sector)
 
         src = str(row["source"])
         tgt = str(row["target"])
@@ -233,7 +256,10 @@ def links_to_records(
         if commodity:
             tip += f"<br>Commodity flow: {commodity.replace('|', ', ')}"
         tip += export_status_hover(
-            status, cats, export_detail=str(row.get("export_detail", "") or "")
+            status,
+            cats,
+            export_detail=str(row.get("export_detail", "") or ""),
+            export_sector=sector,
         )
         imb_tip = str(row.get("imbalance_tooltip", "") or "").strip()
         if imb_tip and has_kinds and (
@@ -369,10 +395,10 @@ function timesPypsaBuildSankey(containerId, links, title, nodeMeta) {
     font: { size: 10 },
     margin: { l: 20, r: 20, t: 60, b: 40 },
     annotations: [{
-      text: "Nodes: process (green) · U · demand/imbalance residual (magenta). Commodities are flows. Links: blue=exported, purple=double-count (FOut+FIn), grey=context, light red=mixed",
+      text: "Nodes: process (green) · U · demand/imbalance residual (magenta). Commodities are flows. Exported links coloured by PyPSA sector: Industry (blue) · Transport (orange) · Residential (red) · Services (teal) · Agriculture (brown). Grey = not exported; purple = double-count (FOut+FIn both exported, should not occur).",
       showarrow: false,
       xref: "paper", yref: "paper",
-      x: 0, y: -0.06, align: "left",
+      x: 0, y: -0.08, align: "left",
       font: { size: 11, color: "#444" }
     }],
   };

@@ -712,6 +712,78 @@ def _adjust_road_rail_totals(results_df: pd.DataFrame) -> pd.DataFrame:
     return results_df
 
 
+def road_internal_transfer_pj(
+    year_df: pd.DataFrame,
+    road_techs: Iterable[str],
+    *,
+    agg_col: str = "process_agg",
+) -> float:
+    """PJ of an intermediate fuel produced **and** consumed within the road tech set.
+
+    ``total road`` sums the ``VAR_FIn`` of every road fuel-tech. When one road
+    tech produces a fuel that another road tech blends in, that fuel is counted
+    twice — e.g. ``Fuel Tech - Biodiesel (TRA)`` produces ``TRABDL`` which
+    ``Fuel Tech - Diesel (TRA)`` blends into transport diesel. For each commodity
+    both produced (``VAR_FOut``) and consumed (``VAR_FIn``) inside the tech set,
+    ``min(produced, consumed)`` is the double-counted internal transfer.
+
+    Biofuel that is imported (produced *outside* the tech set, e.g. ``BIOETH``
+    from Imports) is counted once and is **not** subtracted; direct-to-vehicle
+    biofuel (produced by a road tech, consumed by a vehicle outside the set) is
+    also kept.
+
+    Only **cross-process_agg** transfers count: a commodity both produced and
+    consumed inside a *single* process_agg (e.g. an internal H2 tank cycle in
+    ``Fuel Tech - H2``) is already removed by the rule's per-process_agg netting,
+    so it is netted here first and excluded.
+    """
+    road_techs = set(road_techs)
+    if year_df.empty or agg_col not in year_df.columns or not road_techs:
+        return 0.0
+    df = year_df[year_df[agg_col].isin(road_techs)]
+    if df.empty:
+        return 0.0
+    total = 0.0
+    for _, sub in df.groupby("commodity_code", sort=False):
+        net_prod = 0.0
+        net_cons = 0.0
+        for _, ps in sub.groupby(agg_col, sort=False):
+            v = ps["variable"].astype(str).str.upper()
+            net = float(ps.loc[v == "VAR_FOUT", "value"].sum()) - float(
+                ps.loc[v == "VAR_FIN", "value"].sum()
+            )
+            if net > 0:
+                net_prod += net
+            elif net < 0:
+                net_cons += -net
+        if net_prod > 1e-9 and net_cons > 1e-9:
+            total += min(net_prod, net_cons)
+    return total
+
+
+def _adjust_road_biofuel_double_count(
+    results_df: pd.DataFrame,
+    year_df: pd.DataFrame,
+    road_techs: Iterable[str],
+) -> pd.DataFrame:
+    """Subtract intra-road-tech biofuel blending (double-count) from ``total road``."""
+    results_df = results_df.copy()
+    if "total road" not in set(results_df["category"]):
+        return results_df
+    internal_pj = road_internal_transfer_pj(year_df, road_techs)
+    if internal_pj <= 1e-9:
+        return results_df
+    mask = results_df["category"] == "total road"
+    new_pj = results_df.loc[mask, "PJ"].iloc[0] - internal_pj
+    results_df.loc[mask, "PJ"] = new_pj
+    results_df.loc[mask, "TWh"] = new_pj * PJ_TO_TWH
+    logger.info(
+        "total road: subtracted %.3f PJ intra-road biofuel blending (double-count).",
+        internal_pj,
+    )
+    return results_df
+
+
 def extract_heating_capacities(
     raw_flows_df: pd.DataFrame,
     processes_df: pd.DataFrame,
@@ -817,6 +889,11 @@ def extract_demands_for_horizon(
         )
 
     results_df = _adjust_road_rail_totals(pd.DataFrame(results))
+    road_rule = extraction_rules.get("total road")
+    if road_rule is not None:
+        results_df = _adjust_road_biofuel_double_count(
+            results_df, year_df, road_rule[2]
+        )
     results_df["year"] = horizon
     results_df.to_csv(wallon_demands_path, index=False)
     logger.info("Saved walloon demands to %s", wallon_demands_path)

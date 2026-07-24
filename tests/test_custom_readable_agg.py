@@ -624,3 +624,55 @@ def test_commercial_other_and_buildings_custom_splits():
         "Commercial buildings",
         "Residential buildings",
     ]
+
+
+def test_refine_keeps_transport_mode_labels_not_other():
+    """Vehicle DEM is context (fuel techs are exported); keep Cars/Freight/buses."""
+    df = pd.DataFrame(
+        {
+            "year": [2030] * 4,
+            "region": ["RW"] * 4,
+            "variable": ["VAR_FIN"] * 4,
+            "process_code": ["TCAR1", "THDT1", "TBUS1", "TMOP1"],
+            "process": ["Car gasoline", "Truck diesel", "Bus diesel", "Moped"],
+            "commodity_code": ["TRAGSL", "TRADST", "TRADST", "TRAGSL"],
+            "commodity": ["Gasoline"] * 4,
+            "value": [1.0, 1.0, 1.0, 1.0],
+            "exported": [False, False, False, False],
+            "matched_categories": [""] * 4,
+            "process_agg": ["Cars", "Road Freight", "Road transport (public)", "2 and 3 wheelers"],
+            "agg_level_2": ["Cars", "Road Freight", "Road transport (public)", "2 and 3 wheelers"],
+            "sector": ["TRA"] * 4,
+            "process_type": ["DMD"] * 4,
+            "pypsa_carrier": [""] * 4,
+            "proc_agg__custom": [
+                "Cars",
+                "Road Freight",
+                "Road transport (public)",
+                "2 and 3 wheelers",
+            ],
+            "com_agg__custom": ["Oil products"] * 4,
+            "proc_agg__sankey_overview": ["Transport"] * 4,
+            "com_agg__sankey_overview": ["Oil products"] * 4,
+        }
+    )
+    # One exported fuel-tech row so refine runs in export mode.
+    fuel = df.iloc[[0]].copy()
+    fuel["process_code"] = "TRADST00"
+    fuel["process"] = "Fuel Tech Diesel TRA"
+    fuel["exported"] = True
+    fuel["matched_categories"] = "total road"
+    fuel["process_agg"] = "Fuel Tech - Diesel (TRA)"
+    fuel["agg_level_2"] = "Fuel Tech - Diesel (TRA)"
+    fuel["proc_agg__custom"] = "Fuel Tech - Diesel (TRA)"
+    fuel["proc_agg__sankey_overview"] = "Fuel conversion"
+    df = pd.concat([df, fuel], ignore_index=True)
+
+    proc_out, _ = refine_custom_labels_for_readability(
+        df["proc_agg__custom"], df["com_agg__custom"], df
+    )
+    assert proc_out.iloc[0] == "Cars"
+    assert proc_out.iloc[1] == "Road Freight"
+    assert proc_out.iloc[2] == "Road transport (public)"
+    assert proc_out.iloc[3] == "2 and 3 wheelers"
+    assert not any(lab == "Transport (other)" for lab in proc_out.tolist())

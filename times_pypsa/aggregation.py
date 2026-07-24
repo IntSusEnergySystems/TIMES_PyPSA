@@ -498,10 +498,27 @@ CUSTOM_PROCESS_FRIENDLY: dict[str, str] = {
 }
 
 # Context labels kept as-is (not collapsed to ``Transport (other)`` / sector other).
+# Vehicle DEM processes are not soft-linked (fuel techs are); keep mode labels so the
+# RHS Sankey does not dump cars + freight + buses into one opaque "Transport (other)".
 CUSTOM_KEEP_CONTEXT_LABELS = frozenset(
     {
         "EV chargers",
         "EV battery storage",
+        "Cars",  # private passenger road vehicles
+        "Road Freight",
+        "Road transport (public)",  # buses / coaches
+        "2 and 3 wheelers",
+    }
+)
+
+# Electricity storage nodes that charge and discharge the *same* HV commodity
+# (ELCHIG). Proportional hub collapse would invent storage→storage ribbons
+# (e.g. Pumped hydro → Grid battery); those are Sankey artifacts, not TIMES flows.
+ELECTRICITY_STORAGE_SANKEY_LABELS = frozenset(
+    {
+        "Grid battery storage",
+        "Pumped hydro",
+        "Household battery storage",
     }
 )
 
@@ -537,6 +554,197 @@ _CONTEXT_CARRIER_FAMILIES = frozenset(
         "Nuclear fuel",
     }
 )
+
+# ---------------------------------------------------------------------------
+# PyPSA export sectors (Sankey link colouring)
+# ---------------------------------------------------------------------------
+# Every ``extraction_rules.csv`` category belongs to one PyPSA end-use sector.
+# Exported Sankey links are coloured by sector (previously: all a single blue,
+# with an unused light-red "mixed" fallback that never triggered on the real
+# ``custom`` data). ``export_sector`` is attached to collapsed links so the
+# diagram shows *which* PyPSA demand each soft-linked flow feeds.
+PYPSA_SECTOR_ORDER = ["Industry", "Transport", "Residential", "Services", "Agriculture"]
+
+PYPSA_SECTOR_BY_CATEGORY: dict[str, str] = {
+    # Industry (fuels, feedstock, electricity, process heat, H2)
+    "ammonia": "Industry",
+    "coal": "Industry",
+    "coke": "Industry",
+    "hydrogen": "Industry",
+    "low-temperature heat": "Industry",
+    "methane": "Industry",
+    "methanol": "Industry",
+    "naphtha": "Industry",
+    "solid biomass": "Industry",
+    "electricity": "Industry",
+    # Transport (road / rail / aviation / navigation)
+    "electricity road": "Transport",
+    "total road": "Transport",
+    "hydrogen road": "Transport",
+    "electricity rail": "Transport",
+    "total rail": "Transport",
+    "total domestic aviation": "Transport",
+    "total international aviation": "Transport",
+    "total domestic navigation": "Transport",
+    "total international navigation": "Transport",
+    # Residential (electricity + BEWAL / boiler heat + district heating + retrofit)
+    "total electricity residential": "Residential",
+    "BEWAL residential urban decentral heat": "Residential",
+    "BEWAL residential rural heat": "Residential",
+    "residential urban decentral gas boiler": "Residential",
+    "residential urban decentral coal boiler": "Residential",
+    "residential urban decentral electric heater": "Residential",
+    "residential urban decentral heat pump": "Residential",
+    "residential urban decentral geothermal": "Residential",
+    "residential district heating": "Residential",
+    "residential urban decentral biomass boiler": "Residential",
+    "residential urban decentral solar thermal": "Residential",
+    "residential urban decentral oil boiler": "Residential",
+    "residential rural gas boiler": "Residential",
+    "residential rural coal boiler": "Residential",
+    "residential rural electric heater": "Residential",
+    "residential rural heat pump": "Residential",
+    "residential rural geothermal": "Residential",
+    "residential rural biomass boiler": "Residential",
+    "residential rural solar thermal": "Residential",
+    "residential rural oil boiler": "Residential",
+    "residential cooking": "Residential",
+    "retro": "Residential",
+    # Services / tertiary (commercial electricity + heat)
+    "total electricity services": "Services",
+    "BEWAL services urban decentral heat": "Services",
+    "services gas boiler": "Services",
+    "services biomass boiler": "Services",
+    "services heat pump": "Services",
+    "services district heating": "Services",
+    "services oil boiler": "Services",
+    "services geothermal": "Services",
+    "services electric heater": "Services",
+    "services solar thermal": "Services",
+    # Agriculture
+    "total agriculture": "Agriculture",
+    "total agriculture electricity": "Agriculture",
+    "total agriculture heat": "Agriculture",
+    "total agriculture machinery": "Agriculture",
+}
+
+# Distinct, colour-blind-aware hues (tab10-derived). Green is reserved for
+# process nodes and magenta for imbalance/`U ·` sinks, so both are avoided here.
+PYPSA_SECTOR_COLORS: dict[str, str] = {
+    "Industry": "rgba(31, 119, 180, 0.85)",      # blue
+    "Transport": "rgba(255, 127, 14, 0.85)",     # orange
+    "Residential": "rgba(214, 39, 40, 0.85)",    # red
+    "Services": "rgba(23, 190, 207, 0.85)",      # teal (purple stays free for double-count warning)
+    "Agriculture": "rgba(140, 86, 75, 0.85)",    # brown
+}
+# Fallback for an exported link whose sector could not be resolved.
+UNKNOWN_SECTOR_COLOR = "rgba(31, 119, 180, 0.85)"
+
+
+def category_sector(category: str) -> str:
+    """Map an extraction_rules category to its PyPSA end-use sector."""
+    c = str(category or "").strip()
+    if not c:
+        return ""
+    if c in PYPSA_SECTOR_BY_CATEGORY:
+        return PYPSA_SECTOR_BY_CATEGORY[c]
+    # Keyword fallback so a newly added rule still gets a sensible colour.
+    cl = c.lower()
+    if cl.startswith("bewal residential") or cl.startswith("residential "):
+        return "Residential"
+    if cl.startswith("bewal services") or cl.startswith("services "):
+        return "Services"
+    if cl.startswith("total agriculture") or cl == "total agriculture":
+        return "Agriculture"
+    if any(k in cl for k in ("road", "rail", "aviation", "navigation")):
+        return "Transport"
+    return ""
+
+
+def _split_categories(matched_categories: object) -> list[str]:
+    """Split a matched_categories value (list or ``a|b`` / ``a, b`` string)."""
+    if matched_categories is None:
+        return []
+    if isinstance(matched_categories, (list, tuple, set)):
+        items = [str(x) for x in matched_categories]
+    else:
+        raw = str(matched_categories).replace("|", ",")
+        items = raw.split(",")
+    out: list[str] = []
+    seen: set[str] = set()
+    for it in items:
+        name = it.strip()
+        if name and name.lower() != "nan" and name not in seen:
+            seen.add(name)
+            out.append(name)
+    return out
+
+
+def link_sector(matched_categories: object) -> str:
+    """Resolve the PyPSA sector for a link from its matched categories.
+
+    When categories span more than one sector (rare), the highest-priority
+    sector in :data:`PYPSA_SECTOR_ORDER` wins so colouring stays deterministic.
+    """
+    sectors: list[str] = []
+    for cat in _split_categories(matched_categories):
+        sec = category_sector(cat)
+        if sec:
+            sectors.append(sec)
+    if not sectors:
+        return ""
+    uniq = list(dict.fromkeys(sectors))
+    if len(uniq) == 1:
+        return uniq[0]
+    for sec in PYPSA_SECTOR_ORDER:
+        if sec in uniq:
+            return sec
+    return uniq[0]
+
+
+def sector_color(sector: str) -> str:
+    """Colour for a PyPSA sector (fallback blue when unknown/unset)."""
+    return PYPSA_SECTOR_COLORS.get(str(sector or "").strip(), UNKNOWN_SECTOR_COLOR)
+
+
+# Demand / end-use custom labels. Used only to decide whether a soft-linked
+# ``VAR_FIn`` process is already at the demand boundary (keep the highlight) or
+# a conversion step whose export should be moved one hop downstream (anchor).
+_DEMAND_END_USE_HINTS = (
+    "industry (other)",
+    "buildings",
+    "appliances",
+    "cooking",
+    "lighting",
+    "cooling",
+    "cars",
+    "road freight",
+    "road transport",
+    "wheelers",
+    "rail transport",
+    "agriculture",
+    "non-energy",
+    "aviation",
+    "navigation",
+)
+
+
+def _is_demand_end_use_label(label: str) -> bool:
+    s = str(label or "").lower()
+    return any(h in s for h in _DEMAND_END_USE_HINTS)
+
+
+def _is_anchorable_gateway_label(label: str) -> bool:
+    """Conversion process whose exported fuel input should be shown downstream.
+
+    Restricted to fuel-delivery techs and the EV battery buffer / geothermal
+    tech so generation nodes (PV, wind, power plants, CHP) are never re-coloured
+    across all their heterogeneous outputs.
+    """
+    s = str(label or "").strip()
+    if s.startswith("Fuel Tech") or s.startswith("Fuel tech"):
+        return True
+    return s in {"EV battery storage", "Geothermal (IND)"}
 
 
 def friendly_custom_process_label(l2: str) -> str:
@@ -2127,6 +2335,11 @@ def collapse_commodity_nodes(
     Link colours still use ``export_status`` (exported / mixed / context).
     Collapsed links carry a ``commodity`` label for hover text; imbalance links
     also carry ``imbalance_class`` and ``imbalance_tooltip``.
+
+    Links between two ``ELECTRICITY_STORAGE_SANKEY_LABELS`` nodes are dropped:
+    TIMES grid batteries and pumped hydro share the same HV electricity commodity
+    for charge and discharge, so proportional allocation would invent spurious
+    storage→storage ribbons (e.g. Pumped hydro → Grid battery storage).
     """
     empty_cols = [
         "source",
@@ -2341,6 +2554,13 @@ def collapse_commodity_nodes(
                     c_code = str(cons["process_code"])
                     if p_code == c_code:
                         # Plotly Sankey cannot draw self-loops; drop internal recycle.
+                        continue
+                    # Same bidirectional electricity pool: storage discharge must not
+                    # be allocated into another storage's charge (spurious ribbon).
+                    if (
+                        p_code in ELECTRICITY_STORAGE_SANKEY_LABELS
+                        and c_code in ELECTRICITY_STORAGE_SANKEY_LABELS
+                    ):
                         continue
                     value = transfer_p * (float(cons["value"]) * inv_in)
                     if value <= abs_tol:
@@ -2566,3 +2786,112 @@ def net_collapsed_process_links(links: pd.DataFrame) -> pd.DataFrame:
             if c not in frame.columns:
                 frame[c] = 0.0 if c in {"value", "exported"} else ""
     return pd.concat([netted[cols], other[cols]], ignore_index=True)
+
+
+def _gateway_sectors(agg: pd.DataFrame | None) -> dict[str, str]:
+    """Map anchorable conversion process → PyPSA sector from exported VAR_FIn rows.
+
+    A *gateway* is a fuel-delivery / storage / geothermal process (see
+    :func:`_is_anchorable_gateway_label`) whose ``VAR_FIn`` is soft-linked. Its
+    export belongs at the demand boundary, so it is later moved from the fuel
+    supply link (upstream) onto the process's output links (into the sector).
+    """
+    if agg is None or agg.empty or "exported" not in agg.columns:
+        return {}
+    df = agg
+    if "variable" in df.columns:
+        df = df[df["variable"].astype(str).str.upper() == "VAR_FIN"]
+    df = df[df["exported"].fillna(False).astype(bool)]
+    if df.empty:
+        return {}
+    out: dict[str, str] = {}
+    for proc, sub in df.groupby("process_code", sort=False):
+        label = str(proc)
+        if not _is_anchorable_gateway_label(label) or _is_demand_end_use_label(label):
+            continue
+        cats: list[str] = []
+        for item in sub.get("matched_categories", pd.Series(dtype=object)):
+            cats.extend(_split_categories(item))
+        sec = link_sector("|".join(cats))
+        if sec:
+            out[label] = sec
+    return out
+
+
+def assign_export_sectors(
+    links: pd.DataFrame,
+    agg: pd.DataFrame | None = None,
+    *,
+    anchor: bool = True,
+) -> pd.DataFrame:
+    """Attach ``export_sector`` to collapsed Sankey links and anchor exports.
+
+    Two things happen:
+
+    1. **Colour by sector.** Every exported link gets an ``export_sector``
+       (Industry / Transport / Residential / Services / Agriculture) derived
+       from its matched categories, replacing the former single-blue colouring.
+    2. **Anchor to the demand inflow.** For soft-linked *fuel inputs* into a
+       conversion gateway (e.g. ``Imports & trade → Fuel Tech - Diesel (TRA)``),
+       the highlight is moved from the upstream fuel-supply link onto the
+       gateway's output links (``Fuel Tech - Diesel (TRA) → Cars / Road Freight``),
+       i.e. where the energy enters the end-use sector. ``VAR_FOut`` exports
+       (boiler heat, aviation, …) are already demand-facing and stay put.
+
+    ``agg`` is the pre-collapse aggregated frame (needs ``exported`` +
+    ``matched_categories`` + ``variable``); it identifies the gateways. When it
+    is missing or ``anchor=False`` only step 1 runs.
+    """
+    if links is None or links.empty:
+        if links is not None and "export_sector" not in links.columns:
+            links = links.copy()
+            links["export_sector"] = pd.Series(dtype=object)
+        return links
+
+    links = links.copy()
+    if "export_status" not in links.columns:
+        if "exported" in links.columns:
+            links["export_status"] = links["exported"].map(
+                lambda x: "exported" if bool(x) else "context"
+            )
+        else:
+            links["export_status"] = "context"
+    if "matched_categories" not in links.columns:
+        links["matched_categories"] = ""
+
+    exported_mask = links["export_status"].isin(["exported", "double_count"])
+    links["export_sector"] = ""
+    links.loc[exported_mask, "export_sector"] = links.loc[
+        exported_mask, "matched_categories"
+    ].map(link_sector)
+
+    gateways = _gateway_sectors(agg) if anchor else {}
+    if gateways:
+        src = links["source"].astype(str)
+        tgt = links["target"].astype(str)
+        # Restrict to gateways that actually have an output link to anchor onto.
+        active = {g for g in gateways if (src == g).any()}
+        if active:
+            is_out = src.isin(active)
+            is_in = tgt.isin(active)
+            detail = links.get("export_detail", pd.Series("", index=links.index))
+            producer_exported = detail.astype(str).str.contains("VAR_FOut of", na=False)
+
+            # (a) gateway OUTPUT links → exported + gateway sector (takes priority).
+            out_sector = src.map(lambda s: gateways.get(str(s), ""))
+            out_mask = is_out & out_sector.astype(bool)
+            links.loc[out_mask, "export_status"] = "exported"
+            links.loc[out_mask, "exported"] = True
+            links.loc[out_mask, "export_sector"] = out_sector[out_mask]
+
+            # (b) gateway INPUT links (upstream fuel supply) → context, unless the
+            #     link is itself a gateway output or a soft-linked VAR_FOut producer.
+            demote = is_in & (~out_mask) & (~producer_exported)
+            demote &= links["export_status"].isin(["exported", "double_count"])
+            links.loc[demote, "export_status"] = "context"
+            links.loc[demote, "exported"] = False
+            links.loc[demote, "export_sector"] = ""
+
+    if "exported" in links.columns:
+        links["exported"] = links["export_status"].isin(["exported", "double_count"])
+    return links

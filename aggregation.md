@@ -9,7 +9,7 @@ Extraction itself is unchanged (filters on Aggregation Level 2 labels). Sankey /
 | Level (`--agg-level`) | Process nodes | Commodity nodes | Typical node count | Use |
 |-----------------------|---------------|-----------------|--------------------|-----|
 | **`Aggregation Level 2`** (default; alias `mapping`) | Aggregation Level 2 | Aggregation Level 2 (= PyPSA Energy Carrier) | hundreds | Export neighbourhood / detailed QA |
-| **`custom`** | Export-touching Aggregation Level 2 (+ friendly renames); else overview / `(other)` | Export-touching commodity codes (specific labels); else `{family} (context)` | **~45** after collapse | **Working level**: readable whole-system + blue soft-link paths |
+| **`custom`** | Export-touching Aggregation Level 2 (+ friendly renames); else overview / `(other)` | Export-touching commodity codes (specific labels); else `{family} (context)` | **~45** after collapse | **Working level**: readable whole-system + sector-coloured soft-link paths |
 | `Aggregation Level 1` | Aggregation Level 1 | Aggregation Level 1 (= Cluster) | high | Mid drill-down |
 | `Sector` (alias `L0`) | Sector codes | Sector codes | ~15 | Coarse sector check |
 | **`sankey_overview`** | Overview process clusters | Overview carriers | **≤20** | Readable whole-system Sankey |
@@ -75,24 +75,121 @@ because Plotly cannot draw them.
 
 **Colours:**
 
+Exported links are coloured **by PyPSA end-use sector** (see
+[Export strategy](#export-strategy-per-sector-colours--demand-inflow-anchoring)),
+not by a single blue. The old light-red *mixed* status never occurs on the real
+`custom` data (verified across all years, 2021–2050) and is no longer used for
+colouring; purple stays reserved as a *double-count* warning that should never
+appear.
+
 | Element | Colour | Meaning |
 |---------|--------|---------|
 | Process / commodity **nodes** | green family | ordinary Sankey nodes (no P/C prefix; commodities are flows after collapse) |
 | Imbalance **nodes** | magenta family | `U ·` demand / residual hubs (expected or unexplained) |
-| Link exported | blue | exactly one of FOut/FIn endpoints is sent to PyPSA |
-| Link double-count | purple | **both** FOut and FIn endpoints exported (soft-link overlap risk) |
-| Link mixed | light red | a single endpoint already mixes exported + non-exported rows |
+| Link exported → **Industry** | blue | soft-linked flow feeding industry demand |
+| Link exported → **Transport** | orange | road / rail / aviation / navigation |
+| Link exported → **Residential** | red | residential electricity + heat + retrofit |
+| Link exported → **Services** | teal | commercial / tertiary electricity + heat |
+| Link exported → **Agriculture** | brown | agriculture electricity / heat / machinery |
 | Link context | grey | unrelated to PyPSA export |
+| Link double-count | purple | **both** FOut and FIn endpoints exported (should not occur) |
 
-**Plotly limitation:** Sankey links only support a **single solid colour** per ribbon — there is no source→target gradient. Ideal left=FOut / right=FIn colouring is therefore not available; purple marks the both-exported case instead.
+**Plotly limitation:** Sankey links only support a **single solid colour** per ribbon — there is no source→target gradient.
 
 Internal node ids are typed (`process::Label` / `imbalance::Label`) so names never
 collide. Optional bipartite view (commodity nodes kept) is still available via
 `collapse_commodities=False` on the prepare helpers.
 
+## Export strategy: per-sector colours & demand-inflow anchoring
+
+The Sankey exists to check that **every** soft-linked flow is accounted for and
+that **nothing is double-counted**. Two changes make the exported flows read
+clearly (implemented in `assign_export_sectors`, applied inside
+`prepare_system_sankey_links` / `prepare_export_sankey_links`):
+
+### 1. Colour exported links by PyPSA sector
+
+Every `extraction_rules.csv` category maps to one PyPSA end-use **sector**
+(`category_sector`, table `PYPSA_SECTOR_BY_CATEGORY`):
+
+| Sector | Colour | Categories (examples) |
+|--------|--------|-----------------------|
+| **Industry** | blue | ammonia, coal, coke, hydrogen, low-temperature heat, methane, methanol, naphtha, solid biomass, electricity |
+| **Transport** | orange | total road, electricity road, hydrogen road, total/electricity rail, domestic/international aviation & navigation |
+| **Residential** | red | total electricity residential, BEWAL residential heat, residential * boilers/heat-pump, residential district heating, retro |
+| **Services** | teal | total electricity services, BEWAL services heat, services * boilers/heat-pump/district-heating |
+| **Agriculture** | brown | total agriculture (+ electricity / heat / machinery) |
+
+Each collapsed link carries an `export_sector` derived from its matched
+categories (`link_sector`; when categories span sectors, the
+`PYPSA_SECTOR_ORDER` priority wins). Context links stay grey. This **replaces
+the former single blue** and the light-red *mixed* status, which was verified
+never to occur on the real `custom` data (see
+[test](#tests-guarding-the-export-strategy)).
+
+### 2. Anchor soft-linked fuel inputs to the demand inflow
+
+Previously an exported **`VAR_FIn`** (a fuel/electricity *input* into a
+conversion process) was highlighted on the *upstream* fuel-supply link, so
+industry / transport fuel exports appeared far to the **left** (near imports /
+power plants) while heat / aviation `VAR_FOut` exports appeared on the **right**
+(at the demand). The soft-links were scattered across the diagram.
+
+`assign_export_sectors(..., anchor=True)` moves each such export onto the
+**demand inflow**:
+
+- A **gateway** is a fuel-delivery / storage / geothermal process
+  (`_is_anchorable_gateway_label`: `Fuel Tech …` / `Fuel tech …`,
+  `EV battery storage`, `Geothermal (IND)`) whose `VAR_FIn` is soft-linked.
+- The highlight is removed from the gateway's **input** link (upstream fuel
+  supply → grey) and placed on the gateway's **output** link(s) (gateway → end
+  use), coloured by the gateway's sector.
+- `VAR_FOut` exports (boiler heat, aviation, hydrogen production, …) are already
+  demand-facing and are left in place, just coloured by sector.
+- Demand-side `VAR_FIn` exports (appliance electricity, `Industry` ammonia,
+  agriculture, rail, hydrogen-road vehicles) already terminate at the end use
+  and are kept.
+
+Because these fuel-delivery techs are ~1:1 (input ≈ output — verified: e.g.
+`Fuel Tech - Electricity (IND)` 36.7 PJ in / 36.7 PJ out to `Industry (other)`;
+`Fuel Tech - Diesel (TRA)` 54.8 PJ in / 54.7 PJ out split across vehicles), the
+highlighted quantity is preserved. Result (`custom`, 2030/2050): every soft-link
+now enters an end-use node coloured by sector — e.g. **industry fuel exports sit
+on the `Fuel Tech (IND) → Industry (other)` links, not the upstream
+import / power-plant links**; transport fuels on `Fuel Tech (TRA) → Cars /
+Road Freight`; electricity for industry on `Fuel Tech - Electricity (IND) →
+Industry (other)`.
+
+Anchoring also removes a pre-existing **double-highlight**: the biodiesel
+blended into diesel was previously drawn blue on both `Imports → Biodiesel` and
+`Biodiesel → Diesel`; it is now highlighted once, on the gateway output chain.
+
+Generation nodes (PV, wind, power plants, CHP) are **never** anchored across
+their heterogeneous outputs — `_is_anchorable_gateway_label` is restricted to
+fuel-delivery techs so a small industry-electricity rule via `PV industrial`
+cannot recolour all of PV's grid output.
+
+### Display-only: PyPSA demand CSVs are unchanged
+
+Colouring and anchoring are **Sankey display only**. Extraction still filters on
+`Aggregation Level 2` / `process_agg` + `pypsa_carrier` in `extraction_rules.csv`.
+The exported `wallon_demands_*.csv` are **byte-identical** before and after these
+changes (verified for every soft-link year 2021–2050).
+
+### Tests guarding the export strategy
+
+`tests/test_export_sectors.py`:
+
+- every extraction category resolves to a sector; sectors have distinct colours;
+- `assign_export_sectors` anchoring (synthetic): gateway input → context, output
+  → exported + sector; demand-side / `VAR_FOut` exports kept;
+- on the reference (toy) scenario, for **all** years: **no `mixed` / no
+  `double_count`** link, **every exported link has a sector**, and no anchorable
+  gateway keeps an exported fuel-supply input.
+
 ## Designing `custom` (working level)
 
-`custom` is the **editable working aggregation** for export QA. Goal: a **readable** whole-system Sankey that still shows PyPSA-exported flows as **blue** links at soft-link resolution.
+`custom` is the **editable working aggregation** for export QA. Goal: a **readable** whole-system Sankey that still shows PyPSA-exported flows as **sector-coloured** links at soft-link resolution.
 
 Extraction filters on **Aggregation Level 2** (`process_agg` in `extraction_rules.csv`), not on individual process Descriptions. Description-level nodes are therefore over-detailed for the soft-link objective and make the diagram unreadable once small links are kept (threshold 0).
 
@@ -148,95 +245,25 @@ TIMES structure (understood):
 2. `Retrofit-*` processes take those dummies (+ `NRGI`) and **produce useful-heat commodities** (`RH*`, `CH*`) — the same hubs that boilers feed. Soft-link rule `retro` tags `VAR_FOut` on `Retrofitting improvements`.
 3. On the energy Sankey those heat FOuts therefore appear with **no energy FIn** (dummies were non-carrier). That can look like a primary source; it is demand-side efficiency accounting in TIMES, not a fuel import.
 
-**Do not drop these flows.** Soft-linking is universal: every matched export flow stays in QA views. If the left-side placement remains confusing, improve labels/layout — never hide the soft-link.
+**Do not drop these flows.** Soft-linking is universal: every matched export flow stays in QA views. If the left-side placement remains confusing, improve labels/layout — never hide the soft-link. Whether PyPSA should receive retrofit useful-heat FOut as heat supply, a demand reduction, or a separate efficiency signal is an open coupling-design point (see [Open points](#open-points-and-points-of-attention)); the extractor must still show what TIMES reports.
 
-Open modeller note: whether PyPSA should receive retrofit useful-heat FOut as a positive heat supply, a demand reduction, or a separate efficiency signal is a coupling-design question; the extractor must still show what TIMES reports.
+### Underlying export status → colour
 
-### Export link colours (blue vs light red)
+Each collapsed link keeps an `export_status` (`exported` / `context`; `mixed` and
+`double_count` are defined but do **not** occur on real `custom` data). At display
+time an `exported` link is coloured by its `export_sector`
+([Export strategy](#export-strategy-per-sector-colours--demand-inflow-anchoring));
+`context` is grey. Coloured PJ is **path energy** after collapse/netting, not a
+1:1 sum of tagged export rows — some tagged mass ends in magenta `U ·` sinks
+(FOut-only DEM / hub imbalance) rather than a process→process ribbon, so the
+coloured share can sit below 100% of tagged export PJ.
 
-- **Blue**: collapsed link has soft-link mass on the path (`any_exported`: exactly one endpoint exported, or both → purple double-count).
-- **Light red (mixed)**: a single aggregated endpoint still mixes exported + non-exported *rows* before collapse.
-- **Grey**: no export on either endpoint.
-
-Blue PJ on the Sankey is **path energy**, not a 1:1 sum of tagged export rows. Some tagged export mass ends in magenta residual sinks (FOut-only DEM / hub imbalance) rather than a process→process ribbon — that is why blue share can be below 100% of tagged export PJ without those leftovers appearing light red.
-
-Edit `custom` freely in:
-
-- `data/mapping_processes.csv`
-- `data/mapping_commodities.csv`
-
-then re-run QA with `--agg-level custom`. Use `qa_sankey_label_map_{year}.csv` to see which TIMES codes sit under each custom label.
-
-### Collapse colouring rule (any-exported)
-
-After commodity-hub collapse, each Sankey link is one process→process energy transfer
-(the matched `min(ΣFOut, ΣFIn)` portion of a commodity hub).
-
-**Rule:**
-- exactly one endpoint `exported` → **blue**
-- both endpoints `exported` → **purple** (`double_count`; FOut and FIn both soft-linked)
-- neither → grey; endpoint-internal mix → light red
-
-Rationale: PyPSA cares that the soft-link quantity is on the path; the upstream
-import or downstream building that closes the commodity balance is neighbourhood
-context. Requiring both ends exported painted most links light-red; requiring
-neither paints the true soft-link path grey. Purple flags the rare (undesired)
-case where both sides of the same commodity transfer are in `extraction_rules.csv`.
-
-### What becomes blue
-
-With `--agg-level custom` and netting, **every** aggregated export-neighbourhood row is either `exported` (blue) or `context` (grey) — no `mixed` from label collision. In 2030 that is ~376 PJ of pure exported rows before commodity-hub collapse (~320 distinct process×commodity pairs).
-
-After collapse with the any-exported rule, typical export neighbourhood links are blue when they carry a soft-link quantity, including:
-
-#### Import / supply → exported fuel-tech (now blue)
-
-Soft-link rules often export the **fuel input** (`VAR_FIn`) into a fuel-tech process; the upstream import (`VAR_FOut`) is context. Collapse forms one flow → **blue**.
-
-**Example — diesel for road (~49.8 PJ)**
-
-| Role | TIMES code | Attribute | Commodity | Exported? | Rule |
-|------|------------|-----------|-----------|-----------|------|
-| Producer | `IMPOILDST` (Import Diesel) | `VAR_FOut` | `OILDST` (Diesel) | no | — |
-| Consumer | `TRADST00` (Fuel Tech - Diesel TRA) | `VAR_FIn` | `OILDST` | **yes** | `total road` |
-
-Collapsed link: `Imports` → `Fuel Tech - Diesel (TRA)` · `Diesel [OILDST]` · **exported (blue)**.
-
-#### Heat tech → buildings (now blue)
-
-BEWAL / boiler rules export heat **FOut**; building **FIn** of the same heat commodity is not exported. One exported endpoint → **blue**.
-
-**Example — rural condensing gas stove (~11.3 PJ)**
-
-| Role | Code | Flow | Exported? |
-|------|------|------|-----------|
-| Producer | `RH4FGMXN1` | FOut `RH4F` (space heating 4f) | **yes** (`BEWAL…`, `residential rural gas boiler`) |
-| Consumer | `RDW_R_4Fac` | FIn `RH4F` | no |
-
-Collapsed link: heater → `Buildings: built area` · **exported (blue)**.
-(The heater’s gas FIn `RSDGMX` is a separate commodity link and stays grey.)
-
-### What can still be mixed / not “individual” via aggregation alone
-
-#### 1. Same process × commodity already mixed before pairing
-
-If one process has both exported and non-exported rows for the **same** commodity label, that endpoint is `mixed`, and the collapsed link stays mixed.
-
-#### 2. Parent + child double-tagging (~104 PJ of exported *rows*)
-
-One TIMES flow matches two extraction categories (parent ⊇ child). The row is exported once; hover lists both categories. Aggregation cannot draw two Sankey links from one physical flow.
-
-**Examples (2030)**
-
-| Process | Flow | PJ | Categories |
-|---------|------|-----|------------|
-| `RH4FGMXN1` | FOut `RH4F` | 11.35 | `BEWAL residential rural heat` **and** `residential rural gas boiler` |
-| `RH2FGMX100` | FOut `RH2F` | 5.65 | `BEWAL residential urban decentral heat` **and** `residential urban decentral gas boiler` |
-| `TSTGEVCMIDN01` | FIn `BATELCIN` | 4.91 | `electricity road` **and** `total road` |
-
-#### 3. Changing `custom` does not change PyPSA demand CSVs
-
-Extraction still filters on Aggregation Level 2 / `process_agg` + `extraction_rules.csv`. `custom` only affects Sankey / QA display.
+Edit `custom` freely in `data/mapping_processes.csv` and
+`data/mapping_commodities.csv`, then re-run QA with `--agg-level custom`; use
+`qa_sankey_label_map_{year}.csv` to see which TIMES codes sit under each label.
+**Editing `custom` does not change the PyPSA demand CSVs** — extraction filters on
+Aggregation Level 2 / `process_agg` + `extraction_rules.csv`, independent of the
+display level.
 
 ---
 
@@ -305,225 +332,104 @@ python -c "import pandas as pd; m=pd.read_csv('output/qa_overview/qa_sankey_labe
 1. Core = process and commodity codes on flows matched by extraction rules
 2. Keep every energy flow that shares a core process **or** core commodity
 3. That includes upstream producers / other inputs (n−1) and downstream consumers / other outputs (n+1)
-4. Aggregate with the selected `--agg-level` labels; colour blue = exported, grey = context, light red = mixed
+4. Aggregate with the selected `--agg-level` labels; colour exported links by PyPSA sector, context grey
 
 ---
 
-## Investigated Sankey issues (`custom`)
-
-Working notes while reading the whole-system energy Sankey. Goal: understand first, then fix aggregation / mappings; leave explicit open points for TIMES experts. Do not drop soft-link flows to “clean” the diagram.
-
-### CHP: small inputs, large outputs
-
-**What it looked like.** The `CHP` node had much more FOut than FIn (energy conservation apparently violated).
-
-**Causes (stacking):**
-
-1. **Heat pumps wrongly under `CHP`.** Many residential/commercial heat-pump codes contain the substring `ELCHP` / `CHPN` (electric heat pump). `sankey_overview` was incorrectly set to `CHP`, and `refine_custom_labels_for_readability` preferred that overview supply-chain label over the correct `custom` / L2 heat-pump label. Heat pumps have COP ≫ 1, so they inflate CHP outputs vs electricity inputs. Ambient heat (`RSDAHT`) was unmapped (now mapped — see below).
-2. **Missing fuel / process-heat commodities.** The energy Sankey keeps only rows with a mapped `pypsa_carrier`. Fuels `ELCPEL` / `ELCWST` / `ELCSLU` and industrial CHP heat `IPPHTH` / `IOFHTH` / … were absent from `mapping_commodities.csv`, so true CHP plants lost fuel FIn and/or useful-heat FOut.
-3. **CO₂ / pollutants** dominate raw FOut if the carrier filter is skipped — QA already drops them via `filter_energy_carrier_flows`.
-
-**Fixes applied.** Heat-pump `sankey_overview` → `Buildings`; heuristic + refine no longer classify `*ELCHP*` / “heat pump” as CHP; map the missing ELC fuels and industrial HTH commodities. After fix (2030 energy view): CHP ≈ 30 PJ FIn / 19 PJ FOut (out/in ≈ 0.63) — **FIn > FOut is expected** (conversion losses); the previous FOut ≫ FIn was the artifact.
-
-**Still open.** `ETSTP_TVC_WST_E11` is `Type=CHP` in the TIMES dictionary but described as “Pure ELC” (it does emit some `ELCHET`). Dummy commercial heat `CHSADUM` remains unmapped. Confirm with TIMES experts whether waste-to-energy should stay under CHP vs Power plants.
-
-### Fuel tech · methane: looks like primary energy
-
-**What it looked like.** `Fuel tech · methane` had large FOut (sector network gas) and no Sankey inputs.
-
-**Cause.** End-use gas fuel techs (`RSDGMX00`, `COMGMX00`, `INDGMX00`, …) take **`SUPGMX`** (and some **`BIOGAS`**). Those commodities were **not in** `mapping_commodities.csv`, so the energy filter dropped all methane fuel-tech FIn while sector outputs (`RSDGMX`, `COMGMX`, …) stayed. Not a missing import on the Sankey side of the fuel tech — the import is one step upstream:
-
-`IMPGASNAT` → `GASNAT` → `SUPGMX00` (+ upgraded `BIOGZH`) → **`SUPGMX`** → end-use fuel techs → sector gas → boilers.
-
-Local biogas: methanisation → `BIOGAS` → upgrade → `BIOGZH` → same mix.
-
-**Fixes applied.** Map `SUPGMX`, `BIOGAS`, `BIOGZH` (and keep Imports / Fuel conversion / Biogas production as the upstream nodes).
-
-**Still open.** Whether `BIOEFF` (effluents, Mt) should ever appear on an energy Sankey (currently excluded — no PJ carrier). Soft-link methane rules still export **VAR_FIn** into industry/TRA gas fuel techs; residential/commercial `Fuel tech · methane` is mostly context unless those L2 labels are in `extraction_rules.csv`.
-
-### Electricity → “hydrogen imports” (2045+)
-
-**What it looked like.** Electricity ribbons into **hydrogen imports**, with large H₂ out and no H₂ in — as if electricity made hydrogen.
-
-**Cause.** Real TIMES structure, not wrong process lumping. Only `INDGH2C01_i` sits under that label: import-path twin of `INDGH2C01` (delivery COMP+TR+DP). Topology: `IMPH2` (trade) → commodity `IMPH2` + `ELCHIG` (compression) → `INDGH2C01_i` → `INDHH2`. Electricity / H₂-in ≈ 6.6% (same as domestic path). The Sankey hid ~20 PJ (2050) `IMPH2` FIn because **`IMPH2` was absent from `mapping_commodities.csv`**. Node appears from **2045** onward (absent in 2030).
-
-**Fixes applied.** Map `IMPH2`; display rename → **imported H2 delivery** (Agg Level 2 stays `hydrogen imports` for extraction); `sankey_overview` → Fuel conversion.
-
-### Commercial Heat pump COP ≈ 10?
-
-**What it looked like.** Output/input on **Commercial Heat pump** seemed ~10×.
-
-**Cause (2030).** Measured Sankey ratio is **~3.1–3.4**, not ~10. Commercial HPs take **only `COMELC`** — no ambient commodities in this scenario. TIMES embeds COP in electricity→heat (~2.5–4). The ~10× pattern matches **residential** HPs with unmapped `RSDAHT` (urban decentral ~7.5× visible; ~3.3 with ambient). Also: reversible `*ELCHP202` cooling FOut; `CC*` Cluster text had been “Electricity for existing commercial appliances”.
-
-**Fixes applied.** Map `RSDAHT`/`COMAHT` as **Ambient heat**; fix `CC*` to **Commercial cooling**.
-
-**Still open.** Whether commercial should eventually use `COMAHT`. Optional: split reversible/DHW labels.
-
-### Household electrical appliances (FOut > FIn, 2050)
-
-**Checked on follow-up** (listed in the first audit as “E / residual” without a deep drill — that was incomplete).
-
-**Cause.** Almost entirely **LED lighting** `RLIGELC401` (and `RLIGELC500` in earlier years): fixed **FOut/FIn = 5.0** every year (`RSDELC` → `RLIG`). Same TIMES pattern as heat-pump COP: useful lighting service ≫ electricity. Other appliances are ~1:1 or FIn>FOut. Home battery `RSDLIONBATS01` was wrongly under this label (storage, not an appliance) and has FIn>FOut (round-trip loss).
-
-**Fixes applied.** Relabel `RSDLIONBATS01` → **Household battery storage** (out of `residential other` so it is not soft-linked as appliance electricity). No mapping fix for lighting — the 5× is TIMES structure.
-
-**Still open.** Confirm with TIMES experts that RLIG is intentional “lighting service” accounting (not a unit error).
-
-### Residential biomass heaters (FOut > FIn)
-
-**Cause.** Pellet commodity **`RSDPEL`** (and commercial **`COMPEL`**) were **unmapped** → energy filter dropped pellet FIn while heat FOut stayed. Logs (`RSDLOG`) were already mapped.
-
-**Fixes applied.** Map `RSDPEL` / `COMPEL`.
-
-### FOut > FIn audit (`custom`, 2030 / 2050)
-
-| Class | Examples | Action |
-|-------|----------|--------|
-| **A** Primary | Imports & trade, Local production | Expected — no fix |
-| **B** Heat pump / lighting service | Residential/commercial HP; household LED (`RLIG*`) | Ambient mapped; lighting 5× is TIMES (documented) |
-| **C** Aggregation / missing map | LTH solar→PV; pellet `RSDPEL`; home battery under appliances | **Fixed** |
-| **D** Retrofit | Building retrofits | Expected FOut-only heat savings — no fix |
-| **E** Other | (was Fuel refining surplus) | **Resolved** as biogas Mt-feedstock gap + CO₂ misread on `BBLQH2G110` — see Biogas / Fuel conversion section |
-
-CHP, Power plants, PV, Onshore wind, Fuel tech · methane, imported H2 delivery: balanced or FIn>FOut after fixes.
-
-**Still open.** `RSDCPS` chips if used by heaters.
-
-### Transport (other) → Industry; low efficiency; not blue
-
-**What it looked like.** `Transport (other)` with FIn ≫ FOut, a gross ribbon to `Industry (other)`, and no blue upstream links in 2050.
-
-**What `Transport (other)` is.** `custom` context bucket for TRA processes whose Aggregation Level 2 is **not** on any exported row: EV chargers (`TCHARG*`), electric cars (`TCARELC*`), some buses/mopeds. Soft-link exports **fuel techs** (`TRAELC00`, `TRADST00`, …) and **`TRA_STG_PJ_GW`**, not the vehicle DEM processes themselves.
-
-**Causes (stacking):**
-
-1. **Vehicle service outputs unmapped** (`TCAR`, `TMOT`, …) → energy Sankey shows only fuel/electricity FIn into the bucket (looks like a sink / “bad efficiency”).
-2. **`BATELCIN` was unmapped** → energy filter dropped charger → storage charge; `TRA_STG` had no exported energy row in the Sankey path and **collapsed into `Transport (other)`**.
-3. **`BATELCOUT` and `INDELC` both `custom=Electricity`** → merged as `Electricity (context)` → proportional collapse invented **gross** `Transport (other) → Industry (other)` (~16 PJ in 2050). Netted view hid most of it.
-
-**Fixes applied.** Map `BATELCIN` (EV battery charge); distinct customs for `BATELCOUT` / `INDELC`; keep oil/biomass commodities on specific customs (below). After fix: `TRA_STG_PJ_GW` returns as its own node; TO→Industry disappears; blue export sits on `TRA_STG` ← charge and on road fuel techs.
-
-**Still open (soft-link design, not a Sankey bug).** Vehicle DEM / charger processes stay grey — intentional given current rules. Confirm with modellers that **home/work charging electricity** (`COMELC`/`RSDELC` → chargers) should remain outside residential/commercial electricity exports (energy is picked up at `TRA_STG` `BATELCIN` + `TRAELC00`). Unmapped `TCAR`/vehicle-km as non-energy sinks is expected TIMES structure.
-
-### Fuel tech (IND) → Power plants
-
-**What it looked like.** A ribbon from an industry fuel-tech toward Power plants.
-
-**What it actually is.** Direction was reversed on the diagram read: **`Power plants → Fuel Tech - Electricity (IND)`** (~51 PJ, **blue**, HV/MV grid into `INDELC00`) — correct soft-link for industry electricity. A spurious **`Power plants → Fuel Tech - Wood CHIPS (IND)`** came from `Biomass & biofuels (context)` mixing `BIOCPS` with unrelated biomass FOuts under Power plants.
-
-**Fixes applied.** `BIOCPS` / related customs → specific `Wood Chips` (and industry wood-chip labels) so chips no longer share a hub with power-plant biomass byproducts.
-
-### Fuel tech · naphtha → Fuel Tech - Diesel (TRA)
-
-**What it looked like.** Oil flowing from a “naphtha” fuel-tech node into diesel TRA.
-
-**Causes.** (1) `Oil products (context)` merged **diesel + kerosene + gasoline + …**, so collapse invented cross-links (~1–1.5 PJ gross). (2) Display label **`Fuel tech · naphtha`** wrongly included `TRAKER00` (jet kerosene) and agri/commercial oil techs because `end_use_fuel_tech_label` mapped all oil L2 labels to the extraction category `naphtha`.
-
-**Fixes applied.** Specific `custom` labels for `OILDST`/`OILKER`/`TRAKER`/…; refine treats `{family} (context)` as coarse for export hubs; process display split → `Fuel tech · kerosene` / `· oil` / `· diesel` / `· gasoline` (industry HFO/LFO/NEO stay `naphtha` for soft-link). Remaining small **biodiesel → diesel TRA** ribbon is real blending (`TRABDL` into `TRADST00`).
-
-### Domestic navigation — “not exported”?
-
-**Verdict:** **No** — it **is** soft-linked. Category `total domestic navigation` exports **0.45 TWh (1.62 PJ) in 2030** (`wallon_demands_*.csv`).
-
-**TIMES structure**
-
-| Piece | Code | Role | Soft-link |
-|-------|------|------|-----------|
-| Existing inland freight | `TNDFDST00` | DEM; FIn `TRADST` diesel (~0.57 PJ); FOut `TNDF` (~1.62) | Process L2 = `domestic navigation` |
-| New biodiesel inland | `TNAINLBDLN01` | Same `TNDF` commodity; **zero** in this scenario | Was wrongly mapped as Road Freight — **fixed** → `domestic navigation` |
-| Service commodity | `TNDF` | Inland freight activity (VEDA unit **Btkm**; mapping treats as PJ like aviation `TAIF`/`TAIP`) | Carrier `domestic navigation`; rule = **VAR_FOUT** |
-
-**Why the Sankey looks like it is missing**
-
-1. Soft-link quantity is **FOut-only** `TNDF` → after commodity collapse it becomes a magenta **`U · domestic navigation`** sink (same pattern as aviation), not a blue process→process ribbon.
-2. The **diesel energy** into ships sits on `TRADST` / `Fuel Tech - Diesel (TRA)` and is counted under **`total road`**, not under `total domestic navigation` (rule filters `pypsa_carrier=domestic navigation`, which only matches `TNDF`).
-
-**Do not “fix” by dropping road diesel or inventing a second energy export** without modeller agreement — that would double-count or break the aviation-parallel design. Optional follow-ups (open): export `VAR_FIN` diesel into navigation **and** subtract from `total road`; or keep activity export and accept magenta sink as the QA view of the soft-link.
-
-### Commercial appliances → Buildings; residential vs commercial mix
-
-**What it looked like.** Large ribbon from **Commercial electrical appliances** into **Buildings (other)**; hover commodities mixed cooling, lighting, refrigeration, etc.; commercial heat exchangers also fed the same generic Buildings node.
-
-**Causes**
-
-1. Process L2 `commercial other` (soft-link `total electricity services`) bundled **cooling (`CC*`)**, **lighting (`CLIG*`)**, servers/refrigeration/other electric into one friendly Sankey label.
-2. Lighting commodities `CLIG*` / `COEL` were **unmapped** → energy filter dropped much of the lighting FOut (diagram understated / skewed toward mapped cooling + `COSE`/`CREF`).
-3. Context refine collapsed all building DEM to **`Buildings (other)`**: residential `RDW_*` **and** commercial `COM_CBAT_*` together — so commercial heat (`CH*` / `CW*` from **Commercial Heat Exchanger**) looked like it heated “Buildings” in general.
-
-**Fixes applied (Sankey / mappings only — extraction L2 unchanged)**
-
-- Split `custom` process labels: **Commercial cooling** / **Commercial lighting** / **Commercial cooking** / **Commercial electrical appliances**; refine keeps subclasses when L2 is export-touching `commercial other`.
-- Split building sinks: **Residential buildings** vs **Commercial buildings** (+ **Residential cooking**).
-- Map `CLIG*` → carrier/custom **Commercial lighting**; map `COEL` → **Commercial appliance services**.
-- Heat exchanger → **Commercial buildings** is now the expected path.
-
-**Still open.** Soft-link remains a **single** `total electricity services` total (all `commercial other` electricity FIn). Whether PyPSA should later split cooling vs appliances is a coupling-design question. Leftover `Buildings (other)` may still hold commercial retrofit dummies (`Retrofit-M_C_*`) / `CHSADUM-DEM`. `COEN` stays unmapped (Mm², not PJ).
-
-### Power plants → CHP (not electricity)
-
-**What it looked like.** A ribbon from **Power plants** into **CHP** with unclear commodities; expectation was that Power plants only export electricity.
-
-**Cause (2030, ~3.6 TWh).** Not generator electricity. ELC-sector **fuel-tech PRE** processes (`ELCWST00`, `ELCSLU00`, `ELCPEL00`, `ELCBIO00`) were labelled `custom`/`sankey_overview` = **Power plants**. They produce waste/pellet/biomass commodities (`ELCWST`, `ELCSLU`, `ELCPEL`, `ELCBIO`) that true CHP / waste plants consume (`ETSTP_TVC_WST_E11`, `ECHPP_CHP_WOO_N`, `ECHPP_COM_BGS_E05`). Collapse therefore drew **Power plants → CHP** for **fuels**.
-
-There is also a smaller reverse path **CHP → grid** (`ELCHIG` into `EVTRANS_*` / pumped hydro) — real electricity; direction opposite.
-
-**Fixes applied.** Move ELC `ELC*00` fuel techs to **`Fuel tech · {solid biomass, methane, oil, nuclear, hydro}`** (overview Fuel conversion). Power plants keep generators (+ grid/storage still under that bucket for now). Expected Sankey: **Fuel tech · solid biomass → CHP**, not PP→CHP.
-
-**Still open.** `ETSTP_TVC_WST_E11` remains Type=CHP but description “Pure ELC” (waste condensation turbine).
-
-### Fuel refining → biogas / Fuel conversion
-
-**What it looked like.** A large **Fuel refining** node in 2050 (~biogas scale in TWh) with little visible FIn — as if refining were a primary source. Name also poorly matched the processes.
-
-**TIMES biogas pathway (confirmed)**
-
-| Step | Process | Role | 2050 |
-|------|---------|------|------|
-| Local feedstocks (Mt) | `MINBIOEFF`, `MINBIOCUL`, `MINBIOBOU`, (+ `IMPBIOEFF`) | Effluents / energy crops / boues | mass — **not** on energy Sankey |
-| Local sludge (PJ) | `MINBIOSLUH` → `BIOSLUH` | Sludge for methanisation | ~1.3 PJ |
-| Existing / landfill biogas | `MINBIOGAS`, `MINCETGAS` | Direct `BIOGAS` | ~2.6 PJ |
-| Digestor heat | `DIGEOIL100` (diesel → `SUPHET`) | Heat for methanisation | ~1.2 PJ |
-| Methanisation | `BWBIOGAZ100` | → `BIOGAS` | **26.4 PJ** |
-| Upgrading | `BWSUPGZH100` (was unmapped) | `BIOGAS` → `BIOGZH` | **29.1 PJ** |
-| Already-injected | `MINBIOGZH` | Direct `BIOGZH` | ~0.27 PJ |
-| Network mix | `SUPGMX00` | In 2050: **only** `BIOGZH` → `SUPGMX` (no fossil `GASNAT`) | **29.3 PJ ≈ 8.1 TWh** |
-
-So the ~8 TWh “refining” story in 2050 is **Wallonia biomethane potential** (methanisation + upgrade), not oil refining. 2030 is only ~1.1 TWh BIOGZH; ramp completes by ~2040.
-
-**Why FOut ≫ FIn on the old node.** Energy filter keeps only mapped PJ carriers. Mt feedstocks (`BIOEFF`/`BIOCUL`/`BIOBOU`) stay out (correct — not PJ). Only digestor heat + sludge + some MIN biogas were visible → methanisation looked primary.
-
-**Black-liquor H₂ (`BBLQH2G110`).** Apparent huge FOut was **`INDCO2b` biomass CO₂** (dropped by emission filter). Real energy: ~4 PJ `INDBLQ` → ~2.4 PJ `SYNH2CT`.
-
-**Fixes applied.** Rename **Fuel refining → Fuel conversion**; put methanisation/upgrading under **Local production** (stands in for Mt feedstocks); add `BWSUPGZH100` to mapping; map `BIOSLUH`. Local production FOut now includes ~29 PJ BIOGAS + ~29 PJ BIOGZH in 2050.
-
-**Still open.** Whether soft-link/Phase-2 should treat Wallonia biogas potential as a PyPSA local supply.
-
-### EV chargers / `TRA_STG_PJ_GW` (was Transport (other) → TRA_STG)
-
-**What `TRA_STG_PJ_GW` is.** Process `TSTGEVCMIDN01` (`Type=STG`): Wallonia **EV fleet battery storage** buffer. Topology: `BATELCIN` IN (from chargers) → `BATELCOUT` OUT (to electric vehicles). Soft-linked under `electricity road` / `total road` (charge FIn).
-
-**What looked like a self-loop.** Opaque labels **Transport (other)** → **TRA_STG_PJ_GW**. Transport (other) was almost only `TCHARG*` (home/work EV chargers: electricity in → `BATELCIN` out). Not a self-loop — the real path is:
-
-`… electricity → EV chargers → EV battery storage → Cars`
-
-**Fixes applied.** Rename Transport (other) → **EV chargers**; TRA_STG → **EV battery storage**; keep L2 `TRA_STG_PJ_GW` for extraction. Protect EV charger label from collapsing back to `(other)`.
-
-### Electricity storage (batteries / pumped hydro)
-
-**What it looked like.** No clear storage nodes with charge in / discharge out — grid batteries and pumped hydro were swallowed by **Power plants**; household battery existed but looked FIn-only after netting.
-
-**Cause.** TIMES storage uses the **same** electricity commodity for charge and discharge (`ELCHIG` for grid/pumped; `RSDELC` for home). Under one Power plants label those become self-loops (dropped). Merging `ELCHIG`+`RSDELC` as custom `Electricity` also mixed hubs. Contrast **EV battery storage** (`TRA_STG`), which has distinct `BATELCIN` / `BATELCOUT`.
-
-**Fixes applied.** Separate process labels: **Grid battery storage** (`ESTBATS*`), **Pumped hydro**, **Household battery storage**. Distinct customs: `Grid electricity (HV)` / `Residential electricity`.
-
-**Still open.** Proportional collapse still spreads discharge across all consumers of that electricity hub. Optional: storage-specific charge/discharge commodity aliases.
-
----
+## Coverage gap: what stays out of the export (and why)
+
+The DMD coverage gap (`qa_coverage_gap_*.csv`) is ~290 PJ (2030) / ~260 PJ
+(2050), but almost all of it is **consumption-side (n+1) of already-exported
+production** and must stay out to avoid double-counting:
+
+| Unexported flow | Why excluding is correct |
+|-----------------|--------------------------|
+| `Buildings: built area` × Heat (~78 PJ) | Buildings consume the boiler heat already exported as the BEWAL / boiler `VAR_FOut`. |
+| `Cars` / `Road Freight` × `total energy for transport` | Vehicles consume the transport fuel `total road` already exports at the fuel-tech `VAR_FIn`. |
+| `Industry` / `IND_DMD_MT_*` × gas / electricity / heat / coke for industry | Consumption of fuels the industry fuel-tech rules export one hop upstream. |
+| `Building Existing *` × Commercial lighting / cooling / Heat | Service consumption downstream of `commercial other` electricity (captured) and the services-heat rules. |
+| Commercial / residential heat-pump & electric-heater electricity | Captured via their **heat `VAR_FOut`** (BEWAL rules), not their electricity `VAR_FIn`. |
+
+## Open points and points of attention
+
+Genuine open items; the debugging history that produced the current mappings is
+in the change log below.
+
+### Extraction rules / demand CSVs
+
+- **Aviation kerosene FIN-vs-FOUT.** `total (domestic|international) aviation`
+  export the service `VAR_FOut` (`TAIF`/`TAIP`, treated as PJ), parallel to
+  navigation. The kerosene `VAR_FIn` (~30 PJ) stays out — exporting it too would
+  double-count. Confirm the FOut convention is what PyPSA expects.
+- **`total international navigation` is always 0.** Its filter label
+  `international navigation` is absent from `mapping_processes.csv`
+  Aggregation Level 2, so the rule matches nothing; the category is on the
+  known-zero allowlist. If international navigation should be non-zero, correct
+  the label.
+- **Known-zero allowlist**: `ammonia`, `methanol`, `total international
+  navigation`, `coal` — expected 0 in this scenario (re-check on a new one).
+  Several residential coal / biomass / solar / oil boiler categories are 0 in
+  2050 but non-zero earlier — expected.
+- **Domestic navigation** is exported as FOut-only activity (`TNDF`, Btkm) → a
+  magenta `U · domestic navigation` sink; the diesel energy into ships is counted
+  under `total road`. Optional refinement: export the diesel `VAR_FIn` into
+  navigation and subtract it from `total road`.
+- **Parent + child categories** (e.g. `BEWAL residential rural heat` ⊇
+  `residential rural gas boiler`) tag the same TIMES flow under two categories by
+  design — a hierarchy, not a double-count (do not sum parent and children).
+  ~104 PJ of exported rows (2030) carry two categories; `qa_parent_child_*.csv`
+  validates the identities.
+
+### Balances / loops (QA tables)
+
+- **Comnet residuals.** After restricting to FIn/FOut-active commodities, some PJ
+  carriers still disagree with `VAR_Comnet` (trade / stock / IMPEXP terms outside
+  process flows). See `qa_node_balance_*.csv`.
+- **Surviving loops after netting** (`qa_loops_*.csv`): industry heat/steam cycle
+  (`INDHET`/`INDHTH`), steel scrap / electric-furnace cluster, bio/CHP/electricity
+  cluster (`ELCHIG`/`INDELC`) — physical recycles / CHP feedbacks vs aggregation
+  artefacts.
+- **Topology.** For the reference `.vd`/`.vdt` there are **zero** mismatches after
+  ignoring `process_code='-'` (GHG aggregates). Re-check
+  `qa_topology_mismatches_*.csv` on a new pair.
+
+### Sankey display / classification
+
+- **CHP.** `ETSTP_TVC_WST_E11` is `Type=CHP` but described “Pure ELC” (waste
+  condensation turbine); dummy commercial heat `CHSADUM` is unmapped. Whether
+  waste-to-energy belongs under CHP or Power plants is open.
+- **Commercial electricity** is soft-linked as a single `total electricity
+  services` total; splitting cooling / lighting / appliances is a coupling-design
+  choice. `COEN` (Mm²) and some retrofit dummies stay unmapped / context.
+- **EV charging.** Home/work charging electricity (`RSDELC`/`COMELC` → chargers)
+  stays grey; the road electricity is picked up at `TRA_STG` (`BATELCIN`) +
+  `Fuel Tech - Electricity (TRA)`. Vehicle-km (`TCAR`, …) are unmapped non-energy
+  sinks (expected).
+- **Retrofit.** `Retrofitting improvements` produces useful-heat `VAR_FOut` from
+  non-carrier dummy option commodities, so it appears with no energy `VAR_FIn`
+  (demand-side efficiency accounting, not a fuel import). How PyPSA should treat
+  retrofit heat (supply / demand reduction / efficiency signal) is open.
+- **LED lighting** `RLIG*` has FOut/FIn = 5.0 (useful lighting service ≫
+  electricity) — TIMES service accounting, not a unit error; same COP-style
+  pattern as heat pumps.
+- **Wallonia biogas** (methanisation + upgrade, ~8 TWh by 2050) is shown under
+  Local production (standing in for the Mt feedstocks off the energy Sankey);
+  whether it becomes a PyPSA local supply is a coupling-design choice.
+- **Electricity storage** discharge spreads across the non-storage consumers of
+  the pooled HV electricity commodity (`ELCHIG`) — correct for a pooled commodity;
+  storage↔storage collapse links are dropped as artefacts.
+- **`sankey_overview` mixed clusters.** Coarse carrier clusters that mix grid
+  fuels with FOut-only end-uses (Oil products / Electricity) can show
+  ΣFOut ≫ ΣFIn residuals; FOut-only hubs become magenta `U ·` sinks.
 
 ## Change log (aggregation / Sankey understanding)
 
 | Date | Change | Reason |
 |------|--------|--------|
+| 2026-07-24 | **Export strategy rework**: colour exported links by PyPSA sector (Industry/Transport/Residential/Services/Agriculture) and anchor soft-linked fuel `VAR_FIn` to the demand inflow (`assign_export_sectors`). Removed single-blue / light-red-mixed colouring. | Exports were scattered (FIn near supply, FOut near demand) and indistinguishable (all blue); mixed verified never to occur |
+| 2026-07-24 | Coverage-gap / double-count fixes: added `residential cooking` rule (~1.4→4.6 PJ/yr); fixed biofuel-blending double-count in `total road` (`road_internal_transfer_pj`, −5 PJ 2030 → −0.3 PJ 2050). Only these two categories change in `wallon_demands_*.csv`. | Sankey purpose: catch forgotten flows / double counts |
+| 2026-07-24 | Keep Cars / Road Freight / Road transport (public) / 2–3 wheelers as context labels; drop electricity storage↔storage collapse links | RHS `Transport (other)` was opaque mix of modes; Pumped hydro→Grid battery was ELCHIG proportional artifact |
+| 2026-07-22 | Move digestor diesel / black-liquor / biofuel synthesis PRE out of Local production → Fuel conversion | LP must stay primary; diesel & INDBLQ were carrier FIn into LP |
 | 2026-07-22 | Biogas under Local production; EV chargers + EV battery storage renames | LP replaces Mt feedstocks; clarify TRA_STG path |
 | 2026-07-22 | Rename Fuel refining→Fuel conversion; map `BWSUPGZH100`/`BIOSLUH`; storage nodes + split HV/residential electricity | Biogas≈8 TWh Wallonia potential; storage charge/discharge invisible under PP |
 | 2026-07-21 | ELC `ELC*00` fuel techs: Power plants → `Fuel tech · …` | Fake PP→CHP fuel ribbon; PP should mainly show electricity |

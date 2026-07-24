@@ -2,7 +2,7 @@
 
 Soft-linking between the TIMES-WAL and PyPSA-WAL models. This repository provides the **`times_pypsa`** Python package to parse TIMES `.vd` output files, extract PyPSA demand categories, generate interactive Sankey energy-flow diagrams, and run multi-view extraction quality assurance.
 
-Related: [SOFTLINKING_ANALYSIS.md](SOFTLINKING_ANALYSIS.md) for architecture, coupling workflow, verification, and open modeller questions. [aggregation.md](aggregation.md) for Sankey aggregation levels, and export colouring limits.
+Related: [SOFTLINKING_ANALYSIS.md](SOFTLINKING_ANALYSIS.md) for architecture, coupling workflow, verification, and open questions. [aggregation.md](aggregation.md) for Sankey aggregation levels and export colouring.
 Important note: when testing, and troubleshooting, always use the 'custom' aggregation level.
 
 ### Soft-linking is universal (no ad-hoc flow drops)
@@ -180,14 +180,12 @@ Generated files (synced to the web server by the rsync script):
 
 Documentation for the TIMES → PyPSA soft-link extraction quality-assurance toolkit: data model, aggregation levels, multi-view Sankey report, and tests.
 
-#### Status (direct answers)
+#### Design summary
 
-| Question | Answer |
-|----------|--------|
-| Are current extraction rules adequate? | **Partially.** Parent–child heat identities match; no disallowed double-counting after the rail allowlist; topology is clean. But DMD coverage gaps remain large (~330 PJ in 2050), so we cannot claim “no forgotten demand” without TIMES-expert confirmation (see [Questions for TIMES experts](#questions-for-times-experts)). |
-| Former aggregation rules still active? | **Yes.** Extraction still uses `mapping_processes.csv` **Aggregation Level 2** (column `process_agg`), `mapping_commodities.csv` **PyPSA Energy Carrier**, and `extraction_rules.csv` unchanged in formalism. |
-| New aggregation rules / new CSV formalism? | **Shared column names.** Any aggregation level is a column present in **both** mapping CSVs; `--agg-level` / `aggregate_flows(level=...)` selects it. Bundled levels: `Sector`, `Aggregation Level 1`, `Aggregation Level 2`, `custom` (readable working level: export L2 + context collapse), `sankey_overview`. Details: [aggregation.md](aggregation.md). Alias `mapping` ≡ `Aggregation Level 2`. |
-| What changed in the Sankey? | **Commodity hubs collapsed** to process→process flows (commodities are link labels). Expected final-demand / non-PJ residuals become magenta `U ·` nodes named after the demand process (not logged as errors); unexplained imbalances keep `Unbalanced …` labels and error/warn. Process nodes are **green**. Whole-system + export-neighbourhood views; multi-year timeline + netting toggle; `sankey_overview` (~17 process labels before collapse). |
+- **Extraction** filters on `mapping_processes.csv` **Aggregation Level 2** (column `process_agg`), `mapping_commodities.csv` **PyPSA Energy Carrier**, and the categories in `extraction_rules.csv`. Changing a Sankey/QA aggregation level never changes the exported demands.
+- **Aggregation levels** are shared CSV column names selected with `--agg-level` / `aggregate_flows(level=...)`: `Sector`, `Aggregation Level 1`, `Aggregation Level 2` (default; alias `mapping`), `custom` (readable working level: export-touching L2 kept, context collapsed), `sankey_overview` (≤20 nodes). Details: [aggregation.md](aggregation.md).
+- **Sankey** collapses commodity hubs to process→process flows (commodities become link labels). Process nodes are green; expected final-demand / non-PJ residuals become magenta `U ·` sink nodes; unexplained imbalances keep `Unbalanced …` labels and warn/error. Exported links are coloured by **PyPSA sector** and anchored to the demand inflow (see [aggregation.md](aggregation.md#export-strategy-per-sector-colours--demand-inflow-anchoring)).
+- **Adequacy**: parent–child heat identities hold and topology is clean for the reference scenario; the residential-cooking gap and the biofuel-blending double-count are fixed. The remaining DMD coverage gap is consumption-side (n+1) of already-exported production — see [Open points](#open-points).
 
 #### TIMES data model
 
@@ -256,9 +254,15 @@ Full documentation (how to add levels, commodity-hub collapse, node/link colours
 |---------|--------|
 | Process nodes | green |
 | Imbalance residual nodes | magenta (`U ·`; expected sinks use process name) |
-| Link exported / mixed / context / double-count | blue / light red / grey / purple |
+| Exported links | **by PyPSA sector**: Industry (blue) · Transport (orange) · Residential (red) · Services (teal) · Agriculture (brown) |
+| Context links | grey |
+| Double-count links | purple (both FOut+FIn exported; should not occur) |
 
-After commodity collapse, a link is **blue if exactly one endpoint is exported**, **purple if both FOut and FIn are exported**. Plotly cannot gradient-colour a link left/right. See [aggregation.md](aggregation.md#collapse-colouring-rule-any-exported).
+Exported links are coloured by their PyPSA end-use sector, and soft-linked fuel
+inputs are **anchored to the demand inflow** (e.g. industry fuel exports sit on
+`Fuel Tech (IND) → Industry`, not the upstream import link). The former single
+blue / light-red *mixed* scheme is retired (mixed verified never to occur). See
+[aggregation.md](aggregation.md#export-strategy-per-sector-colours--demand-inflow-anchoring).
 
 ```bash
 times-pypsa qa \
@@ -340,39 +344,26 @@ That writes `toy_scen.*` (coverage / balances) and a leaner `toy_qa.*` (two year
 | `test_collapse_commodities.py` | commodity hub collapse; expected final-demand / non-PJ sinks vs unexplained imbalance warn/error |
 | `test_qa_html.py` | interactive QA HTML, Sankey colours/netting, multi-year report |
 
-Known-zero allowlist (SOFTLINKING Q3): `ammonia`, `methanol`, `total international navigation`, `coal`.
+Known-zero allowlist: `ammonia`, `methanol`, `total international navigation`, `coal` (expected 0 in the reference scenario; re-check on a new one).
 
-#### Questions for TIMES experts
+#### Open points
 
-Filled from QA run on `scen_corrige_251129_0112`, year **2050** (`output/qa_2050/`). Re-run `times-pypsa qa` after mapping changes.
+Points of attention for the reference scenario; the full list with context is in
+[aggregation.md § Open points](aggregation.md#open-points-and-points-of-attention).
+Re-run `times-pypsa qa` after any mapping/rule change and re-read the QA tables.
 
-1. **Comnet residuals on energy commodities.** After restricting to commodities with FIn/FOut activity, some PJ carriers still disagree with `VAR_Comnet`. Are trade / stock / IMPEXP terms expected outside process flows? See `qa_node_balance_2050.csv` failures.
-
-2. **DMD coverage gaps.** Unexported end-use (`Type=DMD`) FIN flows — see `qa_coverage_gap_2050.csv`. Notable examples in this scenario:
-   - `international aviation` × Kerosenes (~31 PJ FIN) while the soft-link rule uses `VAR_FOUT` — confirm FIN vs FOUT choice.
-   - `Cars` × `BATELCOUT` (~23 PJ) — battery discharge into EVs; grid electricity is already taken via `Fuel Tech - Electricity (TRA)` + `TRA_STG`. Confirm this should stay excluded (avoid double count).
-   - `Buildings: built area` × Heat — large RSD heat-like flows not in residential boiler / BEWAL heat rules. Soft-link intentionally, or missing?
-
-3. **Persistent zeros.** Confirm these stay absent (allowlisted): `ammonia`, `methanol`, `total international navigation`, `coal` (no industry hard-coal/lignite FIN in soft-link years for this scenario). Many residential coal/biomass/solar/oil boiler categories are also 0 in 2050 but non-zero in earlier years — OK.
-
-4. **Topology mismatches.** After ignoring `process_code='-'` (GHG aggregates), **this scenario has zero mismatches**. Re-check if a new `.vd`/`.vdt` pair starts reporting rows in `qa_topology_mismatches_*.csv`.
-
-5. **Commodity hub imbalance after `sankey_overview` collapse (2050).** Intermediate carriers that mix grid fuels with final-demand commodities (FOUT-only end-uses such as aviation fuels `TAIF`/`TAIP`, non-energy `NEO`, residential/commercial appliance electricity `ROEL`/`COSE`/…) show ΣFOut ≫ ΣFIn at the aggregated label. Pure FOut-only hubs are now treated as expected demand sinks (magenta `U ·` named after the process, no error). Mixed clusters (e.g. overview `Oil products` / `Electricity`) can still show unexplained residuals — confirm whether those end-use commodities should stay out of the carrier clusters (or be mapped to a dedicated “Final demand” overview label).
-
-6. **Surviving loops after netting** (`qa_loops_2050.csv`):
-   - Industry heat/steam cycle (`INDHET` / `INDHTH` / …)
-   - Steel scrap/electric furnace cluster
-   - Large bio/CHP/electricity cluster (`ELCHIG`, `INDELC`, …)
-   Are these physical recycles / CHP feedbacks, or aggregation artifacts?
-
-7. **`process_agg` label typos.** Any Aggregation Level 2 labels in `extraction_rules.csv` that do not exist in `mapping_processes.csv`? (Automated check recommended as follow-up.)
-
-8. **Services district heating vs BEWAL services heat.** In 2050, BEWAL services urban decentral heat is only ~0.25 PJ (mostly gas boiler). Is commercial heat demand that low in this scenario, or are district / other techs mis-mapped?
+- **Aviation kerosene FIN-vs-FOUT** — aviation is exported as the service `VAR_FOut`; the ~30 PJ kerosene `VAR_FIn` stays out to avoid double-counting. Confirm the convention matches PyPSA.
+- **Comnet residuals** — some PJ carriers disagree with `VAR_Comnet` (trade / stock / IMPEXP terms outside process flows); see `qa_node_balance_*.csv`.
+- **Surviving loops after netting** — industry heat/steam, steel electric-furnace, and bio/CHP/electricity clusters; physical recycles or aggregation artefacts (`qa_loops_*.csv`).
+- **Commercial electricity** is soft-linked as a single `total electricity services` total (cooling / lighting / appliances not split).
+- **`total international navigation`** is always 0 — its filter label `international navigation` is absent from the mappings and the category is allowlisted as known-zero; correct the label if it should be non-zero.
 
 #### Rule-change log
 
 | Date | Change | Evidence | Demand CSV impact |
 |------|--------|----------|-------------------|
+| 2026-07-24 | **Export strategy**: exported Sankey links coloured by PyPSA sector (Industry/Transport/Residential/Services/Agriculture) and anchored to the demand inflow (`assign_export_sectors`); retired single-blue/light-red-mixed scheme (mixed verified absent). | `test_export_sectors.py`, `output/qa_custom/`, [aggregation.md](aggregation.md#export-strategy-per-sector-colours--demand-inflow-anchoring) | None (display only; CSVs byte-identical 2021–2050) |
+| 2026-07-24 | **Coverage-gap fixes**: added `residential cooking` rule (uncaptured demand, ~1.4→4.6 PJ/yr); fixed biofuel-blending double-count in `total road` (`road_internal_transfer_pj`). | `test_export_sectors.py`, `test_extraction_coverage.py` | **`total road` −5 PJ (2030) → −0.3 PJ (2050); new `residential cooking` category. No other category changes (byte-diff, all years).** |
 | 2026-07-18 | Introduced QA toolkit; canonical filter column `process_agg` (legacy `agg_level_1` alias). Allowlist: `total rail`⊃`electricity rail`; known-zero `coal`. No `extraction_rules.csv` edits. | `output/qa_2050/` | None |
 | 2026-07-18 | Sankey HTML: whole-system view + multi-year timeline + netting toggle on all Sankeys; `--year` optional (defaults to all model years). | `output/qa/` | None |
 | 2026-07-18 | Column-based Sankey aggregation (`--agg-level`); shared CSV columns including `sankey_overview` (≤20 nodes). Commodities gained `Aggregation Level 1/2` aligned with process headers. | mappings + `test_aggregation_levels.py` | None |
