@@ -6,21 +6,6 @@ in 2050 (and only in 2050), there is a flow from Fuel Tech - Nuclear to "Gas pow
     why do we have that in 2050?
 Residential cooking (commodity: Rsd.Cooking.Existing) does not seem to be exported to pypsa.
 
-In 2050, there is hydrogen import (0.63 TWh) feeding process "CHP", which produces only heat for "fuel tech heat". 
-    what is this? 
-    is it correct? no electricity generation?
 heat flow Dum_Retrofit_Commercia -> Buildings built are: 0.34 TWh in 2050
     What is this
     it is not exported to pypsa. Should it be?
-
-- wy is there a flow from pumped hydro to "grid battery storage". To be corrected if necessary
-    → SOLVED (Sankey artifact): both charge/discharge on shared ELCHIG. Proportional
-      commodity-hub collapse invented Pumped hydro → Grid battery. Now drop links
-      between ELECTRICITY_STORAGE_SANKEY_LABELS (grid battery / pumped / household).
-      Real path remains grid/generators ↔ each storage; FIn>FOut on each storage = losses.
-- "tranport (other)" a right hand side node, is too vague. Is it individual passengeer transport? public? freight? This should be clarified
-    → SOLVED (labels): was a refine dump of *all* vehicle DEM (Cars + Road Freight +
-      buses + mopeds) because those L2 labels are not soft-linked (fuel techs are).
-      Keep context customs: **Cars** (private passenger), **Road Freight**,
-      **Road transport (public)**, **2 and 3 wheelers**. Soft-link unchanged.
-

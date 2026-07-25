@@ -49,9 +49,9 @@ def totals_all_horizons(times_model, rules):
 
 
 def test_rule_count(rules):
-    # 54 original + residential cooking (2026-07-24) + its electric split and the
-    # services data-centre split (2026-07-25).
-    assert len(rules) == 57
+    # 54 original + residential cooking (2026-07-24) + its electric split, the
+    # services data-centre split and `services other fuel` (2026-07-25).
+    assert len(rules) == 58
 
 
 def test_empty_rules_only_allowlisted(totals_all_horizons, rules):
@@ -258,7 +258,7 @@ def test_rule_metadata_columns_are_complete(mappings_dir):
     from times_pypsa.pipeline import load_rule_metadata
 
     meta = load_rule_metadata(mappings_dir / "extraction_rules.csv")
-    assert len(meta) == 57
+    assert len(meta) == 58
 
     missing_sector = [c for c, m in meta.items() if not m.sector]
     assert not missing_sector, f"Categories with no pypsa_sector: {missing_sector}"

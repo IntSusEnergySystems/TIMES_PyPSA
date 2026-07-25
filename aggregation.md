@@ -486,16 +486,20 @@ python -c "import pandas as pd; m=pd.read_csv('output/qa_overview/qa_sankey_labe
 
 ## Coverage gap: what stays out of the export (and why)
 
-The DMD coverage gap (`qa_coverage_gap_*.csv`) is **356 PJ (2030) / 331 PJ
-(2050)** — re-measured 2026-07-25; the previously documented "~290 / ~260 PJ"
-was stale by 23–27% relative to the mapping rewrite. The split is **not** "almost
-all consumption-side":
+The DMD coverage gap (`qa_coverage_gap_*.csv`) is **324.7 PJ (2030) / 298.0 PJ
+(2050)** — measured on the current rules after `services other fuel` was added
+(325.6 / 298.8 PJ before it). The "356 / 331 PJ" quoted earlier on 2026-07-25 was
+itself taken mid-audit, before the later rule fixes of that day. The split is
+**not** "almost all consumption-side":
 
 | Class | 2030 | 2050 |
 |-------|-----:|-----:|
-| (a) downstream (n+1/n+2) of already-exported production — correct to exclude | 272 PJ (**76%**) | 246 PJ (**75%**) |
-| (c) non-energy / material accounting **or commodity missing from `mapping_commodities.csv`** | 68 PJ (**19%**) | 70 PJ (**21%**) |
-| (b) PJ commodity with no exported producer | 17 PJ (5%) | 15 PJ (4%) |
+| (a) downstream (n+1/n+2) of already-exported production — correct to exclude | ~239 PJ (**74%**) | ~209 PJ (**70%**) |
+| (c) non-energy / material accounting **or commodity missing from `mapping_commodities.csv`** | 68.3 PJ (**21%**) | 73.8 PJ (**25%**) |
+| (b) PJ commodity with no exported producer | ~17 PJ (5%) | ~15 PJ (5%) |
+
+Class (c) is measured directly (rows with no `pypsa_carrier`); class (b) is the
+earlier count and class (a) is the remainder, so those two are approximate.
 
 Class (c) is **not all non-energy**: it includes ~37 PJ (2030) / ~42 PJ (2050) of
 industrial heat / mechanical-energy commodities (`ICHHTH` 11.3, `ICHMCH` 8.4,
@@ -748,16 +752,130 @@ the meaning of the total between 2030 and 2050; the child category
 the parent stays byte-identical. Being a child, it must **not** be added to any
 pypsa-wal sum.
 
-**Still open** (each changes the demand CSVs, so each is a coupling decision)
+### Which demand keys pypsa-wal actually reads
 
-- **~0.87 PJ of commercial fuel is soft-linked by no rule** — the non-electric legs
-  of `Com.Other Energy` (`COENMIX100/101`: 0.55 PJ network gas, 0.26 PJ oil, plus
-  LPG, wood chips, pellets, gasoline, biodiesel) and gas/LPG commercial cooking
-  (`CCOKGMX101`, `CCOKLPG101`). Nearly flat across years. It would need a
-  PyPSA-Eur `services cooking` / `total services` key, and
-  `build_population_weighted_energy_totals.py` substitutes on *column-name match*,
-  so such a key feeds pypsa-eur's own downstream logic — agree the substitution
-  before wiring it in.
+Before adding a category it is worth knowing whether anything on the PyPSA side
+will read it. `build_population_weighted_energy_totals.py` substitutes on
+**column-name match** (`nodal_totals.columns.intersection(wallon_demands.index)`)
+and `build_industrial_energy_demand_per_node.py` does the same against the
+industry frame — so a category lands in a PyPSA input file as soon as its name
+matches an existing column. That is *not* the same as being used: several
+`build_energy_totals.py` columns are written and then read by nobody.
+
+Audited 2026-07-25 across `scripts/` and `rules/` in pypsa-wal:
+
+| Key | Where it is consumed |
+|---|---|
+| `total {residential,services} {space,water}`, `electricity {…} {…}` | `build_heat_demand` → the heat loads (`uses = ["water", "space"]` only) |
+| `distributed heat {residential,services}`, `thermal uses {…}` | `build_district_heat_share`, sufficiency heat rescaling |
+| `total electricity residential` + `total electricity services` + `total rail` | the single factor that scales the whole Walloon electricity load |
+| `total {domestic,international} aviation`, `total domestic navigation` | `add_aviation`, `add_shipping` loads |
+| `total agriculture {electricity,heat,machinery}` | `add_agriculture` loads |
+| `BEWAL {residential urban decentral,residential rural,services urban decentral} heat`, `{residential,services} district heating` | `write_wallon_heat_demands` rescales the Walloon heat loads |
+| industry columns (`electricity`, `coal`, `coke`, `methane`, `hydrogen`, `naphtha`, `solid biomass`, `low-temperature heat`, `ammonia`, `methanol`) | `add_industry` loads |
+| **`total services cooking`, `electricity services cooking`, `total residential cooking`, `electricity residential cooking`** | **nothing** |
+| **`total services`, `electricity services`\*, `total residential`** | **nothing** (\*`electricity services` only in the unrelated sufficiency branch) |
+
+The cooking rows are the load-bearing finding: PyPSA-Eur builds tertiary and
+residential heat from `space` + `water` only (`build_hourly_heat_demand.py`:
+`uses = ["water", "space"]`), and cooking is dropped for every country. So
+writing `total services cooking` from TIMES would have produced a column in
+`pop_weighted_energy_totals.csv` that no PyPSA component ever looks at — a
+coverage table that reads 100% while the energy is still missing from the model.
+
+### Tertiary non-electric fuel: `services other fuel`, and why `total services cooking` is a dead end
+
+The 0.87 PJ is four processes, and only these four of the ~92 `commercial other`
+processes consume anything but electricity — so a carrier filter isolates them
+exactly:
+
+| Process | Description | 2030 | 2050 |
+|---|---|---:|---:|
+| `COENMIX100` | `Com.Other Energy.00.Other.` | 0.802 | 0.802 |
+| `COENMIX101` | `Com.Other Energy.101.Other` | 0.043 | 0.034 |
+| `CCOKGMX101` | `Com.Cooking.GMX.01.Stove.` | 0.020 | 0.037 |
+| `CCOKLPG101` | `Com.Cooking.LPG.01.Stove.` | 0.002 | — |
+| **total** | | **0.867 PJ** | **0.873 PJ** |
+
+By carrier in 2030: network gas 0.568, oil 0.262, LPG 0.017, wood chips 0.010,
+gasoline 0.005, pellets 0.004, biodiesel 0.001 PJ. Flat across the horizon
+(0.802 PJ in 2021 → 0.910 in 2045 → 0.873 in 2050). `Com.Other Energy` is a 1:1
+pass-through in TIMES (`VAR_FOut COEN` = Σ`VAR_FIn`, efficiency 1.000); the two
+cooking stoves are 61% efficient, so 0.008 PJ of the total is stove loss rather
+than delivered service.
+
+The new rule reads it at `demand_input` on `process_agg = commercial other` with
+the seven non-electric commercial carriers. It is **disjoint** from
+`total electricity services` (carrier `Electricity` only) and from the services
+heat rules (different Aggregation Level 2), so it is a sibling total with no
+parent, and `qa_double_count_*.csv` stays empty. Services still reconciles
+exactly on the Sankey (`coloured_share` = 1.000 in 2030 and 2050) with the new
+flows coloured teal.
+
+**Why not `total services cooking`.** It is a real `build_energy_totals.py`
+column, so the substitution would have worked mechanically — and delivered
+nothing, because no PyPSA component reads it (table above). It is also the wrong
+name: 0.80 of the 0.87 PJ is `Com.Other Energy`, not cooking.
+
+**What pypsa-wal must do to serve it.** The only live tertiary non-electric sink
+is the services heat load, rescaled in `write_wallon_heat_demands`:
+
+```python
+heat_categories = [
+    "BEWAL residential urban decentral heat",
+    "BEWAL residential rural heat",
+    "BEWAL services urban decentral heat",
+]
+for heat_demand in heat_categories:
+    target_heat = wallon_heat.loc[[heat_demand], "TWh"].sum()
+```
+
+`services other fuel` must be **added** to the services target
+(`wallon_heat.loc[["BEWAL services urban decentral heat", "services other fuel"], "TWh"].sum()`),
+exactly as `residential cooking electricity` has to be added to the
+electricity-load sum. That is +0.24 TWh, i.e. **+5.7%** on the 4.21 TWh
+(15.17 PJ) Walloon services decentral heat load in 2050, and it brings ~50 kt/yr
+of CO₂ (`COMCO2N` 48.6 kt on `COENMIX100` alone) inside the modelled system
+instead of leaving it out of the Walloon balance.
+
+Two caveats to agree before wiring it, both stated so the choice is explicit:
+
+- **PyPSA-Eur drops this bucket for every other node.** Its own tertiary
+  accounting keeps space + water heat and electricity and discards
+  cooking / other-energy, so serving Wallonia's 0.87 PJ makes the Walloon node
+  more complete than its neighbours rather than consistent with them.
+- **The heat bus is an approximation for these end-uses.** On the heat bus the
+  fuel becomes a demand a heat pump may serve at COP 3, which is a reasonable
+  electrification story for cooking and miscellaneous building energy but not for
+  the 0.005 PJ of commercial gasoline. The alternative — a dedicated inelastic
+  Load on the gas / oil buses, as pypsa-eur does for `gas for industry` and
+  `agriculture machinery oil` — preserves the fuel and its CO₂ exactly but needs
+  new components in `prepare_sector_network.py` rather than one changed line.
+
+Until that line changes, `services other fuel` is emitted and visible (it left
+`qa_coverage_gap_*.csv`, which drops from 325.6 to 324.7 PJ in 2030) but not yet
+served by PyPSA.
+
+**Resolved 2026-07-25 (third pass — the pypsa side was read)**
+
+- **The commercial fuel is now soft-linked, as `services other fuel`.** The
+  0.87 PJ that no rule matched is the non-electric legs of `Com.Other Energy`
+  (`COENMIX100`/`COENMIX101`) plus the gas and LPG commercial cooking stoves
+  (`CCOKGMX101`, `CCOKLPG101`). It is now a category of its own; see
+  [§ Tertiary fuel](#tertiary-non-electric-fuel-services-other-fuel-and-why-total-services-cooking-is-a-dead-end)
+  for the composition, why `total services cooking` was the wrong route, and the
+  one-line change pypsa-wal needs to serve it.
+- **`total electricity services` will not be split further.** PyPSA-Eur has no
+  bus for the parts — verified, not assumed: `cooling` appears nowhere in
+  `prepare_sector_network.py` except the EV-cabin temperature correction, and
+  there is no lighting, appliance or refrigeration carrier anywhere in the
+  Walloon build. `total electricity services` is consumed as a **single scalar**
+  that scales the whole Walloon electricity load
+  (`prepare_sector_network.py`, alongside `total electricity residential` and
+  `total rail`). Data centres stay the one informational child, because they go
+  from 32% of the total in 2030 to 49% in 2050 and a user may want to site or
+  shape them; cooling, lighting, appliances and refrigeration would be numbers
+  with nowhere to go. This point is closed as a **no**, not left open.
 
 **Verified correct (audit closed these):**
 
@@ -809,11 +927,62 @@ pypsa-wal sum.
   known-zero allowlist. If international navigation should be non-zero, correct
   the label.
 - **Known-zero allowlist** (`expect=zero`): `ammonia`, `methanol`,
-  `total international navigation` — structurally absent from TIMES-WAL, not just
-  zero in this scenario. `coal` was wrongly on this list; it is 6.80 PJ in 2030
+  `total international navigation`. Re-verified 2026-07-25 — see
+  [§ ammonia and methanol](#ammonia-and-methanol-re-verified-2026-07-25), because
+  the previous justification ("no ammonia commodity exists in the model") was
+  wrong for `ammonia`. `coal` was wrongly on this list; it is 6.80 PJ in 2030
   and non-zero in every year. Several residential coal / biomass / solar / oil
   boiler categories, and `coke` from 2035, are 0 late but non-zero earlier —
   expected.
+
+#### `ammonia` and `methanol`, re-verified 2026-07-25
+
+Both stay zero, but only one of them is genuinely absent from TIMES-WAL.
+
+**`methanol` is structurally absent.** No commodity and no process anywhere
+matches methanol or MeOH — not in `AllCommodities.csv`, not in
+`AllProcesses.csv`, not in the `.vd`. Wallonia's chemistry is aggregated into
+`ICH` (Other Chemicals Demand, PJ) and the two non-energy buckets `NEC`
+(Chemicals) / `NEO` (Others), whose fuels the `methane` / `naphtha` / `coal`
+rules already read. There is no methanol product to report. PyPSA-Eur's
+`methanol` industry key (`MWh_MeOH_per_tMeOH` on its `Methanol` sub-sector) has
+no TIMES counterpart, and exporting 0 correctly zeroes it for the Walloon node.
+
+**`ammonia` exists — the old note was wrong — but zero is still right.**
+TIMES-WAL has `IAM` (`Ammonia Demand`, **Mt**, `.DEM.`, IND), met by
+`IAMSTDPRO00` and `IAMSTDPRO01`:
+
+| | 2021 | 2022 | 2025 | 2030 → 2050 |
+|---|---:|---:|---:|---:|
+| `IAM` produced (Mt) | 0.319 | 0.319 | 0.319 | **0** |
+| `INDGAS` consumed (PJ) | 3.482 | 3.562 | 3.804 | 0 |
+| `INDELC` consumed (PJ) | 0.096 | 0.140 | 0.271 | 0 |
+| process + combustion CO₂ (kt) | 655 | 655 | 674 | 0 |
+
+Three independent reasons the export stays 0, any one of which is sufficient:
+
+1. **The scenario retires it.** The exogenous demand (`EQ_Combal` on `IAM`) is
+   declared for 2021, 2022 and 2025 only, and there is no `VAR_Act` on any `IAM`
+   process from 2030 on — capacity idles down from 0.223 Mt (2030) to 0.011 Mt
+   (2050) without producing. Every coupled horizon is ≥ 2030, so zero is the
+   scenario's own answer, and it is arguably a *correction*: pypsa-eur derives
+   its `ammonia` column from historical `ammonia_production.csv`, which would
+   keep a closed Walloon plant alive.
+2. **The energy is already soft-linked.** The plant buys `INDGAS` from
+   `INDGAS00` (`Fuel Tech - Natural Gas transport (IND)`) and `INDELC` from
+   `INDELC00` (`Fuel Tech - Electricity (IND)`) — both inside the `methane` and
+   `electricity` rules. PyPSA-Eur goes the other way: when `sector: ammonia` is
+   on, `build_industry_sector_ratios.py` *subtracts* the ammonia SMR gas and
+   electricity from industrial methane/elec before loading `ammonia` as an NH₃
+   product demand. A non-zero `ammonia` on top of the TIMES `methane` would
+   therefore count the same feedstock twice.
+3. **`IAM` is Mt, not PJ.** It is a material demand, so `exported_unit_check`
+   would reject it — the same guard that caught the `TNDF` Btkm export.
+
+What is genuinely *not* soft-linked is the ammonia **product** (0.319 Mt/a until
+2025); its **energy** is. Revisit only if a scenario keeps ammonia production
+past 2025 *and* the coupling wants PyPSA's Haber-Bosch route to build it, in
+which case the plant's gas must be removed from `methane` at the same time.
 - **Domestic navigation** is the ships' diesel `VAR_FIn` (final energy), and that
   same diesel is subtracted from `total road`, which counts it at the fuel tech.
   `TNDF` (Btkm) is the service and is deliberately **not** exported; it still
@@ -873,11 +1042,13 @@ pypsa-wal sum.
   condensation turbine); dummy commercial heat `CHSADUM` is unmapped. Whether
   waste-to-energy belongs under CHP or Power plants is open.
 - **Commercial electricity** is soft-linked as a single `total electricity
-  services` total — deliberately, since 2026-07-25: pypsa-wal scales the Walloon
-  electricity load on that single scalar and PyPSA-Eur has no cooling / lighting /
-  appliance bus. Data centres are the one end-use split out, as an informational
-  child (see § below). `COEN` (Mm²) and some retrofit dummies stay unmapped /
-  context.
+  services` total — deliberately, and the question is **closed** since
+  2026-07-25: pypsa-wal scales the Walloon electricity load on that single scalar
+  and the Walloon build has no cooling / lighting / appliance / refrigeration
+  carrier at all. Data centres are the one end-use split out, as an informational
+  child (see § below). The non-electric side of `commercial other` is now
+  `services other fuel`; `COEN` itself (the `Com.Other Energy` service commodity)
+  and some retrofit dummies stay unmapped / context.
 - **EV charging.** Road electricity is picked up at `Fuel Tech - Electricity
   (TRA)` (`ELCLOW`, trucks/rail) and at the home/work chargers (`RSDELC`/`COMELC`
   → `EV charger`, car fleet), so both legs are coloured Transport where they leave
@@ -903,6 +1074,9 @@ pypsa-wal sum.
 
 | Date | Change | Reason |
 |------|--------|--------|
+| 2026-07-25 | **New category `services other fuel`** (0.867 PJ 2030 / 0.873 PJ 2050): the non-electric legs of `Com.Other Energy` plus gas/LPG commercial cooking, read at `demand_input` on `commercial other` with the seven non-electric commercial carriers | The last unmatched tertiary energy. Reading the pypsa side showed the blocker was not the substitution mechanism but that `total services cooking` / `total services` are read by **nothing** in pypsa-wal or pypsa-eur, so that route would have closed the coverage table without delivering any energy. The category is now explicit; one changed line in `write_wallon_heat_demands` serves it |
+| 2026-07-25 | **`total electricity services` will not be split further** — closed as a *no* rather than left open | pypsa-wal consumes it as one scalar scaling the whole Walloon electricity load, and there is no cooling / lighting / appliance / refrigeration carrier anywhere in the Walloon build (`cooling` appears in `prepare_sector_network.py` only for the EV cabin temperature correction) |
+| 2026-07-25 | **`ammonia` / `methanol` known-zero justifications rewritten** | `methanol` really is structurally absent, but `ammonia` is not: `IAM` (Ammonia Demand, Mt) is met at 0.319 Mt/a until 2025. Zero is still right — the scenario retires the plant before the first coupled horizon, its gas and electricity are already inside `methane` / `electricity`, and pypsa-eur removes the ammonia feedstock from industrial methane before loading `ammonia` — but for none of the reasons the old note gave |
 | 2026-07-25 | **`electricity` no longer reads `Fuel Tech - Solar (IND)` / `Renewable: Solar`** | `INDSOL00` is a 1:1 adaptor upstream of `INDPVELC`, so both legs counted the same on-site PV; −0.222 TWh 2025–2035 |
 | 2026-07-25 | **`COSEELC100`/`COSEELC101` relabelled `Commercial data centres`; new child category `services data centre electricity`** | Data centres are 32% of `total electricity services` in 2030 and 49% in 2050; the parent total is unchanged and stays the single scalar pypsa-wal consumes |
 | 2026-07-25 | **Loop detection restricted to energy-carrier flows** (3 components → 1) | The steel `MISSCR`↔`MISCST` recycle is `.MAT.`/Mt, not energy; the remaining pulp-mill cogeneration feedback is physical. Loops are found at raw TIMES resolution, so none of them could ever have been an aggregation artefact |
