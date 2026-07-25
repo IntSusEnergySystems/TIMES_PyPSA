@@ -97,10 +97,15 @@ def commodity_balance_vs_comnet(
     else:
         cn_s = pd.Series(dtype=float)
 
+    # GDX2VEDA reports VAR_Comnet for only a subset of commodities (91 of ~180 PJ
+    # carriers in the reference scenario — not even ELCHIG or GASNAT). A commodity
+    # absent from the table has no oracle; treating its missing value as 0 turned
+    # every `.DEM.` service commodity (TAIF, RLIG, RCOK, …) into a fake residual.
+    comnet_codes = set(cn_s.index)
     if require_flow_activity:
-        codes = sorted(set(net.index))
+        codes = sorted(set(net.index) & comnet_codes)
     else:
-        codes = sorted(set(net.index) | set(cn_s.index))
+        codes = sorted((set(net.index) & comnet_codes) | comnet_codes)
 
     rows = []
     for code in codes:

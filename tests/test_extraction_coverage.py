@@ -49,8 +49,9 @@ def totals_all_horizons(times_model, rules):
 
 
 def test_rule_count(rules):
-    # 54 original + 1 (residential cooking, added 2026-07-24).
-    assert len(rules) == 55
+    # 54 original + residential cooking (2026-07-24) + its electric split and the
+    # services data-centre split (2026-07-25).
+    assert len(rules) == 57
 
 
 def test_empty_rules_only_allowlisted(totals_all_horizons, rules):
@@ -163,9 +164,59 @@ def test_bundled_commodity_units_match_producer_activity_units(mappings_dir):
             com["Unit"].astype(str).str.strip(),
         )
     )
-    # The two known non-energy commodities must stay declared as such.
+    # The known non-energy commodity must stay declared as such.
     assert units.get("TNDF") == "BTKM"
-    assert units.get("INDBLQ") == "MT"
+
+
+def test_var_fout_rules_are_heat_or_delivered_fuel(mappings_dir):
+    """A `VAR_FOut` rule outside heating reads a *service*, not final energy.
+
+    Heating is the documented exception (PyPSA models the heat bus) and `hydrogen`
+    is a `delivered_fuel`. Aviation used to read `TAIF`/`TAIP`, which only happened
+    to equal the kerosene because TIMES gives those processes efficiency 1.000.
+    """
+    from times_pypsa.pipeline import load_rule_metadata
+
+    rules = pd.read_csv(mappings_dir / "extraction_rules.csv")
+    meta = load_rule_metadata(mappings_dir / "extraction_rules.csv")
+    fout = rules[rules["var_type"].astype(str).str.upper() == "VAR_FOUT"]
+    for _, row in fout.iterrows():
+        category = str(row["category"])
+        measure_at = meta[category].measure_at
+        if measure_at == "delivered_fuel":
+            continue
+        assert measure_at == "service_output", (category, measure_at)
+        assert str(row["carrier"]).strip() == "Heat", (
+            f"{category} reads VAR_FOut on carrier {row['carrier']!r} — "
+            "only heating may export a service output"
+        )
+
+
+def test_mapping_units_match_the_veda_dictionary(mappings_dir):
+    """`Unit` must agree with `AllCommodities.csv` wherever VEDA declares one.
+
+    `INDBLQ` was hand-set to MT while VEDA declares it `.NRG.` / PJ, which is what
+    made black liquor look like a material rather than an excluded energy flow.
+    """
+    com = pd.read_csv(mappings_dir / "mapping_commodities.csv")
+    veda = pd.read_csv(
+        mappings_dir / "AllCommodities.csv", sep=";", encoding="utf-8-sig"
+    ).drop_duplicates(subset=["Name"], keep="first")
+    merged = com.merge(
+        veda[["Name", "Unit"]],
+        left_on="TIMES commodity",
+        right_on="Name",
+        how="inner",
+        suffixes=("_mapping", "_veda"),
+    )
+    merged = merged[merged["Unit_veda"].notna()]
+    mismatched = merged[
+        merged["Unit_mapping"].astype(str).str.strip().str.upper()
+        != merged["Unit_veda"].astype(str).str.strip().str.upper()
+    ]
+    assert mismatched.empty, mismatched[
+        ["TIMES commodity", "Unit_mapping", "Unit_veda"]
+    ].to_string()
 
 
 # --------------------------------------------------------------------------- #
@@ -207,7 +258,7 @@ def test_rule_metadata_columns_are_complete(mappings_dir):
     from times_pypsa.pipeline import load_rule_metadata
 
     meta = load_rule_metadata(mappings_dir / "extraction_rules.csv")
-    assert len(meta) == 55
+    assert len(meta) == 57
 
     missing_sector = [c for c, m in meta.items() if not m.sector]
     assert not missing_sector, f"Categories with no pypsa_sector: {missing_sector}"

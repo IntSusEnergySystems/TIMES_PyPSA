@@ -434,6 +434,11 @@ def test_export_reconciliation_matches_tagged_energy(custom_system_by_year):
         per_sector = recon[recon["sector"] != "TOTAL"]
         assert per_sector["tagged_pj"].sum() == pytest.approx(total["tagged_pj"])
         assert per_sector["coloured_pj"].sum() == pytest.approx(total["coloured_pj"])
+        # No sector may be over-coloured. Since 2026-07-25 the collapse keys links
+        # on export_status, so an untagged commodity riding an exported node pair
+        # gets its own grey ribbon instead of promoting the pair.
+        over = per_sector[per_sector["coloured_pj"] > per_sector["tagged_pj"] + 1e-6]
+        assert over.empty, f"{yr}: over-coloured sectors\n{over.to_string()}"
 
 
 def test_anchor_ledger_is_reported_for_every_gateway(custom_system_links_by_year):

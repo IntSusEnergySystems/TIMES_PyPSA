@@ -35,7 +35,7 @@ AGRGMX,Network gas for agriculture,PJ,AGR,,Network gas for agriculture,Network g
 ELCCPS,Wood Chips for Electricity sector,PJ,ELC,,Wood Chips for Electricity sector,Wood Chips for Electricity sector,,,,Wood Chips for Electricity sector,Electricity,Wood Chips for Electricity sector
 INDCPS,solid biomass for industry,PJ,IND,,solid biomass for industry,solid biomass for industry,,,,solid biomass for industry,Biomass & biofuels,solid biomass for industry
 RSDLOG,Wood Logs for Residential sector,PJ,RSD,,Wood Logs for Residential sector,Wood Logs for Residential sector,,,logs,Wood Logs for Residential sector,Biomass & biofuels,Biomass & biofuels (context)
-INDBLQ,Black Liquor for Industry sector,MT,IND,,Black Liquor for Industry sector,Black Liquor for Industry sector,,,black liquor (biomass),Black Liquor for Industry sector,Biomass & biofuels,Black liquor
+INDBLQ,Black Liquor for Industry sector,PJ,IND,,Black Liquor for Industry sector,Black Liquor for Industry sector,,,black liquor (biomass),Black Liquor for Industry sector,Biomass & biofuels,Black liquor
 INDBGS,Biogas for industry,PJ,IND,,gas for industry,gas for industry,,,,gas for industry,Gas,gas for industry
 COMBGS,Biogas for Commercial sector,PJ,COM,,Biogas for Commercial sector,Biogas for Commercial sector,,,,Biogas for Commercial sector,Gas,Gas (context)
 TRABGS,Biogas for Transport sector,PJ,TRA,,total energy for transport,total energy for transport,,,,total energy for transport,Gas,Gas (context)

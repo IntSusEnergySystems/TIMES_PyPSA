@@ -32,29 +32,34 @@ def test_comnet_balance_has_columns(year_flows):
         assert col in bal.columns
 
 
-def test_comnet_balance_majority_ok(year_flows):
-    """
-    Most mapped PJ commodities should match VAR_Comnet within a loose tolerance.
+def test_comnet_balance_only_compares_reported_commodities(year_flows):
+    """A commodity absent from VAR_Comnet has no oracle — it must not be compared.
 
-    A minority of residuals is expected (trade, stocks, non-PJ, mapping gaps);
-    we fail only if almost everything is broken.
+    GDX2VEDA exports VAR_Comnet only for what it was asked to; in the reference
+    `.vd` that is the emission / pollutant aggregates, no energy carrier. Treating
+    the missing value as 0 reported every `.DEM.` service commodity's whole FOut as
+    a residual (77 PJ in 2030).
     """
     year, flows, model = year_flows
-    # Restrict to commodities that appear in both flows and comnet
+    bal = commodity_balance_vs_comnet(model.flows, model.comnet, year=year)
+    if bal.empty:
+        pytest.skip("No balance rows")
+    reported = set(
+        model.comnet.loc[model.comnet["year"] == year, "commodity_code"].astype(str)
+    )
+    assert set(bal["commodity_code"].astype(str)) <= reported
+
+
+def test_comnet_balance_holds_where_comnet_is_reported(year_flows):
+    """Where VAR_Comnet exists, ΣFOut − ΣFIn must match it."""
+    year, flows, model = year_flows
     bal = commodity_balance_vs_comnet(
-        model.flows, model.comnet, year=year, tolerance_pj=1.0
+        model.flows, model.comnet, year=year, tolerance_pj=1e-3
     )
     if bal.empty:
         pytest.skip("No balance rows")
-    # Only commodities with some FIn/FOut activity
-    active = bal[(bal["fout"] + bal["fin"]) > 0.01]
-    if active.empty:
-        pytest.skip("No active commodities")
-    ok_frac = active["ok"].mean()
-    assert ok_frac >= 0.3, (
-        f"Only {ok_frac:.0%} of active commodities match Comnet within 1 PJ "
-        f"({int((~active['ok']).sum())} failures). See README.md § Questions for TIMES experts, Q1."
-    )
+    failures = bal[~bal["ok"]]
+    assert failures.empty, failures.to_string()
 
 
 def test_node_residuals_after_netting(year_flows):
@@ -100,6 +105,33 @@ def test_loop_detection_runs(year_flows):
     assert isinstance(loops, list)
     for comp in loops:
         assert len(comp) > 1
+
+
+def test_loop_check_ignores_material_recycles(year_flows):
+    """The QA loop table is about energy: `.MAT.` recycles are not defects.
+
+    Iron & steel genuinely loops (scrap → crude steel → finishing → scrap), but
+    `MISSCR` / `MISCST` are materials in Mt. Reporting them next to energy loops
+    sent readers looking for a leak that does not exist, so `qa.py` filters the
+    loop input to mapped energy carriers.
+    """
+    from times_pypsa.qa import filter_energy_carrier_flows
+
+    year, flows, model = year_flows
+    cols = [
+        "year",
+        "region",
+        "variable",
+        "commodity_code",
+        "commodity",
+        "process_code",
+        "process",
+        "value",
+    ]
+    energy = filter_energy_carrier_flows(flows)
+    loops = find_loop_components(net_bidirectional_links(energy[cols]))
+    nodes = {node for comp in loops for node in comp}
+    assert not {"MISSCR", "MISCST"} & nodes
 
 
 def test_l0_aggregation_reduces_nodes(year_flows):

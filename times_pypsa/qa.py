@@ -739,20 +739,10 @@ def _write_qa_csvs_for_year(
     coverage_path = out_dir / f"qa_export_coverage_{year}.csv"
     coverage.to_csv(coverage_path, index=False)
 
-    pj_codes = set()
-    if not metadata.mapping_df.empty and "unit" in metadata.mapping_df.columns:
-        pj_codes = set(
-            metadata.mapping_df.loc[
-                metadata.mapping_df["unit"].astype(str).str.strip().str.upper() == "PJ",
-                "times",
-            ]
-            .astype(str)
-            .str.strip()
-        )
-
-    balance = commodity_balance_vs_comnet(
-        model.flows, model.comnet, year=year, pj_commodity_codes=pj_codes or None
-    )
+    # No pj_commodity_codes filter: VAR_Comnet in the reference .vd reports only
+    # emission / pollutant aggregates, so restricting to PJ carriers left the check
+    # with nothing to compare. See aggregation.md § Balances.
+    balance = commodity_balance_vs_comnet(model.flows, model.comnet, year=year)
     balance = prepare_energy_output(
         balance,
         ["fout", "fin", "net_flows", "comnet", "residual"],
@@ -782,7 +772,24 @@ def _write_qa_csvs_for_year(
     residuals_path = out_dir / f"qa_commodity_residuals_{year}.csv"
     residuals.to_csv(residuals_path, index=False)
 
-    loops = find_loop_components(netted_raw)
+    # Energy carriers only: the iron & steel scrap↔crude-steel recycle is a real
+    # loop but both commodities are `.MAT.` in Mt, so it is not an energy defect.
+    loops = find_loop_components(
+        net_bidirectional_links(
+            filter_energy_carrier_flows(tagged)[
+                [
+                    "year",
+                    "region",
+                    "variable",
+                    "commodity_code",
+                    "commodity",
+                    "process_code",
+                    "process",
+                    "value",
+                ]
+            ]
+        )
+    )
     loops_df = pd.DataFrame(
         [{"component_id": i, "nodes": " | ".join(comp)} for i, comp in enumerate(loops)]
     )
@@ -1368,6 +1375,12 @@ allowlisted, anything else listed here is a real double count.</p>
 <h3>Empty / known-zero rules</h3>
 {_html_table(empty_rules)}
 <h3>Commodity balance vs VAR_Comnet (failures first)</h3>
+<p><code>VAR_Comnet</code> is only reported for the commodities GDX2VEDA was asked
+to export — in the reference <code>.vd</code> that is the emission / pollutant
+aggregates only, no energy carrier (not even <code>ELCHIG</code> or
+<code>GASNAT</code>). Commodities absent from <code>VAR_Comnet</code> are therefore
+<strong>not</strong> compared: a missing value is not a zero. Energy-carrier
+balances live in the commodity-residual and inflow/outflow-ratio tables instead.</p>
 {_html_table(balance.sort_values("ok").head(40) if not balance.empty else balance)}
 <h3>Loop components</h3>
 {_html_table(loops_df)}

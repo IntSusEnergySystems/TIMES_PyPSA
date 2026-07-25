@@ -239,14 +239,26 @@ def test_net_collapsed_process_links_nets_reciprocal():
             },
         ]
     )
+    # Netting is per export status: coloured mass is never cancelled against
+    # untagged mass, and the untagged reverse flow is not promoted to `exported`.
     netted = net_collapsed_process_links(links)
-    assert len(netted) == 1
-    assert float(netted.iloc[0]["value"]) == 20.0
-    assert netted.iloc[0]["source"] == "Power plants"
-    assert netted.iloc[0]["target"] == "Fuel Tech - Electricity (IND)"
-    # any_exported colouring: exported + context → exported
-    assert netted.iloc[0]["export_status"] == "exported"
-    commodities = set(str(netted.iloc[0]["commodity"]).split("|"))
+    assert len(netted) == 2
+    by_status = {str(r.export_status): r for r in netted.itertuples(index=False)}
+    assert float(by_status["exported"].value) == 50.0
+    assert by_status["exported"].source == "Power plants"
+    assert float(by_status["context"].value) == 30.0
+    assert by_status["context"].source == "Fuel Tech - Electricity (IND)"
+
+    # Same status on both directions still nets to one ribbon.
+    same = links.copy()
+    same.loc[1, "export_status"] = "exported"
+    same.loc[1, "exported"] = True
+    netted_same = net_collapsed_process_links(same)
+    assert len(netted_same) == 1
+    assert float(netted_same.iloc[0]["value"]) == 20.0
+    assert netted_same.iloc[0]["source"] == "Power plants"
+    assert netted_same.iloc[0]["target"] == "Fuel Tech - Electricity (IND)"
+    commodities = set(str(netted_same.iloc[0]["commodity"]).split("|"))
     assert commodities == {"HV", "Electricity (context)"}
 
 
@@ -440,6 +452,42 @@ def test_end_use_fuel_tech_splits_by_rule_commodity():
         == "methane"
     )
     assert end_use_fuel_tech_label(process_agg="Fuel Tech - Coke (IND)") == "Fuel tech · coke"
+
+
+def test_export_processes_are_a_separate_sankey_node():
+    """Exports consume domestic energy: they must not sit in the import node."""
+    from times_pypsa.aggregation import infer_overview_process_label
+
+    assert (
+        infer_overview_process_label(
+            sector="SUP",
+            process_type="IRE",
+            description="Export Wood Pellets",
+            agg_level_2="Export biomass",
+            code="EXPBIOPEL",
+        )
+        == "Exports"
+    )
+    assert (
+        infer_overview_process_label(
+            sector="IND",
+            process_type="PRE",
+            description="Transfo_Exp",
+            agg_level_2="Electricity Exports",
+            code="Transfo_Exp",
+        )
+        == "Exports"
+    )
+    assert (
+        infer_overview_process_label(
+            sector="SUP",
+            process_type="IRE",
+            description="Import Natural Gas",
+            agg_level_2="Imports",
+            code="IMPGASNAT",
+        )
+        == "Imports & trade"
+    )
 
 
 def test_dum_retrofit_not_imports():

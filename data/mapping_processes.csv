@@ -204,7 +204,7 @@ COMLPG00,COM,.PRE.,Fuel Tech - Liquified Petroleum Gas (COM),PJ,PJA,PRE,COMLPG,A
 COMOIL00,COM,.PRE.,Fuel Tech - Oil (COM),PJ,PJA,PRE,COMOIL,ANNUAL,"0,00",Oil,End-use fuel tech,End-use fuel tech
 COMPEL00,COM,.PRE.,Fuel Tech - Pellets (COM),PJ,PJA,PRE,COMPEL,ANNUAL,"0,00",Fuel Tech - Wood Pellets,End-use fuel tech,End-use fuel tech
 COMPVELC,COM,.ELE.,PV commercial,PJ,GW,ELE,COMPVELC_NRGO,DAYNITE,"0,00",PV commercial,Buildings,PV
-COMSOL00,COM,.PRE.,Fuel Tech - Solar (COM),PJ,PJA,PRE,COMSOL,ANNUAL,"0,00",Solar,PV,PV
+COMSOL00,COM,.PRE.,Fuel Tech - Solar (COM),PJ,PJA,PRE,COMSOL,ANNUAL,"0,00",Solar,Power plants,PV
 COM_CBAT_BA,COM,.DMD.,Building Existing BA,MM2,MM2-A,DMD,CBATBA,ANNUAL,"0,00",Building Existing BA,Buildings,Commercial buildings
 COM_CBAT_BP,COM,.DMD.,Building Existing BP,MM2,MM2-A,DMD,CBATBP,ANNUAL,"0,00",Building Existing BP,Buildings,Commercial buildings
 COM_CBAT_CO,COM,.DMD.,Building Existing CO,MM2,MM2-A,DMD,CBATCO,ANNUAL,"0,00",Building Existing CO,Buildings,Commercial buildings
@@ -219,8 +219,8 @@ COM_CNBAT_CS,COM,.DMD.,Building New CS,MM2,MM2-A,DMD,CNBATCS,ANNUAL,"0,00",Build
 COM_CNBAT_DATA,COM,.DMD.,Building New TA,MM2,MM2-A,DMD,CNBATDATA,ANNUAL,"0,00",Building New TA,Buildings,Commercial buildings
 COM_CNBAT_EN,COM,.DMD.,Building New EN,MM2,MM2-A,DMD,CNBATEN,ANNUAL,"0,00",Building New EN,Buildings,Commercial buildings
 COM_CNBAT_SA,COM,.DMD.,Building New SA,MM2,MM2-A,DMD,CNBATSA,ANNUAL,"0,00",Building New SA,Buildings,Commercial buildings
-COSEELC100,COM,.DMD.,Com.Serveur Electricity.DATA CENTER.ELC.00.Other Equipments.,PJ,PJA,DMD,COSE,ANNUAL,"0,00",commercial other,Buildings,Commercial electrical appliances
-COSEELC101,COM,.DMD.,Com.Serveur Electricity.DATA CENTER.ELC.01.Other Equipments.,PJ,PJA,DMD,COSE,ANNUAL,"0,00",commercial other,Buildings,Commercial electrical appliances
+COSEELC100,COM,.DMD.,Com.Serveur Electricity.DATA CENTER.ELC.00.Other Equipments.,PJ,PJA,DMD,COSE,ANNUAL,"0,00",Commercial data centres,Buildings,Commercial data centres
+COSEELC101,COM,.DMD.,Com.Serveur Electricity.DATA CENTER.ELC.01.Other Equipments.,PJ,PJA,DMD,COSE,ANNUAL,"0,00",Commercial data centres,Buildings,Commercial data centres
 CPLIELC100,COM,.DMD.,Com.Public Lighting.ELC.00.Generic Lamp.,PJ,PJA,DMD,CPLI,ANNUAL,"0,00",commercial other,Buildings,Commercial electrical appliances
 CPLIELC201,COM,.DMD.,Com.Public Lighting.ELC.201.LED.,PJ,PJA,DMD,CPLI,ANNUAL,"0,00",commercial other,Buildings,Commercial electrical appliances
 CREFELC100,COM,.DMD.,Com.Refrigeration.ELC.00.Refrigerator.,PJ,PJA,DMD,CREF,ANNUAL,"0,00",commercial other,Buildings,Commercial electrical appliances
@@ -333,9 +333,9 @@ ERNW_Hydro_Big_E5,ELC,.ELE.,Hydro run of river >10000 kW,PJ,GW,ELE,ELCHIG,ANNUAL
 ERNW_Hydro_Medium_E6,ELC,.ELE.,Hydro run of river >1000 et <=10000 kW,PJ,GW,ELE,ELCHIG,ANNUAL,"0,00",Hydro turbine,Power plants,Power plants
 ERNW_Hydro_Pompage_E8,ELC,.ELE.STGTSS.,Hydro pump storage,PJ,GW,ELE,ELCHIG,DAYNITE,"0,00",Pumped hydro,Power plants,Pumped hydro
 ERNW_Hydro_Small_E7,ELC,.ELE.,Hydro run of river <=1000 kW,PJ,GW,ELE,ELCHIG,ANNUAL,"0,00",Hydro turbine,Power plants,Power plants
-ERNW_PV-Buildings_SOL_N,ELC,.ELE.,New Public - Solar PV Buildings 100 kW (10-500 KW TERT RES AGRI PKGS),PJ,GW,ELE,ERNW_PV-Buildings_SOL_N_NRGO,DAYNITE,"1,00",PV,Power plants,PV
-ERNW_PV-GreenField_SOL_N,ELC,.ELE.,New Public - Solar PV Greenfield 10 MW ( 1-30 MW),PJ,GW,ELE,ERNW_PV-GreenField_SOL_N_NRGO,DAYNITE,"1,00",PV,Power plants,PV
-ERNW_PV-Large_Roof_SOL_N,ELC,.ELE.,New Public - Solar PV Large Roofs  1 MW (1-5 MW  IND CCIAL LOGIST PKGS),PJ,GW,ELE,ERNW_PV-Large_Roof_SOL_N_NRGO,DAYNITE,"1,00",PV,Power plants,PV
+ERNW_PV-Buildings_SOL_N,ELC,.ELE.,New Public - Solar PV Buildings 100 kW (10-500 KW TERT RES AGRI PKGS),PJ,GW,ELE,ERNW_PV-Buildings_SOL_N_NRGO,DAYNITE,"1,00",Power plants,Power plants,PV
+ERNW_PV-GreenField_SOL_N,ELC,.ELE.,New Public - Solar PV Greenfield 10 MW ( 1-30 MW),PJ,GW,ELE,ERNW_PV-GreenField_SOL_N_NRGO,DAYNITE,"1,00",Power plants,Power plants,PV
+ERNW_PV-Large_Roof_SOL_N,ELC,.ELE.,New Public - Solar PV Large Roofs  1 MW (1-5 MW  IND CCIAL LOGIST PKGS),PJ,GW,ELE,ERNW_PV-Large_Roof_SOL_N_NRGO,DAYNITE,"1,00",Power plants,Power plants,PV
 ERNW_WINON_WIN_N,ELC,.ELE.,New Public - Wind Onshore Large,PJ,GW,ELE,ELCHIG,DAYNITE,"1,00",Renewables,Power plants,Onshore wind
 ETSTP_CCGT-CCS_PostC_GAS_N,ELC,.ELE.,New Thermal Public - CCGT advanced CCS post combustion,PJ,GW,ELE,ELCHIG,DAYNITE,"1,00",Gas power plants,Power plants,Power plants
 ETSTP_CCGT_GAS_N,ELC,.ELE.,New Thermal Public - Combined Cycle Gas Turbine advanced.,PJ,GW,ELE,ELCHIG,DAYNITE,"1,00",Gas power plants,Power plants,Power plants
@@ -349,9 +349,9 @@ ETSTP_TVC_WST_E11,ELC,.CHP.,Existing Thermal Public - Pure ELC - Turbine vapeur 
 EVTRANS_H-H,ELC,.PRE.,Grid High Voltage,PJ,GW,PRE,ELCHIGG,DAYNITE,"0,00",EVTRANS_H-H,Power plants,Power plants
 EVTRANS_H-M,ELC,.PRE.,Grid medium Voltage and Voltage Transformer: High to Medium,PJ,GW,PRE,ELCMED,DAYNITE,"0,00",EVTRANS_H-M,Power plants,Power plants
 EVTRANS_M-L,ELC,.PRE.,Grid low Voltage and Voltage Transformer: Medium to Low,PJ,GW,PRE,ELCLOW,DAYNITE,"0,00",EVTRANS_M-L,Power plants,Power plants
-EXPBIOLOG,SUP,.EXP.IRE.,Export Wood Logs,PJ,-,IRE,BIOLOG,ANNUAL,"0,00",Export biomass,Imports & trade,Imports & trade
-EXPBIOPEL,SUP,.EXP.IRE.,Export Wood Pellets,PJ,-,IRE,BIOPEL,ANNUAL,"0,00",Export biomass,Imports & trade,Imports & trade
-EXPELCHIG,ELC,.EXP.IRE.,Electricity export (All),PJ,-,IRE,ELCHIG,DAYNITE,"0,00",Electricity export (All),Imports & trade,Imports & trade
+EXPBIOLOG,SUP,.EXP.IRE.,Export Wood Logs,PJ,-,IRE,BIOLOG,ANNUAL,"0,00",Export biomass,Exports,Exports
+EXPBIOPEL,SUP,.EXP.IRE.,Export Wood Pellets,PJ,-,IRE,BIOPEL,ANNUAL,"0,00",Export biomass,Exports,Exports
+EXPELCHIG,ELC,.EXP.IRE.,Electricity export (All),PJ,-,IRE,ELCHIG,DAYNITE,"0,00",Electricity export (All),Exports,Exports
 IAMADVPRO10,IND,.DMD.,IAM.Advanced Production.10.,MT,MT,DMD,IAM,ANNUAL,"1,00",IND_DMD_MT_MT,Industry,Industry (other)
 IAMSTDPRO00,IND,.DMD.,IAM.Standard Production.00.,MT,MTA,DMD,IAM,ANNUAL,"0,00",IND_DMD_MT_MTA,Industry,Industry (other)
 IAMSTDPRO01,IND,.DMD.,IAM.Standard Production.01,MT,MT,DMD,IAMSTDPRO01_DEMO,ANNUAL,"1,00",IND_DMD_MT_MT,Industry,Industry (other)
@@ -464,8 +464,8 @@ IMPOILLPG,SUP,.IMP.IRE.,Import Liquified Petroleum Gas,PJ,-,IRE,OILLPG,ANNUAL,"0
 IMPOILOTH,SUP,.IMP.IRE.,Import Other Petroleum Products,PJ,-,IRE,OILOTH,ANNUAL,"0,00",Imports,Imports & trade,Imports & trade
 INDBGS00,IND,.PRE.,Fuel Tech - Biogas (IND),PJ,PJA,PRE,INDBGS,ANNUAL,"0,00",Fuel Tech - Biogas (IND),End-use fuel tech,Fuel Tech - Biogas (IND)
 INDBIO00,IND,.PRE.,Fuel Tech - Biofuel (IND),PJ,PJA,PRE,INDBIO,ANNUAL,"0,00",Fuel Tech - Biofuel (IND),End-use fuel tech,Fuel Tech - Biofuel (IND)
-INDCOA00,IND,.PRE.,Fuel Tech - Hard Coal (IND),PJ,PJA,PRE,INDCOA,ANNUAL,"0,00",Fuel Tech - Coke (IND),End-use fuel tech,Fuel Tech - Coke (IND)
-INDCOK00,IND,.PRE.,Fuel Tech - Coke (IND),PJ,PJA,PRE,INDCOK,ANNUAL,"0,00",Fuel Tech - Hard Coal (IND),End-use fuel tech,Fuel Tech - Hard Coal (IND)
+INDCOA00,IND,.PRE.,Fuel Tech - Hard Coal (IND),PJ,PJA,PRE,INDCOA,ANNUAL,"0,00",Fuel Tech - Hard Coal (IND),End-use fuel tech,Fuel Tech - Hard Coal (IND)
+INDCOK00,IND,.PRE.,Fuel Tech - Coke (IND),PJ,PJA,PRE,INDCOK,ANNUAL,"0,00",Fuel Tech - Coke (IND),End-use fuel tech,Fuel Tech - Coke (IND)
 INDCOL00,IND,.PRE.,Fuel Tech - Lignite (IND),PJ,PJA,PRE,INDCOL,ANNUAL,"0,00",Fuel Tech - Lignite (IND),End-use fuel tech,Fuel Tech - Lignite (IND)
 INDCPS00,IND,.PRE.,Fuel Tech - Wood CHIPS (IND),PJ,PJA,PRE,INDCPS,ANNUAL,"0,00",Fuel Tech - Wood CHIPS (IND),End-use fuel tech,Fuel Tech - Wood CHIPS (IND)
 INDELC00,IND,.PRE.,Fuel Tech - Electricity (IND),PJ,GW,PRE,INDELC,DAYNITE,"0,00",Fuel Tech - Electricity (IND),End-use fuel tech,Fuel Tech - Electricity (IND)
@@ -630,8 +630,8 @@ NECDEMAND00,IND,.DMD.,Non-energy,PJ,PJA,DMD,NEC,ANNUAL,"0,00",Non-energy,Industr
 NEODEMAND00,IND,.DMD.,Non-energy,PJ,PJA,DMD,NEO,ANNUAL,"0,00",Non-energy,Industry,Non-energy
 RCDRELC100,RSD,.DMD.,Rsd.Cloth Drying.ELC.00.Cloth Dryer.,PJ,PJA,DMD,RCDR,ANNUAL,"0,00",residential other,Buildings,Household electrical appliances
 RCDRELC201,RSD,.DMD.,Cloth drying medium efficiency,PJ,PJA,DMD,RCDR,ANNUAL,"0,00",residential other,Buildings,Household electrical appliances
-RCOKCOA100,RSD,.DMD.,Rsd.Cooking.COA.00.Stove.,PJ,PJA,DMD,RCOK,ANNUAL,"0,00",residential other,Buildings,Household electrical appliances
-RCOKELC100,RSD,.DMD.,Rsd.Cooking.ELC.00.Stove.,PJ,PJA,DMD,RCOK,ANNUAL,"0,00",residential other,Buildings,Household electrical appliances
+RCOKCOA100,RSD,.DMD.,Rsd.Cooking.COA.00.Stove.,PJ,PJA,DMD,RCOK,ANNUAL,"0,00",residential cooking,Buildings,Residential cooking
+RCOKELC100,RSD,.DMD.,Rsd.Cooking.ELC.00.Stove.,PJ,PJA,DMD,RCOK,ANNUAL,"0,00",residential cooking,Buildings,Residential cooking
 RCOKELC101,RSD,.DMD.,cooking electric stove,PJ,PJA,DMD,RCOK,ANNUAL,"0,00",residential cooking,Buildings,Residential cooking
 RCOKGAS101,RSD,.DMD.,cooking gas stove,PJ,PJA,DMD,RCOK,ANNUAL,"0,00",residential cooking,Buildings,Residential cooking
 RCOKGMX100,RSD,.DMD.,Rsd.Cooking.GAS.00.Stove.,PJ,PJA,DMD,RCOK,ANNUAL,"0,00",residential cooking,Buildings,Residential cooking
@@ -736,7 +736,7 @@ RSDLPG00,RSD,.PRE.,Fuel Tech - Liquified Petroleum Gas (RSD),PJ,PJA,PRE,RSDLPG,A
 RSDOIL00,RSD,.PRE.,Fuel Tech - Diesel (RSD),PJ,PJA,PRE,RSDOIL,ANNUAL,"0,00",Fuel Tech - Diesel,End-use fuel tech,End-use fuel tech
 RSDPEL00,RSD,.PRE.,Fuel Tech - pellets (RSD),PJ,PJA,PRE,RSDPEL,ANNUAL,"0,00",Fuel Tech - Wood Pellets,End-use fuel tech,End-use fuel tech
 RSDPVELC,RSD,.ELE.,PV residential,PJ,GW,ELE,RSDPVELC_NRGO,DAYNITE,"0,00",PV residential,Buildings,PV
-RSDSOL00,RSD,.PRE.,Fuel Tech - Solar (RSD),PJ,PJA,PRE,RSDSOL,ANNUAL,"0,00",Solar,PV,PV
+RSDSOL00,RSD,.PRE.,Fuel Tech - Solar (RSD),PJ,PJA,PRE,RSDSOL,ANNUAL,"0,00",Solar,Power plants,PV
 RW2FCOA100,RSD,.PRE.,Rsd.Water Heat.Dwelling.2F.COA.00.Furnace.,PJ,GW,PRE,RW2F,ANNUAL,"0,00",Residential urban decentral Coal heater,Buildings,Residential urban decentral Coal heater
 RW2FELC100,RSD,.PRE.,Rsd.Water Heat.Dwelling.2F.ELC.00.Water Heater.,PJ,GW,PRE,RW2F,ANNUAL,"0,00",Residential urban decentral electric heater,Buildings,Residential urban decentral electric heater
 RW2FELC101,RSD,.PRE.,Rsd.Water Heat.Dwelling.2F.ELC.00.Heat Pump.,PJ,GW,PRE,RW2F,ANNUAL,"0,00",Residential urban decentral Heat pump,Buildings,Residential urban decentral Heat pump
@@ -969,7 +969,7 @@ IMPELCOFFWINBE,SUP,.PRE.,Electricity import (ALL) - off wind ext,PJ,PJA,PRE,IMPE
 IMPELCOFFWINEXT,SUP,.PRE.,Electricity import (ALL) - off wind be,PJ,PJA,PRE,IMPELCOFFWINBE,ANNUAL,,Electricity Imports,Imports & trade,Imports & trade
 INDGZH00,IND,.PRE.,Fuel Tech New - biogaz epure (IND),PJ,PJA,PRE,INDGZH,ANNUAL,,Fuel Tech New - biogaz epure (IND),End-use fuel tech,Fuel Tech New - biogaz epure (IND)
 TAVINTHH2FN01,TRA,.DMD.TAIP.,Transport marchandise - Aviation - International - Hydrogen (New),PJ,PJA,PRE,TAIP,ANNUAL,,Aviation,Transport,international aviation
-Transfo_Exp,IND,.PRE.,Transfo_Exp,PJ,PJA,PRE,Transfo_Exp,ANNUAL,,Electricity Exports,Imports & trade,Imports & trade
+Transfo_Exp,IND,.PRE.,Transfo_Exp,PJ,PJA,PRE,Transfo_Exp,ANNUAL,,Electricity Exports,Exports,Exports
 Transfo_Imp,IND,.PRE.,Transfo_Imp,PJ,PJA,PRE,Transfo_Imp,ANNUAL,,Electricity Imports,Imports & trade,Imports & trade
 TBUSGASCN01,TRA,.DMD.,Buses Gas Coach New,PJ,PJA,PRE,TBU,ANNUAL,,Road transport (public),Transport,Road transport (public)
 TBUSGASUN01,TRA,.DMD.,Buses Gas Urban New,PJ,PJA,PRE,TBU,ANNUAL,,Road transport (public),Transport,Road transport (public)
@@ -1064,7 +1064,7 @@ CHENELCHP202,COM,,Com Space Heat New Heat Pump - CO - ELC202,PJ,,PRE,,,,Commerci
 CHSALTH101,COM,,Com Space Heat New Heat Exchanger - SA - HET101,PJ,,PRE,,,,Commercial Heat Exchanger,District heating,Commercial Heat Exchanger
 ISGHTHSTMBGS01,IND,,ISG.Preparation.of.sugar.Process Heat.BIO.01,PJ,,PRE,,,,Industry,Industry,Industry
 IISFINPRO01,IND,,IIS.Finishing Processes.01,PJ,,DMD,,,,Industry,Industry,Industry
-INFPRCCOK01,IND,,INFPRCCOK01,PJ,,PRE,,,,residential cooking,Industry,Residential cooking
+INFPRCCOK01,IND,,INFPRCCOK01,PJ,,PRE,,,,Industry,Industry,Industry
 INMPRCCPS01,IND,,INMPRCCPS01,PJ,,PRE,,,,Industry,Industry,Industry
 IOFPRCCPS01,IND,,IOFPRCCPS01,PJ,,PRE,,,,Industry,Industry,Industry
 IOIPRCCPS01,IND,,IOIPRCCPS01,PJ,,PRE,,,,Industry,Industry,Industry
@@ -1093,7 +1093,7 @@ Retrofit-T_R_2Fac1989,RSD,,Retrofit Toits Dwellings R_2Fac1989,PJ,,PRE,,,,Retrof
 Retrofit-T_R_2Fac2005,RSD,,Retrofit Toits Dwellings R_2Fac2005,PJ,,PRE,,,,Retrofitting improvements,Buildings,Building retrofits
 Retrofit-S_R_3Fac1958,RSD,,Retrofit Sols Dwellings R_3Fac1958,PJ,,PRE,,,,Retrofitting improvements,Buildings,Building retrofits
 Retrofit-T_R_Appa1958,RSD,,Retrofit Toits Dwellings R_Appa1958,PJ,,PRE,,,,Retrofitting improvements,Buildings,Building retrofits
-EXPBIOCPS,SUP,,Export Wood Chips,PJ,,IRE,,,,Export biomass,Imports & trade,Imports & trade
+EXPBIOCPS,SUP,,Export Wood Chips,PJ,,IRE,,,,Export biomass,Exports,Exports
 CHNCSLTH101,COM,,Com Space Heat New Heat Exchanger - NCS - HET101,PJ,,PRE,,,,Commercial Heat Exchanger,District heating,Commercial Heat Exchanger
 ETSTP_TGV_GAS_New_E12,,,ETSTP_TGV_GAS_New_E12,PJ,,,,,,Gas power plants,Power plants,Power plants
 ERNW_PV-RES_Homes_SOL_N,ELC,,New Public - Solar PV RES Homes  3kW (1-10kw),PJ,,ELE,,,,PV residential,Power plants,PV

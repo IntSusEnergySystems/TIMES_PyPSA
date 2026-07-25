@@ -280,6 +280,10 @@ def infer_overview_process_label(
         # Building retrofit dummies are IRE but not energy imports.
         if "dum_retrofit" in code_l or "retrofit" in l2:
             return "Building retrofits"
+        # Exports consume domestic energy: keeping them in the import node draws
+        # ribbons running back into what reads as a source.
+        if code_u.startswith("EXP") or "export" in blob:
+            return "Exports"
         return "Imports & trade"
     if l2 in {"district heating", "commercial heat exchanger"} or (
         "district heat" in blob and "chp" not in blob
@@ -340,7 +344,9 @@ def infer_overview_process_label(
         return "Buildings"
     if code_u.startswith(("ETSTP", "ECP", "EPV", "EWIND", "ELC")) or "_TGV_" in code_u:
         return "Power plants"
-    if code_u.startswith(("IMP", "EXP")):
+    if code_u.startswith("EXP"):
+        return "Exports"
+    if code_u.startswith("IMP"):
         return "Imports & trade"
     if code_u.startswith(("TRA", "T")) and any(
         k in code_l for k in ("car", "truck", "bus", "rail", "tra")
@@ -701,6 +707,7 @@ def friendly_custom_process_label(l2: str) -> str:
 CUSTOM_SUPPLY_CHAIN_LABELS = frozenset(
     {
         "Imports & trade",
+        "Exports",  # sink node: EXP* / Transfo_Exp consume domestic energy
         "Local production",  # includes Wallonia biogas methanisation / upgrading
         "Fuel supply",
         "Fuel conversion",
@@ -2595,7 +2602,10 @@ def collapse_commodity_nodes(
         return pd.DataFrame(columns=empty_cols)
 
     links = pd.DataFrame(link_rows)
-    group_cols = ["source", "target", "source_kind", "target_kind"]
+    # export_status is part of the key: a node pair carrying both soft-linked and
+    # untagged energy becomes two ribbons, not one promoted to `exported`. Merging
+    # them (the old `any_exported` behaviour) coloured the untagged share too.
+    group_cols = ["source", "target", "source_kind", "target_kind", "export_status"]
 
     def _first_nonempty(series: pd.Series) -> str:
         for item in series:
@@ -2613,7 +2623,6 @@ def collapse_commodity_nodes(
             value=("value", "sum"),
             matched_categories=("matched_categories", _join_category_values),
             commodity=("commodity", _join_commodity_labels),
-            export_status=("export_status", _merge_export_statuses_any),
             export_detail=("export_detail", _join_export_details),
             imbalance_class=("imbalance_class", _first_nonempty),
             imbalance_tooltip=("imbalance_tooltip", _first_nonempty),
@@ -2632,6 +2641,10 @@ def net_collapsed_process_links(links: pd.DataFrame) -> pd.DataFrame:
     Aggregation can place related energy on both A→B and B→A (e.g. fuel-tech
     grid FIn and a context electricity FOut into the power pool). Keep the net
     direction only. Links that touch imbalance nodes are left unchanged.
+
+    Netting is done **per export status**, so soft-linked (coloured) mass is never
+    cancelled against untagged (grey) mass; that would move coloured PJ the rules
+    never matched.
     """
     if links is None or links.empty:
         return links
@@ -2647,43 +2660,43 @@ def net_collapsed_process_links(links: pd.DataFrame) -> pd.DataFrame:
     if proc.empty:
         return links.reset_index(drop=True)
 
-    # Directed totals via plain dicts (avoids O(n²) DataFrame boolean scans).
-    directed_vals: dict[tuple[str, str], float] = {}
-    sources = proc["source"].astype(str).tolist()
-    targets = proc["target"].astype(str).tolist()
-    values = proc["value"].tolist()
-    for a, b, v in zip(sources, targets, values):
-        directed_vals[(a, b)] = directed_vals.get((a, b), 0.0) + float(v)
+    def _status_of(row: dict) -> str:
+        return str(row.get("export_status", "context") or "context")
+
+    # Directed totals per (source, target, status) via plain dicts
+    # (avoids O(n²) DataFrame boolean scans).
+    directed_vals: dict[tuple[str, str, str], float] = {}
+    for row in proc.to_dict("records"):
+        key = (str(row["source"]), str(row["target"]), _status_of(row))
+        directed_vals[key] = directed_vals.get(key, 0.0) + float(row["value"] or 0.0)
 
     # Representative metadata row per directed edge (largest value wins).
-    meta_map: dict[tuple[str, str], dict] = {}
-    status_map: dict[tuple[str, str], str] = {}
-    commodity_map: dict[tuple[str, str], set[str]] = {}
+    meta_map: dict[tuple[str, str, str], dict] = {}
+    commodity_map: dict[tuple[str, str, str], set[str]] = {}
     records = proc.to_dict("records")
     # Sort by value descending so first write is the max-value row.
     records.sort(key=lambda r: float(r.get("value") or 0.0), reverse=True)
     for row in records:
-        key = (str(row["source"]), str(row["target"]))
+        key = (str(row["source"]), str(row["target"]), _status_of(row))
         if key not in meta_map:
             meta_map[key] = dict(row)
-            status_map[key] = str(row.get("export_status", "context") or "context")
         labels = commodity_map.setdefault(key, set())
         for part in str(row.get("commodity") or "").split("|"):
             part = part.strip()
             if part:
                 labels.add(part)
 
-    seen: set[tuple[str, str]] = set()
+    seen: set[tuple[str, str, str]] = set()
     keep_rows: list[dict] = []
-    for (a, b), fv in directed_vals.items():
+    for (a, b, status), fv in directed_vals.items():
         if a == b:
             continue
-        canon = (a, b) if a < b else (b, a)
+        canon = (a, b, status) if a < b else (b, a, status)
         if canon in seen:
             continue
         seen.add(canon)
 
-        rv = float(directed_vals.get((b, a), 0.0))
+        rv = float(directed_vals.get((b, a, status), 0.0))
         net = fv - rv
         if abs(net) < 1e-12:
             continue
@@ -2692,29 +2705,16 @@ def net_collapsed_process_links(links: pd.DataFrame) -> pd.DataFrame:
         else:
             src, tgt, val = b, a, -net
 
-        base = meta_map.get((src, tgt)) or meta_map.get((tgt, src))
+        base = meta_map.get((src, tgt, status)) or meta_map.get((tgt, src, status))
         if base is None:
             continue
         row = dict(base)
         row["source"] = src
         row["target"] = tgt
         row["value"] = val
-        # Merge export status from both directions when both existed
-        if fv > 0 and rv > 0 and "export_status" in row:
-            statuses = []
-            for key in ((a, b), (b, a)):
-                if key in status_map:
-                    statuses.append(status_map[key])
-            row["export_status"] = merge_export_statuses(
-                pd.Series(statuses), any_exported=True
-            )
-            row["exported"] = str(row["export_status"]) in {
-                "exported",
-                "double_count",
-            }
         # Combine commodity labels
         labels: set[str] = set()
-        for key in ((a, b), (b, a)):
+        for key in ((a, b, status), (b, a, status)):
             labels.update(commodity_map.get(key, ()))
         if labels:
             row["commodity"] = "|".join(sorted(labels))
