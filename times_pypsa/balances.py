@@ -395,6 +395,189 @@ def parent_child_sum_checks(
     return pd.DataFrame(rows)
 
 
+def classify_io_ratio(
+    inflow: float,
+    outflow: float,
+    *,
+    unmapped_in: float = 0.0,
+    activity_unit: str = "",
+    zero_tol: float = 1e-9,
+) -> str:
+    """
+    One-word interpretation of an ΣFOut/ΣFIn ratio (see ``process_io_ratios``).
+
+    The label is a *reading aid*, not a verdict: ratios > 1 are legitimate for
+    heat pumps (COP) and for TIMES service accounting (lighting, vkm), and a
+    "no energy input" process is legitimate for imports / mining / renewables.
+    """
+    has_in = inflow > zero_tol
+    has_out = outflow > zero_tol
+    if not has_in and not has_out:
+        return "empty"
+    if not has_in:
+        # No energy FIn at all: primary supply, or an input we failed to map.
+        return (
+            "no energy input (unmapped FIn)"
+            if unmapped_in > zero_tol
+            else "source (no energy input)"
+        )
+    if not has_out:
+        return "final demand / sink"
+    ratio = outflow / inflow
+    if unmapped_in > 0.05 * inflow:
+        return "ratio distorted (unmapped FIn)"
+    if activity_unit and activity_unit.upper() not in ("PJ", ""):
+        return "non-PJ activity output"
+    if ratio > 3.0:
+        # Output dwarfs input: primary supply (imports, mining, renewables) or an
+        # input the mapping never captured — not a plausible conversion or COP.
+        return "mostly source (input ≪ output)"
+    if ratio > 1.05:
+        return "COP / service accounting"
+    if ratio < 0.5:
+        return "high losses (check outputs)"
+    return "conversion"
+
+
+def process_io_ratios(
+    flows: pd.DataFrame,
+    *,
+    by: str = "process_code",
+    carrier_mask: pd.Series | None = None,
+    activity_units: dict[str, str] | None = None,
+    label_cols: Iterable[str] = (),
+) -> pd.DataFrame:
+    """
+    ΣVAR_FOut / ΣVAR_FIn per process — efficiencies, COPs, and energy balances.
+
+    ``by`` is the grouping column: ``process_code`` for TIMES resolution, or an
+    aggregated label column (e.g. ``process_node`` after :func:`aggregate_flows`)
+    for the Sankey-node view. The ratio answers three questions at once:
+
+    - **efficiency** — a boiler / power plant should sit at 0.3–1.0;
+    - **COP** — heat pumps and TIMES service accounting sit above 1;
+    - **energy balance** — ``balance = outflow − inflow`` should be ≤ 0 for any
+      real conversion, so a positive balance means energy appears out of nowhere.
+
+    ``carrier_mask`` marks the rows that pass the Sankey energy-carrier filter
+    (:func:`times_pypsa.qa.filter_energy_carrier_flows`). Rows outside it are
+    **not** counted in inflow/outflow but are reported as ``unmapped_in`` /
+    ``unmapped_out``, because a missing commodity mapping is the single most
+    common reason a ratio looks impossible.
+
+    Returns one row per group with inflow / outflow / ratio / balance, the
+    exported (soft-linked) share, distinct commodity counts, and a ``reading``
+    column from :func:`classify_io_ratio`.
+    """
+    empty_cols = [
+        by,
+        "description",
+        "sector",
+        "activity_unit",
+        "inflow",
+        "outflow",
+        "ratio",
+        "balance",
+        "exported_in",
+        "exported_out",
+        "unmapped_in",
+        "unmapped_out",
+        "n_commodities_in",
+        "n_commodities_out",
+        "reading",
+    ]
+    if flows.empty or by not in flows.columns:
+        return pd.DataFrame(columns=empty_cols)
+
+    df = flows[flows["variable"].astype(str).str.upper().isin(("VAR_FIN", "VAR_FOUT"))]
+    if df.empty:
+        return pd.DataFrame(columns=empty_cols)
+
+    key = df[by].astype(str)
+    is_out = df["variable"].astype(str).str.upper().eq("VAR_FOUT")
+    if carrier_mask is None:
+        in_scope = pd.Series(True, index=df.index)
+    else:
+        in_scope = carrier_mask.reindex(df.index).fillna(False).astype(bool)
+    exported = (
+        df["exported"].reindex(df.index).fillna(False).astype(bool)
+        if "exported" in df.columns
+        else pd.Series(False, index=df.index)
+    )
+
+    def _sum(mask: pd.Series) -> pd.Series:
+        """Group-sum ``value`` over ``mask``, restricted to energy-carrier rows."""
+        sel = mask & in_scope
+        return df.loc[sel, "value"].groupby(key[sel], sort=False).sum()
+
+    inflow = _sum(~is_out)
+    outflow = _sum(is_out)
+    exported_in = _sum(~is_out & exported)
+    exported_out = _sum(is_out & exported)
+    unmapped_in = df.loc[~is_out & ~in_scope, "value"].groupby(
+        key[~is_out & ~in_scope], sort=False
+    ).sum()
+    unmapped_out = df.loc[is_out & ~in_scope, "value"].groupby(
+        key[is_out & ~in_scope], sort=False
+    ).sum()
+
+    com_col = "commodity_code" if "commodity_code" in df.columns else by
+    n_in = df.loc[~is_out & in_scope, com_col].groupby(
+        key[~is_out & in_scope], sort=False
+    ).nunique()
+    n_out = df.loc[is_out & in_scope, com_col].groupby(
+        key[is_out & in_scope], sort=False
+    ).nunique()
+
+    out = pd.DataFrame(index=pd.Index(sorted(set(key)), name=by))
+    for name, series in (
+        ("inflow", inflow),
+        ("outflow", outflow),
+        ("exported_in", exported_in),
+        ("exported_out", exported_out),
+        ("unmapped_in", unmapped_in),
+        ("unmapped_out", unmapped_out),
+    ):
+        out[name] = series.reindex(out.index).fillna(0.0).astype(float)
+    for name, series in (("n_commodities_in", n_in), ("n_commodities_out", n_out)):
+        out[name] = series.reindex(out.index).fillna(0).astype(int)
+
+    # First non-empty descriptive value per group (cheap, vectorized).
+    for col, target in (("process", "description"), ("sector", "sector")):
+        if col in df.columns:
+            text = df[col].astype(str).str.strip().replace({"nan": ""})
+            first = text[text.ne("")].groupby(key[text.ne("")], sort=False).first()
+            out[target] = first.reindex(out.index).fillna("")
+        else:
+            out[target] = ""
+
+    units = activity_units or {}
+    out["activity_unit"] = [str(units.get(code, "")) for code in out.index]
+
+    out["ratio"] = (out["outflow"] / out["inflow"]).where(out["inflow"] > 1e-9)
+    # Snap summation noise to zero so a 1:1 pass-through reads as 0, not -7.9e-15.
+    balance = out["outflow"] - out["inflow"]
+    scale = out[["inflow", "outflow"]].max(axis=1)
+    out["balance"] = balance.where(balance.abs() > 1e-9 * scale.clip(lower=1.0), 0.0)
+    out["reading"] = [
+        classify_io_ratio(
+            row.inflow,
+            row.outflow,
+            unmapped_in=row.unmapped_in,
+            activity_unit=row.activity_unit,
+        )
+        for row in out.itertuples()
+    ]
+
+    out = out.reset_index()
+    for col in label_cols:
+        if col in df.columns and col not in out.columns:
+            first = df[col].astype(str).groupby(key, sort=False).first()
+            out[col] = out[by].map(first).fillna("")
+    out["throughput"] = out[["inflow", "outflow"]].max(axis=1)
+    return out.sort_values("throughput", ascending=False).drop(columns=["throughput"])
+
+
 def empty_rule_report(
     category_pj: dict[str, float],
     all_categories: Iterable[str],

@@ -2788,13 +2788,21 @@ def net_collapsed_process_links(links: pd.DataFrame) -> pd.DataFrame:
     return pd.concat([netted[cols], other[cols]], ignore_index=True)
 
 
-def _gateway_sectors(agg: pd.DataFrame | None) -> dict[str, str]:
-    """Map anchorable conversion process → PyPSA sector from exported VAR_FIn rows.
+# A gateway may only be anchored when its output links carry (near) the same
+# energy as its soft-linked input — otherwise moving the highlight would invent
+# or destroy coloured PJ. 10% absorbs storage round-trip and distribution losses
+# while rejecting electrolysers, partly-tagged inputs, and threshold truncation.
+ANCHOR_BALANCE_TOLERANCE = 0.10
+
+
+def _gateway_sectors(agg: pd.DataFrame | None) -> dict[str, tuple[str, str, float]]:
+    """Map anchorable conversion process → (sector, categories, exported FIn PJ).
 
     A *gateway* is a fuel-delivery / storage / geothermal process (see
     :func:`_is_anchorable_gateway_label`) whose ``VAR_FIn`` is soft-linked. Its
     export belongs at the demand boundary, so it is later moved from the fuel
-    supply link (upstream) onto the process's output links (into the sector).
+    supply link (upstream) onto the process's output links (into the sector) —
+    but only if :func:`assign_export_sectors` finds the energy is preserved.
     """
     if agg is None or agg.empty or "exported" not in agg.columns:
         return {}
@@ -2804,7 +2812,7 @@ def _gateway_sectors(agg: pd.DataFrame | None) -> dict[str, str]:
     df = df[df["exported"].fillna(False).astype(bool)]
     if df.empty:
         return {}
-    out: dict[str, str] = {}
+    out: dict[str, tuple[str, str, float]] = {}
     for proc, sub in df.groupby("process_code", sort=False):
         label = str(proc)
         if not _is_anchorable_gateway_label(label) or _is_demand_end_use_label(label):
@@ -2812,9 +2820,10 @@ def _gateway_sectors(agg: pd.DataFrame | None) -> dict[str, str]:
         cats: list[str] = []
         for item in sub.get("matched_categories", pd.Series(dtype=object)):
             cats.extend(_split_categories(item))
-        sec = link_sector("|".join(cats))
+        joined = "|".join(sorted(set(cats)))
+        sec = link_sector(joined)
         if sec:
-            out[label] = sec
+            out[label] = (sec, joined, float(sub["value"].sum()))
     return out
 
 
@@ -2865,24 +2874,70 @@ def assign_export_sectors(
         exported_mask, "matched_categories"
     ].map(link_sector)
 
-    gateways = _gateway_sectors(agg) if anchor else {}
-    if gateways:
+    candidates = _gateway_sectors(agg) if anchor else {}
+    ledger: list[dict] = []
+    if candidates:
         src = links["source"].astype(str)
         tgt = links["target"].astype(str)
-        # Restrict to gateways that actually have an output link to anchor onto.
-        active = {g for g in gateways if (src == g).any()}
+        all_gateways = set(candidates)
+
+        # Anchor a gateway only when its own output links can carry the whole
+        # soft-linked input. Links into another gateway are internal transfers,
+        # not demand inflows, so they are not eligible targets — highlighting
+        # them would count the same fuel twice along the chain (e.g. biodiesel
+        # blended into diesel).
+        eligible = ~tgt.isin(all_gateways)
+        active: dict[str, str] = {}
+        for label, (sector, cats, fin_pj) in candidates.items():
+            out_mask_g = (src == label) & eligible
+            out_pj = float(links.loc[out_mask_g, "value"].sum())
+            ratio = out_pj / fin_pj if fin_pj > 1e-12 else 0.0
+            keep = abs(ratio - 1.0) <= ANCHOR_BALANCE_TOLERANCE
+            ledger.append(
+                {
+                    "gateway": label,
+                    "sector": sector,
+                    "exported_fin_pj": fin_pj,
+                    "anchorable_out_pj": out_pj,
+                    "ratio": ratio,
+                    "anchored": keep,
+                }
+            )
+            if keep:
+                active[label] = sector
+            else:
+                # Leaving the highlight upstream is the conservative choice: the
+                # export stays visible and no coloured PJ is invented or lost.
+                logger.info(
+                    "Not anchoring %r: soft-linked VAR_FIn %.4g PJ vs anchorable "
+                    "output %.4g PJ (ratio %.3f) — highlight stays on the fuel-supply "
+                    "link to keep coloured energy conserved.",
+                    label,
+                    fin_pj,
+                    out_pj,
+                    ratio,
+                )
+
         if active:
-            is_out = src.isin(active)
+            is_out = src.isin(active) & eligible
             is_in = tgt.isin(active)
             detail = links.get("export_detail", pd.Series("", index=links.index))
             producer_exported = detail.astype(str).str.contains("VAR_FOut of", na=False)
 
             # (a) gateway OUTPUT links → exported + gateway sector (takes priority).
-            out_sector = src.map(lambda s: gateways.get(str(s), ""))
+            out_sector = src.map(lambda s: active.get(str(s), ""))
             out_mask = is_out & out_sector.astype(bool)
-            links.loc[out_mask, "export_status"] = "exported"
-            links.loc[out_mask, "exported"] = True
+            # A double_count warning must never be masked by anchoring.
+            promote = out_mask & links["export_status"].ne("double_count")
+            links.loc[promote, "export_status"] = "exported"
+            links.loc[promote, "exported"] = True
             links.loc[out_mask, "export_sector"] = out_sector[out_mask]
+            # Keep the soft-link traceable on the link that now carries the colour:
+            # without this the hover on an anchored link names no category at all.
+            if "matched_categories" in links.columns:
+                blank = links["matched_categories"].astype(str).str.strip().eq("")
+                fill = src.map(lambda s: candidates.get(str(s), ("", "", 0.0))[1])
+                links.loc[out_mask & blank, "matched_categories"] = fill[out_mask & blank]
 
             # (b) gateway INPUT links (upstream fuel supply) → context, unless the
             #     link is itself a gateway output or a soft-linked VAR_FOut producer.
@@ -2894,4 +2949,5 @@ def assign_export_sectors(
 
     if "exported" in links.columns:
         links["exported"] = links["export_status"].isin(["exported", "double_count"])
+    links.attrs["anchor_ledger"] = ledger
     return links

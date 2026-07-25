@@ -127,7 +127,7 @@ the former single blue** and the light-red *mixed* status, which was verified
 never to occur on the real `custom` data (see
 [test](#tests-guarding-the-export-strategy)).
 
-### 2. Anchor soft-linked fuel inputs to the demand inflow
+### 2. Anchor soft-linked fuel inputs to the demand inflow — only when energy is conserved
 
 Previously an exported **`VAR_FIn`** (a fuel/electricity *input* into a
 conversion process) was highlighted on the *upstream* fuel-supply link, so
@@ -150,24 +150,90 @@ power plants) while heat / aviation `VAR_FOut` exports appeared on the **right**
   agriculture, rail, hydrogen-road vehicles) already terminate at the end use
   and are kept.
 
-Because these fuel-delivery techs are ~1:1 (input ≈ output — verified: e.g.
-`Fuel Tech - Electricity (IND)` 36.7 PJ in / 36.7 PJ out to `Industry (other)`;
-`Fuel Tech - Diesel (TRA)` 54.8 PJ in / 54.7 PJ out split across vehicles), the
-highlighted quantity is preserved. Result (`custom`, 2030/2050): every soft-link
-now enters an end-use node coloured by sector — e.g. **industry fuel exports sit
-on the `Fuel Tech (IND) → Industry (other)` links, not the upstream
-import / power-plant links**; transport fuels on `Fuel Tech (TRA) → Cars /
-Road Freight`; electricity for industry on `Fuel Tech - Electricity (IND) →
-Industry (other)`.
+#### The conservation guard (added 2026-07-25)
 
-Anchoring also removes a pre-existing **double-highlight**: the biodiesel
-blended into diesel was previously drawn blue on both `Imports → Biodiesel` and
-`Biodiesel → Diesel`; it is now highlighted once, on the gateway output chain.
+Moving a highlight is only legitimate if the destination carries the **same
+energy** as the source. Anchoring is therefore **conditional**: for each gateway
+the code compares its soft-linked `VAR_FIn` PJ against the PJ on its anchorable
+output links, and anchors only when the ratio is within
+`ANCHOR_BALANCE_TOLERANCE` (**10%**). Otherwise the highlight is **left on the
+fuel-supply link** — the export stays visible and no coloured PJ is invented or
+lost. Every decision is written to `qa_anchor_ledger_{year}.csv` and shown in the
+report, so a skipped anchor is visible instead of silent.
+
+The guard rejects three failure modes that the unconditional version had:
+
+| Failure mode | Example (reference scenario) | Effect before the guard |
+|---|---|---|
+| **Lossy / multi-output process** wrongly treated as a 1:1 delivery tech | `Fuel Tech - H2` bundles the electrolyser + tank + delivery: 2.446 PJ soft-linked electricity in, 1.68 PJ anchorable out (ratio 0.69) | 1.20 PJ of *industrial* hydrogen was coloured **Transport** on `Fuel Tech - H2 → hydrogen for industry`, then coloured **Industry** again one hop later — the same molecules counted twice in two sectors |
+| **Partly-tagged input** → all outputs coloured | any gateway where only part of `VAR_FIn` is soft-linked | coloured PJ exceeded tagged PJ (energy invented) |
+| **Threshold truncation** dropping some outputs | `Fuel Tech - Electricity (TRA)` at the per-category views' 0.1 PJ threshold | up to −19% of the highlight silently lost |
+
+Gateways that *do* pass are genuinely 1:1 — the ledger shows ratio `1.000` for 15
+of 17 in 2050, `0.98` for `EV battery storage` (round-trip loss) and `0.956` for
+`Fuel Tech - Biodiesel (TRA)`. For those, the highlighted quantity is preserved
+and every soft-link enters an end-use node coloured by sector: industry fuel
+exports on `Fuel Tech (IND) → Industry (other)`, transport fuels on
+`Fuel Tech (TRA) → Cars / Road Freight`.
+
+#### Gateway chains are not highlighted
+
+A link `gateway → gateway` is an **internal transfer**, not a demand inflow.
+Colouring it *and* the downstream demand inflow would count the same fuel twice —
+precisely the quantity `road_internal_transfer_pj` already subtracts from the
+`total road` demand. Such links are excluded from the anchor target set, and the
+chain's own export is demoted when its target gateway was anchored. Biodiesel
+blended into diesel is now coloured exactly once.
 
 Generation nodes (PV, wind, power plants, CHP) are **never** anchored across
 their heterogeneous outputs — `_is_anchorable_gateway_label` is restricted to
 fuel-delivery techs so a small industry-electricity rule via `PV industrial`
-cannot recolour all of PV's grid output.
+cannot recolour all of PV's grid output. Note this predicate is a **prefix test
+on the display label** (`Fuel Tech …` / `Fuel tech …`, `EV battery storage`,
+`Geothermal (IND)`): 59 labels in `mapping_processes.csv` match it, including
+power-sector fuel supply (`Fuel Tech - Nuclear`, `Fuel tech · methane`, …) that
+is *not* a 1:1 demand gateway. Those are harmless today only because their inputs
+carry no soft-link tag — the conservation guard, not the predicate, is what keeps
+them safe. Prefer tightening the predicate over relying on that.
+
+### 3. Reconciliation: does the Sankey colour what the rules tagged?
+
+`export_reconciliation(tagged, links)` compares, per PyPSA sector, the
+soft-linked PJ the **extraction rules matched** against the PJ the diagram
+actually **draws** as an exported ribbon. Until 2026-07-25 nothing in the
+codebase checked this: every other QA table validates the rules, none validated
+that the Sankey shows what the rules matched — so the double-counts above were
+invisible.
+
+Read it as:
+
+- **`coloured < tagged`** — a soft-link the diagram does not show. A small
+  negative gap is expected: some tagged mass ends in a magenta `U ·` sink rather
+  than a process→process ribbon.
+- **`coloured > tagged`** — energy coloured that **no rule matched**. Either an
+  untagged flow merged onto an exported process pair, or a fuel coloured twice
+  along a chain. This direction is always a defect.
+
+Reference scenario (`custom`, netted, TWh):
+
+| Sector | 2030 tagged | 2030 coloured | 2050 tagged | 2050 coloured |
+|--------|------------:|--------------:|------------:|--------------:|
+| Industry | 32.58 | 32.36 | 32.73 | 32.72 |
+| Transport | 38.18 | 37.59 | 31.44 | 30.24 |
+| Residential | 27.12 | 27.12 | 28.36 | 28.36 |
+| **Services** | 13.43 | **13.58** | 18.48 | **18.75** |
+| Agriculture | 1.49 | 1.42 | 1.49 | 1.42 |
+| **TOTAL** | 112.80 | 112.07 (99.4%) | 112.50 | 111.49 (99.1%) |
+
+**Services is over-coloured** (+0.15 / +0.27 TWh) — a genuine open defect, not
+rounding: `merge_export_statuses(any_exported=True)` promotes a process pair to
+`exported` when *any* of the commodities collapsed onto it is exported, so
+untagged `Commercial cooling` output riding the same
+`Commercial Heat pump → Commercial buildings` pair gets coloured too. The
+Transport shortfall is the H2 electrolyser / EV-storage conversion loss, which
+correctly stays outside the highlight. The near-100% total previously quoted was
+a **net** of offsetting errors in both directions — which is why the table is
+now per-sector.
 
 ### Display-only: PyPSA demand CSVs are unchanged
 
@@ -184,8 +250,21 @@ changes (verified for every soft-link year 2021–2050).
 - `assign_export_sectors` anchoring (synthetic): gateway input → context, output
   → exported + sector; demand-side / `VAR_FOut` exports kept;
 - on the reference (toy) scenario, for **all** years: **no `mixed` / no
-  `double_count`** link, **every exported link has a sector**, and no anchorable
-  gateway keeps an exported fuel-supply input.
+  `double_count`** link, and **every exported link has a sector**;
+- `test_anchored_gateway_inputs_are_greyed` — a gateway that *was* anchored keeps
+  no exported input (a *skipped* gateway legitimately does);
+- `test_anchoring_conserves_highlighted_energy` — every anchored gateway's
+  in/out ratio is within `ANCHOR_BALANCE_TOLERANCE`;
+- `test_no_double_count_along_a_gateway_chain` — no fuel is coloured on both a
+  chain hop and the downstream demand inflow;
+- `test_export_reconciliation_matches_tagged_energy` — coloured PJ is 90–102% of
+  tagged PJ and the per-sector rows sum to the total;
+- `test_anchor_ledger_is_reported_for_every_gateway` — every gateway decision is
+  recorded with its energies.
+
+`tests/test_balances.py` covers `process_io_ratios` / `classify_io_ratio`: COP vs
+efficiency vs source readings, unmapped-input flagging, aggregated grouping,
+throughput ordering, and empty-input safety.
 
 ## Designing `custom` (working level)
 
@@ -338,9 +417,25 @@ python -c "import pandas as pd; m=pd.read_csv('output/qa_overview/qa_sankey_labe
 
 ## Coverage gap: what stays out of the export (and why)
 
-The DMD coverage gap (`qa_coverage_gap_*.csv`) is ~290 PJ (2030) / ~260 PJ
-(2050), but almost all of it is **consumption-side (n+1) of already-exported
-production** and must stay out to avoid double-counting:
+The DMD coverage gap (`qa_coverage_gap_*.csv`) is **356 PJ (2030) / 331 PJ
+(2050)** — re-measured 2026-07-25; the previously documented "~290 / ~260 PJ"
+was stale by 23–27% relative to the mapping rewrite. The split is **not** "almost
+all consumption-side":
+
+| Class | 2030 | 2050 |
+|-------|-----:|-----:|
+| (a) downstream (n+1/n+2) of already-exported production — correct to exclude | 272 PJ (**76%**) | 246 PJ (**75%**) |
+| (c) non-energy / material accounting **or commodity missing from `mapping_commodities.csv`** | 68 PJ (**19%**) | 70 PJ (**21%**) |
+| (b) PJ commodity with no exported producer | 17 PJ (5%) | 15 PJ (4%) |
+
+Class (c) is **not all non-energy**: it includes ~37 PJ (2030) / ~42 PJ (2050) of
+industrial heat / mechanical-energy commodities (`ICHHTH` 11.3, `ICHMCH` 8.4,
+`IOIHTH` 4.8, `ICHPRC`, `IOIMCH`, …) that are simply **absent from
+`mapping_commodities.csv`** — unclassifiable rather than genuinely non-energy.
+307 (2030) / 317 (2050) commodities appearing in flows have no mapping row at all.
+Truly unattributable residue is <1 PJ/yr.
+
+Class (a) — legitimately excluded because exporting both ends would double-count:
 
 | Unexported flow | Why excluding is correct |
 |-----------------|--------------------------|
@@ -355,10 +450,134 @@ production** and must stay out to avoid double-counting:
 Genuine open items; the debugging history that produced the current mappings is
 in the change log below.
 
+### Audit 2026-07-25 — unresolved defects that would change the demand CSVs
+
+Found by a full re-audit of the extraction path. **None is fixed**, because each
+changes `wallon_demands_*.csv` and so is a coupling decision, not a bug fix.
+Ordered by blast radius.
+
+- **⚠ `filter_values_2` is silently ignored for 9 of 55 rules.**
+  `load_extraction_rules` (`times_pypsa/pipeline.py`, the `else` branch) reads
+  only `filter_values_1` unless `filter_type == "combined"`. 41 rules are
+  `combined` (filter honoured); of the 14 `process_agg` rules, **9 declare a
+  `pypsa_carrier` filter in `filter_field_2`/`filter_values_2` that never runs**.
+  ~124 PJ of the 2030 export depends on a filter the CSV claims to apply:
+
+  | Rule | exported 2030 | if the declared filter *were* applied |
+  |------|--------------:|--------------------------------------:|
+  | `solid biomass` | 27.3 PJ | **0** |
+  | `naphtha` | 7.1 PJ | **0** |
+  | `coke` | 6.7 PJ | **0** |
+  | `methane` | 40.4 PJ | 19.4 PJ |
+  | `electricity` | 38.3 PJ | 25.7 PJ |
+  | `electricity road` | 7.2 PJ | 4.9 PJ |
+
+  **Do not "fix" the loader** — the current numbers are the sensible ones; the
+  carrier labels in column 7 do not match the mapping labels, so honouring them
+  would zero out three industry categories. The right fix is to clean the 9 dead
+  cells (or convert those rules to `combined` *and* correct the carrier labels).
+  Until then anyone editing `extraction_rules.csv` will reason from semantics
+  that do not hold.
+
+- **⚠ `total domestic navigation` exports a Btkm activity value into the PJ
+  column.** Its commodity `TNDF` is produced by `TNDFDST00`, whose Activity unit
+  is **BTKM** (`VAR_Act == VAR_FOut(TNDF)`), yet `mapping_commodities.csv`
+  declares `TNDF Unit = PJ`. Diesel in is 0.572 PJ against `TNDF` 1.617 → implied
+  283% efficiency. **1.62 PJ (2030) / 1.90 PJ (2050) handed to PyPSA are not
+  energy.** Root cause: the extraction path
+  (`extract_demands_for_horizon`: `total_pj = filtered_df["value"].sum()`) has
+  **no unit guard at all** — `is_pj_activity_unit` / `excluded_non_pj_consumers`
+  are only reached from the Sankey collapse. Contrast aviation, which is clean
+  (see below).
+
+- **⚠ Commercial new electric heating boilers are mislabelled — 6.03 PJ of 2050
+  services heat is never exported as heat.** Ten `Com Space/Water Heat New Boiler
+  … ELC201` processes (`CHSAELC201`, `CHBAELC201`, `CWSAELC101`, …) carry
+  `Aggregation Level 2 = commercial other` (an appliances/cooling bucket) instead
+  of a services-heat label, so `services electric heater` reads **0** in 2050
+  while 6.03 PJ of commercial electric heating exists. No energy is lost — the
+  electricity is inside `total electricity services` — but PyPSA receives it as
+  generic services electricity and `BEWAL services urban decentral heat` is
+  understated by ~40%. Separately, 6 retrofit processes got the label
+  `Dum_Retrofit_Commercial` while their 47 siblings got
+  `Retrofitting improvements`, so the `retro` rule undercounts by 7.6%
+  (1.59 PJ, 2050). Both are pure labelling inconsistencies in
+  `mapping_processes.csv`. Heat closure: 2030 residual 0.35% (excellent), 2050
+  **7.6%** — entirely the above.
+
+- **Unmapped commodities inside exported categories.** `solid biomass` sums
+  `BIOSLU` (5.64 PJ) and `MBORES` (1.13 PJ) — **neither has a row in
+  `mapping_commodities.csv`**, and `MBORES`'s process has Activity unit `MT`. That
+  is 25% (2030) / 30% (2050) of the category summed without a declared unit.
+  `total road` 2050 likewise includes unmapped `AUX_STH2SGT` (0.79 PJ).
+  Direct consequence of the dead-filter item above.
+  The new inflow/outflow ratio table also flags `BIOPEL`, `BIOSLU` and `NREWST`
+  as unmapped *inputs*, which makes `Fuel Tech - Wood Pellets / Wastes (ELC)`
+  appear on the Sankey as primary sources of ~3.5 PJ from nowhere.
+
+- **Black liquor is covered by no rule.** `INDBLQ` = 8.5 PJ (2030) / 10.2 PJ
+  (2050), produced by pulp mills and burned in `CHPINDBLQIPPN00_N`; plus ~1.6
+  PJ/yr of on-site `INDCPS`. Defensible as a self-supplied by-product PyPSA need
+  not source, but the decision is currently implicit — `solid biomass for
+  industry` handed to PyPSA excludes it.
+
+- **`hydrogen road` is not a key-subset of `total road`.** `ALLOWED_OVERLAPS`
+  lists it as a child, but the key overlap is **0** in both years: `total road`
+  tags the electricity into `Fuel Tech - H2`, `hydrogen road` tags the H₂ into the
+  vehicles. The relation is energetic (n+1), not a subset — so **summing
+  `total road` + `hydrogen road` on the PyPSA side double-counts** 0.48 PJ (2050).
+  Same shape for rail electricity, tagged by `total road` (at the fuel tech) and
+  by `total rail` + `electricity rail` (at the rail process): 2.01 PJ (2050) under
+  two categories with different flow keys, so `qa_double_count_*.csv` cannot see
+  it. `_adjust_road_rail_totals` handles the rail case by subtraction — verified
+  correct.
+
+- **`electricity road` mixes two measurement points.** Its 60.7 PJ (2050, gross)
+  combines `ELCLOW` 37.0 PJ (before the charger) with `BATELCIN` 23.8 PJ (after
+  it), leaving 1.25 PJ of charger loss (5%) outside every category.
+
+- **`residential cooking` splits cooking across two labels.** `RCOKELC100`
+  (0.89 PJ electric cooking) stays under `residential other` while the gas/LPG/log
+  cookers moved to `residential cooking` — so electric cooking is counted inside
+  `total electricity residential` and only 0.07 PJ of it inside
+  `residential cooking`. The rule has no carrier filter, so it is one mixed
+  number (3.64 PJ 2030 = gas 3.27 + LPG 0.29 + electricity 0.07 + logs 0.01); if
+  PyPSA treats it as gas, 0.07 PJ of electricity is misassigned. No
+  double-count (zero key overlap, verified). Latent: `INFPRCCOK01` (Sector=IND,
+  consumes industrial coke) also carries `residential cooking` — zero in
+  2030/2050 but **non-zero in 2022/2025** (0.003 / 0.011 PJ).
+
+- **`_adjust_road_rail_totals` uses unguarded `.iloc[0]`** on four category
+  lookups → `IndexError` if any of `electricity road` / `electricity rail` /
+  `total road` / `total rail` is removed from the CSV.
+  `_adjust_road_biofuel_double_count` *is* guarded.
+
+**Verified correct (audit closed these):**
+
+- **`road_internal_transfer_pj` is exact.** 2030: 4.9911 PJ, all `TRABDL`
+  (produced 5.1773 by the biodiesel fuel tech, of which 4.9911 consumed by the
+  diesel fuel tech inside the road set + 0.1863 direct-to-bus outside — balance
+  exact). 2050: 0.3414 PJ. Neither over- nor under-subtracts. Latent risk only:
+  `min(net_prod_inside, net_cons_inside)` would over-subtract on a scenario where
+  a blended biofuel is *partly imported*.
+- **Aviation FOut really is PJ.** `TAIFKER00` FIn `TRAKER` 26.6093 → FOut `TAIF`
+  26.6093 — efficiency exactly 1.000, all three processes have Activity unit PJ,
+  and the sum 30.3329 equals the category total to 6 decimals. `TRAKER` is
+  produced only by a fuel tech in no rule and consumed only by the aviation
+  processes, so the ~30 PJ is counted exactly once. The unit question is closed;
+  only "is FOut what PyPSA wants" remains.
+- **No disallowed double-count overlaps** in either year; `ALLOWED_OVERLAPS` is
+  complete for the current rule set, and the two rules added in 038a419/224b429
+  introduce none. (`"total electricity residential": frozenset()` is a no-op.)
+- **`total road` inflation by ship diesel is real but negligible** — 0.57 PJ,
+  0.59% of the category.
+- **EV charging** has no double count: charger input (25.0 PJ, 2050) is in no
+  rule, and `total electricity services` / `residential` correctly exclude it.
+
 ### Extraction rules / demand CSVs
 
 - **Aviation kerosene FIN-vs-FOUT.** `total (domestic|international) aviation`
-  export the service `VAR_FOut` (`TAIF`/`TAIP`, treated as PJ), parallel to
+  export the service `VAR_FOut` (`TAIF`/`TAIP`, **confirmed PJ**), parallel to
   navigation. The kerosene `VAR_FIn` (~30 PJ) stays out — exporting it too would
   double-count. Confirm the FOut convention is what PyPSA expects.
 - **`total international navigation` is always 0.** Its filter label
@@ -426,6 +645,10 @@ in the change log below.
 
 | Date | Change | Reason |
 |------|--------|--------|
+| 2026-07-25 | **Anchoring made conservation-checked** (`ANCHOR_BALANCE_TOLERANCE` = 10%): a gateway is anchored only when its outputs carry the same energy as its soft-linked input; otherwise the highlight stays upstream. Gateway→gateway chain links are no longer highlighted. `matched_categories` is carried onto anchored links; a `double_count` status is no longer masked by anchoring. Ledger written to `qa_anchor_ledger_{year}.csv`. | `Fuel Tech - H2` (electrolyser, ratio 0.69) coloured 1.20 PJ of *industrial* hydrogen as Transport and again as Industry — the same molecules twice in two sectors. Unconditional anchoring could also lose up to 19% of a highlight to threshold truncation, or colour all outputs of a partly-tagged gateway |
+| 2026-07-25 | **New reconciliation check** `export_reconciliation` + `qa_export_reconciliation_{year}.csv`: coloured Sankey PJ vs tagged export PJ, per sector | Nothing in the codebase compared the diagram to the rules it draws, so every defect above was invisible; the ~99% *aggregate* match was a net of offsetting errors in both directions |
+| 2026-07-25 | **New inflow/outflow ratio tables** (`process_io_ratios`): ΣFOut/ΣFIn per TIMES process and per aggregated Sankey node, with `unmapped_in`/`unmapped_out` and a `reading` column | Efficiencies, COPs and energy balances in one place; immediately surfaced `BIOPEL`/`BIOSLU`/`NREWST` as unmapped inputs making waste/pellet fuel techs look like primary sources |
+| 2026-07-25 | Coverage-gap numbers re-measured (290/260 → **356/331 PJ**) and the split restated as ~76% consumption-side / ~20% unmapped-or-material / ~5% residual | The old figures were stale by 23–27% and the "almost all consumption-side" claim hid ~40 PJ of *unmapped* industrial heat commodities |
 | 2026-07-24 | **Export strategy rework**: colour exported links by PyPSA sector (Industry/Transport/Residential/Services/Agriculture) and anchor soft-linked fuel `VAR_FIn` to the demand inflow (`assign_export_sectors`). Removed single-blue / light-red-mixed colouring. | Exports were scattered (FIn near supply, FOut near demand) and indistinguishable (all blue); mixed verified never to occur |
 | 2026-07-24 | Coverage-gap / double-count fixes: added `residential cooking` rule (~1.4→4.6 PJ/yr); fixed biofuel-blending double-count in `total road` (`road_internal_transfer_pj`, −5 PJ 2030 → −0.3 PJ 2050). Only these two categories change in `wallon_demands_*.csv`. | Sankey purpose: catch forgotten flows / double counts |
 | 2026-07-24 | Keep Cars / Road Freight / Road transport (public) / 2–3 wheelers as context labels; drop electricity storage↔storage collapse links | RHS `Transport (other)` was opaque mix of modes; Pumped hydro→Grid battery was ELCHIG proportional artifact |

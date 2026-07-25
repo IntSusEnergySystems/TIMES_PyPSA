@@ -175,7 +175,11 @@ def test_generate_qa_report_all_years(
     assert report.name == "qa_report.html"
     html = report.read_text(encoding="utf-8")
     assert "Whole TIMES energy flows" in html
-    assert "PyPSA export neighbourhood" in html
+    # The standalone whole-neighbourhood Sankey was dropped; per-category
+    # neighbourhoods (B1, B2, …) carry the export detail.
+    assert "PyPSA export neighbourhood" not in html
+    assert "export neighbourhood" in html
+    assert "Inflow / outflow ratios" in html
     assert "year-slider" in html
     assert "netting-toggle" in html
     assert "Plotly.purge" in html

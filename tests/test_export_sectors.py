@@ -211,20 +211,29 @@ def test_assign_export_sectors_handles_empty_links():
 # Integration on the reference (toy) scenario
 # --------------------------------------------------------------------------- #
 @pytest.fixture(scope="module")
-def custom_system_links_by_year(times_model, mappings_dir: Path):
+def custom_system_by_year(times_model, mappings_dir: Path):
+    """year → (tagged flows, collapsed ``custom`` system links)."""
     meta = load_metadata(mappings_dir)
     rules = load_extraction_rules(meta.extraction_rules_file)
     out = {}
     for yr in times_model.years:
         tagged = tag_flows_with_rules(times_model.energy_flows(yr), rules)
-        out[yr] = prepare_system_sankey_links(
+        out[yr] = (
             tagged,
-            flow_threshold=0.0,
-            apply_netting=True,
-            agg_level="custom",
-            collapse_commodities=True,
+            prepare_system_sankey_links(
+                tagged,
+                flow_threshold=0.0,
+                apply_netting=True,
+                agg_level="custom",
+                collapse_commodities=True,
+            ),
         )
     return out
+
+
+@pytest.fixture(scope="module")
+def custom_system_links_by_year(custom_system_by_year):
+    return {yr: links for yr, (_tagged, links) in custom_system_by_year.items()}
 
 
 def test_no_mixed_or_double_count_on_custom_system(custom_system_links_by_year):
@@ -313,28 +322,131 @@ def test_demand_csv_has_cooking_and_road_biofuel_subtracted(
         assert internal > 0
 
 
-def test_anchorable_gateway_inputs_are_not_highlighted(custom_system_links_by_year):
-    """After anchoring, a fuel-delivery gateway that has an output link must not
-    keep an exported *input* link (the export sits on the demand inflow)."""
+def test_anchored_gateway_inputs_are_greyed(custom_system_links_by_year):
+    """A gateway that *was* anchored must not keep an exported input link.
+
+    Anchoring is conditional (see ``ANCHOR_BALANCE_TOLERANCE``): a gateway whose
+    outputs cannot carry the whole soft-linked input is deliberately left alone,
+    and then its upstream fuel-supply link legitimately stays highlighted — that
+    is how coloured energy is kept conserved.
+    """
+    for yr, links in custom_system_links_by_year.items():
+        anchored = {
+            row["gateway"]
+            for row in links.attrs.get("anchor_ledger", [])
+            if row["anchored"]
+        }
+        src = links["source"].astype(str)
+        tgt = links["target"].astype(str)
+        for g in anchored:
+            inbound = links[(tgt == g) & (src != g)]
+            exported_supply = inbound[inbound["export_status"] == "exported"]
+            assert exported_supply.empty, (
+                f"{yr}: anchored gateway {g!r} still has exported inputs: "
+                f"{list(exported_supply['source'])}"
+            )
+
+
+def test_anchoring_conserves_highlighted_energy(custom_system_links_by_year):
+    """Every anchored gateway moves its soft-linked PJ, it does not invent or lose it.
+
+    This is the guard against the two failure modes of anchoring: a multi-output
+    or lossy process (electrolyser, storage) shedding coloured PJ, and a gateway
+    with partly-untagged inputs having *all* its outputs coloured.
+    """
+    from times_pypsa.aggregation import ANCHOR_BALANCE_TOLERANCE
+
+    for yr, links in custom_system_links_by_year.items():
+        for row in links.attrs.get("anchor_ledger", []):
+            if not row["anchored"]:
+                continue
+            assert abs(row["ratio"] - 1.0) <= ANCHOR_BALANCE_TOLERANCE, (
+                f"{yr}: gateway {row['gateway']!r} anchored despite "
+                f"{row['exported_fin_pj']:.4g} PJ in vs "
+                f"{row['anchorable_out_pj']:.4g} PJ out"
+            )
+
+
+def test_no_double_count_along_a_gateway_chain(custom_system_links_by_year):
+    """A blended fuel must not be coloured on the chain hop *and* downstream.
+
+    Biodiesel blended into diesel crosses two gateways. If the hop
+    ``Biodiesel → Diesel`` were coloured while Diesel's own demand inflows are
+    also coloured, that fuel would be counted twice — the very quantity
+    ``road_internal_transfer_pj`` subtracts from the ``total road`` demand.
+    A hop into a gateway that was *not* anchored is harmless: nothing downstream
+    of it carries a colour, so the energy is counted once.
+    """
     from times_pypsa.aggregation import _is_anchorable_gateway_label
 
     for yr, links in custom_system_links_by_year.items():
+        anchored = {
+            row["gateway"]
+            for row in links.attrs.get("anchor_ledger", [])
+            if row["anchored"]
+        }
         src = links["source"].astype(str)
         tgt = links["target"].astype(str)
-        for g in src.unique():
-            if not _is_anchorable_gateway_label(g):
-                continue
-            if not (src == g).any():
-                continue  # no output link to anchor onto → input highlight kept
-            inbound = links[(tgt == g) & (src != g)]
-            # A gateway's fuel-supply inputs are greyed. Chain links whose source
-            # is itself a gateway (e.g. Biodiesel → Diesel) are that upstream
-            # gateway's *output* and are legitimately kept exported.
-            exported_supply = inbound[
-                (inbound["export_status"] == "exported")
-                & (~inbound["source"].astype(str).map(_is_anchorable_gateway_label))
-            ]
-            assert exported_supply.empty, (
-                f"{yr}: gateway {g!r} still has exported fuel-supply inputs: "
-                f"{list(exported_supply['source'])}"
-            )
+        double = links[
+            src.map(_is_anchorable_gateway_label)
+            & tgt.isin(anchored)
+            & (src != tgt)
+            & links["export_status"].eq("exported")
+        ]
+        assert double.empty, (
+            f"{yr}: fuel coloured both on a gateway chain hop and downstream "
+            f"(double count): {list(zip(double['source'], double['target'], double['value']))}"
+        )
+
+
+def test_export_reconciliation_matches_tagged_energy(custom_system_by_year):
+    """Coloured Sankey PJ must track the PJ the extraction rules tagged.
+
+    This is the guard the QA suite previously lacked: every other check validates
+    the *rules*, none checked that the diagram draws what the rules matched. A
+    small negative gap is legitimate (tagged mass ending in a magenta U · sink);
+    a positive gap means coloured energy no rule matched.
+    """
+    from times_pypsa.qa import export_reconciliation
+
+    for yr, (tagged, links) in custom_system_by_year.items():
+        recon = export_reconciliation(tagged, links)
+        assert not recon.empty, f"{yr}: no reconciliation rows"
+        assert set(recon.columns) == {
+            "sector",
+            "tagged_pj",
+            "coloured_pj",
+            "gap_pj",
+            "coloured_share",
+        }
+        total = recon[recon["sector"] == "TOTAL"].iloc[0]
+        assert total["tagged_pj"] > 0
+        # Coloured energy must never exceed what was tagged by more than a small
+        # margin, and must not fall far short of it.
+        assert 0.90 <= total["coloured_share"] <= 1.02, (
+            f"{yr}: coloured {total['coloured_pj']:.4g} PJ vs tagged "
+            f"{total['tagged_pj']:.4g} PJ (share {total['coloured_share']:.3f})"
+        )
+        # Per-sector totals must add up to the TOTAL row.
+        per_sector = recon[recon["sector"] != "TOTAL"]
+        assert per_sector["tagged_pj"].sum() == pytest.approx(total["tagged_pj"])
+        assert per_sector["coloured_pj"].sum() == pytest.approx(total["coloured_pj"])
+
+
+def test_anchor_ledger_is_reported_for_every_gateway(custom_system_links_by_year):
+    """The ledger must expose each gateway's in/out energy so a skipped anchor is
+    visible rather than silent."""
+    for yr, links in custom_system_links_by_year.items():
+        ledger = links.attrs.get("anchor_ledger")
+        assert ledger is not None, f"{yr}: no anchor ledger attached"
+        for row in ledger:
+            assert set(row) == {
+                "gateway",
+                "sector",
+                "exported_fin_pj",
+                "anchorable_out_pj",
+                "ratio",
+                "anchored",
+            }
+            assert row["exported_fin_pj"] >= 0
+            assert row["sector"], f"{yr}: gateway {row['gateway']!r} has no sector"

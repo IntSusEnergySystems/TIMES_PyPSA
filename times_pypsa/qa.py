@@ -16,6 +16,7 @@ from times_pypsa.aggregation import (
     assign_export_sectors,
     build_sankey_label_map,
     collapse_commodity_nodes,
+    link_sector,
     net_collapsed_process_links,
     sankey_links_from_flows,
 )
@@ -26,8 +27,8 @@ from times_pypsa.balances import (
     double_count_matrix,
     empty_rule_report,
     find_loop_components,
-    flow_key,
     parent_child_sum_checks,
+    process_io_ratios,
 )
 from times_pypsa.model import TimesAnnualFlows, load_times_annual_flows
 from times_pypsa.pipeline import (
@@ -191,6 +192,26 @@ def _process_activity_units(processes_df: pd.DataFrame | None) -> dict[str, str]
     return out
 
 
+def aggregate_system_flows(
+    tagged: pd.DataFrame,
+    *,
+    agg_level: str = "Aggregation Level 2",
+    apply_netting: bool = True,
+) -> pd.DataFrame:
+    """
+    Aggregate the whole energy-carrier system once for a (year, level, netting).
+
+    This is both the system Sankey's own input and the reference view every
+    neighbourhood diagram needs to tell a genuine FOut-only demand sink apart
+    from a consumer its own n±1 truncation dropped. Computing it once per year
+    instead of once per diagram is the bulk of the report speed-up.
+    """
+    df = filter_energy_carrier_flows(tagged)
+    if df.empty:
+        return df
+    return aggregate_flows(df, level=agg_level, apply_netting=apply_netting)
+
+
 def prepare_export_sankey_links(
     tagged: pd.DataFrame,
     *,
@@ -201,25 +222,38 @@ def prepare_export_sankey_links(
     collapse_commodities: bool = True,
     process_activity_units: dict[str, str] | None = None,
     reference_flows: pd.DataFrame | None = None,
+    reference_agg: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
     """
     Build Sankey links for the export neighbourhood using mapping CSV labels only.
 
     Aggregation level is controlled by ``agg_level`` (CSV column name or legacy alias).
     By default balanced commodity hubs are collapsed to process→process links.
+
+    ``reference_agg`` is the already-aggregated full-system view. It only depends
+    on ``(tagged, agg_level, apply_netting)``, so callers that build many
+    neighbourhood diagrams for one year should aggregate once and pass it in —
+    recomputing it per category dominated the report runtime.
     """
     nb = select_export_neighborhood(tagged, core_mask=core_mask)
     if nb.empty:
         return pd.DataFrame(
             columns=["source", "target", "value", "exported", "matched_categories"]
         )
-    # Full energy-carrier system (same agg) so FOut-only detection is not fooled by
-    # neighbourhood truncation that drops legitimate consumers.
-    energy = filter_energy_carrier_flows(tagged)
-    ref_src = reference_flows if reference_flows is not None else energy
     agg = aggregate_flows(nb, level=agg_level, apply_netting=apply_netting)
     if collapse_commodities:
-        ref_agg = aggregate_flows(ref_src, level=agg_level, apply_netting=apply_netting)
+        if reference_agg is None:
+            # Full energy-carrier system (same agg) so FOut-only detection is not
+            # fooled by neighbourhood truncation that drops legitimate consumers.
+            ref_src = (
+                reference_flows
+                if reference_flows is not None
+                else filter_energy_carrier_flows(tagged)
+            )
+            reference_agg = aggregate_flows(
+                ref_src, level=agg_level, apply_netting=apply_netting
+            )
+        ref_agg = reference_agg
         links = collapse_commodity_nodes(
             agg,
             flow_threshold=flow_threshold,
@@ -242,6 +276,7 @@ def prepare_system_sankey_links(
     collapse_commodities: bool = True,
     process_activity_units: dict[str, str] | None = None,
     reference_flows: pd.DataFrame | None = None,
+    system_agg: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
     """
     Build Sankey links for all TIMES energy carrier flows (no n−1/n+1 filter).
@@ -249,6 +284,10 @@ def prepare_system_sankey_links(
     Aggregation level is controlled by ``agg_level`` (CSV column name or legacy alias).
     By default balanced commodity hubs are collapsed to process→process links
     (commodities become flow labels; residual imbalance keeps a demand/imbalance sink).
+
+    Pass ``system_agg`` (see :func:`aggregate_system_flows`) to reuse an
+    aggregation already computed for the same year / level / netting; it is also
+    the ``reference_agg`` the per-category diagrams need.
     """
     df = filter_energy_carrier_flows(tagged)
     if df.empty:
@@ -258,7 +297,11 @@ def prepare_system_sankey_links(
     # Unfiltered energy view (same commodity labels after aggregation) for attributing
     # residuals to non-PJ consumers when those rows were dropped before collapse.
     ref = reference_flows if reference_flows is not None else df
-    agg = aggregate_flows(df, level=agg_level, apply_netting=apply_netting)
+    agg = (
+        system_agg
+        if system_agg is not None
+        else aggregate_flows(df, level=agg_level, apply_netting=apply_netting)
+    )
     if collapse_commodities:
         ref_agg = (
             aggregate_flows(ref, level=agg_level, apply_netting=apply_netting)
@@ -278,6 +321,24 @@ def prepare_system_sankey_links(
     return assign_export_sectors(links, agg, anchor=False)
 
 
+class CategoryKeyIndex(dict):
+    """
+    Category → matched flow keys, parked on ``DataFrame.attrs``.
+
+    pandas deep-copies ``attrs`` inside every ``__finalize__``, i.e. on every
+    slice / groupby / copy of the tagged frame. This index holds ~10⁵ tuples, so
+    a plain dict here cost more than the rest of the report put together
+    (deepcopy was 143 s of a 179 s two-year run). It is written once and only
+    ever read, so sharing the same object across copies is safe.
+    """
+
+    def __deepcopy__(self, memo):
+        return self
+
+    def __copy__(self):
+        return self
+
+
 def tag_flows_with_rules(
     year_df: pd.DataFrame,
     extraction_rules: dict,
@@ -289,6 +350,9 @@ def tag_flows_with_rules(
 
     Uses the same filters as demand extraction. Netting is off by default so
     individual flow keys stay identifiable for coverage / double-count checks.
+
+    The per-category matched flow keys land on ``df.attrs["category_keys"]`` as
+    a :class:`CategoryKeyIndex`.
     """
     if year_df.empty:
         return year_df
@@ -300,28 +364,38 @@ def tag_flows_with_rules(
     elif "agg_level_1_for_rules" in df.columns:
         df["agg_level_1"] = df["agg_level_1_for_rules"]
 
-    # Map original index → list of categories
-    matches: dict[int, list[str]] = {i: [] for i in df.index}
-    category_keys: dict[str, set[tuple]] = {}
+    # Precompute the flow key of every row once, vectorized: the per-category
+    # loop then only has to slice it (was iterrows() per category — 60× the work).
+    row_keys = pd.Series(
+        list(
+            zip(
+                df["year"].astype(int),
+                df["process_code"].astype(str),
+                df["commodity_code"].astype(str),
+                df["variable"].astype(str).str.upper(),
+            )
+        ),
+        index=df.index,
+    )
+
+    matches: dict[object, list[str]] = {}
+    category_keys = CategoryKeyIndex()
 
     for category, (var_type, filter_type, filter_values) in extraction_rules.items():
         filtered = _apply_extraction_rule(
             df, var_type, filter_type, filter_values, apply_netting=apply_netting
         )
-        keys: set[tuple] = set()
-        if not filtered.empty:
-            # Without netting, filtered index aligns with df
-            for idx in filtered.index:
-                if idx in matches:
-                    matches[idx].append(category)
-            for _, row in filtered.iterrows():
-                keys.add(flow_key(row))
-        category_keys[category] = keys
+        if filtered.empty:
+            category_keys[category] = set()
+            continue
+        # Without netting, filtered index aligns with df
+        idx = filtered.index.intersection(df.index)
+        for i in idx:
+            matches.setdefault(i, []).append(category)
+        category_keys[category] = set(row_keys.loc[idx])
 
-    df["matched_categories"] = df.index.map(
-        lambda i: matches.get(i, [])
-    )
-    df["exported"] = df["matched_categories"].map(lambda xs: bool(xs))
+    df["matched_categories"] = [matches.get(i, []) for i in df.index]
+    df["exported"] = [bool(matches.get(i)) for i in df.index]
     df.attrs["category_keys"] = category_keys
     return df
 
@@ -343,6 +417,77 @@ def category_pj_totals(
         )
         totals[category] = float(filtered["value"].sum()) if not filtered.empty else 0.0
     return totals
+
+
+def export_reconciliation(
+    tagged: pd.DataFrame,
+    links: pd.DataFrame,
+) -> pd.DataFrame:
+    """
+    Per PyPSA sector: soft-linked PJ that was *tagged* vs PJ actually *coloured*.
+
+    This is the check that answers "are we forgetting a flow or double-counting
+    one?" for the diagram itself. Everything else in the QA suite validates the
+    extraction rules; nothing validated that the Sankey draws what the rules
+    matched. The two numbers can legitimately differ a little — some tagged mass
+    ends in a magenta ``U ·`` sink instead of a process→process ribbon — but a
+    large or *positive* gap is a defect:
+
+    - ``coloured < tagged``: a soft-link the diagram does not show (forgotten);
+    - ``coloured > tagged``: energy coloured that no rule matched — untagged flow
+      merged onto an exported process pair, or a fuel coloured twice along a
+      gateway chain (double count).
+
+    Returns one row per sector plus a ``TOTAL`` row.
+    """
+    cols = ["sector", "tagged_pj", "coloured_pj", "gap_pj", "coloured_share"]
+    if tagged is None or tagged.empty or links is None or links.empty:
+        return pd.DataFrame(columns=cols)
+
+    energy = filter_energy_carrier_flows(tagged)
+    exported_rows = energy[energy["exported"].fillna(False).astype(bool)]
+    tagged_by_sector: dict[str, float] = {}
+    for cats, value in zip(
+        exported_rows["matched_categories"], exported_rows["value"]
+    ):
+        sector = link_sector(cats)
+        if sector:
+            tagged_by_sector[sector] = tagged_by_sector.get(sector, 0.0) + float(value)
+
+    coloured = links[links["export_status"].isin(["exported", "double_count"])]
+    coloured_by_sector = (
+        coloured.groupby(coloured["export_sector"].astype(str))["value"].sum().to_dict()
+        if "export_sector" in coloured.columns
+        else {}
+    )
+
+    rows = []
+    for sector in PYPSA_SECTOR_ORDER:
+        t = float(tagged_by_sector.get(sector, 0.0))
+        c = float(coloured_by_sector.get(sector, 0.0))
+        if t == 0.0 and c == 0.0:
+            continue
+        rows.append(
+            {
+                "sector": sector,
+                "tagged_pj": t,
+                "coloured_pj": c,
+                "gap_pj": c - t,
+                "coloured_share": (c / t) if t > 1e-12 else float("nan"),
+            }
+        )
+    t_all = sum(r["tagged_pj"] for r in rows)
+    c_all = sum(r["coloured_pj"] for r in rows)
+    rows.append(
+        {
+            "sector": "TOTAL",
+            "tagged_pj": t_all,
+            "coloured_pj": c_all,
+            "gap_pj": c_all - t_all,
+            "coloured_share": (c_all / t_all) if t_all > 1e-12 else float("nan"),
+        }
+    )
+    return pd.DataFrame(rows, columns=cols)
 
 
 def build_colored_sankey(
@@ -479,7 +624,6 @@ def _write_qa_csvs_for_year(
     totals: dict[str, float],
     category_keys: dict,
     out_dir: Path,
-    flow_threshold_pj: float,
     units: EnergyUnit = "twh",
     agg_level: str = "Aggregation Level 2",
 ) -> dict[str, Path | None]:
@@ -657,6 +801,50 @@ def _write_qa_csvs_for_year(
     label_map_path = out_dir / f"qa_sankey_label_map_{year}.csv"
     label_map.to_csv(label_map_path, index=False)
 
+    # ΣFOut/ΣFIn per process and per aggregated Sankey node: efficiencies, COPs,
+    # and energy balances in one table.
+    ratio_cols = [
+        "inflow",
+        "outflow",
+        "balance",
+        "exported_in",
+        "exported_out",
+        "unmapped_in",
+        "unmapped_out",
+    ]
+    energy = filter_energy_carrier_flows(tagged)
+    carrier_mask = pd.Series(tagged.index.isin(energy.index), index=tagged.index)
+    activity_units = _process_activity_units(metadata.processes_df)
+
+    ratios_proc = process_io_ratios(
+        tagged,
+        by="process_code",
+        carrier_mask=carrier_mask,
+        activity_units=activity_units,
+    )
+    ratios_proc = prepare_energy_output(ratios_proc, ratio_cols, units)
+    ratios_proc_path = out_dir / f"qa_io_ratios_process_{year}.csv"
+    ratios_proc.to_csv(ratios_proc_path, index=False)
+
+    # Aggregated view: same ratio at the resolution the Sankey actually draws.
+    # Aggregate the *energy-carrier* rows only — including activity outputs
+    # (Mvkm, Mm², service units) here would make every end-use ratio meaningless.
+    ratios_agg = process_io_ratios(
+        aggregate_flows(energy, level=agg_level, apply_netting=False),
+        by="process_code",
+    )
+    ratios_agg = ratios_agg.drop(
+        columns=[
+            c
+            for c in ("activity_unit", "description", "sector", "unmapped_in", "unmapped_out")
+            if c in ratios_agg.columns
+        ]
+    )
+    ratios_agg = ratios_agg.rename(columns={"process_code": agg_level})
+    ratios_agg = prepare_energy_output(ratios_agg, ratio_cols, units)
+    ratios_agg_path = out_dir / f"qa_io_ratios_aggregated_{year}.csv"
+    ratios_agg.to_csv(ratios_agg_path, index=False)
+
     return {
         "flows": flows_path,
         "coverage": coverage_path,
@@ -670,6 +858,8 @@ def _write_qa_csvs_for_year(
         "coverage_gap_all": gap_all_path,
         "export_neighborhood": nb_path,
         "sankey_label_map": label_map_path,
+        "io_ratios_process": ratios_proc_path,
+        "io_ratios_aggregated": ratios_agg_path,
         "topology_mismatches": topo_path,
         "empty_rules_df": empty_rules,
         "gap_sum": gap_sum,
@@ -678,12 +868,9 @@ def _write_qa_csvs_for_year(
         "overlap_df": overlap,
         "parent_child_df": parent_child,
         "coverage_df": coverage,
+        "ratios_proc_df": ratios_proc,
+        "ratios_agg_df": ratios_agg,
         "nb_all": nb_all,
-        "links_export_count": len(
-            prepare_export_sankey_links(
-                tagged, flow_threshold=flow_threshold_pj, agg_level=agg_level
-            )
-        ),
         "dmd_gap_pj": dmd_gap_pj,
     }
 
@@ -764,7 +951,6 @@ def generate_qa_report(
             totals=totals,
             category_keys=category_keys,
             out_dir=out_dir,
-            flow_threshold_pj=flow_threshold_pj,
             units=units,
             agg_level=agg_level,
         )
@@ -795,14 +981,30 @@ def generate_qa_report(
     system_netted: dict[int, list] = {}
     system_gross: dict[int, list] = {}
     system_nodes: dict[int, list] = {}
-    export_netted: dict[int, list] = {}
-    export_gross: dict[int, list] = {}
-    export_nodes: dict[int, list] = {}
     category_series: dict[str, dict[str, dict[int, list]]] = {}
 
     for yr in active_years:
         tagged = year_payloads[yr]["tagged"]
         totals = year_payloads[yr]["totals"]
+
+        # One aggregation per (year, netting), reused by the system diagram and by
+        # every per-category neighbourhood as their reference view.
+        system_agg = {
+            netting: aggregate_system_flows(
+                tagged, agg_level=agg_level, apply_netting=netting
+            )
+            for netting in (True, False)
+        }
+
+        # Core masks for all category views in one pass over matched_categories,
+        # instead of one full-column scan per category.
+        cat_indices: dict[str, list] = {cat: [] for cat in top_cat_names}
+        for idx, cats in zip(tagged.index, tagged["matched_categories"]):
+            if not isinstance(cats, list):
+                continue
+            for cat in cats:
+                if cat in cat_indices:
+                    cat_indices[cat].append(idx)
 
         year_system_links = []
         for apply_netting, store in ((True, system_netted), (False, system_gross)):
@@ -812,6 +1014,7 @@ def generate_qa_report(
                 apply_netting=apply_netting,
                 agg_level=agg_level,
                 process_activity_units=process_units,
+                system_agg=system_agg[apply_netting],
             )
             store[yr] = links_to_records(links, units=units)
             year_system_links.append(links)
@@ -819,30 +1022,31 @@ def generate_qa_report(
             pd.concat(year_system_links, ignore_index=True) if year_system_links else pd.DataFrame()
         )
 
-        year_export_links = []
-        for apply_netting, target in ((True, export_netted), (False, export_gross)):
-            links = prepare_export_sankey_links(
-                tagged,
-                flow_threshold=flow_threshold_pj,
-                apply_netting=apply_netting,
-                agg_level=agg_level,
-                process_activity_units=process_units,
-            )
-            target[yr] = links_to_records(links, units=units)
-            year_export_links.append(links)
-        export_nodes[yr] = collect_typed_nodes(
-            pd.concat(year_export_links, ignore_index=True) if year_export_links else pd.DataFrame()
+        # Does the diagram colour what the rules tagged? (netted view = the default)
+        recon = export_reconciliation(tagged, year_system_links[0])
+        anchor_ledger = pd.DataFrame(
+            year_system_links[0].attrs.get("anchor_ledger", [])
+        )
+        for frame, name, cols in (
+            (recon, "export_reconciliation", ["tagged_pj", "coloured_pj", "gap_pj"]),
+            (anchor_ledger, "anchor_ledger", ["exported_fin_pj", "anchorable_out_pj"]),
+        ):
+            path = out_dir / f"qa_{name}_{yr}.csv"
+            prepare_energy_output(frame, cols, units).to_csv(path, index=False)
+            all_artifacts[f"{name}_{yr}"] = path
+        year_payloads[yr]["recon"] = prepare_energy_output(
+            recon, ["tagged_pj", "coloured_pj", "gap_pj"], units
+        )
+        year_payloads[yr]["anchor_ledger"] = prepare_energy_output(
+            anchor_ledger, ["exported_fin_pj", "anchorable_out_pj"], units
         )
 
         for cat in top_cat_names:
             pj = float(totals.get(cat, 0.0))
-            if pj <= 0:
+            if pj <= 0 or not cat_indices[cat]:
                 continue
-            core_mask = tagged["matched_categories"].map(
-                lambda xs, c=cat: isinstance(xs, list) and c in xs
-            )
-            if not core_mask.any():
-                continue
+            core_mask = pd.Series(False, index=tagged.index)
+            core_mask.loc[cat_indices[cat]] = True
             cat_id = cat.replace(" ", "-").replace("/", "-").lower()
             if cat_id not in category_series:
                 category_series[cat_id] = {
@@ -860,6 +1064,7 @@ def generate_qa_report(
                     apply_netting=apply_netting,
                     agg_level=agg_level,
                     process_activity_units=process_units,
+                    reference_agg=system_agg[apply_netting],
                 )
                 category_series[cat_id][variant][yr] = links_to_records(
                     links, units=units
@@ -896,24 +1101,6 @@ def generate_qa_report(
                 "sinks rather than coloured links."
             ),
         ),
-        build_sankey_dataset(
-            chart_id="export",
-            title="B. PyPSA export neighbourhood",
-            years=active_years,
-            netted_by_year=export_netted,
-            gross_by_year=export_gross,
-            nodes_by_year=export_nodes,
-            units=units,
-            subtitle=(
-                "Exported flows coloured by PyPSA sector (Industry blue, Transport "
-                "orange, Residential red, Services teal, Agriculture brown); grey = "
-                "not exported. Process nodes green; U · magenta = demand / "
-                "view-truncation residual. Unlike view A, this diagram keeps only "
-                "the export neighbourhood (matched flows ± one hop), so many magenta "
-                "nodes are omitted upstream producers or downstream consumers — not "
-                "TIMES errors."
-            ),
-        ),
     ]
 
     for idx, (cat, _pj) in enumerate(top_categories):
@@ -924,13 +1111,18 @@ def generate_qa_report(
         charts.append(
             build_sankey_dataset(
                 chart_id=f"category-{idx}",
-                title=f"C. {cat} — export neighbourhood",
+                title=f"B{idx + 1}. {cat} — export neighbourhood",
                 years=active_years,
                 netted_by_year=series["netted"],
                 gross_by_year=series["gross"],
                 nodes_by_year=series["nodes"],
                 units=units,
-                subtitle="Matched flows plus n−1/n+1 context for this PyPSA demand category.",
+                subtitle=(
+                    "Matched flows plus n−1/n+1 context for this one PyPSA demand "
+                    "category. Coloured links are the soft-linked flows this "
+                    "category exports; magenta U · nodes are producers/consumers "
+                    "the ±1-hop truncation left out, not TIMES errors."
+                ),
             )
         )
 
@@ -943,8 +1135,19 @@ def generate_qa_report(
     overlap = latest_info["overlap_df"]
     parent_child = latest_info["parent_child_df"]
     coverage = latest_info["coverage_df"]
+    ratios_proc = latest_info["ratios_proc_df"]
+    ratios_agg = latest_info["ratios_agg_df"]
+    recon = year_payloads[latest].get("recon", pd.DataFrame())
+    anchor_ledger = year_payloads[latest].get("anchor_ledger", pd.DataFrame())
     tagged_latest = year_payloads[latest]["tagged"]
     nb_all = latest_info["nb_all"]
+
+    recon_gap = 0.0
+    if not recon.empty:
+        total_row = recon[recon["sector"] == "TOTAL"]
+        gap_col = [c for c in recon.columns if c.startswith("gap")]
+        if not total_row.empty and gap_col:
+            recon_gap = float(total_row.iloc[0][gap_col[0]])
 
     dmd_gap_pj = float(latest_info.get("dmd_gap_pj", 0.0))
     exported_pj = float(tagged_latest.loc[tagged_latest["exported"], "value"].sum())
@@ -988,14 +1191,17 @@ upstream import/power-plant links.</p>
   <li>Export-neighbourhood rows (matched + n−1 + n+1): {len(nb_all)}</li>
   <li>Exported energy (gross tagged, pre-netting):
     {format_energy(exported_pj, units)}</li>
-  <li>Sankey links after mapping aggregation (threshold {flow_threshold_export:g} {energy_label}):
-    {latest_info["links_export_count"]}</li>
+  <li>DMD coverage-gap (demand-side <code>VAR_FIn</code> in no rule):
+    {format_energy(dmd_gap_pj, units)}</li>
+  <li>Sankey vs rules — coloured minus tagged: {recon_gap:+.2f} {energy_label}
+    (see <em>Soft-link reconciliation</em>; positive = coloured energy no rule
+    matched)</li>
+  <li>Disallowed double-count pairs: {len(overlap)}
+    (parent/child hierarchies excluded)</li>
+  <li>Unexpected empty rules: {int((~empty_rules["ok"]).sum())}</li>
   <li>Commodity balance failures (|residual|&gt;tol):
     {int((~balance["ok"]).sum()) if not balance.empty else "n/a"}</li>
-  <li>Unexpected empty rules: {int((~empty_rules["ok"]).sum())}</li>
-  <li>Disallowed double-count pairs: {len(overlap)}</li>
   <li>Loop components after netting: {len(loops_df)}</li>
-  <li>DMD coverage-gap (not in any rule): {format_energy(dmd_gap_pj, units)}</li>
 </ul>
 <h2>Interactive Sankey diagrams</h2>
 <p>Use the year slider and <em>Net bidirectional flows</em> checkbox on each chart.
@@ -1005,28 +1211,75 @@ back to TIMES process/commodity codes).</p>
 """
 
     footer_html = f"""
-<h2>Diagnostics ({latest})</h2>
-<h3>Export coverage</h3>
-{_html_table(coverage)}
-<h3>Empty / known-zero rules</h3>
-{_html_table(empty_rules)}
+<h2>Inflow / outflow ratios ({latest})</h2>
+<p>ΣVAR_FOut ÷ ΣVAR_FIn per process. One table, three readings:
+<strong>efficiency</strong> (boilers, power plants: 0.3–1.0),
+<strong>COP</strong> (heat pumps and TIMES service accounting: &gt; 1), and
+<strong>energy balance</strong> (<code>balance = outflow − inflow</code> should be
+≤ 0 for any real conversion). Only flows that pass the Sankey energy-carrier
+filter are counted; <code>unmapped_in</code> / <code>unmapped_out</code> report
+the {energy_label} dropped for lack of a commodity mapping — a non-zero
+<code>unmapped_in</code> is the usual reason a ratio looks impossible.
+<code>exported_in</code> / <code>exported_out</code> are the soft-linked share, so
+this table also shows where each PyPSA demand is picked off.</p>
+
+<h3>Aggregated processes (<em>{agg_level}</em> — the Sankey's own nodes)</h3>
+{_html_table(ratios_agg, max_rows=200)}
+
+<h3>Individual TIMES processes — top 60 by throughput</h3>
+<p>Full table: <code>qa_io_ratios_process_{latest}.csv</code>
+(aggregated: <code>qa_io_ratios_aggregated_{latest}.csv</code>).</p>
+{_html_table(ratios_proc, max_rows=60)}
+
+<h2>Soft-link coverage ({latest})</h2>
+<h3>Reconciliation — does the Sankey colour what the rules tagged?</h3>
+<p>Per sector: <code>tagged</code> is the soft-linked energy the extraction rules
+matched; <code>coloured</code> is what the diagram actually draws as an exported
+ribbon. A small negative gap is expected (some tagged mass lands in a magenta
+<strong>U ·</strong> sink instead of a process→process ribbon). A <strong>positive</strong>
+gap means energy is coloured that no rule matched — an untagged flow merged onto
+an exported process pair, or a fuel coloured twice along a chain.</p>
+{_html_table(recon)}
+<h3>Anchoring ledger — where soft-linked fuel inputs were moved</h3>
+<p>Each fuel-delivery gateway whose <code>VAR_FIn</code> is soft-linked. The
+highlight is moved from the upstream fuel-supply link onto the gateway's demand
+inflows <em>only</em> when the outputs carry the same energy
+(<code>ratio</code> ≈ 1). <code>anchored=False</code> means the highlight was
+deliberately left upstream so no coloured energy is invented or lost — expected
+for lossy or multi-purpose processes (electrolysers, storage).</p>
+{_html_table(anchor_ledger, max_rows=60)}
+<h3>Exported energy per PyPSA category</h3>
+{_html_table(coverage, max_rows=200)}
+<h3>Coverage gaps — demand-sector <code>VAR_FIn</code> matched by no rule</h3>
+<p>Most of this is legitimately excluded downstream consumption (n+1) of
+production already exported one hop upstream — exporting both would double-count.
+Intermediate PRE / fuel-tech gaps are in
+<code>qa_coverage_gap_all_{latest}.csv</code>.</p>
+{_html_table(gap_sum.head(40))}
+
+<h2>Consistency checks ({latest})</h2>
+<details>
+<summary>Double-count, parent–child, commodity balance, loops, topology
+(expand — these are pass/fail checks, each with a companion CSV)</summary>
+<h3>Disallowed double-count overlaps</h3>
+<p>Empty is the expected result: parent/child category hierarchies are
+allowlisted, anything else listed here is a real double count.</p>
+{_html_table(overlap)}
 <h3>Parent–child sum checks</h3>
 {_html_table(parent_child)}
-<h3>Disallowed double-count overlaps</h3>
-{_html_table(overlap)}
+<h3>Empty / known-zero rules</h3>
+{_html_table(empty_rules)}
 <h3>Commodity balance vs VAR_Comnet (failures first)</h3>
 {_html_table(balance.sort_values("ok").head(40) if not balance.empty else balance)}
 <h3>Loop components</h3>
 {_html_table(loops_df)}
-<h3>Coverage gaps (DMD demand-sector VAR_FIn not in any rule)</h3>
-<p>Intermediate PRE/Fuel-Tech gaps are in <code>qa_coverage_gap_all_{latest}.csv</code>.</p>
-{_html_table(gap_sum.head(40))}
 <h3>Topology mismatches</h3>
 {
     _html_table(model.topology_mismatches.head(40))
     if model.topology_mismatches is not None and not model.topology_mismatches.empty
     else "<p><em>No topology file or no mismatches.</em></p>"
 }
+</details>
 """
 
     html_path = out_dir / "qa_report.html"
