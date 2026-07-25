@@ -251,22 +251,19 @@ def test_bundled_mapping_csvs_share_aggregation_columns(mappings_dir: Path):
     if "Technology (Process)" in proc.columns:
         proc = proc.rename(columns={"Technology (Process)": "Process"})
 
-    shared = shared_aggregation_columns(proc, com)
+    # Exactly four levels, each with a distinct job. `Aggregation Level 1` and
+    # `PyPSA technology` were dropped (2026-07-25): nothing read them.
+    assert shared_aggregation_columns(proc, com) == [
+        "Aggregation Level 2",
+        "Sector",
+        "custom",
+        "sankey_overview",
+    ]
 
-    assert "Sector" in shared
-
-    for col in ("Aggregation Level 1", "Aggregation Level 2"):
-        if col in proc.columns and col in com.columns:
-            assert col in shared
-
-    if "sankey_overview" in proc.columns and "sankey_overview" in com.columns:
-        assert "sankey_overview" in shared
-        proc_full = pd.read_csv(mappings_dir / "mapping_processes.csv")
-        com_full = pd.read_csv(mappings_dir / "mapping_commodities.csv")
-        n_proc = proc_full["sankey_overview"].nunique(dropna=True)
-        n_com = com_full["sankey_overview"].nunique(dropna=True)
-        assert n_proc + n_com <= 20, (
-            f"sankey_overview too fine: {n_proc} process + {n_com} commodity labels"
-        )
-    elif "sankey_overview" not in proc.columns:
-        pytest.skip("sankey_overview not yet in bundled mapping CSVs")
+    proc_full = pd.read_csv(mappings_dir / "mapping_processes.csv")
+    com_full = pd.read_csv(mappings_dir / "mapping_commodities.csv")
+    n_proc = proc_full["sankey_overview"].nunique(dropna=True)
+    n_com = com_full["sankey_overview"].nunique(dropna=True)
+    assert n_proc + n_com <= 20, (
+        f"sankey_overview too fine: {n_proc} process + {n_com} commodity labels"
+    )

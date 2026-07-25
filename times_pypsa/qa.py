@@ -419,6 +419,76 @@ def category_pj_totals(
     return totals
 
 
+def exported_unit_check(
+    tagged: pd.DataFrame,
+    commodities_df: pd.DataFrame | None,
+) -> pd.DataFrame:
+    """
+    Flag exported flows whose commodity is **not** declared in PJ.
+
+    The demand extractor sums ``value`` with no unit guard, so a TIMES activity
+    commodity (Btkm, Mvkm, Mt, Mm²) handed to a rule is exported to PyPSA as if
+    it were energy. `mapping_commodities.csv` `Unit` is the only declaration of
+    intent, so this compares it against what the rules actually matched.
+
+    Returns one row per (category, commodity) with a non-PJ unit — empty is the
+    expected result.
+    """
+    cols = ["category", "commodity_code", "commodity", "unit", "value"]
+    if tagged is None or tagged.empty or commodities_df is None or commodities_df.empty:
+        return pd.DataFrame(columns=cols)
+    # Accept the raw CSV headers or the normalised lowercase mapping frame.
+    code_col = next(
+        (
+            c
+            for c in ("TIMES commodity", "times commodity", "times")
+            if c in commodities_df.columns
+        ),
+        None,
+    )
+    unit_col = next(
+        (c for c in ("Unit", "unit") if c in commodities_df.columns), None
+    )
+    if code_col is None or unit_col is None:
+        return pd.DataFrame(columns=cols)
+
+    units = {
+        str(k).strip(): str(v or "").strip()
+        for k, v in zip(commodities_df[code_col], commodities_df[unit_col])
+    }
+    exported = tagged[tagged["exported"].fillna(False).astype(bool)]
+    rows = []
+    for cats, code, name, value in zip(
+        exported["matched_categories"],
+        exported["commodity_code"],
+        exported.get("commodity", exported["commodity_code"]),
+        exported["value"],
+    ):
+        unit = units.get(str(code).strip(), "")
+        if not unit or unit.upper() == "PJ":
+            continue
+        for cat in cats if isinstance(cats, list) else []:
+            rows.append(
+                {
+                    "category": cat,
+                    "commodity_code": str(code),
+                    "commodity": str(name),
+                    "unit": unit,
+                    "value": float(value),
+                }
+            )
+    if not rows:
+        return pd.DataFrame(columns=cols)
+    out = pd.DataFrame(rows, columns=cols)
+    return (
+        out.groupby(["category", "commodity_code", "commodity", "unit"], as_index=False)[
+            "value"
+        ]
+        .sum()
+        .sort_values("value", ascending=False)
+    )
+
+
 def export_reconciliation(
     tagged: pd.DataFrame,
     links: pd.DataFrame,
@@ -845,6 +915,24 @@ def _write_qa_csvs_for_year(
     ratios_agg_path = out_dir / f"qa_io_ratios_aggregated_{year}.csv"
     ratios_agg.to_csv(ratios_agg_path, index=False)
 
+    # Exported flows whose commodity is not declared PJ (activity units summed as
+    # if they were energy). Empty is the expected result.
+    unit_issues = exported_unit_check(tagged, metadata.mapping_df)
+    unit_issues_path = out_dir / f"qa_exported_unit_issues_{year}.csv"
+    prepare_energy_output(unit_issues, ["value"], units).to_csv(
+        unit_issues_path, index=False
+    )
+    if not unit_issues.empty:
+        logger.warning(
+            "%d exported (category, commodity) pairs are not declared PJ in "
+            "mapping_commodities.csv — activity units are being summed as energy: %s",
+            len(unit_issues),
+            ", ".join(
+                f"{r.category}×{r.commodity_code} ({r.unit})"
+                for r in unit_issues.itertuples()
+            ),
+        )
+
     return {
         "flows": flows_path,
         "coverage": coverage_path,
@@ -860,6 +948,7 @@ def _write_qa_csvs_for_year(
         "sankey_label_map": label_map_path,
         "io_ratios_process": ratios_proc_path,
         "io_ratios_aggregated": ratios_agg_path,
+        "exported_unit_issues": unit_issues_path,
         "topology_mismatches": topo_path,
         "empty_rules_df": empty_rules,
         "gap_sum": gap_sum,
@@ -870,6 +959,7 @@ def _write_qa_csvs_for_year(
         "coverage_df": coverage,
         "ratios_proc_df": ratios_proc,
         "ratios_agg_df": ratios_agg,
+        "unit_issues_df": unit_issues,
         "nb_all": nb_all,
         "dmd_gap_pj": dmd_gap_pj,
     }
@@ -1137,6 +1227,7 @@ def generate_qa_report(
     coverage = latest_info["coverage_df"]
     ratios_proc = latest_info["ratios_proc_df"]
     ratios_agg = latest_info["ratios_agg_df"]
+    unit_issues = latest_info["unit_issues_df"]
     recon = year_payloads[latest].get("recon", pd.DataFrame())
     anchor_ledger = year_payloads[latest].get("anchor_ledger", pd.DataFrame())
     tagged_latest = year_payloads[latest]["tagged"]
@@ -1250,6 +1341,13 @@ for lossy or multi-purpose processes (electrolysers, storage).</p>
 {_html_table(anchor_ledger, max_rows=60)}
 <h3>Exported energy per PyPSA category</h3>
 {_html_table(coverage, max_rows=200)}
+<h3>Unit check — exported flows not declared PJ</h3>
+<p>The demand extractor sums <code>value</code> with no unit guard, so a TIMES
+activity commodity (Btkm, Mvkm, Mt, Mm²) reaching a rule is handed to PyPSA as if
+it were energy. Rows here are exported flows whose <code>Unit</code> in
+<code>mapping_commodities.csv</code> is not PJ — <strong>empty is the expected
+result</strong>.</p>
+{_html_table(unit_issues)}
 <h3>Coverage gaps — demand-sector <code>VAR_FIn</code> matched by no rule</h3>
 <p>Most of this is legitimately excluded downstream consumption (n+1) of
 production already exported one hop upstream — exporting both would double-count.

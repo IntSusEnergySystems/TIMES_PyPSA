@@ -182,8 +182,9 @@ Documentation for the TIMES → PyPSA soft-link extraction quality-assurance too
 
 #### Design summary
 
+- **What PyPSA receives** is each sector's **final energy demand** in PJ — the energy the end-use device consumes, not the service it delivers (Btkm, Mm²) and not the primary energy upstream. Heating is the exception: PyPSA models the heat bus, so heat rules export useful heat out of the boiler/heat pump. `measure_at` records the point each rule reads; see [aggregation.md](aggregation.md#what-pypsa-must-receive-final-energy-demand).
 - **Extraction** filters on `mapping_processes.csv` **Aggregation Level 2** (column `process_agg`), `mapping_commodities.csv` **PyPSA Energy Carrier**, and the categories in `extraction_rules.csv`. Changing a Sankey/QA aggregation level never changes the exported demands.
-- **Aggregation levels** are shared CSV column names selected with `--agg-level` / `aggregate_flows(level=...)`: `Sector`, `Aggregation Level 1`, `Aggregation Level 2` (default; alias `mapping`), `custom` (readable working level: export-touching L2 kept, context collapsed), `sankey_overview` (≤20 nodes). Details: [aggregation.md](aggregation.md).
+- **Aggregation levels** are shared CSV column names selected with `--agg-level` / `aggregate_flows(level=...)`: `Aggregation Level 2` (default; alias `mapping`), `custom` (readable working level: export-touching L2 kept, context collapsed), `sankey_overview` (≤20 nodes), `Sector`. Details: [aggregation.md](aggregation.md).
 - **Sankey** collapses commodity hubs to process→process flows (commodities become link labels). Process nodes are green; expected final-demand / non-PJ residuals become magenta `U ·` sink nodes; unexplained imbalances keep `Unbalanced …` labels and warn/error. Exported links are coloured by **PyPSA sector** and anchored to the demand inflow **when that conserves the highlighted energy** (see [aggregation.md](aggregation.md#export-strategy-per-sector-colours--demand-inflow-anchoring)).
 - **Reconciliation** (added 2026-07-25): the report compares coloured Sankey PJ against tagged export PJ per sector, so a soft-link the diagram forgets — or colours twice — shows up as a number instead of staying invisible.
 - **Adequacy**: parent–child heat identities hold, no disallowed double-count overlaps, and topology is clean for the reference scenario. ~76% of the DMD coverage gap is consumption-side (n+1/n+2) of already-exported production; ~20% is material accounting **or commodities missing from the mapping**; ~5% residual. Six unresolved defects that would change the demand CSVs are listed under [Open points](#open-points).
@@ -221,18 +222,17 @@ Static wiring: `Region, Process, Commodity, Direction` with `IN` or `OUT`. Does 
 |--------|------|
 | `times_pypsa.topology.Topology` | `.vdt` links |
 | `times_pypsa.model.TimesAnnualFlows` | Enriched annual flows + `VAR_Comnet` + optional topology mismatches |
-| `times_pypsa.aggregation` | L0 / L1 / L2 collapse |
+| `times_pypsa.aggregation` | Aggregation-level collapse + export colouring |
 | `times_pypsa.qa` | Multi-view HTML report |
 | `times_pypsa.balances` | Balance / loop / double-count helpers |
 
-Enriched flow columns include: `sector`, `agg_level_1`, `agg_level_2`, `process_agg`, `pypsa_carrier`, `commodity_sector`, plus `proc_agg__{level}` / `com_agg__{level}` for every shared aggregation column.
+Enriched flow columns include: `sector`, `agg_level_2`, `process_agg`, `pypsa_carrier`, `commodity_sector`, `commodity_cluster`, plus `proc_agg__{level}` / `com_agg__{level}` for every shared aggregation column.
 
 ##### `process_agg` naming (important)
 
-Extraction rules filter on **Aggregation Level 2** labels from `mapping_processes.csv`. Historically those labels were stored in a column named `agg_level_1`, which was confusing because Aggregation Level 1 also exists.
+Extraction rules filter on **Aggregation Level 2** labels from `mapping_processes.csv`. Historically those labels were stored in a column named `agg_level_1`, which was confusing because an Aggregation Level 1 column also existed.
 
-**Canonical column:** `process_agg` (= Aggregation Level 2).  
-`agg_level_1` is kept as a **legacy alias** of `process_agg` inside the extractor so existing rule CSVs keep working. True Aggregation Level 1 is available on `TimesAnnualFlows.flows["agg_level_1"]` only when loaded via `load_times_annual_flows` (model path); the demand extractor still mirrors Level 2 into both `process_agg` and `agg_level_1`.
+**Canonical column:** `process_agg` (= Aggregation Level 2). `agg_level_1` survives only as a legacy alias of `process_agg` inside the extractor so third-party rule CSVs keep working; the `Aggregation Level 1` mapping column itself was removed on 2026-07-25.
 
 #### Aggregation levels (Sankey / QA only)
 
@@ -242,7 +242,7 @@ Extraction itself is unchanged (filters on Aggregation Level 2 labels). Sankey /
 |-----------------------|-------------|
 | **`Aggregation Level 2`** (default; alias `mapping`) | Export neighbourhood / detailed QA |
 | **`custom`** | Working level: export-touching L2 kept, context collapsed (~45 nodes) |
-| `Aggregation Level 1` / `Sector` / `L2` | Mid / coarse / fine drill-down |
+| `Sector` / `L2` | Coarse / fine drill-down |
 | **`sankey_overview`** | Whole-system Sankey (≤20 nodes) |
 
 **No opaque placeholders.** Empty mapping cells fall back to TIMES Description, then code — never `Unknown`.
@@ -359,6 +359,33 @@ readable. Dropping it also removed ~⅓ of the report's HTML weight.
 | Parser / netting / road-rail | `times_pypsa/pipeline.py` |
 | QA report / balances / topology | `times_pypsa/{qa,balances,model,topology,aggregation}.py` |
 
+##### `extraction_rules.csv` schema
+
+One row per PyPSA demand category. **Every populated filter cell is applied** — a
+value that matches no mapping label is a test failure, not a silent no-op.
+
+| Column | Meaning |
+|--------|---------|
+| `category` | PyPSA demand name (the key in `wallon_demands_*.csv`) |
+| `pypsa_sector` | End-use sector; drives Sankey export colouring |
+| `parent` | This rule is a subset of that category (declares the allowed overlap) |
+| `measure_at` | Where the number is read: `fuel_input` (VAR_FIn at a conversion tech), `demand_input` (VAR_FIn at the end use), `service_output` (VAR_FOut at the demand), `delivered_fuel` (VAR_FOut of a delivery tech) |
+| `var_type` | `VAR_FIN` / `VAR_FOUT` |
+| `process_agg` | `;`-separated Aggregation Level 2 labels |
+| `carrier` | `;`-separated PyPSA Energy Carrier labels (empty = no commodity restriction) |
+| `commodity_code` | Raw TIMES codes for commodities that have no carrier row; OR-ed with `carrier` |
+| `expect` | `nonzero`, or `zero` for a PyPSA placeholder TIMES-WAL does not model |
+| `adjust` | Post-processing corrections, e.g. `subtract:total rail;subtract_internal_transfer` |
+| `note` | Why the rule looks the way it does — read this before editing |
+
+`pypsa_sector`, `parent` and `expect` used to be hand-maintained Python literals
+(`PYPSA_SECTOR_BY_CATEGORY`, `ALLOWED_OVERLAPS`, `KNOWN_ZERO_CATEGORIES`); they are
+now read from these columns. Emission commodities (CO₂, GHG, SOX, …) are dropped
+before any rule sums `value`.
+
+The previous schema (`filter_type` + `filter_field_N`/`filter_values_N`) is still
+read so external rule files keep working.
+
 #### Tests
 
 ```bash
@@ -392,17 +419,14 @@ Points of attention for the reference scenario; the full list with context is in
 [aggregation.md § Open points](aggregation.md#open-points-and-points-of-attention).
 Re-run `times-pypsa qa` after any mapping/rule change and re-read the QA tables.
 
-**Unresolved defects from the 2026-07-25 audit** — each changes
-`wallon_demands_*.csv`, so each is a coupling decision rather than a bug fix, and
-none has been applied. Full detail and numbers in
-[aggregation.md § Audit 2026-07-25](aggregation.md#audit-2026-07-25--unresolved-defects-that-would-change-the-demand-csvs):
+**Remaining open points after the 2026-07-25 audit** — each would change
+`wallon_demands_*.csv` and is a coupling decision rather than a bug fix. Full detail in
+[aggregation.md § Audit 2026-07-25](aggregation.md#audit-2026-07-25--what-was-fixed-and-what-is-still-open):
 
-1. **`filter_values_2` is silently ignored for 9 of 55 rules** (`load_extraction_rules` reads only `filter_values_1` unless `filter_type == "combined"`). ~124 PJ of the 2030 export rests on a filter the CSV declares but never applies. Do **not** just fix the loader — honouring the declared carriers as written would zero out `solid biomass`, `naphtha` and `coke`.
-2. **`total domestic navigation` exports Btkm as PJ** — `TNDF` is a Btkm activity (283% implied efficiency) but `mapping_commodities.csv` declares PJ. 1.6 PJ (2030) / 1.9 PJ (2050) handed to PyPSA are not energy. The extraction path has **no unit guard at all**.
-3. **Commercial new electric heating boilers are mislabelled** `commercial other` instead of a services-heat label → `services electric heater` reads 0 in 2050 while 6.03 PJ exists; `BEWAL services urban decentral heat` understated ~40%. Plus 6 retrofits labelled `Dum_Retrofit_Commercial` make `retro` undercount 7.6%.
-4. **Unmapped commodities inside exported categories** — `BIOSLU` + `MBORES` are 25–30% of `solid biomass` and have no mapping row; `BIOPEL`/`BIOSLU`/`NREWST` unmapped as *inputs* make waste/pellet fuel techs look like ~3.5 PJ of primary supply.
-5. **Black liquor (8.5–10.2 PJ/yr) is covered by no rule** — defensible as a self-supplied by-product, but the decision is implicit.
-6. **`hydrogen road` is not a key-subset of `total road`** (zero key overlap; the relation is energetic) — summing them on the PyPSA side double-counts. Same shape for rail electricity across `total road` / `total rail`.
+1. **Black liquor (8.5–10.2 PJ/yr) is covered by no rule** — defensible as a self-supplied by-product, but the decision is implicit.
+2. **`electricity road` mixes two measurement points** — `ELCLOW` before the charger and `BATELCIN` after it, leaving ~5% charger loss outside every category.
+3. **`residential cooking` is one mixed-carrier number** (gas + LPG + electricity + logs), and electric cooking `RCOKELC100` sits in `total electricity residential` instead. `INFPRCCOK01` (industrial coke) also matches the rule — zero in 2030/2050, non-zero in 2022/2025.
+4. **`naphtha` / `coke` / `coal` are misnamed** — `naphtha` contains no naphtha (it is industrial fuel oil + diesel), `coke` reads a Hard Coal input and `coal` reads Coke + Lignite. The `note` column now records this; renaming the categories would break the PyPSA-side keys.
 
 - **Services is over-coloured on the Sankey** (+0.15 TWh 2030 / +0.27 TWh 2050): `merge_export_statuses(any_exported=True)` promotes a process pair when *any* collapsed commodity is exported, so untagged `Commercial cooling` output riding the `Commercial Heat pump → Commercial buildings` pair gets coloured. Now visible in the reconciliation table.
 - **Aviation kerosene FIN-vs-FOUT** — aviation is exported as the service `VAR_FOut` (**confirmed PJ**, efficiency exactly 1.000); the ~30 PJ kerosene `VAR_FIn` stays out to avoid double-counting. Confirm the convention matches PyPSA.
@@ -415,6 +439,11 @@ none has been applied. Full detail and numbers in
 
 | Date | Change | Evidence | Demand CSV impact |
 |------|--------|----------|-------------------|
+| 2026-07-25 | **`total domestic navigation` corrected to final energy**: reads the ships' diesel `VAR_FIn` (carrier `total energy for transport`) instead of the `TNDF` **Btkm** activity `VAR_FOut`; the same diesel is subtracted from `total road`, which measures it at the fuel tech. Subtractions are now declared in the `adjust` column rather than hardcoded. | `test_navigation_reads_the_fuel_not_the_activity`, `test_no_exported_flow_carries_a_non_pj_unit`, `test_declared_subtractions_remove_downstream_double_counts` | **2 categories change.** `total domestic navigation` 1.617 → **0.572 PJ** (2030), 1.898 → 0.672 (2050); `total road` −0.57 (2030) / −0.67 PJ (2050). No exported commodity is non-PJ in any year now. |
+| 2026-07-25 | **`extraction_rules.csv` rewritten**: `category,pypsa_sector,parent,measure_at,var_type,process_agg,carrier,commodity_code,expect,adjust,note`. Every populated filter is applied (the old schema dropped `filter_values_2` on 9 of 55 rules); `pypsa_sector`/`parent`/`expect` replace the `PYPSA_SECTOR_BY_CATEGORY`/`ALLOWED_OVERLAPS`/`KNOWN_ZERO_CATEGORIES` Python literals. Legacy schema still read. | `test_every_declared_filter_value_resolves`, `test_rule_metadata_columns_are_complete` | **None — all 46 emitted files byte-identical.** |
+| 2026-07-25 | Emission commodities (CO₂/GHG/SOX/…) dropped before any rule sums `value`; an unknown filter field now raises instead of applying no filter. | `test_emission_commodities_never_reach_a_demand`, `test_unknown_filter_field_raises` | None (closes a latent 2000 PJ error) |
+| 2026-07-25 | Dropped `Aggregation Level 1` + `PyPSA technology` (nothing read them) and the stray `Notes` column; commodity `Unit` corrected for `TNDF` (BTKM) and `INDBLQ` (MT); new `exported_unit_check` flags any exported non-PJ commodity. | `test_bundled_mapping_csvs_share_aggregation_columns`, `test_exported_unit_check_flags_non_pj_commodities` | None |
+| 2026-07-25 | **Mapping label fixes**: 16 commercial electric heaters (`…ELC101/ELC201`) `commercial other`/`Commercial Biomass boiler` → `Commercial electrical stove` (the existing `…ELC100` vintage already had it); 3 `COMSOL` processes → `Commercial solar thermal`; 6 commercial retrofits `Dum_Retrofit_Commercial` → `Retrofitting improvements`. | `qa_export_coverage_*.csv`, re-export diff | **7 of 55 categories change.** 2050: `services electric heater` +6.32, `BEWAL services urban decentral heat` +6.04, `total electricity services` −6.15, `services biomass boiler` −0.29, `services solar thermal` +0.02 PJ; `retro` +0.05→+1.59 PJ over 2022–2050. Plus 2670 MW of commercial electric heating capacity now in `heating_capacities_2050.csv`. |
 | 2026-07-25 | **Anchoring is now conservation-checked** (`ANCHOR_BALANCE_TOLERANCE` 10%): a gateway is anchored only if its outputs carry the same energy as its soft-linked input, else the highlight stays upstream; gateway→gateway chain hops are never highlighted. Fixes `Fuel Tech - H2` colouring 1.20 PJ of industrial hydrogen as Transport *and* Industry. | `test_anchoring_conserves_highlighted_energy`, `test_no_double_count_along_a_gateway_chain`, `qa_anchor_ledger_*.csv` | **None — `wallon_demands_*.csv` byte-identical to the previous commit for all 8 soft-link years (verified by re-export).** Applies to every 2026-07-25 row below. |
 | 2026-07-25 | **New reconciliation**: coloured Sankey PJ vs tagged export PJ per sector (`export_reconciliation`, `qa_export_reconciliation_*.csv`) — the check the suite lacked. | `test_export_reconciliation_matches_tagged_energy` | None |
 | 2026-07-25 | **New inflow/outflow ratio tables** (`process_io_ratios`) at TIMES and aggregated resolution, replacing most of the old table dump; report keeps view A + per-category B1…Bn, drops the whole-neighbourhood Sankey, and collapses pass/fail checks into `<details>`. | `test_balances.py`, `test_qa_html.py` | None |

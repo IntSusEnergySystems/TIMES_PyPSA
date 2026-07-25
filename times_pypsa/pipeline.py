@@ -549,37 +549,133 @@ def apply_commodity_grouping(
     return dfg
 
 
+#: Columns that identify the current (v2) extraction-rule schema.
+_RULES_V2_COLUMNS = frozenset({"process_agg", "carrier", "pypsa_sector"})
+
+
+def _split_cell(value: object) -> list[str]:
+    if value is None or (isinstance(value, float) and pd.isna(value)):
+        return []
+    return [v.strip() for v in str(value).split(";") if v.strip()]
+
+
+@dataclass(frozen=True)
+class RuleMetadata:
+    """Non-filter facts about a demand category, declared in the rules CSV.
+
+    These used to live in three hand-maintained Python literals
+    (``PYPSA_SECTOR_BY_CATEGORY``, ``ALLOWED_OVERLAPS``, ``KNOWN_ZERO_CATEGORIES``)
+    that had to be kept in sync with a CSV edited by domain experts.
+    """
+
+    sector: str = ""
+    parent: str = ""
+    measure_at: str = ""
+    expect: str = "nonzero"
+    adjust: tuple[str, ...] = ()
+    note: str = ""
+
+
+def load_rule_metadata(extraction_rules_file: Path | str) -> dict[str, RuleMetadata]:
+    """Read the declarative (non-filter) columns of the extraction-rule CSV."""
+    df = pd.read_csv(extraction_rules_file)
+    if not _RULES_V2_COLUMNS & set(df.columns):
+        return {}
+    out: dict[str, RuleMetadata] = {}
+    for _, row in df.iterrows():
+        cat = str(row["category"]).strip()
+        out[cat] = RuleMetadata(
+            sector=str(row.get("pypsa_sector", "") or "").strip(),
+            parent=str(row.get("parent", "") or "").strip().replace("nan", ""),
+            measure_at=str(row.get("measure_at", "") or "").strip(),
+            expect=(str(row.get("expect", "") or "nonzero").strip() or "nonzero"),
+            adjust=tuple(_split_cell(row.get("adjust"))),
+            note=str(row.get("note", "") or "").strip().replace("nan", ""),
+        )
+    return out
+
+
+def bundled_rule_metadata() -> dict[str, RuleMetadata]:
+    """:func:`load_rule_metadata` for the bundled ``data/extraction_rules.csv``.
+
+    Returns ``{}`` when the repository ``data/`` directory is not reachable, so
+    importing the package never fails on an installed-without-data checkout.
+    """
+    try:
+        return load_rule_metadata(default_mappings_dir() / "extraction_rules.csv")
+    except (FileNotFoundError, OSError, KeyError):  # pragma: no cover - packaging
+        logger.warning("Bundled extraction_rules.csv unavailable; rule metadata empty.")
+        return {}
+
+
+def rule_process_labels(rule: tuple) -> list[str]:
+    """The ``process_agg`` labels of a rule, whichever schema it was loaded from."""
+    _var_type, filter_type, filters = rule
+    if filter_type != "combined":
+        return list(filters) if filter_type == "process_agg" else []
+    for field, values in filters:
+        if field == "process_agg":
+            return list(values)
+    return []
+
+
 def load_extraction_rules(extraction_rules_file: Path | str) -> dict:
-    """Load demand extraction rules from CSV."""
+    """
+    Load demand extraction rules from CSV.
+
+    Two schemas are accepted. The current one has explicit filter columns and
+    **every populated filter is applied**::
+
+        category,pypsa_sector,parent,measure_at,var_type,process_agg,carrier,
+        commodity_code,expect,adjust,note
+
+    The legacy one used ``filter_type`` + ``filter_field_N``/``filter_values_N``
+    and silently ignored ``filter_values_2`` unless ``filter_type == "combined"``
+    — the defect this schema removes. It is still read so external rule files
+    keep working.
+
+    Returns ``{category: (var_type, filter_type, filters)}``; see
+    :func:`load_rule_metadata` for the declarative columns.
+    """
     df = pd.read_csv(extraction_rules_file)
     rules: dict = {}
+
+    if _RULES_V2_COLUMNS & set(df.columns):
+        for _, row in df.iterrows():
+            category = str(row["category"]).strip()
+            var_type = str(row["var_type"]).strip()
+            filters: list[tuple] = []
+            procs = _split_cell(row.get("process_agg"))
+            if procs:
+                filters.append(("process_agg", procs))
+            carriers = _split_cell(row.get("carrier"))
+            codes = _split_cell(row.get("commodity_code"))
+            if carriers or codes:
+                # A commodity qualifies by carrier OR by raw code: some genuinely
+                # energetic commodities have no ``PyPSA Energy Carrier`` row.
+                filters.append(
+                    ("commodity_scope", {"carrier": carriers, "commodity_code": codes})
+                )
+            rules[category] = (var_type, "combined", filters)
+        return rules
+
     for _, row in df.iterrows():
-        category = row["category"].strip()
-        var_type = row["var_type"].strip()
-        filter_type = row["filter_type"].strip()
+        category = str(row["category"]).strip()
+        var_type = str(row["var_type"]).strip()
+        filter_type = str(row["filter_type"]).strip()
 
-        filters: list | list[tuple] = []
+        filters_legacy: list | list[tuple] = []
         if filter_type == "combined":
-            for i in [1, 2, 3]:
-                f_field = f"filter_field_{i}"
-                f_values = f"filter_values_{i}"
+            for i in (1, 2, 3):
+                f_field, f_values = f"filter_field_{i}", f"filter_values_{i}"
                 if f_field in row and f_values in row and pd.notna(row[f_values]):
-                    field = str(row[f_field]).strip()
-                    values = [
-                        v.strip()
-                        for v in str(row[f_values]).split(";")
-                        if v.strip()
-                    ]
-                    filters.append((field, values))
+                    filters_legacy.append(
+                        (str(row[f_field]).strip(), _split_cell(row[f_values]))
+                    )
         else:
-            f_values = [
-                v.strip()
-                for v in str(row.get("filter_values_1", "")).split(";")
-                if v.strip()
-            ]
-            filters = f_values
+            filters_legacy = _split_cell(row.get("filter_values_1", ""))
 
-        rules[category] = (var_type, filter_type, filters)
+        rules[category] = (var_type, filter_type, filters_legacy)
     return rules
 
 
@@ -629,6 +725,41 @@ def _process_agg_column(df: pd.DataFrame) -> str:
     return "agg_level_1"
 
 
+#: Commodity-code patterns for emission / pollutant accounting, never energy.
+EMISSION_CODE_PATTERN = r"CO2|GHG|SOX|NOX|NH3|PM2|COV|CH4"
+
+_FILTER_COLUMNS = {
+    "process_agg": None,  # resolved per-frame by _process_agg_column
+    "pypsa_carrier": "pypsa_carrier",
+    "commodity": "commodity",
+    "commodity_code": "commodity_code",
+}
+
+
+def drop_emission_commodities(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Drop emission / pollutant commodities before a rule sums ``value``.
+
+    Emissions are reported in kt in the same column as PJ, so a rule without a
+    carrier filter would add them to a demand. That guard used to be accidental:
+    every heat rule happens to carry ``pypsa_carrier=Heat``, which excluded CO₂ as
+    a side effect — dropping it from ``residential urban decentral gas heater``
+    turns 16.9 PJ into **2000.8** (`NETSCO2N` + `RSDCO2N` ≈ 975 kt each). Rules
+    with no carrier filter (e.g. ``retro``) were protected only by luck.
+
+    This mirrors the universal carrier filter the Sankey path already applies
+    (:func:`times_pypsa.qa.filter_energy_carrier_flows`).
+    """
+    if df.empty or "commodity_code" not in df.columns:
+        return df
+    is_emission = (
+        df["commodity_code"]
+        .astype(str)
+        .str.contains(EMISSION_CODE_PATTERN, case=False, na=False)
+    )
+    return df[~is_emission]
+
+
 def _apply_extraction_rule(
     year_df: pd.DataFrame,
     var_type: str,
@@ -644,34 +775,36 @@ def _apply_extraction_rule(
     else:
         filtered_df = year_df[year_df["variable"].str.upper() == var_type].copy()
 
+    filtered_df = drop_emission_commodities(filtered_df)
     agg_col = _process_agg_column(filtered_df)
 
-    if filter_type == "process_agg":
-        filtered_df = filtered_df[filtered_df[agg_col].isin(filter_values)]
-    elif filter_type == "pypsa_carrier":
-        filtered_df = filtered_df[filtered_df["pypsa_carrier"].isin(filter_values)]
-    elif filter_type == "commodity":
-        filtered_df = filtered_df[filtered_df["commodity"].isin(filter_values)]
-    elif filter_type == "commodity_code":
-        filtered_df = filtered_df[filtered_df["commodity_code"].isin(filter_values)]
-    elif filter_type == "combined":
+    def _apply(field: str, values) -> pd.DataFrame:
+        if field == "commodity_scope":
+            # Qualify by PyPSA carrier OR by raw commodity code (for energetic
+            # commodities that have no carrier row).
+            carriers = values.get("carrier") or []
+            codes = values.get("commodity_code") or []
+            keep = pd.Series(False, index=filtered_df.index)
+            if carriers:
+                keep |= filtered_df["pypsa_carrier"].isin(carriers)
+            if codes:
+                keep |= filtered_df["commodity_code"].isin(codes)
+            return filtered_df[keep]
+        if field not in _FILTER_COLUMNS:
+            # Silently applying *no* filter here used to export the whole system
+            # for a category on a single typo (e.g. "proces_agg").
+            raise ValueError(
+                f"Unknown extraction filter field {field!r}. "
+                f"Valid fields: {sorted(_FILTER_COLUMNS) + ['commodity_scope']}"
+            )
+        col = agg_col if field == "process_agg" else _FILTER_COLUMNS[field]
+        return filtered_df[filtered_df[col].isin(values)]
+
+    if filter_type == "combined":
         for sub_filter_type, sub_filter_values in filter_values:
-            if sub_filter_type == "process_agg":
-                filtered_df = filtered_df[
-                    filtered_df[agg_col].isin(sub_filter_values)
-                ]
-            elif sub_filter_type == "pypsa_carrier":
-                filtered_df = filtered_df[
-                    filtered_df["pypsa_carrier"].isin(sub_filter_values)
-                ]
-            elif sub_filter_type == "commodity":
-                filtered_df = filtered_df[
-                    filtered_df["commodity"].isin(sub_filter_values)
-                ]
-            elif sub_filter_type == "commodity_code":
-                filtered_df = filtered_df[
-                    filtered_df["commodity_code"].isin(sub_filter_values)
-                ]
+            filtered_df = _apply(sub_filter_type, sub_filter_values)
+    else:
+        filtered_df = _apply(filter_type, filter_values)
 
     if apply_netting and not filtered_df.empty:
         netted_df = filtered_df.copy()
@@ -687,28 +820,41 @@ def _apply_extraction_rule(
     return filtered_df
 
 
-def _adjust_road_rail_totals(results_df: pd.DataFrame) -> pd.DataFrame:
-    """Subtract rail from road electricity/total road categories."""
-    results_df = results_df.copy()
-    road_raw = results_df.loc[
-        results_df["category"] == "electricity road", "TWh"
-    ].iloc[0]
-    rail_raw = results_df.loc[
-        results_df["category"] == "electricity rail", "TWh"
-    ].iloc[0]
-    net_road_twh = road_raw - rail_raw
-    results_df.loc[results_df["category"] == "electricity road", "TWh"] = net_road_twh
-    results_df.loc[results_df["category"] == "electricity road", "PJ"] = (
-        net_road_twh / PJ_TO_TWH
-    )
+def _apply_subtractions(
+    results_df: pd.DataFrame, metadata: dict[str, RuleMetadata]
+) -> pd.DataFrame:
+    """Apply the ``subtract:<category>`` tokens of the rules' ``adjust`` column.
 
-    road_tot = results_df.loc[results_df["category"] == "total road", "TWh"].iloc[0]
-    rail_tot = results_df.loc[results_df["category"] == "total rail", "TWh"].iloc[0]
-    tot_road_twh = road_tot - rail_tot
-    results_df.loc[results_df["category"] == "total road", "TWh"] = tot_road_twh
-    results_df.loc[results_df["category"] == "total road", "PJ"] = (
-        tot_road_twh / PJ_TO_TWH
-    )
+    A road fuel tech serves road vehicles, rail *and* inland ships from the same
+    ``TRADST`` pool, so ``total road`` (measured at the fuel tech) contains the rail
+    and navigation fuel as well. Each rule that is measured further downstream is
+    subtracted from the upstream total that already counted it.
+
+    Skipped with a warning when either side is missing, so removing a category from
+    ``extraction_rules.csv`` cannot raise here.
+    """
+    results_df = results_df.copy()
+    for target, meta in metadata.items():
+        for token in meta.adjust:
+            if not token.startswith("subtract:"):
+                continue
+            other = token.split(":", 1)[1].strip()
+            rows = results_df["category"] == target
+            others = results_df["category"] == other
+            if not rows.any() or not others.any():
+                logger.warning(
+                    "Skipping the %s -= %s correction: category missing from the rules.",
+                    target,
+                    other,
+                )
+                continue
+            net_twh = (
+                results_df.loc[rows, "TWh"].iloc[0]
+                - results_df.loc[others, "TWh"].iloc[0]
+            )
+            results_df.loc[rows, "TWh"] = net_twh
+            results_df.loc[rows, "PJ"] = net_twh / PJ_TO_TWH
+            logger.info("%s: subtracted %s (measured further downstream).", target, other)
     return results_df
 
 
@@ -765,20 +911,23 @@ def _adjust_road_biofuel_double_count(
     results_df: pd.DataFrame,
     year_df: pd.DataFrame,
     road_techs: Iterable[str],
+    *,
+    category: str = "total road",
 ) -> pd.DataFrame:
-    """Subtract intra-road-tech biofuel blending (double-count) from ``total road``."""
+    """Subtract intra-tech biofuel blending (double-count) from ``category``."""
     results_df = results_df.copy()
-    if "total road" not in set(results_df["category"]):
+    if category not in set(results_df["category"]):
         return results_df
     internal_pj = road_internal_transfer_pj(year_df, road_techs)
     if internal_pj <= 1e-9:
         return results_df
-    mask = results_df["category"] == "total road"
+    mask = results_df["category"] == category
     new_pj = results_df.loc[mask, "PJ"].iloc[0] - internal_pj
     results_df.loc[mask, "PJ"] = new_pj
     results_df.loc[mask, "TWh"] = new_pj * PJ_TO_TWH
     logger.info(
-        "total road: subtracted %.3f PJ intra-road biofuel blending (double-count).",
+        "%s: subtracted %.3f PJ intra-tech biofuel blending (double-count).",
+        category,
         internal_pj,
     )
     return results_df
@@ -836,8 +985,13 @@ def extract_demands_for_horizon(
     horizon: int,
     wallon_demands_path: Path | str,
     apply_netting: bool = True,
+    rule_metadata: dict[str, RuleMetadata] | None = None,
 ) -> pd.DataFrame:
-    """Extract PyPSA demand categories for a single planning horizon."""
+    """Extract PyPSA demand categories for a single planning horizon.
+
+    ``rule_metadata`` supplies the ``adjust`` column that declares the
+    double-count corrections; it defaults to the bundled rules CSV.
+    """
     wallon_demands_path = Path(wallon_demands_path)
     wallon_demands_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -888,12 +1042,16 @@ def extract_demands_for_horizon(
             }
         )
 
-    results_df = _adjust_road_rail_totals(pd.DataFrame(results))
-    road_rule = extraction_rules.get("total road")
-    if road_rule is not None:
-        results_df = _adjust_road_biofuel_double_count(
-            results_df, year_df, road_rule[2]
-        )
+    metadata = bundled_rule_metadata() if rule_metadata is None else rule_metadata
+    results_df = _apply_subtractions(pd.DataFrame(results), metadata)
+    for category, meta in metadata.items():
+        if "subtract_internal_transfer" not in meta.adjust:
+            continue
+        rule = extraction_rules.get(category)
+        if rule is not None:
+            results_df = _adjust_road_biofuel_double_count(
+                results_df, year_df, rule_process_labels(rule), category=category
+            )
     results_df["year"] = horizon
     results_df.to_csv(wallon_demands_path, index=False)
     logger.info("Saved walloon demands to %s", wallon_demands_path)

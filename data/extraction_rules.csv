@@ -1,56 +1,56 @@
-category,var_type,filter_type,filter_field_1,filter_values_1,filter_field_2,filter_values_2
-total electricity residential,VAR_FIN,combined,process_agg,residential other,pypsa_carrier,Electricity;electricity for residential
-total electricity services,VAR_FIN,combined,process_agg,commercial other,pypsa_carrier,Electricity
-electricity road,VAR_FIN,process_agg,process_agg,Fuel Tech - Electricity (TRA);TRA_STG_PJ_GW,pypsa_carrier,Electricity
-electricity rail,VAR_FIN,combined,process_agg,rail transport,pypsa_carrier,Electricity
-electricity,VAR_FIN,process_agg,process_agg,PV industrial;Fuel Tech - Electricity (IND);Fuel Tech - Solar (IND),pypsa_carrier,Electricity
-ammonia,VAR_FIN,combined,process_agg,Industry,pypsa_carrier,ammonia
-coal,VAR_FIN,process_agg,process_agg,Fuel Tech - Hard Coal (IND);Fuel Tech - Lignite (IND),pypsa_carrier,coal for industry
-coke,VAR_FIN,process_agg,process_agg,Fuel Tech - Coke (IND),pypsa_carrier,Coke for industry
-hydrogen,VAR_FOUT,process_agg,process_agg,hydrogen for industry;hydrogen imports,pypsa_carrier,hydrogen for industry
-low-temperature heat,VAR_FIN,process_agg,process_agg,Geothermal (IND),pypsa_carrier,Heat for industry;Geothermal (IND)
-methane,VAR_FIN,process_agg,process_agg,Fuel Tech - Biogas (IND);Fuel Tech - Natural Gas transport (IND);Fuel Tech New - Gas and Cog industry (IND);Fuel Tech - Natural Gas and biogas mixed  (IND);Fuel Tech - Liquified Petroleum Gas (IND);Fuel Tech New - biogaz epure (IND),pypsa_carrier,Natural Gas;Network gas;gas for industry;High Temperature Heat for IND
-methanol,VAR_FIN,combined,process_agg,Industry,pypsa_carrier,methanol
-naphtha,VAR_FIN,process_agg,process_agg,Non-energy;Fuel Tech - Heavy Fuel Oil (IND);Fuel Tech - Light Fuel Oil (IND),pypsa_carrier,naphtha;oil for industry
-solid biomass,VAR_FIN,process_agg,process_agg,Fuel Tech - Wood material (IND);Fuel Tech - Waste Renewable (IND);Fuel Tech - Wood CHIPS (IND);Fuel Tech - Biofuel (IND),pypsa_carrier,solid biomass for industry;Wood pellets for Industry
-total agriculture,VAR_FIN,process_agg,process_agg,Agriculture,,
-total agriculture electricity,VAR_FIN,combined,process_agg,Agriculture,pypsa_carrier,Electricity for agriculture
-total agriculture heat,VAR_FIN,combined,process_agg,Agriculture,pypsa_carrier,Heat for agriculture;Network gas for agriculture
-total agriculture machinery,VAR_FIN,combined,process_agg,Agriculture,pypsa_carrier,Oil for agriculture;Biodiesel for agriculture;Fuel Tech – Diesel
-total domestic aviation,VAR_FOUT,combined,process_agg,domestic aviation,pypsa_carrier,domestic aviation
-total international aviation,VAR_FOUT,combined,process_agg,international aviation,pypsa_carrier,international aviation
-total domestic navigation,VAR_FOUT,combined,process_agg,domestic navigation,pypsa_carrier,domestic navigation
-total international navigation,VAR_FOUT,process_agg,process_agg,international navigation,,
-total road,VAR_FIN,process_agg,process_agg,Fuel Tech - Biodiesel (TRA);Fuel Tech - Biogas (TRA);Fuel Tech - Diesel (TRA);Fuel Tech - Ethanol (TRA);Fuel Tech - H2;Fuel Tech - Reseau gas mixed (TRA);Fuel Tech - Gasoline (TRA);Fuel Tech - Liquified Petroleum Gas (TRA);BioGas (TAR);Fuel Tech - Natural Gas (TRA);Fuel Tech - Electricity (TRA);TRA_STG_PJ_GW,,
-total rail,VAR_FIN,process_agg,process_agg,rail transport,,
-hydrogen road,VAR_FIN,combined,process_agg,Cars;Road Freight;2 and 3 wheelers;Road transport (public),pypsa_carrier,H2 for transport
-BEWAL residential urban decentral heat,VAR_FOUT,combined,process_agg,Residential urban decentral Coal heater;Residential urban decentral electric heater;Residential urban decentral Heat pump;Residential urban decentral geothermal heating;Residential urban decentral gas heater;Residential urban decentral biomass heater;Residential urban decentral solar thermal;Residential urban decentral oil heater,pypsa_carrier,Heat
-BEWAL residential rural heat,VAR_FOUT,combined,process_agg,Residential rural Coal heater;Residential rural electric heater;Residential rural Heat pump;Residential rural geothermal heating;Residential rural gas heater;Residential rural biomass heater;Residential rural solar thermal;Residential rural oil heater,pypsa_carrier,Heat
-BEWAL services urban decentral heat,VAR_FOUT,combined,process_agg,Commercial gas boiler;Commercial Biomass boiler;Commercial Heat pump;Commercial Oil boiler;commercial Geothermal;Commercial electrical stove;Commercial solar thermal,pypsa_carrier,Heat
-residential urban decentral gas boiler,VAR_FOUT,combined,process_agg,Residential urban decentral gas heater,pypsa_carrier,Heat
-residential urban decentral coal boiler,VAR_FOUT,combined,process_agg,Residential urban decentral Coal heater,pypsa_carrier,Heat
-residential urban decentral electric heater,VAR_FOUT,combined,process_agg,Residential urban decentral electric heater,pypsa_carrier,Heat
-residential urban decentral heat pump,VAR_FOUT,combined,process_agg,Residential urban decentral Heat pump,pypsa_carrier,Heat
-residential urban decentral geothermal,VAR_FOUT,combined,process_agg,Residential urban decentral geothermal heating,pypsa_carrier,Heat
-residential district heating,VAR_FOUT,combined,process_agg,District heating,pypsa_carrier,Heat
-residential urban decentral biomass boiler,VAR_FOUT,combined,process_agg,Residential urban decentral biomass heater,pypsa_carrier,Heat
-residential urban decentral solar thermal,VAR_FOUT,combined,process_agg,Residential urban decentral solar thermal,pypsa_carrier,Heat
-residential urban decentral oil boiler,VAR_FOUT,combined,process_agg,Residential urban decentral oil heater,pypsa_carrier,Heat
-residential rural gas boiler,VAR_FOUT,combined,process_agg,Residential rural gas heater,pypsa_carrier,Heat
-residential rural coal boiler,VAR_FOUT,combined,process_agg,Residential rural Coal heater,pypsa_carrier,Heat
-residential rural electric heater,VAR_FOUT,combined,process_agg,Residential rural electric heater,pypsa_carrier,Heat
-residential rural heat pump,VAR_FOUT,combined,process_agg,Residential rural Heat pump,pypsa_carrier,Heat
-residential rural geothermal,VAR_FOUT,combined,process_agg,Residential rural geothermal heating,pypsa_carrier,Heat
-residential rural biomass boiler,VAR_FOUT,combined,process_agg,Residential rural biomass heater,pypsa_carrier,Heat
-residential rural solar thermal,VAR_FOUT,combined,process_agg,Residential rural solar thermal,pypsa_carrier,Heat
-residential rural oil boiler,VAR_FOUT,combined,process_agg,Residential rural oil heater,pypsa_carrier,Heat
-services gas boiler,VAR_FOUT,combined,process_agg,Commercial gas boiler,pypsa_carrier,Heat
-services biomass boiler,VAR_FOUT,combined,process_agg,Commercial Biomass boiler,pypsa_carrier,Heat
-services heat pump,VAR_FOUT,combined,process_agg,Commercial Heat pump,pypsa_carrier,Heat
-services district heating,VAR_FOUT,combined,process_agg,Commercial Heat Exchanger,pypsa_carrier,Heat
-services oil boiler,VAR_FOUT,combined,process_agg,Commercial Oil boiler,pypsa_carrier,Heat
-services geothermal,VAR_FOUT,combined,process_agg,commercial Geothermal,pypsa_carrier,Heat
-services electric heater,VAR_FOUT,combined,process_agg,Commercial electrical stove,pypsa_carrier,Heat
-services solar thermal,VAR_FOUT,combined,process_agg,Commercial solar thermal,pypsa_carrier,Heat
-residential cooking,VAR_FIN,process_agg,process_agg,residential cooking,,
-retro,VAR_FOUT,combined,process_agg,Retrofitting improvements,,
+category,pypsa_sector,parent,measure_at,var_type,process_agg,carrier,commodity_code,expect,adjust,note
+total electricity residential,Residential,,demand_input,VAR_FIN,residential other,Electricity;electricity for residential,,nonzero,,"Includes electric cooking (RCOKELC100), which sits under `residential other` not `residential cooking`."
+total electricity services,Services,,demand_input,VAR_FIN,commercial other,Electricity,,nonzero,,
+electricity road,Transport,total road,fuel_input,VAR_FIN,Fuel Tech - Electricity (TRA);TRA_STG_PJ_GW,Electricity;Low Voltage Electricity,,nonzero,subtract:electricity rail,"Two measurement points in one number: ELCLOW before the charger, BATELCIN after (~5% charger loss outside every category)."
+electricity rail,Transport,total rail,demand_input,VAR_FIN,rail transport,Electricity,,nonzero,,
+electricity,Industry,,fuel_input,VAR_FIN,PV industrial;Fuel Tech - Electricity (IND);Fuel Tech - Solar (IND),Electricity;Medium Voltage Electricity;Renewable: Solar;Solar (IND),,nonzero,,All voltage levels + the solar legs. NOTE: INDSOL and RENSOL are ~0.8 PJ each in 2030 - the same solar counted twice.
+ammonia,Industry,,demand_input,VAR_FIN,Industry,ammonia,,zero,,STRUCTURALLY ZERO: no ammonia commodity exists in the model. PyPSA placeholder.
+coal,Industry,,fuel_input,VAR_FIN,Fuel Tech - Hard Coal (IND);Fuel Tech - Lignite (IND),Coke;Lignite,,nonzero,,"Reads the INPUT: Coke + Lignite. Inverted vs the old ""coal for industry"" filter, and swapped with the `coke` rule. Phases out: nonzero 2021-2040, zero from 2045."
+coke,Industry,,fuel_input,VAR_FIN,Fuel Tech - Coke (IND),Hard Coal,,nonzero,,"Reads the INPUT: this tech consumes Hard Coal. The name and the old ""Coke for industry"" filter both described its OUTPUT."
+hydrogen,Industry,,delivered_fuel,VAR_FOUT,hydrogen for industry;hydrogen imports,hydrogen for industry,,nonzero,,Measured at the delivery-tech OUTPUT; carrier filter is provably redundant (verified all 8 years) but kept as an assertion.
+low-temperature heat,Industry,,fuel_input,VAR_FIN,Geothermal (IND),Geothermal,,nonzero,,"Reads the geothermal INPUT, not the ""Heat for industry"" output."
+methane,Industry,,fuel_input,VAR_FIN,Fuel Tech - Biogas (IND);Fuel Tech - Natural Gas transport (IND);Fuel Tech New - Gas and Cog industry (IND);Fuel Tech - Natural Gas and biogas mixed  (IND);Fuel Tech - Liquified Petroleum Gas (IND);Fuel Tech New - biogaz epure (IND),Biogas;Liquified Petroleum Gas;Natural Gas;Natural Gas biogas mixed (SUP),,nonzero,,"Includes biogas and LPG, not only natural gas."
+methanol,Industry,,demand_input,VAR_FIN,Industry,methanol,,zero,,STRUCTURALLY ZERO: no methanol commodity exists in the model. PyPSA placeholder.
+naphtha,Industry,,fuel_input,VAR_FIN,Non-energy;Fuel Tech - Heavy Fuel Oil (IND);Fuel Tech - Light Fuel Oil (IND),Diesel;Hard Coal;Natural Gas;Other Petroleum Products;Residual Fuel Oil,,nonzero,,Contains NO naphtha: this is industrial fuel oil + diesel + other petroleum products. Category name is misleading.
+solid biomass,Industry,,fuel_input,VAR_FIN,Fuel Tech - Wood material (IND);Fuel Tech - Waste Renewable (IND);Fuel Tech - Wood CHIPS (IND);Fuel Tech - Biofuel (IND),Diesel from Biomass;Wood Chips,BIOSLU;MBORES;MBOWOO,nonzero,,BIOSLU/MBORES/MBOWOO have no carrier row (MBORES unit=MT) so they are listed by commodity_code.
+total agriculture,Agriculture,,demand_input,VAR_FIN,Agriculture,Biodiesel for agriculture;Electricity for agriculture;Fuel Tech – Biogas;Heat for agriculture;Network gas for agriculture;Oil for agriculture;Wood for agriculture,,nonzero,,
+total agriculture electricity,Agriculture,total agriculture,demand_input,VAR_FIN,Agriculture,Electricity for agriculture,,nonzero,,
+total agriculture heat,Agriculture,total agriculture,demand_input,VAR_FIN,Agriculture,Heat for agriculture;Network gas for agriculture,,nonzero,,
+total agriculture machinery,Agriculture,total agriculture,demand_input,VAR_FIN,Agriculture,Oil for agriculture;Biodiesel for agriculture,,nonzero,,"Dropped the dead carrier value ""Fuel Tech – Diesel"": a process-style label in a carrier column, matching nothing."
+total domestic aviation,Transport,,service_output,VAR_FOUT,domestic aviation,domestic aviation,,nonzero,,
+total international aviation,Transport,,service_output,VAR_FOUT,international aviation,international aviation,,nonzero,,
+total domestic navigation,Transport,,demand_input,VAR_FIN,domestic navigation,total energy for transport,,nonzero,,"Final energy: the diesel the ships burn (TRADST), not the TNDF Btkm activity the old VAR_FOut rule read. Covers TRABDL too, so the unbuilt TNAINLBDLN01 biodiesel ship is picked up if it is ever deployed."
+total international navigation,Transport,,service_output,VAR_FOUT,international navigation,,,zero,,"STRUCTURALLY ZERO: ""international navigation"" does not exist in Aggregation Level 2. Model has no international navigation."
+total road,Transport,,fuel_input,VAR_FIN,Fuel Tech - Biodiesel (TRA);Fuel Tech - Biogas (TRA);Fuel Tech - Diesel (TRA);Fuel Tech - Ethanol (TRA);Fuel Tech - H2;Fuel Tech - Reseau gas mixed (TRA);Fuel Tech - Gasoline (TRA);Fuel Tech - Liquified Petroleum Gas (TRA);BioGas (TAR);Fuel Tech - Natural Gas (TRA);Fuel Tech - Electricity (TRA);TRA_STG_PJ_GW,Bioethanol;Centralized hydrogen (Tank storage);Diesel;Diesel from Biomass;Electricity;Fuel: Gasoline;Liquified Petroleum Gas;Low Voltage Electricity;Natural Gas;total energy for transport,AUX_STH2SGT,nonzero,subtract:total rail;subtract:total domestic navigation;subtract_internal_transfer,"Measured at the fuel techs, which also serve rail and inland ships from the same TRADST pool - both are subtracted. AUX_STH2SGT has no carrier row."
+total rail,Transport,,demand_input,VAR_FIN,rail transport,Electricity;total energy for transport,,nonzero,,
+hydrogen road,Transport,,demand_input,VAR_FIN,Cars;Road Freight;2 and 3 wheelers;Road transport (public),H2 for transport,,nonzero,,
+BEWAL residential urban decentral heat,Residential,,service_output,VAR_FOUT,Residential urban decentral Coal heater;Residential urban decentral electric heater;Residential urban decentral Heat pump;Residential urban decentral geothermal heating;Residential urban decentral gas heater;Residential urban decentral biomass heater;Residential urban decentral solar thermal;Residential urban decentral oil heater,Heat,,nonzero,,
+BEWAL residential rural heat,Residential,,service_output,VAR_FOUT,Residential rural Coal heater;Residential rural electric heater;Residential rural Heat pump;Residential rural geothermal heating;Residential rural gas heater;Residential rural biomass heater;Residential rural solar thermal;Residential rural oil heater,Heat,,nonzero,,
+BEWAL services urban decentral heat,Services,,service_output,VAR_FOUT,Commercial gas boiler;Commercial Biomass boiler;Commercial Heat pump;Commercial Oil boiler;commercial Geothermal;Commercial electrical stove;Commercial solar thermal,Heat,,nonzero,,"Understated ~40% in 2050: 10 ""Com ... New Boiler ELC201"" processes are labelled `commercial other`. See aggregation.md."
+residential urban decentral gas boiler,Residential,BEWAL residential urban decentral heat,service_output,VAR_FOUT,Residential urban decentral gas heater,Heat,,nonzero,,
+residential urban decentral coal boiler,Residential,BEWAL residential urban decentral heat,service_output,VAR_FOUT,Residential urban decentral Coal heater,Heat,,nonzero,,
+residential urban decentral electric heater,Residential,BEWAL residential urban decentral heat,service_output,VAR_FOUT,Residential urban decentral electric heater,Heat,,nonzero,,
+residential urban decentral heat pump,Residential,BEWAL residential urban decentral heat,service_output,VAR_FOUT,Residential urban decentral Heat pump,Heat,,nonzero,,
+residential urban decentral geothermal,Residential,BEWAL residential urban decentral heat,service_output,VAR_FOUT,Residential urban decentral geothermal heating,Heat,,nonzero,,
+residential district heating,Residential,,service_output,VAR_FOUT,District heating,Heat,,nonzero,,
+residential urban decentral biomass boiler,Residential,BEWAL residential urban decentral heat,service_output,VAR_FOUT,Residential urban decentral biomass heater,Heat,,nonzero,,
+residential urban decentral solar thermal,Residential,BEWAL residential urban decentral heat,service_output,VAR_FOUT,Residential urban decentral solar thermal,Heat,,nonzero,,
+residential urban decentral oil boiler,Residential,BEWAL residential urban decentral heat,service_output,VAR_FOUT,Residential urban decentral oil heater,Heat,,nonzero,,
+residential rural gas boiler,Residential,BEWAL residential rural heat,service_output,VAR_FOUT,Residential rural gas heater,Heat,,nonzero,,
+residential rural coal boiler,Residential,BEWAL residential rural heat,service_output,VAR_FOUT,Residential rural Coal heater,Heat,,nonzero,,
+residential rural electric heater,Residential,BEWAL residential rural heat,service_output,VAR_FOUT,Residential rural electric heater,Heat,,nonzero,,
+residential rural heat pump,Residential,BEWAL residential rural heat,service_output,VAR_FOUT,Residential rural Heat pump,Heat,,nonzero,,
+residential rural geothermal,Residential,BEWAL residential rural heat,service_output,VAR_FOUT,Residential rural geothermal heating,Heat,,nonzero,,
+residential rural biomass boiler,Residential,BEWAL residential rural heat,service_output,VAR_FOUT,Residential rural biomass heater,Heat,,nonzero,,
+residential rural solar thermal,Residential,BEWAL residential rural heat,service_output,VAR_FOUT,Residential rural solar thermal,Heat,,nonzero,,
+residential rural oil boiler,Residential,BEWAL residential rural heat,service_output,VAR_FOUT,Residential rural oil heater,Heat,,nonzero,,
+services gas boiler,Services,BEWAL services urban decentral heat,service_output,VAR_FOUT,Commercial gas boiler,Heat,,nonzero,,
+services biomass boiler,Services,BEWAL services urban decentral heat,service_output,VAR_FOUT,Commercial Biomass boiler,Heat,,nonzero,,
+services heat pump,Services,BEWAL services urban decentral heat,service_output,VAR_FOUT,Commercial Heat pump,Heat,,nonzero,,
+services district heating,Services,,service_output,VAR_FOUT,Commercial Heat Exchanger,Heat,,nonzero,,
+services oil boiler,Services,BEWAL services urban decentral heat,service_output,VAR_FOUT,Commercial Oil boiler,Heat,,nonzero,,
+services geothermal,Services,BEWAL services urban decentral heat,service_output,VAR_FOUT,commercial Geothermal,Heat,,nonzero,,
+services electric heater,Services,BEWAL services urban decentral heat,service_output,VAR_FOUT,Commercial electrical stove,Heat,,nonzero,,
+services solar thermal,Services,BEWAL services urban decentral heat,service_output,VAR_FOUT,Commercial solar thermal,Heat,,nonzero,,
+residential cooking,Residential,,demand_input,VAR_FIN,residential cooking,Coke for industry;Electricity;Liquified Petroleum Gas (RSD);Network gas for Residential sector;Wood Logs for Residential sector,,nonzero,,"Mixed carriers in one number (gas+LPG+electricity+logs). WARNING: also matches INFPRCCOK01 (Sector=IND, industrial coke) - zero in 2030/2050 but non-zero in 2022/2025."
+retro,Residential,,service_output,VAR_FOUT,Retrofitting improvements,Heat,,nonzero,,Retrofit useful-heat FOut from non-carrier dummy commodities; appears with no energy FIn on the Sankey.

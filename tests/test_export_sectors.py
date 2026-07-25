@@ -27,6 +27,7 @@ from times_pypsa.pipeline import (
     load_extraction_rules,
     load_metadata,
     road_internal_transfer_pj,
+    rule_process_labels,
 )
 from times_pypsa.qa import prepare_system_sankey_links, tag_flows_with_rules
 from times_pypsa.sankey_html import link_color
@@ -261,9 +262,9 @@ def test_residential_cooking_rule_present(mappings_dir: Path):
     meta = load_metadata(mappings_dir)
     rules = load_extraction_rules(meta.extraction_rules_file)
     assert "residential cooking" in rules
-    var_type, filter_type, values = rules["residential cooking"]
+    var_type, _filter_type, _values = rules["residential cooking"]
     assert var_type == "VAR_FIN"
-    assert "residential cooking" in values
+    assert rule_process_labels(rules["residential cooking"]) == ["residential cooking"]
     assert category_sector("residential cooking") == "Residential"
 
 
@@ -316,7 +317,9 @@ def test_demand_csv_has_cooking_and_road_biofuel_subtracted(
     proc_map = meta.processes_df.set_index("Process")["Aggregation Level 2"].to_dict() \
         if "Process" in meta.processes_df.columns else {}
     year_flows["process_agg"] = year_flows["process_code"].map(proc_map)
-    internal = road_internal_transfer_pj(year_flows, rules["total road"][2])
+    internal = road_internal_transfer_pj(
+        year_flows, rule_process_labels(rules["total road"])
+    )
     # If the scenario has intra-road biofuel blending, total road was reduced by it.
     if internal > 1e-6:
         assert internal > 0

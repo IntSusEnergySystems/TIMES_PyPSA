@@ -7,7 +7,7 @@ import re
 
 import pandas as pd
 
-from times_pypsa.pipeline import net_bidirectional_links
+from times_pypsa.pipeline import bundled_rule_metadata, net_bidirectional_links
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +35,6 @@ EXCLUDED_AGG_COLUMNS = frozenset(
 
 LEVEL_ALIASES: dict[str, str] = {
     "L0": "Sector",
-    "L1": "Aggregation Level 1",
     "mapping": "Aggregation Level 2",
 }
 
@@ -468,7 +467,9 @@ def _overview_commodity_series(df: pd.DataFrame) -> pd.Series:
     description = _col_or_empty(df, "commodity")
     code = _col_or_empty(df, "commodity_code")
     carrier = _col_or_empty(df, "pypsa_carrier")
-    cluster = _col_or_empty(df, "com_agg__Aggregation Level 1")
+    # Extra keyword text for the carrier-family heuristic; the commodity mapping's
+    # own ``Cluster`` column is the natural source (was: Aggregation Level 1).
+    cluster = _col_or_empty(df, "commodity_cluster")
     return pd.Series(
         [
             infer_overview_commodity_label(
@@ -565,67 +566,9 @@ _CONTEXT_CARRIER_FAMILIES = frozenset(
 # diagram shows *which* PyPSA demand each soft-linked flow feeds.
 PYPSA_SECTOR_ORDER = ["Industry", "Transport", "Residential", "Services", "Agriculture"]
 
+#: Category → sector, read from the ``pypsa_sector`` column of the rules CSV.
 PYPSA_SECTOR_BY_CATEGORY: dict[str, str] = {
-    # Industry (fuels, feedstock, electricity, process heat, H2)
-    "ammonia": "Industry",
-    "coal": "Industry",
-    "coke": "Industry",
-    "hydrogen": "Industry",
-    "low-temperature heat": "Industry",
-    "methane": "Industry",
-    "methanol": "Industry",
-    "naphtha": "Industry",
-    "solid biomass": "Industry",
-    "electricity": "Industry",
-    # Transport (road / rail / aviation / navigation)
-    "electricity road": "Transport",
-    "total road": "Transport",
-    "hydrogen road": "Transport",
-    "electricity rail": "Transport",
-    "total rail": "Transport",
-    "total domestic aviation": "Transport",
-    "total international aviation": "Transport",
-    "total domestic navigation": "Transport",
-    "total international navigation": "Transport",
-    # Residential (electricity + BEWAL / boiler heat + district heating + retrofit)
-    "total electricity residential": "Residential",
-    "BEWAL residential urban decentral heat": "Residential",
-    "BEWAL residential rural heat": "Residential",
-    "residential urban decentral gas boiler": "Residential",
-    "residential urban decentral coal boiler": "Residential",
-    "residential urban decentral electric heater": "Residential",
-    "residential urban decentral heat pump": "Residential",
-    "residential urban decentral geothermal": "Residential",
-    "residential district heating": "Residential",
-    "residential urban decentral biomass boiler": "Residential",
-    "residential urban decentral solar thermal": "Residential",
-    "residential urban decentral oil boiler": "Residential",
-    "residential rural gas boiler": "Residential",
-    "residential rural coal boiler": "Residential",
-    "residential rural electric heater": "Residential",
-    "residential rural heat pump": "Residential",
-    "residential rural geothermal": "Residential",
-    "residential rural biomass boiler": "Residential",
-    "residential rural solar thermal": "Residential",
-    "residential rural oil boiler": "Residential",
-    "residential cooking": "Residential",
-    "retro": "Residential",
-    # Services / tertiary (commercial electricity + heat)
-    "total electricity services": "Services",
-    "BEWAL services urban decentral heat": "Services",
-    "services gas boiler": "Services",
-    "services biomass boiler": "Services",
-    "services heat pump": "Services",
-    "services district heating": "Services",
-    "services oil boiler": "Services",
-    "services geothermal": "Services",
-    "services electric heater": "Services",
-    "services solar thermal": "Services",
-    # Agriculture
-    "total agriculture": "Agriculture",
-    "total agriculture electricity": "Agriculture",
-    "total agriculture heat": "Agriculture",
-    "total agriculture machinery": "Agriculture",
+    cat: meta.sector for cat, meta in bundled_rule_metadata().items() if meta.sector
 }
 
 # Distinct, colour-blind-aware hues (tab10-derived). Green is reserved for
@@ -1265,7 +1208,7 @@ def refine_custom_labels_for_readability(
                 description=row.get("commodity", ""),
                 code=code,
                 carrier=row.get("pypsa_carrier", ""),
-                cluster=row.get("com_agg__Aggregation Level 1", ""),
+                cluster=row.get("commodity_cluster", ""),
             ) or _clean_text(overview_com_list[pos])
             # Keep specific CSV labels (e.g. Imported electricity / ELCIMP) so they
             # do not dissolve into Electricity (context) and create cross-links.
@@ -1319,7 +1262,7 @@ def _apply_column_agg_labels(df: pd.DataFrame, resolved: str) -> None:
         proc_labels = proc_labels.where(proc_labels.ne(""), _overview_process_series(df))
         com_labels = com_labels.where(com_labels.ne(""), _overview_commodity_series(df))
     else:
-        if resolved in {"Aggregation Level 1", "Aggregation Level 2", "custom"}:
+        if resolved in {"Aggregation Level 2", "custom"}:
             proc_fallback = _mapping_process_series(df)
         else:
             proc_fallback = _process_identity_series(df)
@@ -1367,9 +1310,13 @@ def aggregate_flows(
     ``level`` is a CSV column name shared by process and commodity mappings,
     or a legacy alias:
 
-    - ``mapping`` / ``Aggregation Level 2``: process_agg × pypsa_carrier (QA default)
+    - ``mapping`` / ``Aggregation Level 2``: process_agg × pypsa_carrier — the
+      grain ``extraction_rules.csv`` filters on (QA default)
+    - ``custom``: soft-link working level — export-touching L2 labels kept,
+      everything else collapsed to ``… (context)``
+    - ``sankey_overview``: whole-system overview, ≤20 nodes; also supplies the
+      context buckets ``custom`` collapses into
     - ``L0`` / ``Sector``: coarse sector view
-    - ``L1`` / ``Aggregation Level 1``: mid-level process grouping
     - ``L2``: individual process_code + commodity_code (no collapse)
 
     When enriched ``proc_agg__*`` / ``com_agg__*`` columns exist on ``flows``,

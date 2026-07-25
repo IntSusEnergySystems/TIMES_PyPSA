@@ -215,7 +215,8 @@ def build_parser() -> argparse.ArgumentParser:
         default="Aggregation Level 2",
         help=(
             "Sankey aggregation column shared by mapping_processes.csv and "
-            "mapping_commodities.csv (legacy aliases: L0, L1, L2, mapping)"
+            "mapping_commodities.csv: Sector, Aggregation Level 2 (alias "
+            "mapping), custom, sankey_overview (aliases: L0, L2)"
         ),
     )
     sankey_parser.set_defaults(func=cmd_sankey)
@@ -277,7 +278,8 @@ def build_parser() -> argparse.ArgumentParser:
         default="Aggregation Level 2",
         help=(
             "Sankey aggregation column shared by mapping_processes.csv and "
-            "mapping_commodities.csv (legacy aliases: L0, L1, L2, mapping)"
+            "mapping_commodities.csv: Sector, Aggregation Level 2 (alias "
+            "mapping), custom, sankey_overview (aliases: L0, L2)"
         ),
     )
     qa_parser.set_defaults(func=cmd_qa)

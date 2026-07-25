@@ -45,7 +45,7 @@ class TimesAnnualFlows:
 
     Columns on ``flows`` (energy VAR_FIn/VAR_FOut rows):
         year, region, variable, commodity_code, commodity, process_code, process,
-        value, sector, agg_level_1, agg_level_2, process_agg, pypsa_carrier,
+        value, sector, agg_level_2, process_agg, pypsa_carrier,
         commodity_sector (optional), proc_agg__*, com_agg__* (shared mapping columns)
     """
 
@@ -75,33 +75,24 @@ class TimesAnnualFlows:
 
 
 def _process_column_map(processes_df: pd.DataFrame) -> dict[str, dict[str, str]]:
-    """Map process_code → {sector, agg_level_1, agg_level_2, process_agg, process_type}."""
+    """Map process_code → {sector, agg_level_2, process_agg, process_type}."""
     out: dict[str, dict[str, str]] = {}
     if processes_df.empty or "Process" not in processes_df.columns:
         return out
+
+    def _clean(value: object) -> str:
+        text = str(value or "").strip()
+        return "" if text.lower() in {"nan", ""} else text
+
     for _, row in processes_df.iterrows():
         proc = str(row["Process"]).strip()
-        sector = str(row.get("Sector", "") or "").strip()
-        l1 = str(row.get("Aggregation Level 1", "") or "").strip()
-        l2 = str(row.get("Aggregation Level 2", "") or "").strip()
-        ptype = str(row.get("Type", "") or "").strip()
-        if l1.lower() in {"nan", ""}:
-            l1 = ""
-        if l2.lower() in {"nan", ""}:
-            l2 = ""
-        if sector.lower() in {"nan", ""}:
-            sector = ""
-        if ptype.lower() in {"nan", ""}:
-            ptype = ""
-        # process_agg is the label used by extraction_rules (historically
-        # stored as agg_level_1 but taken from Aggregation Level 2).
-        process_agg = l2 or l1
+        l2 = _clean(row.get("Aggregation Level 2"))
         out[proc] = {
-            "sector": sector,
-            "agg_level_1": l1,
+            "sector": _clean(row.get("Sector")),
             "agg_level_2": l2,
-            "process_agg": process_agg,
-            "process_type": ptype,
+            # process_agg is the label extraction_rules.csv filters on.
+            "process_agg": l2,
+            "process_type": _clean(row.get("Type")),
         }
     return out
 
@@ -163,9 +154,6 @@ def enrich_annual_flows(
     df["sector"] = df["process_code"].map(
         lambda p: proc_map.get(str(p).strip(), {}).get("sector", "")
     )
-    df["agg_level_1"] = df["process_code"].map(
-        lambda p: proc_map.get(str(p).strip(), {}).get("agg_level_1", "")
-    )
     df["agg_level_2"] = df["process_code"].map(
         lambda p: proc_map.get(str(p).strip(), {}).get("agg_level_2", "")
     )
@@ -175,15 +163,25 @@ def enrich_annual_flows(
     df["process_type"] = df["process_code"].map(
         lambda p: proc_map.get(str(p).strip(), {}).get("process_type", "")
     )
-    # Backward-compatible alias: extraction historically filtered on agg_level_1
-    # meaning Aggregation Level 2. Keep process_agg as canonical; also mirror
-    # process_agg into a dedicated extraction column used by rules.
+    # Backward-compatible alias: extraction historically filtered on a column
+    # named agg_level_1 that actually held Aggregation Level 2 labels.
+    # process_agg is canonical; this mirror keeps existing rule CSVs working.
     df["agg_level_1_for_rules"] = df["process_agg"]
     df["pypsa_carrier"] = df["commodity_code"].map(
         lambda c: commodity_pypsa_map.get(str(c).strip(), "")
     )
     df["commodity_sector"] = df["commodity_code"].map(
         lambda c: commodity_sectors.get(str(c).strip(), "")
+    )
+    # Carrier-family keyword hint for label heuristics (commodity mapping Cluster).
+    com_code_col_for_cluster = _commodity_code_column(commodities_df)
+    cluster_map = (
+        _code_column_map(commodities_df, com_code_col_for_cluster, "Cluster")
+        if com_code_col_for_cluster and "Cluster" in commodities_df.columns
+        else {}
+    )
+    df["commodity_cluster"] = df["commodity_code"].map(
+        lambda c, m=cluster_map: m.get(str(c).strip(), "")
     )
 
     shared_cols = shared_aggregation_columns(processes_df, commodities_df)

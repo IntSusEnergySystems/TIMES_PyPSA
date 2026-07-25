@@ -9,67 +9,29 @@ from typing import Iterable
 import pandas as pd
 
 from times_pypsa.aggregation import sankey_links_from_flows
+from times_pypsa.pipeline import RuleMetadata, bundled_rule_metadata
 
 logger = logging.getLogger(__name__)
 
-# Categories known to be zero in current TIMES-WAL scenarios (SOFTLINKING Q3)
+_RULE_METADATA = bundled_rule_metadata()
+
+#: Categories whose ``expect`` column declares them structurally zero.
 KNOWN_ZERO_CATEGORIES = frozenset(
-    {
-        "ammonia",
-        "methanol",
-        "total international navigation",
-        "coal",  # scen_corrige_251129: no hard-coal / lignite industry FIN in soft-link years
-    }
+    cat for cat, meta in _RULE_METADATA.items() if meta.expect == "zero"
 )
 
-# Parent → children: overlaps allowed (child ⊂ parent)
-ALLOWED_OVERLAPS: dict[str, frozenset[str]] = {
-    "BEWAL residential urban decentral heat": frozenset(
-        {
-            "residential urban decentral gas boiler",
-            "residential urban decentral coal boiler",
-            "residential urban decentral electric heater",
-            "residential urban decentral heat pump",
-            "residential urban decentral geothermal",
-            "residential urban decentral biomass boiler",
-            "residential urban decentral solar thermal",
-            "residential urban decentral oil boiler",
-        }
-    ),
-    "BEWAL residential rural heat": frozenset(
-        {
-            "residential rural gas boiler",
-            "residential rural coal boiler",
-            "residential rural electric heater",
-            "residential rural heat pump",
-            "residential rural geothermal",
-            "residential rural biomass boiler",
-            "residential rural solar thermal",
-            "residential rural oil boiler",
-        }
-    ),
-    "BEWAL services urban decentral heat": frozenset(
-        {
-            "services gas boiler",
-            "services biomass boiler",
-            "services heat pump",
-            "services oil boiler",
-            "services geothermal",
-            "services electric heater",
-            "services solar thermal",
-        }
-    ),
-    "total road": frozenset({"electricity road", "hydrogen road"}),
-    "total rail": frozenset({"electricity rail"}),
-    "total agriculture": frozenset(
-        {
-            "total agriculture electricity",
-            "total agriculture heat",
-            "total agriculture machinery",
-        }
-    ),
-    "total electricity residential": frozenset(),  # no children in rules
-}
+
+def _parent_child_map(metadata: dict[str, RuleMetadata]) -> dict[str, frozenset[str]]:
+    """Parent → children, from the ``parent`` column of the extraction rules."""
+    children: dict[str, set[str]] = defaultdict(set)
+    for category, meta in metadata.items():
+        if meta.parent:
+            children[meta.parent].add(category)
+    return {parent: frozenset(kids) for parent, kids in children.items()}
+
+
+#: Parent → children: overlaps allowed because the child is a subset of the parent.
+ALLOWED_OVERLAPS: dict[str, frozenset[str]] = _parent_child_map(_RULE_METADATA)
 
 
 def commodity_balance_vs_comnet(
