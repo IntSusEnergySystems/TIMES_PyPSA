@@ -5,3 +5,7 @@ __pycache__/
 # Temporary files
 .~lock.*#
 times_pypsa.egg-info/*
+
+# Local scenario data (not distributed with the package)
+data/*.vd
+data/*.vdt
