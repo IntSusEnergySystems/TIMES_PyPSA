@@ -1,13 +1,26 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# This script syncs the local output folder to the remote web directory.
+# Sync the local output folder to the remote web directory.
+# Credentials and paths live in rsync_output.config.sh (see .example).
 
-USER="labothap"
-PASS="B49ees32"
-DEST_DIR="/home/labothap/public_html/times_pypsa/"
-SRC_DIR="/home/sylvain/svn/TIMES_PyPSA/output/"
-HOST="labothap.squoilin.eu"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CONFIG_FILE="${SCRIPT_DIR}/rsync_output.config.sh"
+
+if [[ ! -f "$CONFIG_FILE" ]]; then
+  echo "Missing config: $CONFIG_FILE" >&2
+  echo "Copy scripts/rsync_output.config.example.sh to rsync_output.config.sh and edit it." >&2
+  exit 1
+fi
+
+# shellcheck source=/dev/null
+source "$CONFIG_FILE"
+
+: "${USER:?USER must be set in $CONFIG_FILE}"
+: "${PASS:?PASS must be set in $CONFIG_FILE}"
+: "${HOST:?HOST must be set in $CONFIG_FILE}"
+: "${DEST_DIR:?DEST_DIR must be set in $CONFIG_FILE}"
+: "${SRC_DIR:?SRC_DIR must be set in $CONFIG_FILE}"
 
 # Ensure sshpass exists
 if ! command -v sshpass >/dev/null 2>&1; then
@@ -33,5 +46,3 @@ sshpass -p "$PASS" \
     "$SRC_DIR" "$USER@$HOST:$DEST_DIR"
 
 echo "Sync completed successfully."
-
-

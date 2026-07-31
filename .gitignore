@@ -9,3 +9,6 @@ times_pypsa.egg-info/*
 # Local scenario data (not distributed with the package)
 data/*.vd
 data/*.vdt
+
+# Local deploy credentials (use rsync_output.config.example.sh as a template)
+scripts/rsync_output.config.sh
