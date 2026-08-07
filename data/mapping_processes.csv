@@ -57,7 +57,7 @@ CHBACPS100,COM,.PRE.,Com.Space Heat.BA.BIOCPS.00.Stove.,PJ,GW,PRE,CHBA,ANNUAL,"0
 CHBAELC100,COM,.PRE.,Com.Space Heat.BA.ELC.00.Resistance.,PJ,GW,PRE,CHBA,ANNUAL,"0,00",Commercial Biomass boiler,Buildings,Commercial Biomass boiler
 CHBAELC200,COM,.PRE.,Com.Space Heat.BA.ELC.00.Heat Pump.,PJ,GW,PRE,CHBA,ANNUAL,"0,00",Commercial Heat pump,Buildings,Commercial Heat pump
 CHBAELCHPR202,COM,.PRE.,Com Space Heat New Heat Pump With Reno - CO - ELC202,PJ,GW,PRE,CHBAELCHPR202_NRGO,ANNUAL,"0,00",Commercial Heat pump,Buildings,Commercial Heat pump
-CHBAGEO100,COM,.PRE.,Com.Space Heat.BA.GEO.00.Furnace.,PJ,GW,PRE,CHBA,ANNUAL,"0,00",Commercial gas boiler,Buildings,Commercial gas boiler
+CHBAGEO100,COM,.PRE.,Com.Space Heat.BA.GEO.00.Furnace.,PJ,GW,PRE,CHBA,ANNUAL,"0,00",commercial Geothermal,Buildings,commercial Geothermal
 CHBAGMX100,COM,.PRE.,Com.Space Heat.BA.GAS.00.Furnace.,PJ,GW,PRE,CHBA,ANNUAL,"0,00",Commercial gas boiler,Buildings,Commercial gas boiler
 CHBAGMX501,COM,.PRE.,Com Space Heat New Boiler - CO - GMX501,PJ,GW,PRE,CHBAGMX501_NRGO,ANNUAL,"0,00",Commercial gas boiler,Buildings,Commercial gas boiler
 CHBAHET100,COM,.PRE.,Com.Space Heat.BA.LTH.00.Heat exchanger.,PJ,GW,PRE,CHBA,ANNUAL,"0,00",Commercial Heat Exchanger,District heating,Commercial Heat Exchanger
@@ -135,7 +135,7 @@ CHPINDISG00,IND,.CHP.,CHP.Autoproducer.Industry.FOOD.ISGar.00,PJ,GW,CHP,CHPINDIS
 CHPINDWSTIPPN00_N,IND,.CHP.,CHP.Autoproducer.Industry.Pulp&Paper_WST-New 00_N,PJ,GW,CHP,CHPINDWSTIPPN00_N_NRGO,DAYNITE,"1,00",Industry,CHP,CHP
 CHSABGS100,COM,.PRE.,Com.Space Heat.SA.BGS.00.Furnace.,PJ,GW,PRE,CHSA,ANNUAL,"0,00",Commercial gas boiler,Buildings,Commercial gas boiler
 CHSACPS100,COM,.PRE.,Com.Space Heat.SA.BIOCPS.00.Stove.,PJ,GW,PRE,CHSA,ANNUAL,"0,00",Commercial Biomass boiler,Buildings,Commercial Biomass boiler
-CHSADUM-DEM,COM,.DMD.,Commercial dummy tech from CHP heat to CH for CHSA,PJ,PJ,DMD,CHSA,ANNUAL,"0,00",other demand,Buildings,Buildings (other)
+CHSADUM-DEM,COM,.DMD.,Commercial dummy tech from CHP heat to CH for CHSA,PJ,PJ,DMD,CHSA,ANNUAL,"0,00",Commercial CHP heat,Buildings,Commercial CHP heat
 CHSAELC100,COM,.PRE.,Com.Space Heat.SA.ELC.00.Resistance.,PJ,GW,PRE,CHSA,ANNUAL,"0,00",Commercial electrical stove,Buildings,Commercial electrical stove
 CHSAELC200,COM,.PRE.,Com.Space Heat.SA.ELC.00.Heat Pump.,PJ,GW,PRE,CHSA,ANNUAL,"0,00",Commercial Heat pump,Buildings,Commercial Heat pump
 CHSAGEO100,COM,.PRE.,Com.Space Heat.SA.GEO.00.Furnace.,PJ,GW,PRE,CHSA,ANNUAL,"0,00",commercial Geothermal,Buildings,commercial Geothermal
@@ -1119,7 +1119,7 @@ RW4FELCHPN1,RSD,,Electric heat pump water heater-RW4F-New1,PJ,,PRE,,,,Residentia
 RWAPELCHPN1,RSD,,Electric heat pump water heater-RWAP-New1,PJ,,PRE,,,,Residential urban decentral Heat pump,Buildings,Residential urban decentral Heat pump
 RH3FLOGN2,RSD,,Log Boiler.HeatHotwater New-RH3F-New2,PJ,,PRE,,,,Residential urban decentral biomass heater,Buildings,Residential urban decentral biomass heater
 RH4FLOGN2,RSD,,Log Boiler.HeatHotwater New-RH4F-New2,PJ,,PRE,,,,Residential urban decentral biomass heater,Buildings,Residential urban decentral biomass heater
-RH3FLPGN2,RSD,,LPG boiler-RH3F-New2,PJ,,PRE,,,,Residential urban decentral oil heater,Buildings,Residential urban decentral oil heater
+RH3FLPGN2,RSD,,LPG boiler-RH3F-New2,PJ,,PRE,,,,Residential rural oil heater,Buildings,Residential rural oil heater
 CWNBAPEL101,COM,,Com Water Heat New Boiler - NBA - PEL101,PJ,,PRE,,,,Commercial Biomass boiler,Buildings,Commercial Biomass boiler
 CWNBPPEL101,COM,,Com Water Heat New Boiler - NBP - PEL101,PJ,,PRE,,,,Commercial Biomass boiler,Buildings,Commercial Biomass boiler
 CWNCOPEL101,COM,,Com Water Heat New Boiler - NCO - PEL101,PJ,,PRE,,,,Commercial Biomass boiler,Buildings,Commercial Biomass boiler
@@ -1129,7 +1129,7 @@ ECHPP_CHP_WOO_N,ELC,,New Public - Biomass CHP,PJ,,CHP,,,,CHP,CHP,CHP
 Retrofit-M_R_2Fac1976,RSD,,Retrofit Murs Dwellings R_2Fac1976,PJ,,PRE,,,,Retrofitting improvements,Buildings,Building retrofits
 Retrofit-M_R_3Fac1958,RSD,,Retrofit Murs Dwellings R_3Fac1958,PJ,,PRE,,,,Retrofitting improvements,Buildings,Building retrofits
 CHNCSELCHP401,COM,,Com Space Heat New heat pump - NCS - ELC401,PJ,,PRE,,,,Commercial Heat pump,Buildings,Commercial Heat pump
-SELCH2EC01,SUP,,"H2 Production-Alkaline Electrolyser, large size, centralized",PJ,,PRE,,,,Fuel Tech - H2,Fuel conversion,Fuel Tech - H2
+SELCH2EC01,SUP,,"H2 Production-Alkaline Electrolyser, large size, centralized",PJ,,PRE,,,,SUP_PRE_PJ_GW,Fuel conversion,H2 production
 IGHHOLLOWELC01,IND,,IGH.glass production.04,PJ,,DMD,,,,Industry,Industry,Industry
 INMSTMHH201,IND,,INMSTMHH201,PJ,,PRE,,,,Industry,Industry,Industry
 RH4FELCHPN4,RSD,,Air heat pump with electric boiler-RH4F-New4,PJ,,PRE,,,,Residential urban decentral Heat pump,Buildings,Residential urban decentral Heat pump
@@ -1147,7 +1147,7 @@ IPOHTHSTMELC01,IND,,IPO.Preparation.of.potatoes.Process Heat.ELC.01,PJ,,PRE,,,,I
 ICHSTMHH201,IND,,ICHSTMHH201,PJ,,PRE,,,,Industry,Industry,Industry
 RHN3FELCHPN1,RSD,,Air heat pump with electric boiler-RHN3F-New1,PJ,,PRE,,,,Residential urban decentral Heat pump,Buildings,Residential urban decentral Heat pump
 RSDLIONBATS01,RSD,,Residential Li-ion battery storage,PJ,,STG,,,,residential battery storage,Buildings,Household battery storage
-RH4FLPGN2,RSD,,LPG boiler-RH4F-New2,PJ,,PRE,,,,Residential urban decentral oil heater,Buildings,Residential urban decentral oil heater
+RH4FLPGN2,RSD,,LPG boiler-RH4F-New2,PJ,,PRE,,,,Residential rural oil heater,Buildings,Residential rural oil heater
 Retrofit-M_R_3Fac2005,RSD,,Retrofit Murs Dwellings R_3Fac2005,PJ,,PRE,,,,Retrofitting improvements,Buildings,Building retrofits
 CCOKELC101,COM,,Com.Cooking.ELC.01.Stove.,PJ,,DMD,,,,commercial other,Buildings,Commercial cooking
 CHNBAELCHP201,COM,,Com Space Heat New heat pump - NBA - ELC201,PJ,,PRE,,,,Commercial Heat pump,Buildings,Commercial Heat pump
@@ -1192,7 +1192,7 @@ CWNENELC101,COM,,Com Water Heat New Boiler - NEN - ELC101,PJ,,PRE,,,,Commercial 
 CWNSAELC101,COM,,Com Water Heat New Boiler - NSA - ELC101,PJ,,PRE,,,,Commercial electrical stove,Buildings,Commercial electrical stove
 CWSAELC101,COM,,Com Water Heat New Boiler - SA - ELC101,PJ,,PRE,,,,Commercial electrical stove,Buildings,Commercial electrical stove
 TRAGH2C02,SUP,,Fuel Tech - H2 Delivery from centralized production (COMP+TR+LIQ+LSTORB+RTS+REFLG(large)),PJ,,PRE,,,,Fuel Tech - H2,Fuel conversion,Fuel Tech - H2
-ETSTP_NUC-LWR-GEN3_NUC_N,ELC,,New Thermal Public - Nuclear - Generation III light water reactor.,PJ,,ELE,,,,Gas power plants,Power plants,Power plants
+ETSTP_NUC-LWR-GEN3_NUC_N,ELC,,New Thermal Public - Nuclear - Generation III light water reactor.,PJ,,ELE,,,,Nuclear power plants,Power plants,Power plants
 INFPRCHH202,IND,,INFPRCHH202,PJ,,PRE,,,,Industry,Industry,Industry
 INMPRCHH202,IND,,INMPRCHH202,PJ,,PRE,,,,Industry,Industry,Industry
 RH3FELCHPN4,RSD,,Air heat pump with electric boiler-RH3F-New4,PJ,,PRE,,,,Residential urban decentral Heat pump,Buildings,Residential urban decentral Heat pump
@@ -1204,3 +1204,87 @@ Retrofit-T_R_4Fac1958,RSD,,Retrofit Toits Dwellings R_4Fac1958,PJ,,PRE,,,,Retrof
 MINRSDAHT,SUP,.MIN.IRE.,Mining Ambient Heat,PJ,-,IRE,RSDAHT,ANNUAL,"0,00",Local production,Local production,Local production
 MINCOMAHT,SUP,.MIN.IRE.,Mining Commercial Ambient Heat,PJ,-,IRE,COMAHT,ANNUAL,"0,00",Local production,Local production,Local production
 BWSUPGZH100,SUP,.PRE.,épuration pour injection,PJ,GW,PRE,BIOGZH,ANNUAL,,Biogas production,Local production,Local production
+RH2FPELN2,RSD,.PRE.,Pellets Boiler.HeatHotwater New-RH2F-New2,PJ,GW,PRE,RH2FPELN2_NRGO,ANNUAL,"1,00",Residential urban decentral biomass heater,Buildings,Residential urban decentral biomass heater
+RW2FPELN3,RSD,.PRE.,Wood pellets boiler water heater-RW2F-New3,PJ,GW,PRE,RW2F,ANNUAL,"1,00",Residential urban decentral biomass heater,Buildings,Residential urban decentral biomass heater
+RW4FPELN3,RSD,.PRE.,Wood pellets boiler water heater-RW4F-New3,PJ,GW,PRE,RW4F,ANNUAL,"1,00",Residential rural biomass heater,Buildings,Residential rural biomass heater
+RWAPPELN3,RSD,.PRE.,Wood pellets boiler water heater-RWAP-New3,PJ,GW,PRE,RWAP,ANNUAL,"1,00",Residential urban decentral biomass heater,Buildings,Residential urban decentral biomass heater
+RWN2FGMXN3,RSD,.PRE.,Natural gas boiler-RWN2F-New3,PJ,GW,PRE,RWN2F,ANNUAL,"1,00",Residential urban decentral gas heater,Buildings,Residential urban decentral gas heater
+RHN2FLOGN2,RSD,.PRE.,LOG Boiler.HeatHotwater New-RHN2F-New2,PJ,GW,PRE,RHN2FLOGN2_NRGO,ANNUAL,"1,00",Residential urban decentral biomass heater,Buildings,Residential urban decentral biomass heater
+RHN4FLOGN2,RSD,.PRE.,LOG Boiler.HeatHotwater New-RHN4F-New2,PJ,GW,PRE,RHN4FLOGN2_NRGO,ANNUAL,"1,00",Residential rural biomass heater,Buildings,Residential rural biomass heater
+RHNAPLOGN2,RSD,.PRE.,LOG Boiler.HeatHotwater New-RHNAP-New2,PJ,GW,PRE,RHNAPLOGN2_NRGO,ANNUAL,"1,00",Residential urban decentral biomass heater,Buildings,Residential urban decentral biomass heater
+RHN3FGMXN2,RSD,.PRE.,Natural gas boiler condensing-RHN3F-New2,PJ,GW,PRE,RHN3FGMXN2_NRGO,ANNUAL,"1,00",Residential rural gas heater,Buildings,Residential rural gas heater
+CHBAGEO101,COM,.PRE.,Com Space Heat New FC - BA - GEO101,PJ,GW,PRE,CHBA,ANNUAL,"0,00",commercial Geothermal,Buildings,commercial Geothermal
+CHBPGEO101,COM,.PRE.,Com Space Heat New FC - BP - GEO101,PJ,GW,PRE,CHBP,ANNUAL,"0,00",commercial Geothermal,Buildings,commercial Geothermal
+CHCOGEO101,COM,.PRE.,Com Space Heat New FC - CO - GEO101,PJ,GW,PRE,CHCO,ANNUAL,"0,00",commercial Geothermal,Buildings,commercial Geothermal
+CHENGEO101,COM,.PRE.,Com Space Heat New FC - EN - GEO101,PJ,GW,PRE,CHEN,ANNUAL,"0,00",commercial Geothermal,Buildings,commercial Geothermal
+CWSAGEO101,COM,.PRE.,Com Water Heat New Boiler - SA - GEO101,PJ,GW,PRE,CWSA,ANNUAL,,commercial Geothermal,Buildings,commercial Geothermal
+CWNBAGEO101,COM,.PRE.,Com Water Heat New Boiler - NBA - GEO101,PJ,GW,PRE,CWNBA,ANNUAL,"0,00",commercial Geothermal,Buildings,commercial Geothermal
+CWNENGEO101,COM,.PRE.,Com Water Heat New Boiler - NEN - GEO101,PJ,GW,PRE,CWNEN,ANNUAL,,commercial Geothermal,Buildings,commercial Geothermal
+RHN3FLOGN2,RSD,.PRE.,LOG Boiler.HeatHotwater New-RHN3F-New2,PJ,GW,PRE,RHN3FLOGN2_NRGO,ANNUAL,"1,00",Residential rural biomass heater,Buildings,Residential rural biomass heater
+CHENELC201,COM,.PRE.,Com Space Heat New Boiler - EN - ELC201,PJ,GW,PRE,CHEN,ANNUAL,"0,00",Commercial electrical stove,Buildings,Commercial electrical stove
+CO2CTOMETHELC,SUP,.PRE.,CO2CTOMETHELC,PJ,PJA,PRE,CO2CTOMETHELC_NRGO,DAYNITE,"1,00",SUP_PRE_PJ_GW,Local production,Local production
+ETSTP_NUC-LWR-SM_NUC_N,ELC,.ELE.,New Thermal Public - Nuclear - Small and Medium sized light water reactor,PJ,GW,ELE,ELCHIG,ANNUAL,"1,00",Nuclear power plants,Power plants,Power plants
+IBOHTHSTMELC01,IND,.PRE.,IBO.wood.Process Heat.ELC.00,PJ,GW,PRE,IBOHTH,ANNUAL,"1,00",Industry,Industry,Industry
+ICHPRCELC01,IND,.PRE.,ICHPRCELC01,PJ,GW,PRE,ICHPRC,ANNUAL,"1,00",Industry,Industry,Industry
+ICOMCHELC00,IND,.PRE.,ICOMCHELC00,PJ,PJA,PRE,ICOMCH,ANNUAL,"0,00",Industry,Industry,Industry
+ICOMCHELC01,IND,.PRE.,ICOMCHELC01,PJ,PJA,PRE,ICOMCH,ANNUAL,"1,00",Industry,Industry,Industry
+ICOMCHLFO00,IND,.PRE.,ICOMCHLFO00,PJ,PJA,PRE,ICOMCH,ANNUAL,"0,00",Industry,Industry,Industry
+ICOMCHLPG00,IND,.PRE.,ICOMCHLPG00,PJ,PJA,PRE,ICOMCH,ANNUAL,"0,00",Industry,Industry,Industry
+ICOSTMELC00,IND,.PRE.,ICOSTMELC00,PJ,PJA,PRE,ICOSTM,ANNUAL,"0,00",Industry,Industry,Industry
+ICOSTMGAS00,IND,.PRE.,ICOSTMGAS00,PJ,PJA,PRE,ICOSTM,ANNUAL,"0,00",Industry,Industry,Industry
+ICOSTMGMX00,IND,.PRE.,ICOSTMGMX00,PJ,PJA,PRE,ICOSTM,ANNUAL,"0,00",Industry,Industry,Industry
+ICOSTMGMX01,IND,.PRE.,ICOSTMGMX01,PJ,PJA,PRE,ICOSTM,ANNUAL,"1,00",Industry,Industry,Industry
+ICOSTMLFO00,IND,.PRE.,ICOSTMLFO00,PJ,PJA,PRE,ICOSTM,ANNUAL,"0,00",Industry,Industry,Industry
+ICOSTMLFO01,IND,.PRE.,ICOSTMLFO01,PJ,PJA,PRE,ICOSTM,ANNUAL,"1,00",Industry,Industry,Industry
+ICOSTMLPG00,IND,.PRE.,ICOSTMLPG00,PJ,PJA,PRE,ICOSTM,ANNUAL,"0,00",Industry,Industry,Industry
+ILMPRCHFO00,IND,.PRE.,ILMPRCHFO00,PJ,PJA,PRE,ILMPRC,ANNUAL,"0,00",Industry,Industry,Industry
+IMLHTHPACELC01,IND,.PRE.,IML.Preparation.of.milk.Process Heat pump.ELC.02,PJ,GW,PRE,IMLHTH,ANNUAL,"1,00",Industry,Industry,Industry
+IMLHTHSTMELC01,IND,.PRE.,IML.Preparation.of.milk.Process Heat.ELC.01,PJ,GW,PRE,IMLHTH,ANNUAL,"1,00",Industry,Industry,Industry
+INFPACELC01,IND,.PRE.,INFPACELC01,PJ,GW,PRE,INFHTH,ANNUAL,"1,00",Industry,Industry,Industry
+INFSTMBGS01,IND,.PRE.,INFSTMBGS01,PJ,GW,PRE,INFHTH,ANNUAL,"1,00",Industry,Industry,Industry
+INFSTMELC01,IND,.PRE.,INFSTMELC01,PJ,GW,PRE,INFHTH,ANNUAL,"1,00",Industry,Industry,Industry
+INFSTMHH201,IND,.PRE.,INFSTMHH201,PJ,GW,PRE,INFHTH,ANNUAL,"1,00",Industry,Industry,Industry
+INMPRCELC01,IND,.PRE.,INMPRCELC01,PJ,GW,PRE,INMPRC,ANNUAL,"1,00",Industry,Industry,Industry
+IQRDRYGMX00,IND,.PRE.,IQRDRYGMX00,PJ,PJA,PRE,IQRDRY,ANNUAL,"0,00",Industry,Industry,Industry
+IQRDRYGMX01,IND,.PRE.,IQRDRYGMX01,PJ,PJA,PRE,IQRDRY,ANNUAL,"1,00",Industry,Industry,Industry
+IQRDRYLFO01,IND,.PRE.,IQRDRYLFO01,PJ,PJA,PRE,IQRDRY,ANNUAL,"1,00",Industry,Industry,Industry
+IQREXCELC01,IND,.PRE.,IQREXCELC01,PJ,PJA,PRE,IQREXC,ANNUAL,"1,00",Industry,Industry,Industry
+IQREXCLFO00,IND,.PRE.,IQREXCLFO00,PJ,PJA,PRE,IQREXC,ANNUAL,"0,00",Industry,Industry,Industry
+IQRMCHELC00,IND,.PRE.,IQRMCHELC00,PJ,PJA,PRE,IQRMCH,ANNUAL,"0,00",Industry,Industry,Industry
+IQRMCHELC01,IND,.PRE.,IQRMCHELC01,PJ,PJA,PRE,IQRMCH,ANNUAL,"1,00",Industry,Industry,Industry
+ISGHTHSTMELC01,IND,.PRE.,ISG.Preparation.of.sugar.Process Heat.ELC.01,PJ,GW,PRE,ISGHTH,ANNUAL,"1,00",Industry,Industry,Industry
+MINRENMINGEO,SUP,.MIN.IRE.,MINRENMINGEO,PJ,-,IRE,RENMINGEO,ANNUAL,"0,00",Local production,Local production,Local production
+SELCH2EC02,SUP,.PRE.,"H2 Production-Alkaline Electrolyser, medium size, centralized",PJ,GW,PRE,SELCH2EC02_MATO,DAYNITE,"1,00",SUP_PRE_PJ_GW,Fuel conversion,H2 production
+SELCH2PEM01,SUP,.PRE.,PEM Electrolyzer - Proton Exchange Membrane - Start 2015,PJ,GW,PRE,SELCH2PEM01_MATO,DAYNITE,"1,00",SUP_PRE_PJ_GW,Fuel conversion,H2 production
+RHAPPELN2,RSD,.PRE.,Pellets Boiler.HeatHotwater New-RHAP-New2,PJ,GW,PRE,RHAPPELN2_NRGO,ANNUAL,"1,00",Residential urban decentral biomass heater,Buildings,Residential urban decentral biomass heater
+CHSAGEO101,COM,.PRE.,Com Space Heat New FC - SA - GEO101,PJ,GW,PRE,CHSA,ANNUAL,,commercial Geothermal,Buildings,commercial Geothermal
+CWBPGEO101,COM,.PRE.,Com Water Heat New Boiler - BP - GEO101,PJ,GW,PRE,CWBP,ANNUAL,"0,00",commercial Geothermal,Buildings,commercial Geothermal
+CWNSAGEO101,COM,.PRE.,Com Water Heat New Boiler - NSA - GEO101,PJ,GW,PRE,CWNSA,ANNUAL,,commercial Geothermal,Buildings,commercial Geothermal
+CWNBPGEO101,COM,.PRE.,Com Water Heat New Boiler - NBP - GEO101,PJ,GW,PRE,CWNBP,ANNUAL,"0,00",commercial Geothermal,Buildings,commercial Geothermal
+CWNCSGEO101,COM,.PRE.,Com Water Heat New Boiler - NCS - GEO101,PJ,GW,PRE,CWNCS,ANNUAL,"0,00",commercial Geothermal,Buildings,commercial Geothermal
+CWBAPEL101,COM,.PRE.,Com Water Heat New Boiler - BA - PEL101,PJ,GW,PRE,CWBA,ANNUAL,"0,00",Commercial Biomass boiler,Buildings,Commercial Biomass boiler
+CHNSALTH101,COM,.PRE.,Com Space Heat New Heat Exchanger - NSA - HET101,PJ,GW,PRE,CHNSALTH101_NRGO,ANNUAL,,Commercial Heat Exchanger,District heating,Commercial Heat Exchanger
+CHNCOLTH101,COM,.PRE.,Com Space Heat New Heat Exchanger - NCO - HET101,PJ,GW,PRE,CHNCOLTH101_NRGO,ANNUAL,"0,00",Commercial Heat Exchanger,District heating,Commercial Heat Exchanger
+CHNENLTH101,COM,.PRE.,Com Space Heat New Heat Exchanger - NEN - HET101,PJ,GW,PRE,CHNENLTH101_NRGO,ANNUAL,,Commercial Heat Exchanger,District heating,Commercial Heat Exchanger
+CHNBALTH101,COM,.PRE.,Com Space Heat New Heat Exchanger - NBA - HET101,PJ,GW,PRE,CHNBALTH101_NRGO,ANNUAL,"0,00",Commercial Heat Exchanger,District heating,Commercial Heat Exchanger
+CHBPLPG301,COM,.PRE.,Com Space Heat New Boiler - BP - LPG301,PJ,GW,PRE,CHBPLPG301_NRGO,ANNUAL,"0,00",Commercial gas boiler,Buildings,Commercial gas boiler
+CHENLPG301,COM,.PRE.,Com Space Heat New Boiler - EN - LPG301,PJ,GW,PRE,CHENLPG301_NRGO,ANNUAL,"0,00",Commercial gas boiler,Buildings,Commercial gas boiler
+Retrofit-F_R_3Fac1945,RSD,.PRE.,Retrofit Fenetres Dwellings R_3Fac1945,PJ,MM2,PRE,Retrofit-F_R_3Fac1945_NRGI,ANNUAL,"0,00",Retrofitting improvements,Buildings,Building retrofits
+Retrofit-F_R_3Fac1976,RSD,.PRE.,Retrofit Fenetres Dwellings R_3Fac1976,PJ,MM2,PRE,Retrofit-F_R_3Fac1976_NRGI,ANNUAL,"0,00",Retrofitting improvements,Buildings,Building retrofits
+Retrofit-F_R_Appa1958,RSD,.PRE.,Retrofit Fenetres Dwellings R_Appa1958,PJ,MM2,PRE,Retrofit-F_R_Appa1958_NRGI,ANNUAL,"0,00",Retrofitting improvements,Buildings,Building retrofits
+Retrofit-M_R_2Fac1958,RSD,.PRE.,Retrofit Murs Dwellings R_2Fac1958,PJ,MM2,PRE,Retrofit-M_R_2Fac1958_NRGI,ANNUAL,"0,00",Retrofitting improvements,Buildings,Building retrofits
+Retrofit-M_R_2Fac2005,RSD,.PRE.,Retrofit Murs Dwellings R_2Fac2005,PJ,MM2,PRE,Retrofit-M_R_2Fac2005_NRGI,ANNUAL,"0,00",Retrofitting improvements,Buildings,Building retrofits
+Retrofit-T_R_4Fac1945,RSD,.PRE.,Retrofit Toits Dwellings R_4Fac1945,PJ,MM2,PRE,Retrofit-T_R_4Fac1945_NRGI,ANNUAL,"0,00",Retrofitting improvements,Buildings,Building retrofits
+Retrofit-T_R_Appa2005,RSD,.PRE.,Retrofit Toits Dwellings R_Appa2005,PJ,MM2,PRE,Retrofit-T_R_Appa2005_NRGI,ANNUAL,"0,00",Retrofitting improvements,Buildings,Building retrofits
+IOFSTMPEL01,IND,.PRE.,IOFSTMPEL01,PJ,GW,PRE,IOFHTH,ANNUAL,"1,00",Industry,Industry,Industry
+IOFSTMGMX01,IND,.PRE.,IOFSTMGMX01,PJ,GW,PRE,IOFHTH,ANNUAL,"1,00",Industry,Industry,Industry
+INFSTMCOK01,IND,.PRE.,INFSTMCOK01,PJ,GW,PRE,INFHTH,ANNUAL,"1,00",Industry,Industry,Industry
+INMSTMPEL01,IND,.PRE.,INMSTMPEL01,PJ,GW,PRE,INMHTH,ANNUAL,"1,00",Industry,Industry,Industry
+IPOHTHPACELC01,IND,.PRE.,IPO.Preparation.of.potatoes.Process Heat.CPS.05,PJ,GW,PRE,IPOHTH,ANNUAL,"1,00",Industry,Industry,Industry
+ICHPRCGMX01,IND,.PRE.,ICHPRCGMX01,PJ,GW,PRE,ICHPRC,ANNUAL,"1,00",Industry,Industry,Industry
+CHPINDBGSIPON00_N,IND,.CHP.,CHP.Autoproducer.Industry.FOOD.IPO.bgs-New 00_N,PJ,GW,CHP,CHPINDBGSIPON00_N_NRGO,DAYNITE,"1,00",Industry,CHP,CHP
+CHPINDPELICHN00_N,IND,.CHP.,CHP.Autoproducer.Industry.Chemical_PEL-New 00_N,PJ,GW,CHP,CHPINDPELICHN00_N_NRGO,DAYNITE,"1,00",Industry,CHP,CHP
+CHPINDBGSIOIN00_N,IND,.CHP.,CHP.Autoproducer.Industry.Others_BGS-New 00_N,PJ,GW,CHP,CHPINDBGSIOIN00_N_NRGO,DAYNITE,"1,00",Industry,CHP,CHP
+IMPBIOGZH,SUP,.IMP.IRE.,Import de biogaz épuré,PJ,-,IRE,BIOGZH,ANNUAL,"0,00",Imports,Imports & trade,Imports & trade
+TRAGH2C02_I,SUP,.PRE.,TRAGH2C02_I,PJ,PJ-A,PRE,TRAGH2,DAYNITE,,Fuel Tech - H2,Fuel conversion,Fuel Tech - H2
+TRALH2C02,SUP,.PRE.,Fuel Tech - H2 Delivery from centralized production (COMP+TR+LIQ+LSTORB+RTS+REFLL(large)),PJ,PJ-A,PRE,TRALH2,DAYNITE,,Fuel Tech - H2,Fuel conversion,Fuel Tech - H2

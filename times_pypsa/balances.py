@@ -322,6 +322,7 @@ def parent_child_sum_checks(
                 "services geothermal",
                 "services electric heater",
                 "services solar thermal",
+                "services CHP heat",
             ],
         ),
     ]
@@ -543,6 +544,252 @@ def process_io_ratios(
             out[col] = out[by].map(first).fillna("")
     out["throughput"] = out[["inflow", "outflow"]].max(axis=1)
     return out.sort_values("throughput", ascending=False).drop(columns=["throughput"])
+
+
+#: Sectors whose *service output* pypsa-wal imports as a demand. A useful-heat or
+#: service commodity produced here and matched by no rule is energy PyPSA never sees.
+DEMAND_SECTORS = frozenset({"RSD", "COM", "AGR"})
+
+#: PyPSA carriers the extraction rules claim to transfer as a **service output**
+#: (``measure_at = service_output``) — today that is ``Heat`` and nothing else.
+#:
+#: Scoping the service-output check to these is what makes it a *closure* test
+#: rather than noise. A demand sector also produces onto fuel commodities
+#: (``RSDELC``, ``RSDGMX``, lighting, cooling …) that the soft-link deliberately
+#: measures on the ``VAR_FIn`` side or not at all; counting those as "gap" buries
+#: the real signal under ~280 PJ of by-design exclusions — the same mistake that
+#: made the existing ``VAR_FIn`` coverage-gap table unreadable.
+#:
+#: Self-configuring: add a ``service_output`` rule on a new carrier and it is
+#: covered automatically.
+SERVICE_OUTPUT_CARRIERS = frozenset(
+    meta.carrier
+    for meta in _RULE_METADATA.values()
+    if meta.measure_at == "service_output" and meta.carrier
+)
+
+
+def unmapped_process_report(
+    flows: pd.DataFrame,
+    mapped_processes: Iterable[str] | None = None,
+    *,
+    min_pj: float = 0.0,
+) -> pd.DataFrame:
+    """
+    Energy-carrier flows whose process carries **no** ``Aggregation Level 2`` label.
+
+    This is the root-cause check for the whole extraction: every rule in
+    ``extraction_rules.csv`` filters on ``process_agg`` (= ``Aggregation Level 2``),
+    so a process with a blank label can never be matched by any rule, in any
+    sector, on either the ``VAR_FIn`` or the ``VAR_FOut`` side. Its energy is not
+    "excluded" — it is invisible.
+
+    Every other coverage check in this module is *relative to the rules*
+    (:func:`parent_child_sum_checks` compares rule totals to rule totals;
+    ``export_reconciliation`` compares tagged to coloured). They all pass while a
+    process is missing from ``mapping_processes.csv``, because it contributes zero
+    to both sides. This check is the only one that compares the rules to the
+    ``.vd``.
+
+    It found the 2026 Walloon heat leak: 16 building heating processes had no
+    mapping row, so 2.2–7.7 % of TIMES appliance heat never reached PyPSA.
+
+    ``mapped_processes`` (the ``Process`` column of ``mapping_processes.csv``)
+    splits the cause into ``missing_row`` (the mapping file lags the ``.vd``) and
+    ``blank_label`` (row present, label empty). Omit it and every row is reported
+    as ``blank_label``.
+
+    Returns one row per process, largest gross throughput first. **Empty is the
+    expected result.**
+    """
+    cols = [
+        "process_code",
+        "process",
+        "sector",
+        "reason",
+        "fin_pj",
+        "fout_pj",
+        "gross_pj",
+        "commodities",
+    ]
+    if flows is None or flows.empty or "process_agg" not in flows.columns:
+        return pd.DataFrame(columns=cols)
+
+    label = flows["process_agg"].astype(str).str.strip()
+    unlabelled = flows[label.isin(("", "nan", "None"))]
+    if unlabelled.empty:
+        return pd.DataFrame(columns=cols)
+
+    known = (
+        {str(p).strip() for p in mapped_processes}
+        if mapped_processes is not None
+        else None
+    )
+    var = unlabelled["variable"].astype(str).str.upper()
+    rows = []
+    for code, grp in unlabelled.groupby(unlabelled["process_code"].astype(str)):
+        gvar = var.loc[grp.index]
+        fin = float(grp.loc[gvar == "VAR_FIN", "value"].sum())
+        fout = float(grp.loc[gvar == "VAR_FOUT", "value"].sum())
+        if fin + fout <= min_pj:
+            continue
+        if known is None:
+            reason = "blank_label"
+        else:
+            reason = "blank_label" if code.strip() in known else "missing_row"
+        name = str(grp["process"].iloc[0]) if "process" in grp.columns else code
+        sector = ""
+        if "commodity_sector" in grp.columns:
+            sectors = sorted(
+                {s for s in grp["commodity_sector"].astype(str) if s and s != "nan"}
+            )
+            sector = "|".join(sectors)
+        commodities = "|".join(
+            sorted({str(c) for c in grp["commodity_code"].astype(str)})[:8]
+        )
+        rows.append(
+            {
+                "process_code": code,
+                "process": name,
+                "sector": sector,
+                "reason": reason,
+                "fin_pj": fin,
+                "fout_pj": fout,
+                "gross_pj": fin + fout,
+                "commodities": commodities,
+            }
+        )
+    if not rows:
+        return pd.DataFrame(columns=cols)
+    return (
+        pd.DataFrame(rows, columns=cols)
+        .sort_values("gross_pj", ascending=False)
+        .reset_index(drop=True)
+    )
+
+
+def service_output_coverage(
+    tagged: pd.DataFrame,
+    *,
+    demand_sectors: frozenset[str] = DEMAND_SECTORS,
+    service_carriers: frozenset[str] = SERVICE_OUTPUT_CARRIERS,
+) -> pd.DataFrame:
+    """
+    Closure of demand-sector **service output** (``VAR_FOut``): produced vs exported.
+
+    The pre-existing coverage-gap check scans ``VAR_FIn`` only, so it is blind by
+    construction to the rules that measure a *service output* — which is every
+    building-heat rule (``measure_at = service_output``). This is the missing
+    mirror: for each PyPSA carrier produced onto a demand-sector commodity, how
+    much of it any rule matched.
+
+    Keyed on ``commodity_sector`` (from ``mapping_commodities.csv``), **not** on the
+    process's sector: a process absent from ``mapping_processes.csv`` has no sector
+    at all, so a process-side filter silently drops exactly the rows that matter.
+
+    A non-zero ``gap_pj`` on a carrier pypsa-wal consumes (``Heat`` above all) means
+    TIMES produced service energy that the soft-link does not transfer.
+    """
+    cols = [
+        "commodity_sector",
+        "pypsa_carrier",
+        "produced_pj",
+        "exported_pj",
+        "gap_pj",
+        "exported_share",
+        "n_unexported_rows",
+    ]
+    required = {"variable", "pypsa_carrier", "commodity_sector", "exported", "value"}
+    if tagged is None or tagged.empty or not required.issubset(tagged.columns):
+        return pd.DataFrame(columns=cols)
+
+    fout = tagged[tagged["variable"].astype(str).str.upper() == "VAR_FOUT"].copy()
+    fout["commodity_sector"] = fout["commodity_sector"].astype(str).str.strip()
+    fout["pypsa_carrier"] = fout["pypsa_carrier"].astype(str).str.strip()
+    fout = fout[
+        fout["commodity_sector"].isin(demand_sectors)
+        & fout["pypsa_carrier"].isin(service_carriers)
+    ]
+    if fout.empty:
+        return pd.DataFrame(columns=cols)
+
+    exp = fout["exported"].fillna(False).astype(bool)
+    rows = []
+    for (sector, carrier), grp in fout.groupby(
+        ["commodity_sector", "pypsa_carrier"], sort=False
+    ):
+        mask = exp.loc[grp.index]
+        produced = float(grp["value"].sum())
+        exported = float(grp.loc[mask, "value"].sum())
+        rows.append(
+            {
+                "commodity_sector": sector,
+                "pypsa_carrier": carrier,
+                "produced_pj": produced,
+                "exported_pj": exported,
+                "gap_pj": produced - exported,
+                "exported_share": (exported / produced) if produced > 1e-12 else float("nan"),
+                "n_unexported_rows": int((~mask).sum()),
+            }
+        )
+    return (
+        pd.DataFrame(rows, columns=cols)
+        .sort_values("gap_pj", ascending=False)
+        .reset_index(drop=True)
+    )
+
+
+def service_output_gap(
+    tagged: pd.DataFrame,
+    *,
+    demand_sectors: frozenset[str] = DEMAND_SECTORS,
+    service_carriers: frozenset[str] = SERVICE_OUTPUT_CARRIERS,
+) -> pd.DataFrame:
+    """
+    Per-process detail behind :func:`service_output_coverage`: who leaks, and how much.
+
+    One row per (sector, carrier, ``process_agg``, process) that produced onto a
+    demand-sector service commodity and was matched by no rule. A blank
+    ``process_agg`` here points straight at :func:`unmapped_process_report`; a
+    non-blank one means the label exists but no rule lists it (the
+    ``CHSADUM-DEM``/``other demand`` case).
+    """
+    cols = [
+        "commodity_sector",
+        "pypsa_carrier",
+        "process_agg",
+        "process_code",
+        "process",
+        "value",
+    ]
+    required = {"variable", "pypsa_carrier", "commodity_sector", "exported", "value"}
+    if tagged is None or tagged.empty or not required.issubset(tagged.columns):
+        return pd.DataFrame(columns=cols)
+
+    df = tagged[tagged["variable"].astype(str).str.upper() == "VAR_FOUT"].copy()
+    df["commodity_sector"] = df["commodity_sector"].astype(str).str.strip()
+    df["pypsa_carrier"] = df["pypsa_carrier"].astype(str).str.strip()
+    df = df[
+        df["commodity_sector"].isin(demand_sectors)
+        & df["pypsa_carrier"].isin(service_carriers)
+        & ~df["exported"].fillna(False).astype(bool)
+    ]
+    if df.empty:
+        return pd.DataFrame(columns=cols)
+    df["process_agg"] = df["process_agg"].astype(str).str.strip().replace(
+        {"nan": "", "None": ""}
+    )
+    if "process" not in df.columns:
+        df["process"] = df["process_code"]
+    out = (
+        df.groupby(
+            ["commodity_sector", "pypsa_carrier", "process_agg", "process_code", "process"],
+            dropna=False,
+        )["value"]
+        .sum()
+        .reset_index()
+    )
+    return out.sort_values("value", ascending=False).reset_index(drop=True)
 
 
 def empty_rule_report(

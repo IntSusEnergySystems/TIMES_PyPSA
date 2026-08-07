@@ -21,6 +21,11 @@ CONTEXT_COLOR = "rgba(160, 160, 160, 0.45)"
 MIXED_COLOR = "rgba(255, 152, 152, 0.75)"
 # Both FOut and FIn endpoints exported on a collapsed link (soft-link double-count risk)
 DOUBLE_COUNT_COLOR = "rgba(142, 68, 173, 0.85)"
+# Grey ribbon landing on a node whose *other* inflows of the same commodity ARE
+# soft-linked. Grey is the diagram's default state — it is correct for the whole
+# upstream supply chain — so an omission at a demand node is visually identical to
+# ordinary context. This colour separates the two. See `flag_leak_suspects`.
+LEAK_COLOR = "rgba(230, 85, 13, 0.85)"
 
 # Process / commodity nodes → green (distinct from blue exported links);
 # imbalance residual → magenta.
@@ -75,6 +80,67 @@ def link_export_status(row: pd.Series) -> str:
     if bool(row.get("exported", False)):
         return "exported"
     return "context"
+
+
+def flag_leak_suspects(
+    links: pd.DataFrame,
+    service_carriers: frozenset[str] | None = None,
+) -> pd.DataFrame:
+    """
+    Mark grey ribbons whose *siblings* into the same node, on the same commodity,
+    are soft-linked.
+
+    Grey ("not exported") is the Sankey's default and correct state for the entire
+    upstream supply chain, so a soft-link omission at a demand node renders exactly
+    like ordinary context and the reader has no cue to look. In the 2026 Walloon
+    heat leak, 14 grey ribbons landed on ``Buildings: built area`` alongside 25
+    correctly coloured ones; four of them carried no label at all (the process was
+    in neither mapping CSV, so there was no description to draw), and each was
+    individually 0.2–2 % of the diagram. Only in aggregate were they material, and
+    the eye does not integrate 14 thin ribbons.
+
+    The signal used here needs no extra metadata: *if a node receives commodity C
+    from several processes and some of those ribbons are exported while others are
+    not, the grey ones are suspects.*
+
+    Restricted to ``service_carriers`` — the carriers the extraction rules claim to
+    transfer as a *service output*, i.e. where full coverage is the invariant.
+    Without that scope the rule fires on every partially-exported carrier by
+    design: electricity into ``Industry`` is legitimately split between anchored
+    fuel-tech ribbons (coloured) and power-plant ribbons (grey), which on the
+    reference scenario would paint 541 ribbons / 182 PJ orange and re-create the
+    cry-wolf problem this is meant to solve.
+
+    Adds a boolean ``leak_suspect`` column. Statuses are left untouched, so
+    netting, reconciliation, and the export-sector logic are unaffected — this is
+    presentation only.
+    """
+    out = links.copy() if links is not None else pd.DataFrame()
+    if out.empty or not {"target", "value"}.issubset(out.columns):
+        if not out.empty:
+            out["leak_suspect"] = False
+        return out
+    if service_carriers is None:
+        from times_pypsa.balances import SERVICE_OUTPUT_CARRIERS
+
+        service_carriers = SERVICE_OUTPUT_CARRIERS
+
+    status = out.apply(link_export_status, axis=1)
+    exported = status.isin(("exported", "double_count", "mixed"))
+    commodity = (
+        out["commodity"].astype(str)
+        if "commodity" in out.columns
+        else pd.Series("", index=out.index)
+    )
+    # Post-collapse a ribbon may carry several commodities ("Heat|Electricity");
+    # in scope if any part is a service carrier.
+    in_scope = commodity.map(
+        lambda c: any(p.strip() in service_carriers for p in str(c).split("|"))
+    )
+    key_ser = pd.Series(list(zip(out["target"].astype(str), commodity)), index=out.index)
+    coloured_keys = set(key_ser[exported & in_scope])
+    out["leak_suspect"] = (~exported) & in_scope & key_ser.isin(coloured_keys)
+    return out
 
 
 def _format_category_phrase(cats: str) -> str:
@@ -232,7 +298,10 @@ def links_to_records(
         cats = str(row.get("matched_categories", "") or "")
         status = link_export_status(row)
         sector = str(row.get("export_sector", "") or "").strip()
-        color = link_color(status, sector)
+        leak = bool(row.get("leak_suspect", False))
+        # A leak suspect keeps status `context` everywhere else in the pipeline;
+        # only its colour changes, so it stops hiding among legitimate grey.
+        color = LEAK_COLOR if leak else link_color(status, sector)
 
         src = str(row["source"])
         tgt = str(row["target"])
@@ -255,12 +324,20 @@ def links_to_records(
         commodity = str(row.get("commodity", "") or "")
         if commodity:
             tip += f"<br>Commodity flow: {commodity.replace('|', ', ')}"
-        tip += export_status_hover(
-            status,
-            cats,
-            export_detail=str(row.get("export_detail", "") or ""),
-            export_sector=sector,
-        )
+        if leak:
+            tip += (
+                "<br><b>NOT exported to pypsa-wal — but sibling flows into this "
+                "node on the same commodity ARE.</b><br>Likely a missing "
+                "<code>Aggregation Level 2</code> label or extraction rule. See "
+                "the <i>Extraction integrity</i> section."
+            )
+        else:
+            tip += export_status_hover(
+                status,
+                cats,
+                export_detail=str(row.get("export_detail", "") or ""),
+                export_sector=sector,
+            )
         imb_tip = str(row.get("imbalance_tooltip", "") or "").strip()
         if imb_tip and has_kinds and (
             str(row.get("source_kind", "")) == "imbalance"
@@ -622,6 +699,21 @@ def assemble_interactive_report_html(
       padding: 12px 16px; background: #f7f7f7;
       border-left: 4px solid #1f77b4; margin: 16px 0;
     }}
+    .alarm {{
+      padding: 12px 16px; background: #fdf0ef;
+      border-left: 4px solid #b00; margin: 16px 0;
+    }}
+    .alarm h2, .alarm h3 {{ color: #b00; margin-top: 0; }}
+    .warn {{
+      padding: 12px 16px; background: #fff8e8;
+      border-left: 4px solid #d68910; margin: 16px 0;
+    }}
+    .warn h2, .warn h3 {{ color: #a15c00; margin-top: 0; }}
+    .clear {{
+      padding: 12px 16px; background: #f2f8f2;
+      border-left: 4px solid #2a7; margin: 16px 0;
+    }}
+    .clear h2, .clear h3 {{ color: #176; margin-top: 0; }}
     .sankey-section {{ margin: 32px 0 48px; }}
     .sankey-controls {{
       display: flex; flex-wrap: wrap; gap: 24px; align-items: center;

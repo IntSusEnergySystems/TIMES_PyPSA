@@ -112,6 +112,38 @@ Or use the helper script (export only by default; add `--snakemake` to build dem
 
 In pypsa-wal, set `coupling_dir` in `config/config.walloon.yaml` (or via `--config coupling_dir=...`) so `build_wallon_demands` copies pre-exported CSVs instead of re-parsing the `.vd`.
 
+### Heating soft-link (option C)
+
+Besides the annual demands, the export carries the **technology axis** of the
+Walloon heating system, so pypsa-wal can impose the TIMES appliance mix instead of
+re-optimising it. Two artefacts, both driven by
+[`data/heat_softlink_groups.csv`](data/heat_softlink_groups.csv):
+
+| File | Contents |
+|---|---|
+| `heating_targets_{year}.csv` | annual heat output per **constraint group** (heat pump, gas / oil / biomass boiler, resistive heater, solar thermal), with the PyPSA carriers to constrain, the constraint sense, the share of decentral heat, and the TIMES child categories each group was summed from |
+| `heating_capacities_{year}.csv` | installed capacity in **MW thermal output**, keyed so it drops straight into PyPSA-Eur's `existing_heating_distribution` (same unit) |
+
+Groups are summed over `rural` + `urban decentral` + services, because the TIMES
+urban/rural label is a dwelling-archetype convention rather than a TIMES result;
+summing over both cancels it. District heating is exported with `sense: none` —
+reported for accounting, never constrained (see
+`pypsa-wal/docs/heat_soft_linking.md` for why).
+
+`heat_softlink_groups.csv` is data on purpose: every arbitrary mapping (coal →
+oil boiler, geothermal → heat pump, tertiary CHP heat → gas boiler) carries its
+justification in a `note` column, and the loader refuses a definition that claims
+a TIMES category twice, uses an unknown constraint sense, or names a
+`pypsa_stock_technology` that is not an `existing_heating_distribution` column.
+
+> `heating_capacities_{year}.csv` sums **`VAR_Cap` only**. `VAR_Ncap` (capacity
+> built in the period) is already inside `VAR_Cap`; adding the two inflated the
+> 2050 gas and heat-pump rows by 36–65 %. Rows are selected by explicit
+> `Aggregation Level 2` label, not by regex — the old
+> `boiler|heat pump|stove|thermal|heater` filter admitted `Geothermal (IND)` and a
+> 1 740 MW `Thermal Public - Retrofitting CCGT CCS` power plant while dropping
+> `District heating`.
+
 ### Python API
 
 For Snakemake integration in pypsa-wal:
@@ -125,10 +157,14 @@ export_horizon(
     horizon=2030,
     wallon_demands_path="resources/walloon/demands_2030.csv",
     heating_capacities_path="resources/walloon/heating_capacities_2030.csv",
+    heating_targets_path="resources/walloon/heating_targets_2030.csv",
     sankey_dir="results/sankey",
     emit_sankey=True,
 )
 ```
+
+`heating_targets_path` is optional; `export_all_horizons` and
+`export_coupling_dir` always write it.
 
 For enriched annual flows and topology (QA / analysis):
 
@@ -162,6 +198,7 @@ Files under `data/`:
 - `scen_*.vdt`: TIMES topology (process–commodity wiring, no quantities)
 - `AllProcesses.csv`, `AllCommodities.csv`: full VEDA dictionaries (semicolon-separated) with **Name** + **Description** for nearly all model codes — used to name Sankey fallbacks and to debug unmapped flows
 - `mapping_commodities.csv`, `mapping_processes.csv`, `extraction_rules.csv`: TIMES → PyPSA mappings (in `data/`)
+- `heat_softlink_groups.csv`: heating constraint groups — TIMES categories and process labels ↔ PyPSA carriers and stock technologies, with the constraint sense and the justification of every arbitrary assignment
 
 **Reference scenario for QA:** `data/scen_corrige_251129_0112.{vd,vdt}`
 

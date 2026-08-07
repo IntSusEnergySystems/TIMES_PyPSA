@@ -276,6 +276,83 @@ outside the highlight, and small residuals are tagged mass ending in magenta
 quoted was a **net** of offsetting errors in both directions — which is why the
 table is per-sector.
 
+### 4. Extraction integrity: is any energy missing *entirely*? (2026-08-01)
+
+Reconciliation above answers "does the diagram draw what the rules matched?".
+It cannot answer "did the rules match everything they should have?", because
+both of its columns are downstream of tagging. Nor can the coverage-gap table,
+the parent–child table, or the double-count matrix — **every QA check in this
+repo before 2026-08-01 was rule-relative**:
+
+| check | what it compares | blind to |
+|---|---|---|
+| `export_reconciliation` | tagged ↔ coloured | a flow no rule matched: absent from both |
+| `parent_child_sum_checks` | rule total ↔ rule totals | a process in neither parent nor child list |
+| `qa_coverage_gap` | unmatched `VAR_FIn`, demand sectors, `DMD` only | the whole `VAR_FOut` / `service_output` family; and processes with no sector |
+| `double_count_matrix` | rule ↔ rule key overlap | anything matched by zero rules |
+
+A process missing from `mapping_processes.csv` contributes **zero to both sides
+of all of them**, so they all report clean while its energy silently never
+reaches pypsa-wal. That is exactly how the Walloon heat leak survived: 16 heating
+processes had no mapping row and a 17th (`CHSADUM-DEM`) carried `other demand`,
+which no heat rule lists — **2.2 PJ (2025) to 7.7 PJ (2040), 1.5–8.6 % of TIMES
+appliance useful heat**, undetected through a full QA pass *and* a visual Sankey
+review.
+
+Two checks now compare the rules against the `.vd` instead, over **every** year
+in the report (the leak peaked in 2040 and two further processes were non-zero
+only in 2045 — a latest-year headline would have missed both):
+
+**`unmapped_process_report`** — energy-carrier flows whose `process_agg`
+(= `Aggregation Level 2`) is blank. Such a process is unmatchable by *any* rule,
+in *any* sector, on *either* flow direction. `reason` splits `missing_row` (the
+mapping file lags the `.vd` — the usual cause) from `blank_label`.
+→ `qa_unmapped_processes_{year}.csv`.
+
+**`service_output_coverage` / `service_output_gap`** — the missing `VAR_FOut`
+mirror of the coverage-gap table. Two design points matter:
+
+* **Scoped to `SERVICE_OUTPUT_CARRIERS`**, derived automatically from the
+  `carrier` column of every `measure_at = service_output` rule (today: `Heat`).
+  Unscoped, it reported ~280 PJ of by-design exclusions (fuel-tech gateways,
+  lighting, cooling) and buried the 7.7 PJ that mattered — the same cry-wolf
+  failure that made the `VAR_FIn` gap table unreadable.
+* **Keyed on the *commodity's* sector, not the process's.** An unmapped process
+  has no sector, so the process-side filter in `qa_coverage_gap` dropped exactly
+  the four rows (`RW2FPELN3`, `RW4FPELN3`, `RWAPPELN3`, `RWN2FGMXN3`) that leaked
+  hardest.
+
+Both feed a red/amber **Extraction integrity** block placed *above* the Sankeys
+and above every rule-by-rule table, and grade the headline verdict: a
+service-output gap is `DEFECTIVE` (energy the soft-link claims to transfer and
+does not); an unmapped process alone is `PARTIALLY ADEQUATE` (unmatchable by
+construction, but whether it loses a demand depends on the sector — an unmapped
+power plant distorts the diagram without touching any pypsa-wal demand).
+
+#### Why the Sankey did not show it either
+
+The leak *was* drawn: 14 grey ribbons landing on `Buildings: built area` in 2040,
+among 25 correctly coloured siblings. It was unreadable because
+
+1. **grey is the diagram's default and correct state** — the entire upstream
+   supply chain is grey, so an omission at a demand node is visually identical to
+   ordinary context;
+2. four ribbons carried **no label at all**, just a raw TIMES code
+   (`RW4FPELN3`), because the process was in neither mapping CSV so there was no
+   description to render — an unlabelled node reads as plumbing;
+3. the rest carried **raw TIMES descriptions**
+   (`Pellets Boiler.HeatHotwater New-RH2F-New2`) rather than the friendly
+   aggregate names, so they did not look like siblings of the coloured appliances;
+4. each was 0.2–2 % of the diagram. Only in aggregate were they material, and
+   **no number anywhere summed the grey inflows to a demand node.**
+
+`flag_leak_suspects` adds the missing cue: a grey ribbon whose *siblings into the
+same node, on the same commodity* are soft-linked is drawn **orange**. Same
+scoping as above — unscoped it fired on 541 ribbons / 182 PJ, because electricity
+into `Industry` is partly exported by design (anchoring). It sets a
+presentation-only `leak_suspect` column; `export_status` is untouched, so
+netting, reconciliation and export-sector logic are unaffected.
+
 ### Display-only: PyPSA demand CSVs are unchanged
 
 Colouring and anchoring are **Sankey display only**. Extraction still filters on
@@ -1074,6 +1151,11 @@ which case the plant's gas must be removed from `methane` at the same time.
 
 | Date | Change | Reason |
 |------|--------|--------|
+| 2026-08-01 | **18 heat-producing processes added to `mapping_processes.csv`**, `CHSADUM-DEM` relabelled `other demand` → `Commercial CHP heat` (+ new rule `services CHP heat`), `CHBAGEO100` relabelled `Commercial gas boiler` → `commercial Geothermal` | Closed the Walloon heat leak: 1.5–8.6 % of TIMES appliance useful heat reached no extraction rule. Building-heat closure is now exact (produced == exported) in all eight horizons; `BEWAL residential urban decentral heat` +4.39 PJ in 2050, `BEWAL residential rural heat` +1.56 PJ in 2040, `BEWAL services urban decentral heat` +0.89 PJ in 2050 |
+| 2026-08-01 | **New root-cause checks `unmapped_process_report` + `service_output_coverage`/`_gap`**, an *Extraction integrity* HTML block above the Sankeys, and orange `leak_suspect` ribbons | Every pre-existing check was *rule-relative* and therefore structurally blind to a process no rule matched; and the coverage-gap table scanned `VAR_FIn` only, while every heat rule measures `VAR_FOut`. See §*Extraction integrity* above |
+| 2026-08-01 | **All 66 remaining unmapped processes labelled**, swept across *every* `.vd` in `data/`. All nine now report zero unmapped processes and zero service-output gap in every horizon | None of the 34 in `scen_demande_haute` was a soft-link leak (industry consumers sit downstream of an already-exported fuel-tech gateway; generation and H₂ production are not soft-linked at all — pypsa-wal imports TIMES *demands*), but each drew an anonymous Sankey node named after its raw TIMES code. Every label reuses an existing node: 2050 `Aggregation Level 2` went **131 → 109 nodes / 933 → 698 links**, and every exported category is bit-identical. The other 32, found only by sweeping the other scenarios, *were* real leaks: `scen_alternatif` 2.78 PJ, `scen_base` 0.51 PJ, `scen_base_coherence` 0.31 PJ |
+| 2026-08-01 | **`ETSTP_NUC-LWR-GEN3_NUC_N` `Gas power plants` → `Nuclear power plants`** (with the new SM reactor) | In 2050 the `Gas power plants` node contained *only* the nuclear reactor, so the Sankey drew ~137 PJ of new nuclear as gas generation. `custom`/`sankey_overview` stay `Power plants`, so only the finest level gains a node |
+| 2026-08-01 | **`SELCH2EC01` moved out of `Fuel Tech - H2`** to `SUP_PRE_PJ_GW` / `H2 production`, joining the other electrolysers | `Fuel Tech - H2` is the **road** H₂ delivery/storage group and is read by `total road`, whose commodity scope is carrier-OR-code and includes `Electricity`. A grid-fed electrolyser there exports its electricity as road transport fuel. 0 PJ in the reference scenario, but live for any scenario that builds the large alkaline unit. `Fuel Tech - H2` now holds only `TRAGH2C*` / `TRALH2C*` / `STH2SGT` |
 | 2026-07-25 | **New category `services other fuel`** (0.867 PJ 2030 / 0.873 PJ 2050): the non-electric legs of `Com.Other Energy` plus gas/LPG commercial cooking, read at `demand_input` on `commercial other` with the seven non-electric commercial carriers | The last unmatched tertiary energy. Reading the pypsa side showed the blocker was not the substitution mechanism but that `total services cooking` / `total services` are read by **nothing** in pypsa-wal or pypsa-eur, so that route would have closed the coverage table without delivering any energy. The category is now explicit; one changed line in `write_wallon_heat_demands` serves it |
 | 2026-07-25 | **`total electricity services` will not be split further** — closed as a *no* rather than left open | pypsa-wal consumes it as one scalar scaling the whole Walloon electricity load, and there is no cooling / lighting / appliance / refrigeration carrier anywhere in the Walloon build (`cooling` appears in `prepare_sector_network.py` only for the EV cabin temperature correction) |
 | 2026-07-25 | **`ammonia` / `methanol` known-zero justifications rewritten** | `methanol` really is structurally absent, but `ammonia` is not: `IAM` (Ammonia Demand, Mt) is met at 0.319 Mt/a until 2025. Zero is still right — the scenario retires the plant before the first coupled horizon, its gas and electricity are already inside `methane` / `electricity`, and pypsa-eur removes the ammonia feedstock from industrial methane before loading `ammonia` — but for none of the reasons the old note gave |

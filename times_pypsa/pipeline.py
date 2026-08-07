@@ -571,6 +571,10 @@ class RuleMetadata:
     sector: str = ""
     parent: str = ""
     measure_at: str = ""
+    #: PyPSA energy carrier the rule filters on. Also a filter field, recorded
+    #: here so checks can ask "which carriers does the soft-link claim to
+    #: transfer as a *service output*?" without re-parsing the CSV.
+    carrier: str = ""
     expect: str = "nonzero"
     adjust: tuple[str, ...] = ()
     note: str = ""
@@ -588,6 +592,7 @@ def load_rule_metadata(extraction_rules_file: Path | str) -> dict[str, RuleMetad
             sector=str(row.get("pypsa_sector", "") or "").strip(),
             parent=str(row.get("parent", "") or "").strip().replace("nan", ""),
             measure_at=str(row.get("measure_at", "") or "").strip(),
+            carrier=str(row.get("carrier", "") or "").strip().replace("nan", ""),
             expect=(str(row.get("expect", "") or "nonzero").strip() or "nonzero"),
             adjust=tuple(_split_cell(row.get("adjust"))),
             note=str(row.get("note", "") or "").strip().replace("nan", ""),
@@ -939,41 +944,16 @@ def extract_heating_capacities(
     horizon: int,
     heating_capacities_path: Path | str,
 ) -> pd.DataFrame:
-    """Extract and save heating technology capacities for one horizon."""
-    heating_capacities_path = Path(heating_capacities_path)
-    heating_capacities_path.parent.mkdir(parents=True, exist_ok=True)
+    """Extract and save heating technology capacities for one horizon.
 
-    mapping = processes_df.copy()
-    tech_col = (
-        "Technology (Process)"
-        if "Technology (Process)" in mapping.columns
-        else "Process"
-    )
-    agg_col = "Aggregation Level 2"
+    Delegates to :func:`times_pypsa.heat_softlink.extract_heating_capacities`,
+    which sums ``VAR_Cap`` **only** (``VAR_Ncap`` is already inside it) and
+    selects rows by explicit ``Aggregation Level 2`` label instead of by regex.
+    Kept as a re-export so external callers of the old name keep working.
+    """
+    from times_pypsa.heat_softlink import extract_heating_capacities as _extract
 
-    filtered_capacities = raw_flows_df.loc[
-        (raw_flows_df["year"] == horizon)
-        & (raw_flows_df["variable"].isin(["VAR_Cap", "VAR_Ncap"]))
-    ].copy()
-    map_dict = mapping.set_index(tech_col)[agg_col].to_dict()
-    filtered_capacities["mapped_process"] = filtered_capacities["process_code"].map(
-        map_dict
-    )
-    aggregated = (
-        filtered_capacities.groupby("mapped_process", dropna=False)
-        .sum(numeric_only=True)
-        .drop(columns=["year"])
-    )
-    aggregated = (aggregated * 1000).round(2)
-    aggregated = aggregated[
-        aggregated.index.str.contains(
-            "boiler|heat pump|stove|thermal|heater", case=False, na=False
-        )
-    ]
-    aggregated["year"] = horizon
-    aggregated.to_csv(heating_capacities_path, index=True)
-    logger.info("Saved heating capacities to %s", heating_capacities_path)
-    return aggregated
+    return _extract(raw_flows_df, processes_df, horizon, heating_capacities_path)
 
 
 def extract_demands_for_horizon(
@@ -1464,16 +1444,25 @@ def export_horizon(
     sankey_dir: Path | str | None = None,
     emit_sankey: bool = False,
     config: PipelineConfig | None = None,
+    heating_targets_path: Path | str | None = None,
 ) -> None:
     """
     Export PyPSA demands and heating capacities for one planning horizon.
 
     Optionally generate a Sankey diagram when ``emit_sankey`` is True and
-    ``sankey_dir`` is provided.
+    ``sankey_dir`` is provided, and the Option-C heating energy-mix targets when
+    ``heating_targets_path`` is given.
     """
+    from times_pypsa.heat_softlink import (
+        extract_heating_targets,
+        load_heat_groups,
+        resolve_groups_file,
+    )
+
     config = config or PipelineConfig()
     metadata = load_metadata(mappings_dir)
     extraction_rules = load_extraction_rules(metadata.extraction_rules_file)
+    heat_groups = load_heat_groups(resolve_groups_file(mappings_dir))
 
     raw_flows_df, annual_values_df = prepare_annual_values(vd_file, metadata, config)
     if annual_values_df.empty:
@@ -1486,7 +1475,7 @@ def export_horizon(
         horizon,
         heating_capacities_path,
     )
-    extract_demands_for_horizon(
+    results_df = extract_demands_for_horizon(
         annual_values_df,
         metadata.processes_df,
         metadata.mapping_df,
@@ -1496,6 +1485,10 @@ def export_horizon(
         wallon_demands_path,
         apply_netting=config.apply_netting,
     )
+    if heating_targets_path is not None:
+        extract_heating_targets(
+            results_df, horizon, heating_targets_path, groups=heat_groups
+        )
 
     if emit_sankey and sankey_dir is not None:
         generate_sankey(vd_file, mappings_dir, horizon, sankey_dir, config=config)
@@ -1514,7 +1507,14 @@ def export_all_horizons(
 
     ``emit`` controls output: ``demands``, ``sankey``, or ``all``.
     """
+    from times_pypsa.heat_softlink import (
+        extract_heating_targets,
+        load_heat_groups,
+        resolve_groups_file,
+    )
+
     config = config or PipelineConfig()
+    heat_groups = load_heat_groups(resolve_groups_file(mappings_dir))
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     metadata = load_metadata(mappings_dir)
@@ -1541,6 +1541,12 @@ def export_all_horizons(
             )
             if not results_df.empty:
                 shutil.copy2(wallon_path, out_dir / f"pypsa_demands_{horizon}.csv")
+                extract_heating_targets(
+                    results_df,
+                    horizon,
+                    out_dir / f"heating_targets_{horizon}.csv",
+                    groups=heat_groups,
+                )
         for horizon in horizons:
             extract_heating_capacities(
                 raw_flows_df,
@@ -1558,6 +1564,7 @@ _MAPPING_FILES = (
     "mapping_commodities.csv",
     "mapping_processes.csv",
     "extraction_rules.csv",
+    "heat_softlink_groups.csv",
 )
 
 
@@ -1607,8 +1614,15 @@ def export_coupling_dir(
             wallon_demands_{h}.csv
             pypsa_demands_{h}.csv
             heating_capacities_{h}.csv
+            heating_targets_{h}.csv
             manifest.json
     """
+    from times_pypsa.heat_softlink import (
+        extract_heating_targets,
+        load_heat_groups,
+        resolve_groups_file,
+    )
+
     config = config or PipelineConfig()
     coupling_dir = Path(coupling_dir)
     vd_file = Path(vd_file)
@@ -1626,6 +1640,7 @@ def export_coupling_dir(
 
     metadata = load_metadata(coupling_mappings)
     extraction_rules = load_extraction_rules(metadata.extraction_rules_file)
+    heat_groups = load_heat_groups(resolve_groups_file(coupling_mappings))
 
     raw_flows_df, annual_values_df = prepare_annual_values(
         vd_file, metadata, config
@@ -1648,6 +1663,12 @@ def export_coupling_dir(
         )
         if not results_df.empty:
             shutil.copy2(wallon_path, pypsa_inputs / f"pypsa_demands_{horizon}.csv")
+            extract_heating_targets(
+                results_df,
+                horizon,
+                pypsa_inputs / f"heating_targets_{horizon}.csv",
+                groups=heat_groups,
+            )
 
     for horizon in horizons:
         extract_heating_capacities(

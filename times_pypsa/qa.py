@@ -29,6 +29,9 @@ from times_pypsa.balances import (
     find_loop_components,
     parent_child_sum_checks,
     process_io_ratios,
+    service_output_coverage,
+    service_output_gap,
+    unmapped_process_report,
 )
 from times_pypsa.model import TimesAnnualFlows, load_times_annual_flows
 from times_pypsa.pipeline import (
@@ -50,6 +53,7 @@ from times_pypsa.units import (
 )
 from times_pypsa.sankey_html import (
     CONTEXT_COLOR,
+    LEAK_COLOR,
     DOUBLE_COUNT_COLOR,
     EXPORTED_COLOR,
     MIXED_COLOR,
@@ -58,6 +62,7 @@ from times_pypsa.sankey_html import (
     collect_typed_nodes,
     export_status_color,
     export_status_hover,
+    flag_leak_suspects,
     link_color,
     link_export_status,
     links_to_records,
@@ -262,9 +267,9 @@ def prepare_export_sankey_links(
         )
         if apply_netting:
             links = net_collapsed_process_links(links)
-        return assign_export_sectors(links, agg, anchor=True)
+        return flag_leak_suspects(assign_export_sectors(links, agg, anchor=True))
     links = sankey_links_from_flows(agg, flow_threshold=flow_threshold)
-    return assign_export_sectors(links, agg, anchor=False)
+    return flag_leak_suspects(assign_export_sectors(links, agg, anchor=False))
 
 
 def prepare_system_sankey_links(
@@ -316,9 +321,9 @@ def prepare_system_sankey_links(
         )
         if apply_netting:
             links = net_collapsed_process_links(links)
-        return assign_export_sectors(links, agg, anchor=True)
+        return flag_leak_suspects(assign_export_sectors(links, agg, anchor=True))
     links = sankey_links_from_flows(agg, flow_threshold=flow_threshold)
-    return assign_export_sectors(links, agg, anchor=False)
+    return flag_leak_suspects(assign_export_sectors(links, agg, anchor=False))
 
 
 class CategoryKeyIndex(dict):
@@ -867,6 +872,52 @@ def _write_qa_csvs_for_year(
     gap_all_path = out_dir / f"qa_coverage_gap_all_{year}.csv"
     gap_all_sum.to_csv(gap_all_path, index=False)
 
+    # --- Root-cause checks: the rules vs the .vd, not the rules vs themselves ---
+    # Every other coverage check here is rule-relative and therefore passes when a
+    # process is missing from mapping_processes.csv. These two are not.
+    mapped_processes = (
+        metadata.processes_df["Process"]
+        if metadata.processes_df is not None
+        and "Process" in metadata.processes_df.columns
+        else None
+    )
+    unmapped = unmapped_process_report(
+        filter_energy_carrier_flows(tagged), mapped_processes
+    )
+    unmapped_pj = float(unmapped["gross_pj"].sum()) if not unmapped.empty else 0.0
+    unmapped_path = out_dir / f"qa_unmapped_processes_{year}.csv"
+    prepare_energy_output(unmapped, ["fin_pj", "fout_pj", "gross_pj"], units).to_csv(
+        unmapped_path, index=False
+    )
+    if not unmapped.empty:
+        logger.warning(
+            "%d processes carry %.2f PJ of energy but have no Aggregation Level 2 "
+            "label in mapping_processes.csv — no extraction rule can match them "
+            "(%d have no row at all): %s",
+            len(unmapped),
+            unmapped_pj,
+            int((unmapped["reason"] == "missing_row").sum()),
+            ", ".join(unmapped["process_code"].head(8)),
+        )
+
+    svc_cov = service_output_coverage(tagged)
+    svc_gap_pj = float(svc_cov["gap_pj"].sum()) if not svc_cov.empty else 0.0
+    svc_cov_path = out_dir / f"qa_service_output_coverage_{year}.csv"
+    prepare_energy_output(
+        svc_cov, ["produced_pj", "exported_pj", "gap_pj"], units
+    ).to_csv(svc_cov_path, index=False)
+
+    svc_gap = service_output_gap(tagged)
+    svc_gap_path = out_dir / f"qa_service_output_gap_{year}.csv"
+    prepare_energy_output(svc_gap, ["value"], units).to_csv(svc_gap_path, index=False)
+    if svc_gap_pj > 1e-9:
+        logger.warning(
+            "%.2f PJ of demand-sector service output (VAR_FOut) is matched by no "
+            "extraction rule — pypsa-wal never sees it. See %s",
+            svc_gap_pj,
+            svc_gap_path.name,
+        )
+
     nb_all = select_export_neighborhood(tagged)
     nb_out = prepare_energy_output(nb_all, ["value"], units)
     nb_path = out_dir / f"qa_export_neighborhood_{year}.csv"
@@ -951,6 +1002,9 @@ def _write_qa_csvs_for_year(
         "empty_rules": empty_path,
         "coverage_gap": gap_path,
         "coverage_gap_all": gap_all_path,
+        "unmapped_processes": unmapped_path,
+        "service_output_coverage": svc_cov_path,
+        "service_output_gap": svc_gap_path,
         "export_neighborhood": nb_path,
         "sankey_label_map": label_map_path,
         "io_ratios_process": ratios_proc_path,
@@ -969,7 +1023,180 @@ def _write_qa_csvs_for_year(
         "unit_issues_df": unit_issues,
         "nb_all": nb_all,
         "dmd_gap_pj": dmd_gap_pj,
+        "unmapped_df": unmapped,
+        "unmapped_pj": unmapped_pj,
+        "svc_cov_df": svc_cov,
+        "svc_gap_df": svc_gap,
+        "svc_gap_pj": svc_gap_pj,
     }
+
+
+def _integrity_section(
+    year_payloads: dict[int, dict],
+    active_years: list[int],
+    units: EnergyUnit,
+    energy_label: str,
+) -> tuple[str, bool, float, float]:
+    """
+    Build the top-level extraction-integrity block: *is any energy missing at all?*
+
+    Deliberately placed above the Sankeys and above the rule-by-rule tables,
+    because the defect class it covers is invisible to every check below it.
+
+    Every other coverage check in this report is **rule-relative**: the
+    reconciliation table compares tagged to coloured, the parent–child table
+    compares rule totals to rule totals, the coverage-gap table scans
+    ``VAR_FIn`` only. A process missing from ``mapping_processes.csv``
+    contributes zero to *both* sides of all of them, so they all report a clean
+    bill while its energy silently never reaches PyPSA. That is exactly how the
+    2026 Walloon heat leak (2.2–7.7 % of TIMES appliance heat, peaking in 2040)
+    survived a full QA pass and a visual Sankey review.
+
+    The two checks here compare the rules against the ``.vd`` instead, and they
+    run over **every** year, because a leak that peaks in a middle horizon is
+    understated by a latest-year headline.
+
+    Two severities, because the two checks mean different things:
+
+    * a **service-output gap** is energy the soft-link *claims* to transfer and
+      does not — demonstrably missing from pypsa-wal, so ``DEFECTIVE``;
+    * an **unmapped process** is unmatchable by construction, but whether that
+      loses energy depends on the sector. A power plant absent from the mapping
+      distorts the Sankey without touching any demand pypsa-wal imports, whereas
+      an unmapped industry fuel consumer does drop real demand. So it is
+      ``WARNING``, not a failure.
+
+    Returns ``(html, severity, worst_unmapped_pj, worst_service_gap_pj)`` where
+    ``severity`` is one of ``"ok"``, ``"warn"``, ``"fail"``.
+    """
+    per_year = []
+    for yr in active_years:
+        info = year_payloads[yr]["csv_info"]
+        per_year.append(
+            {
+                "year": yr,
+                "unmapped_pj": float(info.get("unmapped_pj", 0.0)),
+                "n_unmapped": len(info.get("unmapped_df", pd.DataFrame())),
+                "service_gap_pj": float(info.get("svc_gap_pj", 0.0)),
+            }
+        )
+    summary = pd.DataFrame(per_year)
+    worst_unmapped = float(summary["unmapped_pj"].max()) if not summary.empty else 0.0
+    worst_gap = float(summary["service_gap_pj"].max()) if not summary.empty else 0.0
+    if worst_gap > 1e-9:
+        severity = "fail"
+    elif worst_unmapped > 1e-9:
+        severity = "warn"
+    else:
+        severity = "ok"
+    ok = severity == "ok"
+
+    # Worst offenders, across all years, for the detail tables.
+    worst_year = (
+        int(summary.loc[summary["service_gap_pj"].idxmax(), "year"])
+        if not summary.empty and worst_gap > 1e-9
+        else active_years[-1]
+    )
+    worst_unmapped_year = (
+        int(summary.loc[summary["unmapped_pj"].idxmax(), "year"])
+        if not summary.empty and worst_unmapped > 1e-9
+        else active_years[-1]
+    )
+    unmapped_df = year_payloads[worst_unmapped_year]["csv_info"].get(
+        "unmapped_df", pd.DataFrame()
+    )
+    svc_cov_df = year_payloads[worst_year]["csv_info"].get(
+        "svc_cov_df", pd.DataFrame()
+    )
+    svc_gap_df = year_payloads[worst_year]["csv_info"].get(
+        "svc_gap_df", pd.DataFrame()
+    )
+
+    summary_out = prepare_energy_output(
+        summary.copy(), ["unmapped_pj", "service_gap_pj"], units
+    )
+    unmapped_out = prepare_energy_output(
+        unmapped_df.copy(), ["fin_pj", "fout_pj", "gross_pj"], units
+    )
+    svc_cov_out = prepare_energy_output(
+        svc_cov_df.copy(), ["produced_pj", "exported_pj", "gap_pj"], units
+    )
+    svc_gap_out = prepare_energy_output(svc_gap_df.copy(), ["value"], units)
+
+    css = {"ok": "clear", "warn": "warn", "fail": "alarm"}[severity]
+    if severity == "ok":
+        verdict = (
+            "No service-output energy is lost between the <code>.vd</code> and the "
+            "extraction rules, and every process carrying energy has an "
+            "<code>Aggregation Level 2</code> label."
+        )
+    elif severity == "warn":
+        verdict = (
+            f"Service output is fully transferred, but "
+            f"<strong>{format_energy(worst_unmapped, units)}</strong> of energy is "
+            "carried by processes with no <code>Aggregation Level 2</code> label, so "
+            "no rule can match them. Whether that loses a demand depends on the "
+            "sector — check table 1 below."
+        )
+    else:
+        verdict = (
+            f"<strong>{format_energy(worst_gap, units)}</strong> of demand-sector "
+            "service output is matched by no rule — <strong>pypsa-wal never sees "
+            "this energy</strong>"
+            + (
+                f", and {format_energy(worst_unmapped, units)} is carried by "
+                "processes with no <code>Aggregation Level 2</code> label"
+                if worst_unmapped > 1e-9
+                else ""
+            )
+            + ". Fix the mapping before reading anything below."
+        )
+    return (
+        f"""
+<div class='{css}'>
+<h2>Extraction integrity — is any energy missing entirely?</h2>
+<p>{verdict}</p>
+<p class='meta'>Read this before the Sankeys. Every other check in this report is
+<em>rule-relative</em> — the reconciliation table compares what the diagram
+coloured against what the rules tagged, the parent–child table compares rule
+totals against rule totals, and the coverage-gap table scans <code>VAR_FIn</code>
+only. A process absent from <code>mapping_processes.csv</code> contributes zero to
+<em>both</em> sides of all of them, so they all pass while its energy vanishes.
+These two checks compare the rules against the <code>.vd</code> instead, over
+every year in the report.</p>
+
+<h3>Per year</h3>
+{_html_table(summary_out)}
+
+<h3>1. Processes carrying energy with no <code>Aggregation Level 2</code> label
+({worst_unmapped_year})</h3>
+<p>Every extraction rule filters on <code>process_agg</code>
+(= <code>Aggregation Level 2</code>), so a blank label makes a process unmatchable
+by <em>any</em> rule, in <em>any</em> sector, on <em>either</em> flow direction.
+<code>reason=missing_row</code> means <code>mapping_processes.csv</code> lags the
+<code>.vd</code> — the usual cause. <strong>Empty is the expected result.</strong>
+Full table: <code>qa_unmapped_processes_{worst_unmapped_year}.csv</code>.</p>
+{_html_table(unmapped_out, max_rows=40)}
+
+<h3>2. Demand-sector service output (<code>VAR_FOut</code>) matched by no rule
+({worst_year})</h3>
+<p>The mirror of the <code>VAR_FIn</code> coverage-gap table further down. Every
+building-heat rule is <code>measure_at = service_output</code>, i.e. it measures
+<code>VAR_FOut</code> — so a <code>VAR_FIn</code>-only scan is blind to the whole
+family. Keyed on the <em>commodity's</em> sector, not the process's, because an
+unmapped process has no sector and a process-side filter drops exactly the rows
+that matter. A non-zero <code>gap_pj</code> on a carrier pypsa-wal consumes means
+TIMES produced service energy the soft-link does not transfer.
+Full tables: <code>qa_service_output_coverage_{worst_year}.csv</code>,
+<code>qa_service_output_gap_{worst_year}.csv</code>.</p>
+{_html_table(svc_cov_out, max_rows=25)}
+{_html_table(svc_gap_out, max_rows=40)}
+</div>
+""",
+        severity,
+        worst_unmapped,
+        worst_gap,
+    )
 
 
 def generate_qa_report(
@@ -1249,11 +1476,28 @@ def generate_qa_report(
 
     dmd_gap_pj = float(latest_info.get("dmd_gap_pj", 0.0))
     exported_pj = float(tagged_latest.loc[tagged_latest["exported"], "value"].sum())
-    adequacy = (
-        "PARTIALLY ADEQUATE"
-        if dmd_gap_pj > 5.0 or int((~empty_rules["ok"]).sum()) > 0
-        else "ADEQUATE (no large DMD gaps / empty rules)"
+
+    # --- Integrity checks run over EVERY year, not just `latest` -------------
+    # The 2026 heat leak peaked in 2040 (7.68 PJ) and was smaller in 2050
+    # (5.28 PJ); a latest-year-only headline understates a defect that moves.
+    integrity_html, integrity_severity, worst_unmapped_pj, worst_svc_gap_pj = (
+        _integrity_section(year_payloads, active_years, units, energy_label)
     )
+
+    if integrity_severity == "fail":
+        adequacy = (
+            "DEFECTIVE — service-output energy is missing from the soft-link "
+            "(see Extraction integrity)"
+        )
+    elif integrity_severity == "warn" or dmd_gap_pj > 5.0 or int(
+        (~empty_rules["ok"]).sum()
+    ) > 0:
+        adequacy = "PARTIALLY ADEQUATE"
+    else:
+        adequacy = (
+            "ADEQUATE (no unmapped processes, no service-output gap, "
+            "no large DMD gaps / empty rules)"
+        )
 
     year_span = (
         str(active_years[0])
@@ -1275,8 +1519,15 @@ def generate_qa_report(
 <div class='legend'><strong>Exported link colours (by PyPSA sector):</strong>
   {"".join(f"<span style='background:{PYPSA_SECTOR_COLORS[s]};color:#fff'>{s}</span>" for s in PYPSA_SECTOR_ORDER)}
   <span style='background:{CONTEXT_COLOR}'>Not exported</span>
+  <span style='background:{LEAK_COLOR};color:#fff'>Not exported, but its siblings are (suspected omission)</span>
   <span style='background:{DOUBLE_COUNT_COLOR};color:#fff'>Double-count (should not occur)</span>
 </div>
+<p class='meta'><strong>Orange</strong> is the omission cue: a grey ribbon whose
+sibling flows into the same node, on the same commodity, <em>are</em> soft-linked.
+Plain grey is legitimate context (the whole upstream supply chain is grey), so
+without this distinction a missing export at a demand node looks exactly like
+ordinary plumbing — which is how the 2026 Walloon heat leak survived a visual
+review. Cross-check any orange ribbon against <em>Extraction integrity</em> below.</p>
 <p class='meta'>Soft-linked fuel inputs are anchored to the demand inflow: e.g. industry
 fuel exports appear on the <em>Fuel Tech (IND) → Industry</em> links, not on the
 upstream import/power-plant links.</p>
@@ -1291,6 +1542,12 @@ upstream import/power-plant links.</p>
     {format_energy(exported_pj, units)}</li>
   <li>DMD coverage-gap (demand-side <code>VAR_FIn</code> in no rule):
     {format_energy(dmd_gap_pj, units)}</li>
+  <li><strong>Unmapped processes</strong> (worst year, energy with no
+    <code>Aggregation Level 2</code> label):
+    {format_energy(worst_unmapped_pj, units)}</li>
+  <li><strong>Service-output gap</strong> (worst year, demand-sector
+    <code>VAR_FOut</code> in no rule):
+    {format_energy(worst_svc_gap_pj, units)}</li>
   <li>Sankey vs rules — coloured minus tagged: {recon_gap:+.2f} {energy_label}
     (see <em>Soft-link reconciliation</em>; positive = coloured energy no rule
     matched)</li>
@@ -1301,6 +1558,7 @@ upstream import/power-plant links.</p>
     {int((~balance["ok"]).sum()) if not balance.empty else "n/a"}</li>
   <li>Loop components after netting: {len(loops_df)}</li>
 </ul>
+{integrity_html}
 <h2>Interactive Sankey diagrams</h2>
 <p>Use the year slider and <em>Net bidirectional flows</em> checkbox on each chart.
 Companion CSVs are written per year as <code>qa_*_{{year}}.csv</code>

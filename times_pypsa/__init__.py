@@ -21,6 +21,15 @@ from times_pypsa.pipeline import (
     export_horizon,
     generate_sankey,
 )
+from times_pypsa.heat_softlink import (
+    default_groups_file,
+    extract_heating_capacities,
+    extract_heating_targets,
+    heat_group_targets,
+    heating_capacities,
+    load_heat_groups,
+    resolve_groups_file,
+)
 from times_pypsa.qa import generate_qa_report
 from times_pypsa.model import TimesAnnualFlows, load_times_annual_flows
 from times_pypsa.topology import Topology, load_topology
@@ -38,14 +47,21 @@ __all__ = [
     "collapse_commodity_nodes",
     "com_agg_col",
     "link_sector",
+    "default_groups_file",
     "default_mappings_dir",
     "export_all_horizons",
     "export_coupling_dir",
     "export_horizon",
+    "extract_heating_capacities",
+    "extract_heating_targets",
     "generate_qa_report",
     "generate_sankey",
+    "heat_group_targets",
+    "heating_capacities",
+    "load_heat_groups",
     "load_times_annual_flows",
     "load_topology",
     "proc_agg_col",
+    "resolve_groups_file",
     "shared_aggregation_columns",
 ]

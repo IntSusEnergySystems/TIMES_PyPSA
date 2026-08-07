@@ -2,9 +2,15 @@
 """Build small .vd / .vdt fixtures for fast integration tests.
 
 Reads the full scenario under data/, keeps only energy-flow variables
-(VAR_FIn / VAR_FOut / VAR_Comnet), soft-link years, and pre-aggregates
-timeslices to ANNUAL so the file is ~40× smaller while preserving
-annual totals used by QA / extraction tests.
+(VAR_FIn / VAR_FOut / VAR_Comnet) plus installed capacity (VAR_Cap),
+soft-link years, and pre-aggregates timeslices to ANNUAL so the file is ~40×
+smaller while preserving annual totals used by QA / extraction tests.
+
+``VAR_Cap`` is kept so the heating-capacity export
+(:mod:`times_pypsa.heat_softlink`) is testable without the full scenario.
+``VAR_Ncap`` is deliberately **not** kept: it is already contained in
+``VAR_Cap``, and a fixture that carries it invites the double count the
+capacity export used to make.
 
 Also writes a leaner ``toy_qa.*`` pair (two years, top export categories
 only) for the expensive ``generate_qa_report`` tests.
@@ -20,7 +26,8 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_VD = REPO_ROOT / "data" / "scen_corrige_251129_0112.vd"
 DEFAULT_VDT = REPO_ROOT / "data" / "scen_corrige_251129_0112.vdt"
 DEFAULT_OUT = REPO_ROOT / "tests" / "fixtures"
-KEEP_VARS = {"VAR_FIN", "VAR_FOUT", "VAR_COMNET"}
+DEFAULT_MAPPINGS = REPO_ROOT / "data"
+KEEP_VARS = {"VAR_FIN", "VAR_FOUT", "VAR_COMNET", "VAR_CAP"}
 DEFAULT_YEARS = (2025, 2030, 2040, 2050)
 QA_YEARS = (2030, 2050)
 QA_TOP_CATEGORIES = 3
@@ -273,7 +280,7 @@ def main() -> None:
     qa_procs = _qa_process_set(
         vd_out,
         vdt_out if vdt_out and vdt_out.exists() else None,
-        REPO_ROOT / "times_pypsa" / "mappings",
+        DEFAULT_MAPPINGS,
         n_categories=args.qa_categories,
         years=qa_years,
     )
