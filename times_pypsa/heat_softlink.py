@@ -6,6 +6,18 @@ the per-appliance useful-heat totals as 23 child categories, but nothing tells
 pypsa-wal which PyPSA carrier each of them corresponds to, and the raw TIMES
 labels are not a taxonomy PyPSA can match on. Two artefacts fix that:
 
+.. note::
+
+   **This branch is `heat-softlink-option-b`, and it is identical to
+   `heat-softlink-option-c`.** The two pypsa-wal branches implement different
+   *mechanisms* for imposing the mix — option C an annual energy constraint,
+   option B' a pinned hourly profile — but they consume the **same payload**: the
+   ``share`` column of ``heating_targets_{year}.csv``. Nothing in this library
+   had to change for option B'. The branch exists so that each pypsa-wal branch
+   has a matching library branch to pin against, and so a future divergence has
+   somewhere to land. See ``docs/heat_softlink_option_comparison.md`` in
+   pypsa-wal.
+
 ``heating_targets_{year}.csv``
     Annual heat output per **constraint group** — the right-hand side of the
     Option-C energy-mix constraint (``docs/times-heating-softlink-options.md``
