@@ -261,3 +261,56 @@ def test_extract_writes_both_files(raw_and_processes, groups, tmp_path: Path):
     )
     # The collapse onto engine types must conserve the stock.
     assert abs(fleet_csv["stock_kveh"].sum() - shares_csv["stock_kveh"].sum()) < 1e-6
+
+
+# --------------------------------------------------------------------------- #
+# mapping_processes.csv hygiene
+# --------------------------------------------------------------------------- #
+
+
+def test_no_duplicate_process_codes(mappings_dir: Path):
+    """`prepare_annual_values` merges on process_code — a duplicate multiplies rows.
+
+    Seven codes used to appear twice, once as a vehicle (000VEH) and once as a
+    fuel technology (PJA). All seven were zero in the reference .vd so nothing was
+    double-counted, but LNG trucks are a plausible future and the failure would be
+    silent.
+    """
+    mapping = pd.read_csv(mappings_dir / "mapping_processes.csv")
+    col = "Technology (Process)"
+    dups = sorted(mapping.loc[mapping[col].duplicated(), col].unique())
+    if dups:
+        pytest.fail(
+            f"mapping_processes.csv has duplicate process code(s): {dups}. "
+            "prepare_annual_values merges on this column, so each duplicate "
+            "multiplies every flow row for that process. Keep the row whose "
+            "units match data/AllProcesses.csv."
+        )
+
+
+def test_every_road_vehicle_is_classified(raw_and_processes, groups: pd.DataFrame):
+    """A vehicle the group file cannot place is silently dropped from the export."""
+    from times_pypsa.transport_softlink import _classify
+
+    _, processes = raw_and_processes
+    tech_col = (
+        "Technology (Process)"
+        if "Technology (Process)" in processes.columns
+        else "Process"
+    )
+    vehicles = processes[
+        (processes["Capacity unit"] == VEHICLE_CAPACITY_UNIT)
+        & (processes["Activity unit"] == VEHICLE_ACTIVITY_UNIT)
+    ]
+    unclassed = [
+        code
+        for code, desc in zip(vehicles[tech_col], vehicles["Description"])
+        if not _classify(desc, groups)[0]
+    ]
+    if unclassed:
+        pytest.fail(
+            f"{len(unclassed)} road-vehicle process(es) match no kind=class row and "
+            f"are dropped from the fleet export: {unclassed}. Either add a class "
+            f"row to {GROUPS_FILE_NAME} or fix the process description in "
+            "mapping_processes.csv."
+        )

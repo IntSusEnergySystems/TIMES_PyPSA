@@ -932,7 +932,7 @@ TCARGASEX10,TRA,.DMD.,Cars Gas Medium-Lower New,BVKM,000VEH,DMD,TCAR,ANNUAL,,Car
 TCARGASEX11,TRA,.DMD.,Cars CNG Medium-Upper Existing,BVKM,000VEH,DMD,TCAR,ANNUAL,,Cars,Transport,Cars
 TCARGASEX12,TRA,.DMD.,Cars Gas Medium-Upper New,BVKM,000VEH,DMD,TCAR,ANNUAL,,Cars,Transport,Cars
 TCARGASEX13,TRA,.DMD.,Cars Gas Small New,BVKM,000VEH,DMD,TCAR,ANNUAL,,Cars,Transport,Cars
-TCARGASEX14,TRA,.DMD.,TCHARGHOMSMARTN01,BVKM,000VEH,DMD,TCAR,ANNUAL,,Cars,Transport,Cars
+TCARGASEX14,TRA,.DMD.,Cars CNG Executive Existing,BVKM,000VEH,DMD,TCAR,ANNUAL,,Cars,Transport,Cars
 TCARGASEX15,TRA,.DMD.,Heavy Duty Trucks Gas More than 3 t,BVKM,000VEH,DMD,THDT,ANNUAL,,Road Freight,Transport,Road Freight
 TCARGASEX16,TRA,.DMD.,Heavy Duty Trucks CNG More than 3 t,BVKM,000VEH,DMD,THDT,ANNUAL,,Road Freight,Transport,Road Freight
 TCARGASEX17,TRA,.DMD.,Heavy Duty Trucks CNG Less than 14 t New,BVKM,000VEH,DMD,THDT,ANNUAL,,Road Freight,Transport,Road Freight
@@ -981,14 +981,10 @@ TCARGASMLN01,TRA,.DMD.,Cars Gas Medium-Lower New,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Tr
 TCARGASMU00,TRA,.DMD.,Cars CNG Medium-Upper Existing,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Transport,Cars
 TCARGASMUN01,TRA,.DMD.,Cars Gas Medium-Upper New,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Transport,Cars
 TCARGASSMN01,TRA,.DMD.,Cars Gas Small New,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Transport,Cars
-TCARGMXEX00,TRA,.DMD.,Cars CNG Executive Existing,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Transport,Cars
 TCARGMXEXN01,TRA,.DMD.,Cars Gas Executive New,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Transport,Cars
-TCARGMXML00,TRA,.DMD.,Cars CNG Medium-Lower Existing,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Transport,Cars
 TCARGMXMLN01,TRA,.DMD.,Cars Gas Medium-Lower New,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Transport,Cars
-TCARGMXMU00,TRA,.DMD.,Cars CNG Medium-Upper Existing,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Transport,Cars
 TCARGMXMUN01,TRA,.DMD.,Cars Gas Medium-Upper New,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Transport,Cars
 TCARGMXSMN01,TRA,.DMD.,Cars Gas Small New,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Transport,Cars
-TCHARGHOMSMARTN01,TRA,.DMD.,TCHARGHOMSMARTN01,PJ,PJA,PRE,TCAR,ANNUAL,,Cars,Transport,Cars
 THDTGASH1N01,TRA,.DMD.,Heavy Duty Trucks Gas More than 3 t,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Transport,Road Freight
 THDTGASH1N02,TRA,.DMD.,Heavy Duty Trucks CNG More than 3 t,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Transport,Road Freight
 THDTGASH2N01,TRA,.DMD.,Heavy Duty Trucks CNG Less than 14 t New,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Transport,Road Freight
@@ -998,9 +994,6 @@ THDTGASH5N01,TRA,.DMD.,Heavy Duty Trucks LNG Between 40-50 t New,PJ,PJA,PRE,THDT
 THDTGMXH1N01,TRA,.DMD.,Heavy Duty Trucks Gas More than 3 t,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Transport,Road Freight
 THDTGMXH1N02,TRA,.DMD.,Heavy Duty Trucks CNG More than 3 t,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Transport,Road Freight
 THDTGMXH2N01,TRA,.DMD.,Heavy Duty Trucks CNG Less than 14 t New,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Transport,Road Freight
-THDTGMXH3N01,TRA,.DMD.,Heavy Duty Trucks LNG  Between 14-28 t New,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Transport,Road Freight
-THDTGMXH4N01,TRA,.DMD.,Heavy Duty Trucks LNG Between 28-40 t New,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Transport,Road Freight
-THDTGMXH5N01,TRA,.DMD.,Heavy Duty Trucks LNG Between 40-50 t New,PJ,PJA,PRE,THDT,ANNUAL,,Road Freight,Transport,Road Freight
 TLCVGASLCN01,TRA,.DMD.,Light Commercial Vehicles Gas Light New,PJ,PJA,PRE,TLCV,ANNUAL,,Road Freight,Transport,Road Freight
 TLCVGMXLCN01,TRA,.DMD.,Light Commercial Vehicles Gas Light New,PJ,PJA,PRE,TLCV,ANNUAL,,Road Freight,Transport,Road Freight
 TRADST00,TRA,.PRE.,Fuel Tech - Diesel (TRA),PJ,PJA,PRE,TRADST,ANNUAL,"0,00",Fuel Tech - Diesel (TRA),End-use fuel tech,Fuel Tech - Diesel (TRA)
