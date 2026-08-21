@@ -128,7 +128,7 @@ Groups are summed over `rural` + `urban decentral` + services, because the TIMES
 urban/rural label is a dwelling-archetype convention rather than a TIMES result;
 summing over both cancels it. District heating is exported with `sense: none` —
 reported for accounting, never constrained (see
-`pypsa-wal/docs/heat_soft_linking.md` for why).
+`pypsa-wal/docs/heat-softlink.md` for why).
 
 `heat_softlink_groups.csv` is data on purpose: every arbitrary mapping (coal →
 oil boiler, geothermal → heat pump, tertiary CHP heat → gas boiler) carries its

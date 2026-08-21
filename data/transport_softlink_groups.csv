@@ -1,0 +1,13 @@
+kind,times_match,key,pypsa_engine_type,note
+class,Cars,cars,,"Passenger cars. The only class PyPSA-Wal has a fleet count for (`transport_data_*.csv` `number cars`), so the only one whose stock share can replace an exogenous `land_transport_*_share` today."
+class,Light Commercial Vehicles,light commercial vehicles,,"Vans. TIMES labels them `Road Freight`; PyPSA-Eur folds them into `total road` energy with no separate fleet."
+class,Heavy Duty Trucks,heavy duty trucks,,"TIMES labels them `Road Freight`. Note some carry a `TCAR…` process code — match on the description, never on the code prefix."
+class,Buses,buses,,"TIMES label `Road transport (public)`; urban buses and coaches."
+class,Mopeds,two and three wheelers,,
+class,Motorcycles,two and three wheelers,,
+class,Bicycle,two and three wheelers,,"`Bicycle electric` — lower-case `electric` in the description, hence case-insensitive matching."
+drivetrain,PHEV,PHEV,ice,"Plug-in hybrid. Assigned to `ice` because PyPSA-Wal has no PHEV component: a PHEV split between the EV battery bus and the oil bus would need its own utility factor. Matched first — a PHEV description carries neither `Hybrid` nor `Electric` in this .vd, but the order makes that robust."
+drivetrain,Hybrid,HEV,ice,"Non-plug-in hybrid: no grid connection, so it is an ICE as far as PyPSA is concerned."
+drivetrain,Hydrogen,FCEV,fuel_cell,→ `land_transport_fuel_cell_share`
+drivetrain,Electric,BEV,electric,→ `land_transport_electric_share`
+drivetrain,*,ICE,ice,"Catch-all: diesel, gasoline, CNG, LNG, LPG, biodiesel, ethanol. → `land_transport_ice_share`"

@@ -30,6 +30,12 @@ from times_pypsa.heat_softlink import (
     load_heat_groups,
     resolve_groups_file,
 )
+from times_pypsa.transport_softlink import (
+    extract_road_transport,
+    load_transport_groups,
+    road_transport_shares,
+    road_vehicle_fleet,
+)
 from times_pypsa.qa import generate_qa_report
 from times_pypsa.model import TimesAnnualFlows, load_times_annual_flows
 from times_pypsa.topology import Topology, load_topology
@@ -54,14 +60,18 @@ __all__ = [
     "export_horizon",
     "extract_heating_capacities",
     "extract_heating_targets",
+    "extract_road_transport",
     "generate_qa_report",
     "generate_sankey",
     "heat_group_targets",
     "heating_capacities",
     "load_heat_groups",
     "load_times_annual_flows",
+    "load_transport_groups",
     "load_topology",
     "proc_agg_col",
+    "road_transport_shares",
+    "road_vehicle_fleet",
     "resolve_groups_file",
     "shared_aggregation_columns",
 ]

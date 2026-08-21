@@ -15,12 +15,12 @@ labels are not a taxonomy PyPSA can match on. Two artefacts fix that:
    ``share`` column of ``heating_targets_{year}.csv``. Nothing in this library
    had to change for option B'. The branch exists so that each pypsa-wal branch
    has a matching library branch to pin against, and so a future divergence has
-   somewhere to land. See ``docs/heat_softlink_option_comparison.md`` in
+   somewhere to land. See ``docs/heat-softlink.md`` in
    pypsa-wal.
 
 ``heating_targets_{year}.csv``
     Annual heat output per **constraint group** — the right-hand side of the
-    Option-C energy-mix constraint (``docs/times-heating-softlink-options.md``
+    Option-C energy-mix constraint (``docs/heat-softlink.md``
     §6 in pypsa-wal). Groups are defined on the technology axis only and summed
     over ``rural`` + ``urban decentral`` + ``services``, because the TIMES
     urban/rural label is a per-process labelling convention rather than a TIMES
@@ -288,7 +288,7 @@ def _stock_placement(label: str) -> tuple[str, str]:
     """(sector, TIMES urban/rural label) of an ``Aggregation Level 2`` heat label.
 
     The TIMES urban/rural label is *reported*, never *used* to place capacity:
-    pypsa-wal decides the split (see ``docs/heat_soft_linking.md``). Reporting it
+    pypsa-wal decides the split (see ``docs/heat-softlink.md``). Reporting it
     keeps the arbitrary convention visible in the artefact instead of hiding it
     inside an aggregation.
     """

@@ -7,7 +7,10 @@ soft-link years, and pre-aggregates timeslices to ANNUAL so the file is ~40×
 smaller while preserving annual totals used by QA / extraction tests.
 
 ``VAR_Cap`` is kept so the heating-capacity export
-(:mod:`times_pypsa.heat_softlink`) is testable without the full scenario.
+(:mod:`times_pypsa.heat_softlink`) is testable without the full scenario, and
+``VAR_Act`` so the road-transport export
+(:mod:`times_pypsa.transport_softlink`) is too — the fixtures committed before
+2026-08-21 predate it, so the activity assertions skip on those.
 ``VAR_Ncap`` is deliberately **not** kept: it is already contained in
 ``VAR_Cap``, and a fixture that carries it invites the double count the
 capacity export used to make.
@@ -27,7 +30,7 @@ DEFAULT_VD = REPO_ROOT / "data" / "scen_corrige_251129_0112.vd"
 DEFAULT_VDT = REPO_ROOT / "data" / "scen_corrige_251129_0112.vdt"
 DEFAULT_OUT = REPO_ROOT / "tests" / "fixtures"
 DEFAULT_MAPPINGS = REPO_ROOT / "data"
-KEEP_VARS = {"VAR_FIN", "VAR_FOUT", "VAR_COMNET", "VAR_CAP"}
+KEEP_VARS = {"VAR_FIN", "VAR_FOUT", "VAR_COMNET", "VAR_CAP", "VAR_ACT"}
 DEFAULT_YEARS = (2025, 2030, 2040, 2050)
 QA_YEARS = (2030, 2050)
 QA_TOP_CATEGORIES = 3

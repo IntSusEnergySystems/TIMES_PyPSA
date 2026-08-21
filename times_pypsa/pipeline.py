@@ -956,6 +956,22 @@ def extract_heating_capacities(
     return _extract(raw_flows_df, processes_df, horizon, heating_capacities_path)
 
 
+def extract_road_transport(
+    raw_flows_df: pd.DataFrame,
+    processes_df: pd.DataFrame,
+    horizon: int,
+    road_transport_path: Path | str,
+) -> pd.DataFrame:
+    """Road-vehicle stock and activity by drivetrain, written to CSV.
+
+    Delegates to :func:`times_pypsa.transport_softlink.extract_road_transport`,
+    kept here so callers have one import site for the export functions.
+    """
+    from times_pypsa.transport_softlink import extract_road_transport as _extract
+
+    return _extract(raw_flows_df, processes_df, horizon, road_transport_path)
+
+
 def extract_demands_for_horizon(
     annual_values_df: pd.DataFrame,
     processes_df: pd.DataFrame,
@@ -1445,13 +1461,17 @@ def export_horizon(
     emit_sankey: bool = False,
     config: PipelineConfig | None = None,
     heating_targets_path: Path | str | None = None,
+    road_transport_path: Path | str | None = None,
 ) -> None:
     """
     Export PyPSA demands and heating capacities for one planning horizon.
 
     Optionally generate a Sankey diagram when ``emit_sankey`` is True and
-    ``sankey_dir`` is provided, and the Option-C heating energy-mix targets when
-    ``heating_targets_path`` is given.
+    ``sankey_dir`` is provided, the Option-C heating energy-mix targets when
+    ``heating_targets_path`` is given, and the road-vehicle fleet by drivetrain
+    when ``road_transport_path`` is given. The road-transport export defaults to
+    off because nothing in pypsa-wal consumes it yet — see
+    ``pypsa-wal/docs/ev-charging-softlink.md``.
     """
     from times_pypsa.heat_softlink import (
         extract_heating_targets,
@@ -1488,6 +1508,10 @@ def export_horizon(
     if heating_targets_path is not None:
         extract_heating_targets(
             results_df, horizon, heating_targets_path, groups=heat_groups
+        )
+    if road_transport_path is not None:
+        extract_road_transport(
+            raw_flows_df, metadata.processes_df, horizon, road_transport_path
         )
 
     if emit_sankey and sankey_dir is not None:
@@ -1554,6 +1578,12 @@ def export_all_horizons(
                 horizon,
                 out_dir / f"heating_capacities_{horizon}.csv",
             )
+            extract_road_transport(
+                raw_flows_df,
+                metadata.processes_df,
+                horizon,
+                out_dir / f"road_transport_{horizon}.csv",
+            )
 
     if emit in ("sankey", "all"):
         for horizon in horizons:
@@ -1565,6 +1595,7 @@ _MAPPING_FILES = (
     "mapping_processes.csv",
     "extraction_rules.csv",
     "heat_softlink_groups.csv",
+    "transport_softlink_groups.csv",
 )
 
 
@@ -1615,7 +1646,12 @@ def export_coupling_dir(
             pypsa_demands_{h}.csv
             heating_capacities_{h}.csv
             heating_targets_{h}.csv
+            road_transport_{h}.csv
+            road_transport_{h}_shares.csv
             manifest.json
+
+    ``road_transport_*`` is written for completeness of the bundle; no pypsa-wal
+    rule reads it yet (``pypsa-wal/docs/ev-charging-softlink.md``).
     """
     from times_pypsa.heat_softlink import (
         extract_heating_targets,
@@ -1676,6 +1712,12 @@ def export_coupling_dir(
             metadata.processes_df,
             horizon,
             pypsa_inputs / f"heating_capacities_{horizon}.csv",
+        )
+        extract_road_transport(
+            raw_flows_df,
+            metadata.processes_df,
+            horizon,
+            pypsa_inputs / f"road_transport_{horizon}.csv",
         )
 
     try:
