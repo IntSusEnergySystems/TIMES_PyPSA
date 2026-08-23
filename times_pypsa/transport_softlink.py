@@ -5,11 +5,12 @@ PyPSA-Wal imposes ``land_transport_{electric,fuel_cell,ice}_share`` exogenously
 from ``config.default.yaml`` for every node, and for the Walloon node derives the
 electric share from the **energy** ratio ``electricity road / total road`` in
 ``wallon_demands_{year}.csv``. That ratio is the right number for the *load* and
-the wrong number for the *fleet*: a BEV converts ~3.5× more of its energy into
-km than an ICE, so the same TIMES answer is a 14 % energy share and a 49 % stock
-share in 2030. PyPSA scales the BEV charger ``p_nom`` and the EV-battery
-``e_nom`` on ``number_cars * electric_share``, so feeding it the energy share
-understates the flexible fleet by that factor.
+the wrong number for the *fleet*: a BEV converts more of its energy into km than
+an ICE and ``total road`` also meters freight the car count excludes, so the same
+TIMES answer is a 14.2 % energy share and a 52.9 % car stock share in 2030. PyPSA
+scales the BEV charger ``p_nom`` and the EV-battery ``e_nom`` on
+``number_cars * electric_share``, so feeding those the energy share understated
+the flexible fleet 3.7× at 2030.
 
 TIMES-WAL carries the fleet directly. Its road-vehicle processes are declared in
 **thousands of vehicles** (``Capacity unit = 000VEH``) and **billion vehicle-km**
@@ -19,9 +20,27 @@ TIMES-WAL carries the fleet directly. Its road-vehicle processes are declared in
 * ``VAR_Act`` → vehicle **activity**, billion vehicle-km.
 
 Both are exported here, per vehicle class and drivetrain, together with the
-shares PyPSA actually consumes. **Nothing in pypsa-wal reads this file yet** —
-the wiring waits on the BEV availability-profile work. See
-``pypsa-wal/docs/ev-charging-softlink.md`` for the choices still to be made.
+shares PyPSA consumes.
+
+**pypsa-wal reads the ``_shares`` file.** ``prepare_sector_network`` takes
+``stock_share`` — the share **by count** — for the BEV-charger ``p_nom`` and the
+EV-battery ``e_nom``, and ``stock_kveh`` for the vehicle count itself, replacing a
+population-scaled figure that was frozen across horizons. The *load* still uses
+the energy ratio, which is what makes the EV grid draw equal the transferred
+``electricity road`` exactly. Two consequences for anyone changing this module:
+
+* **Both numbers must keep coming from the same vehicle classes.** pypsa-wal reads
+  the count and the share from one class list (``cars``) precisely so their
+  product is a BEV count. Renaming a class in
+  ``transport_softlink_groups.csv`` raises there rather than silently sizing the
+  chargers at 0 — that file is now declared as a Snakemake input, so an edit
+  invalidates the export.
+* **``activity_share`` is the documented alternative, not dead weight.** It is the
+  right share for a per-km quantity; pypsa-wal uses ``stock_share`` because a
+  charger rating and a battery capacity are per-vehicle. The two differ ~6 %.
+
+See ``pypsa-wal/docs/ev-charging-softlink.md`` §2 for the full reasoning and the
+decision record (E1–E3).
 
 Two conventions to know:
 
@@ -234,10 +253,16 @@ def road_transport_shares(
     all three engine types, zero-filled, so a consumer never has to guess whether
     a missing row means zero or means the class was not modelled.
 
-    ``stock_share`` is the number a ``land_transport_*_share`` should be set to
-    when the target is a **fleet** quantity (charger power, battery energy);
-    ``activity_share`` is the one to use when the target is **driven km**.
-    Neither equals the energy ratio PyPSA derives today.
+    ``stock_share`` is what pypsa-wal applies to a **fleet** quantity (charger
+    power, battery energy), because those are per-vehicle; ``activity_share`` is
+    the one for a **per-km** quantity. Neither equals the energy ratio, which
+    pypsa-wal keeps for the *load* — see the module docstring.
+
+    Consumers must take ``stock_kveh`` and ``stock_share`` from the **same**
+    ``vehicle_class`` rows: their product is the BEV count, and crossing the
+    boundaries gets it wrong in either direction -- a car count against a
+    cars+vans share is 14 % low at 2030, a cars+vans count against a car share
+    17 % high.
     """
     fleet = road_vehicle_fleet(raw_flows_df, processes_df, horizon, groups)
     out = (

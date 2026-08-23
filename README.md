@@ -144,6 +144,49 @@ a TIMES category twice, uses an unknown constraint sense, or names a
 > 1 740 MW `Thermal Public - Retrofitting CCGT CCS` power plant while dropping
 > `District heating`.
 
+### Road-transport soft-link (EV fleet)
+
+The demands carry road **energy**; this carries the road **fleet**, because
+pypsa-wal needs both and they are far apart. Its BEV-charger `p_nom` and
+EV-battery `e_nom` are `number_cars × charge_rate × electric_share` — a vehicle
+count — while the energy ratio `electricity road / total road` is 0.142 against a
+0.529 car BEV stock share in 2030. Feeding the energy share to a count
+understated the flexible fleet 3.7×. Two artefacts, driven by
+[`data/transport_softlink_groups.csv`](data/transport_softlink_groups.csv):
+
+| File | Contents |
+|---|---|
+| `road_transport_{year}.csv` | stock (**thousand vehicles**, `VAR_Cap`) and activity (**billion vehicle-km**, `VAR_Act`) per vehicle class × drivetrain |
+| `road_transport_{year}_shares.csv` | the same collapsed onto the three PyPSA engine types, with `stock_share` and `activity_share` per class, every class carrying all three engine types zero-filled |
+
+**pypsa-wal reads the `_shares` file** — `stock_share` (by count) for the fleet
+quantities, `stock_kveh` for the vehicle count itself, and it keeps the energy
+ratio for the load, which is what makes the EV grid draw equal the transferred
+`electricity road` exactly. `activity_share` is the right share for a per-km
+quantity and is exported for that reason; the two differ ~6 %.
+
+> Take `stock_kveh` and `stock_share` from the **same** `vehicle_class` rows.
+> Their product is the BEV count, and crossing the boundaries gets it wrong both
+> ways: a car count against a cars+vans share is 14 % low at 2030, a cars+vans
+> count against a car share 17 % high. Choosing *which* boundary is nearly free —
+> TIMES has ~0.1 kveh of electric vans, so cars and cars+LCV give the same BEV
+> count to four figures.
+
+Three conventions the extraction depends on:
+
+* **The selector is the unit pair `000VEH`/`BVKM`**, not the
+  `Aggregation Level 2` label — `Cars` and `Road Freight` each label both the
+  vehicle processes and the fuel technologies feeding them.
+* **The vehicle class comes from the process description**, never the code prefix:
+  fourteen `TCAR…` codes in the reference `.vd` are heavy-duty trucks and vans.
+* **`VAR_Cap` only, never `VAR_Cap + VAR_Ncap`** — the same double count the
+  heating capacities had to undo.
+
+PHEV and HEV map to `ice`: pypsa-wal has no plug-in-hybrid component, and a PHEV
+split across the EV-battery and oil buses would need its own utility factor. Elia
+instead counts a PHEV as half a BEV — the two conventions must not be mixed. See
+`pypsa-wal/docs/ev-charging-softlink.md` §2.
+
 ### Python API
 
 For Snakemake integration in pypsa-wal:
@@ -158,13 +201,18 @@ export_horizon(
     wallon_demands_path="resources/walloon/demands_2030.csv",
     heating_capacities_path="resources/walloon/heating_capacities_2030.csv",
     heating_targets_path="resources/walloon/heating_targets_2030.csv",
+    road_transport_path="resources/walloon/road_transport_2030.csv",
     sankey_dir="results/sankey",
     emit_sankey=True,
 )
 ```
 
-`heating_targets_path` is optional; `export_all_horizons` and
-`export_coupling_dir` always write it.
+`heating_targets_path` and `road_transport_path` are optional in the signature;
+`export_all_horizons` and `export_coupling_dir` always write both. Pass
+`road_transport_path` for anything pypsa-wal consumes — its
+`prepare_sector_network` needs the `_shares` file written alongside, and
+`build_wallon_demands` raises on a bundle that lacks it rather than falling back
+to the energy ratio.
 
 For enriched annual flows and topology (QA / analysis):
 
@@ -199,6 +247,7 @@ Files under `data/`:
 - `AllProcesses.csv`, `AllCommodities.csv`: full VEDA dictionaries (semicolon-separated) with **Name** + **Description** for nearly all model codes — used to name Sankey fallbacks and to debug unmapped flows
 - `mapping_commodities.csv`, `mapping_processes.csv`, `extraction_rules.csv`: TIMES → PyPSA mappings (in `data/`)
 - `heat_softlink_groups.csv`: heating constraint groups — TIMES categories and process labels ↔ PyPSA carriers and stock technologies, with the constraint sense and the justification of every arbitrary assignment
+- `transport_softlink_groups.csv`: road-vehicle classes and drivetrains ↔ the three PyPSA engine types, matched on the process **description**. Declared as a Snakemake input in pypsa-wal, so editing it invalidates `road_transport_*.csv` instead of leaving a stale fleet on disk
 
 **Reference scenario for QA:** `data/scen_corrige_251129_0112.{vd,vdt}`
 

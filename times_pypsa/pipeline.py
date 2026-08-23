@@ -1469,9 +1469,14 @@ def export_horizon(
     Optionally generate a Sankey diagram when ``emit_sankey`` is True and
     ``sankey_dir`` is provided, the Option-C heating energy-mix targets when
     ``heating_targets_path`` is given, and the road-vehicle fleet by drivetrain
-    when ``road_transport_path`` is given. The road-transport export defaults to
-    off because nothing in pypsa-wal consumes it yet — see
-    ``pypsa-wal/docs/ev-charging-softlink.md``.
+    when ``road_transport_path`` is given.
+
+    ``road_transport_path`` stays optional for signature compatibility, like
+    ``heating_targets_path``, but the only caller — pypsa-wal's
+    ``build_wallon_demands`` — now always passes it: ``prepare_sector_network``
+    needs the ``_shares`` file written alongside to size the BEV charger and the
+    EV battery. Omitting it there fails the rule on a missing output rather than
+    degrading quietly. ``pypsa-wal/docs/ev-charging-softlink.md`` §2.
     """
     from times_pypsa.heat_softlink import (
         extract_heating_targets,
@@ -1650,8 +1655,12 @@ def export_coupling_dir(
             road_transport_{h}_shares.csv
             manifest.json
 
-    ``road_transport_*`` is written for completeness of the bundle; no pypsa-wal
-    rule reads it yet (``pypsa-wal/docs/ev-charging-softlink.md``).
+    ``road_transport_{h}_shares.csv`` is **required**: pypsa-wal's
+    ``prepare_sector_network`` reads it for the BEV-charger ``p_nom`` and
+    EV-battery ``e_nom``, and ``build_wallon_demands`` raises on a bundle that
+    lacks it rather than falling back to the energy ratio
+    (``pypsa-wal/docs/ev-charging-softlink.md`` §2). Bundles exported before
+    2026-08 predate it and must be re-exported.
     """
     from times_pypsa.heat_softlink import (
         extract_heating_targets,
