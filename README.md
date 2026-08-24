@@ -59,6 +59,26 @@ times-pypsa sankey \
   --out-dir output/
 ```
 
+One page per model year **and** per aggregation level, for a report / results
+folder (this is what pypsa-wal's `build_times_sankey` rule calls):
+
+```bash
+times-pypsa sankey-pages \
+  --vd data/scen_corrige_251129_0112.vd \
+  --out-dir output/report_pages/ \
+  --years 2025,2030,2040,2050 \
+  --agg-levels custom "Aggregation Level 2"
+```
+
+Writes `times_sankey_<level>_<year>.html` (`Aggregation Level 2` becomes the
+documented alias `mapping` in the file name) plus a `times_sankey_index.html`
+linking them. Each page is one interactive Sankey with the netting toggle and
+cross-links to the other year and level — no QA tables, no per-year CSVs, and
+**one** `.vd` parse for every page. `--years` defaults to every year in the file;
+a requested year the `.vd` does not cover still gets a page saying so, so a
+caller that declared the file (a Snakemake rule) sees the gap instead of failing
+on a missing output. See [Sankey report pages](#sankey-report-pages).
+
 Multi-view extraction QA (full HTML report + balance / coverage CSVs):
 
 ```bash
@@ -213,6 +233,26 @@ export_horizon(
 `prepare_sector_network` needs the `_shares` file written alongside, and
 `build_wallon_demands` raises on a bundle that lacks it rather than falling back
 to the energy ratio.
+
+Report pages for a results folder — parses the `.vd` once, tags each year once,
+and renders every level from that:
+
+```python
+from times_pypsa import export_sankey_pages
+
+export_sankey_pages(
+    "results/walloon/scen_demande_haute/html",
+    vd_file="path/to/scenario.vd",
+    years=[2025, 2030, 2040, 2050],
+    agg_levels=["custom", "Aggregation Level 2"],
+    scenario_label="scen_demande_haute",
+)
+```
+
+Pass `model=` to reuse an already-loaded `TimesAnnualFlows` instead of
+re-parsing. `sankey_page_names(years, levels)` returns the exact file list
+without touching the `.vd`, which is how a Snakemake rule declares its outputs
+before the data exists.
 
 For enriched annual flows and topology (QA / analysis):
 
@@ -370,6 +410,39 @@ When debugging a Sankey node, use `qa_sankey_label_map_{year}.csv` next to the H
 
 Core = codes on extraction-matched flows; keep every energy flow sharing a core process or commodity (upstream n−1, matched n, downstream n+1). Details: [aggregation.md](aggregation.md#export-neighbourhood-n1--n--n1).
 
+#### Sankey report pages
+
+`times-pypsa sankey-pages` / `export_sankey_pages` is the QA report's Sankey
+without the QA report. It exists because a **results folder** wants one thing:
+the energy-flow diagram for each planning horizon, at the level you read the
+system on and at the level the extraction filters on. The QA command answers
+that too, but only alongside per-year balance / coverage / ratio CSVs, the
+integrity verdict and fifteen per-category neighbourhood charts.
+
+| | `qa` | `sankey-pages` |
+|---|---|---|
+| Output | one `qa_report.html` + ~20 CSVs per year | one HTML per (year × level) + an index |
+| Charts | whole-system + top-15 export neighbourhoods | whole-system only |
+| Year selection | slider inside one page | one page per year, cross-linked |
+| Aggregation levels | one per invocation | all requested levels from one parse |
+| Purpose | is the extraction right? | what does TIMES do in 2030? |
+
+The diagrams themselves are **the same object**: the link builders
+(`aggregate_system_flows`, `prepare_system_sankey_links`), the commodity-hub
+collapse, netting, export colouring and hover text are imported from `qa.py`
+unchanged, so a page and its QA chart cannot drift apart. What the module adds is
+the loop order — parse the `.vd` once, tag each year once, render every level
+from that — and the page furniture (cross-links, level explanation, provenance
+footer).
+
+`Aggregation Level 2` appears as `mapping` in file names, its documented alias.
+The index is written **last**, after every page, so a caller can use it as the
+single sentinel for the whole set; pypsa-wal's cluster script does.
+
+Used by pypsa-wal's `build_times_sankey` rule, which writes into each scenario's
+`results/<run>/html/` next to its PyPSA report — see
+`pypsa-wal/docs/times-sankey.md`.
+
 #### QA report output
 
 The `times-pypsa qa` command (see [CLI usage](#cli-usage)) writes `qa_report.html` (interactive Sankeys with year timeline and flow-netting toggle) plus per-year CSVs `qa_*_{year}.csv`.
@@ -518,6 +591,9 @@ One item is left for the pypsa-wal side rather than this repository: `services o
 
 | Date | Change | Evidence | Demand CSV impact |
 |------|--------|----------|-------------------|
+| 2026-08-23 | **New `sankey-pages` command / `export_sankey_pages` API**: one standalone interactive Sankey per (model year × aggregation level) plus an index, for a report or results folder. Reuses the QA link builders unchanged, so the diagrams are identical; what is new is one `.vd` parse and one tagging pass per year shared by every level, and pages that carry their own navigation and provenance. `sankey_page_names()` gives the file list without reading the `.vd`, so a Snakemake rule can declare its outputs; a requested year absent from the `.vd` still gets a page saying so, rather than a missing declared output. Drives pypsa-wal's `build_times_sankey` rule (4 horizons × 2 levels in ~9 s). | `tests/test_sankey_pages.py`, `pypsa-wal/docs/times-sankey.md` | None |
+| 2026-08-23 | **Single-year charts no longer render a dead year slider.** `render_interactive_sankey_section` emits the year as a caption when a chart has one year, and the init JS treats the slider as optional. Also affects `times-pypsa qa --year 2050`, where a range input with `min == max` invited dragging that did nothing. | `test_pages_render_one_year_without_a_dead_slider`, `test_multi_year_report_keeps_its_slider` | None |
+| 2026-08-23 | **New `available_agg_levels(flows)`**: the levels `aggregate_flows` can actually use, i.e. those with a label column on *both* sides. The obvious check — shared columns of the two mapping CSVs — is wrong, because `load_metadata` returns a slimmed commodity frame; that is why level validation now reads the enriched flows and a mistyped `--agg-levels` fails before the `.vd` is parsed instead of mid-render. | `test_unknown_level_fails_fast` | None |
 | 2026-07-25 | **The last unmatched tertiary energy is soft-linked: new category `services other fuel`.** Reading pypsa-wal first changed the answer. The intended route — a PyPSA-Eur `services cooking` / `total services` key — is a **dead end**: those columns exist in `build_energy_totals.py` but nothing in `scripts/` or `rules/` reads them, because both residential and tertiary heat are built from `space` + `water` only (`build_hourly_heat_demand.py`: `uses = ["water", "space"]`). Substituting them would have made the coverage table read 100% while the energy stayed outside the model. The category instead reads `demand_input` on `process_agg = commercial other` with the seven non-electric commercial carriers, which isolates exactly the four processes that burn something other than electricity: `COENMIX100`/`COENMIX101` (`Com.Other Energy`) and `CCOKGMX101`/`CCOKLPG101` (gas / LPG cooking). Composition in 2030: network gas 0.568, oil 0.262, LPG 0.017, wood chips 0.010, gasoline 0.005, pellets 0.004, biodiesel 0.001 PJ. **pypsa-wal's `write_wallon_heat_demands` must add it to the `BEWAL services urban decentral heat` target** (+5.7% on that load in 2050) for PyPSA to serve it; the two caveats to agree first are in aggregation.md. | re-export diff, `qa_export_reconciliation_*.csv` (Services still exactly 1.000), `qa_coverage_gap_*.csv` 325.6 → 324.7 PJ (2030), `qa_double_count_*.csv` empty | **1 new category only.** `services other fuel` = 0.223 TWh (2021) → 0.241 (2030) → 0.243 (2050). All 57 existing categories **byte-identical** in all 8 soft-link years. |
 | 2026-07-25 | **`total electricity services` stays one total — question closed as a *no*.** Verified rather than assumed: pypsa-wal consumes it as the single scalar that scales the whole Walloon electricity load, and `cooling` appears in `prepare_sector_network.py` only in the EV cabin-temperature correction; there is no lighting, appliance or refrigeration carrier anywhere in the Walloon build. Splitting cooling / lighting / appliances / refrigeration would produce numbers with nowhere to go. Data centres stay the one informational child. | pypsa-wal `scripts/` audit | None |
 | 2026-07-25 | **`ammonia` / `methanol` known-zero justifications corrected.** `methanol` is genuinely absent (no commodity, process or `.vd` row anywhere; Walloon chemistry is aggregated into `ICH` / `NEC` / `NEO`, whose fuels `methane` / `naphtha` / `coal` already read). **`ammonia` is not absent** — the old note said "no ammonia commodity exists in the model", but `IAM` (`Ammonia Demand`, **Mt**) is met by `IAMSTDPRO00`/`IAMSTDPRO01` at 0.319 Mt/a in 2021–2025, burning 3.48–3.80 PJ of `INDGAS` and 0.10–0.27 PJ of `INDELC`. Zero remains right for three independent reasons: the demand series stops after 2025 (no `EQ_Combal`, no `VAR_Act` from 2030, so every coupled horizon is genuinely zero); that gas and electricity are **already exported** inside `methane` and `electricity`, while pypsa-eur subtracts the ammonia feedstock from industrial methane before loading `ammonia`, so a non-zero value would double-count; and `IAM` is Mt, which `exported_unit_check` rejects. | `IAM` rows of the reference `.vd`, `AllCommodities.csv`, pypsa-eur `build_industry_sector_ratios.py` | None (both stay 0) |

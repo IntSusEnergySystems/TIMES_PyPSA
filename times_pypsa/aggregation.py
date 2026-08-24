@@ -81,6 +81,28 @@ def _available_agg_levels(flows: pd.DataFrame) -> list[str]:
     )
 
 
+def available_agg_levels(flows: pd.DataFrame) -> list[str]:
+    """Aggregation levels ``aggregate_flows`` can actually use on ``flows``.
+
+    A level needs a label column on *both* sides (``proc_agg__X`` and
+    ``com_agg__X``); only the intersection is selectable. Callers validating a
+    user-supplied level should use this rather than the mapping CSV columns —
+    ``load_metadata`` returns a slimmed commodity frame, so the shared-column
+    view of the two CSVs does not answer the question.
+    """
+    proc = {
+        col[len("proc_agg__") :]
+        for col in flows.columns
+        if col.startswith("proc_agg__")
+    }
+    com = {
+        col[len("com_agg__") :]
+        for col in flows.columns
+        if col.startswith("com_agg__")
+    }
+    return sorted(proc & com)
+
+
 def _nonempty_labels(series: pd.Series) -> pd.Series:
     labels = series.fillna("").astype(str).str.strip()
     return labels.where(~labels.str.lower().eq("nan") & labels.ne(""), other="")

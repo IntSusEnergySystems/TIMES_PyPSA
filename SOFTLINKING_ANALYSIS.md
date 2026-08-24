@@ -48,7 +48,9 @@ TIMES_PyPSA/
 ├── pyproject.toml                 # times-pypsa CLI entry point
 ├── times_pypsa/
 │   ├── pipeline.py                # parse .vd, extract, Sankey, coupling export
-│   └── cli.py                     # export | export-coupling | sankey
+│   ├── qa.py / sankey_html.py     # multi-view QA report + Sankey rendering
+│   ├── sankey_pages.py            # one Sankey page per year x agg level (report folders)
+│   └── cli.py                     # export | export-coupling | sankey | sankey-pages | qa
 ├── data/
 │   ├── mapping_commodities.csv    # canonical TIMES → PyPSA mappings
 │   ├── mapping_processes.csv

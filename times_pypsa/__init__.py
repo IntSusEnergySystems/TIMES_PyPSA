@@ -5,6 +5,7 @@ from times_pypsa.aggregation import (
     PYPSA_SECTOR_ORDER,
     aggregate_flows,
     assign_export_sectors,
+    available_agg_levels,
     category_sector,
     com_agg_col,
     link_sector,
@@ -37,10 +38,20 @@ from times_pypsa.transport_softlink import (
     road_vehicle_fleet,
 )
 from times_pypsa.qa import generate_qa_report
+from times_pypsa.sankey_pages import (
+    DEFAULT_PAGE_LEVELS,
+    DEFAULT_INDEX_NAME,
+    export_sankey_pages,
+    level_slug,
+    sankey_page_name,
+    sankey_page_names,
+)
 from times_pypsa.model import TimesAnnualFlows, load_times_annual_flows
 from times_pypsa.topology import Topology, load_topology
 
 __all__ = [
+    "DEFAULT_INDEX_NAME",
+    "DEFAULT_PAGE_LEVELS",
     "PYPSA_SECTOR_COLORS",
     "PYPSA_SECTOR_ORDER",
     "PipelineConfig",
@@ -48,6 +59,7 @@ __all__ = [
     "Topology",
     "aggregate_flows",
     "assign_export_sectors",
+    "available_agg_levels",
     "build_sankey_label_map",
     "category_sector",
     "collapse_commodity_nodes",
@@ -58,6 +70,7 @@ __all__ = [
     "export_all_horizons",
     "export_coupling_dir",
     "export_horizon",
+    "export_sankey_pages",
     "extract_heating_capacities",
     "extract_heating_targets",
     "extract_road_transport",
@@ -65,6 +78,7 @@ __all__ = [
     "generate_sankey",
     "heat_group_targets",
     "heating_capacities",
+    "level_slug",
     "load_heat_groups",
     "load_times_annual_flows",
     "load_transport_groups",
@@ -73,5 +87,7 @@ __all__ = [
     "road_transport_shares",
     "road_vehicle_fleet",
     "resolve_groups_file",
+    "sankey_page_name",
+    "sankey_page_names",
     "shared_aggregation_columns",
 ]

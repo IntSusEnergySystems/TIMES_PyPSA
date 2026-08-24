@@ -606,10 +606,12 @@ function timesPypsaInitSankeyChart(chart) {
   }
 
   function render() {
-    if (!plotDiv || !yearLabel || !yearSlider || !nettingToggle) return;
+    // The year slider is absent on single-year charts (see
+    // render_interactive_sankey_section); everything else still has to render.
+    if (!plotDiv || !nettingToggle) return;
     const year = years[yearIdx];
-    yearLabel.textContent = year;
-    yearSlider.value = String(yearIdx);
+    if (yearLabel) yearLabel.textContent = year;
+    if (yearSlider) yearSlider.value = String(yearIdx);
     const mode = nettingToggle.checked ? "netted" : "gross";
     const title = chart.title + " — " + year + " (" + unit + ", " + mode + " flows)";
     try {
@@ -624,14 +626,16 @@ function timesPypsaInitSankeyChart(chart) {
     }
   }
 
-  yearSlider.min = "0";
-  yearSlider.max = String(Math.max(years.length - 1, 0));
-  yearSlider.step = "1";
-  yearSlider.addEventListener("input", function () {
-    yearIdx = parseInt(yearSlider.value, 10);
-    render();
-  });
-  nettingToggle.addEventListener("change", render);
+  if (yearSlider) {
+    yearSlider.min = "0";
+    yearSlider.max = String(Math.max(years.length - 1, 0));
+    yearSlider.step = "1";
+    yearSlider.addEventListener("input", function () {
+      yearIdx = parseInt(yearSlider.value, 10);
+      render();
+    });
+  }
+  if (nettingToggle) nettingToggle.addEventListener("change", render);
   render();
 }
 
@@ -644,18 +648,34 @@ function timesPypsaInitSankeys(charts) {
 
 
 def render_interactive_sankey_section(chart: dict[str, Any]) -> str:
-    """Return HTML block for one interactive Sankey (controls + plot div)."""
+    """Return HTML block for one interactive Sankey (controls + plot div).
+
+    A single-year chart gets the year as a caption instead of a slider: a range
+    input whose min equals its max looks broken and invites the reader to drag
+    it. Both `times-pypsa qa --year 2050` and the per-horizon pages of
+    :mod:`times_pypsa.sankey_pages` land here. The JS treats the slider as
+    optional, so the control can be dropped without touching rendering.
+    """
     chart_id = chart["id"]
     subtitle = chart.get("subtitle", "")
     subtitle_html = f"<p class='meta'>{subtitle}</p>" if subtitle else ""
-    return f"""
-<section class="sankey-section" id="chart-{chart_id}">
-  <div class="sankey-controls">
+    years = chart.get("years") or []
+    if len(years) > 1:
+        year_control = """
     <label class="control">
       <span class="control-label">Year</span>
       <input type="range" class="year-slider" aria-label="Select year">
       <output class="year-label"></output>
-    </label>
+    </label>"""
+    else:
+        year_control = f"""
+    <span class="control">
+      <span class="control-label">Year</span>
+      <output class="year-label">{years[0] if years else ""}</output>
+    </span>"""
+    return f"""
+<section class="sankey-section" id="chart-{chart_id}">
+  <div class="sankey-controls">{year_control}
     <label class="control netting-control">
       <input type="checkbox" class="netting-toggle" checked>
       Net bidirectional flows

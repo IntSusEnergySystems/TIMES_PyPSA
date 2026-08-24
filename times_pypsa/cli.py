@@ -16,6 +16,7 @@ from times_pypsa.pipeline import (
     generate_sankey,
 )
 from times_pypsa.qa import generate_qa_report
+from times_pypsa.sankey_pages import DEFAULT_PAGE_LEVELS, export_sankey_pages
 from times_pypsa.units import DEFAULT_FLOW_THRESHOLD_TWH
 
 logger = logging.getLogger(__name__)
@@ -115,6 +116,35 @@ def cmd_sankey(args: argparse.Namespace) -> int:
     mappings_dir = _resolve_mappings_dir(args)
     config = _build_config(args)
     generate_sankey(args.vd, mappings_dir, args.year, args.out_dir, config=config)
+    return 0
+
+
+def cmd_sankey_pages(args: argparse.Namespace) -> int:
+    mappings_dir = _resolve_mappings_dir(args)
+    years = _parse_horizons(args.years) if args.years else None
+    # `--start-year` defaults to None here (not 2021) so that, unset,
+    # export_sankey_pages can start the .vd read at the earliest requested year
+    # instead of silently dropping a horizon before the library default.
+    config = (
+        PipelineConfig(start_year=args.start_year)
+        if args.start_year is not None
+        else None
+    )
+    artifacts = export_sankey_pages(
+        args.out_dir,
+        vd_file=args.vd,
+        mappings_dir=mappings_dir,
+        years=years,
+        agg_levels=args.agg_levels or list(DEFAULT_PAGE_LEVELS),
+        units=args.units,
+        flow_threshold=args.threshold,
+        scenario_label=args.scenario_label,
+        config=config,
+    )
+    if not artifacts:
+        logger.error("No Sankey pages written (empty .vd?)")
+        return 1
+    logger.info("Wrote %d file(s) to %s", len(artifacts), args.out_dir)
     return 0
 
 
@@ -220,6 +250,59 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     sankey_parser.set_defaults(func=cmd_sankey)
+
+    pages_parser = subparsers.add_parser(
+        "sankey-pages",
+        help=(
+            "One standalone Sankey page per model year x aggregation level "
+            "(for a report / results folder), plus an index"
+        ),
+    )
+    _add_common_args(pages_parser)
+    pages_parser.add_argument(
+        "--out-dir",
+        type=Path,
+        required=True,
+        help="Output directory for the HTML pages (e.g. a results html/ folder)",
+    )
+    pages_parser.add_argument(
+        "--years",
+        default=None,
+        help=(
+            "Years as comma list (2030,2040) or range (2025-2050). "
+            "Default: every year in the .vd file."
+        ),
+    )
+    pages_parser.add_argument(
+        "--agg-levels",
+        nargs="+",
+        default=None,
+        help=(
+            "Aggregation levels to write, one page each per year "
+            f"(default: {' '.join(DEFAULT_PAGE_LEVELS)!r})"
+        ),
+    )
+    pages_parser.add_argument(
+        "--units",
+        choices=["twh", "pj"],
+        default="twh",
+        help="Energy unit for the diagrams (default: twh)",
+    )
+    pages_parser.add_argument(
+        "--threshold",
+        type=float,
+        default=None,
+        help=(
+            "Minimum link size in selected --units "
+            f"(default: {DEFAULT_FLOW_THRESHOLD_TWH:g}; set >0 to hide small ribbons)"
+        ),
+    )
+    pages_parser.add_argument(
+        "--scenario-label",
+        default="",
+        help="Scenario name shown in the page heading",
+    )
+    pages_parser.set_defaults(func=cmd_sankey_pages, start_year=None)
 
     qa_parser = subparsers.add_parser(
         "qa",

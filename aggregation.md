@@ -16,6 +16,8 @@ Extraction itself is unchanged (filters on Aggregation Level 2 labels). Sankey /
 
 **No opaque placeholders.** Empty mapping cells fall back to TIMES Description, then code — never `Unknown`.
 
+**Two levels reach the results folder.** `times-pypsa sankey-pages` (and pypsa-wal's `build_times_sankey` rule) writes `custom` *and* `Aggregation Level 2` for every planning horizon, from one `.vd` parse — the level to read the system on, and the level the extraction filters on, side by side and cross-linked. `Aggregation Level 2` appears as `mapping` in the file names. See [README § Sankey report pages](README.md#sankey-report-pages).
+
 **Why these four.** `Aggregation Level 2` is load-bearing — it is the grain `extraction_rules.csv` filters on, so it cannot be dropped. `custom` is the level to actually look at: for 2030 it renders 247 links / 94 nodes against Level 2's 948 / 132, and no exported link spans more than one PyPSA sector, so every soft-linked flow stays isolable and correctly coloured. `sankey_overview` is not redundant with `custom`: `custom` reads it to build its `… (context)` buckets, so deleting the column would fall the collapse back to description heuristics. `Aggregation Level 1` and `PyPSA technology` were removed on 2026-07-25 — no code read them (`pypsa-wallon` assigned `PyPSA technology` then immediately overwrote it on the next line).
 
 ## Custom aggregation levels
