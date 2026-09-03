@@ -37,6 +37,12 @@ from times_pypsa.transport_softlink import (
     road_transport_shares,
     road_vehicle_fleet,
 )
+from times_pypsa.named_transfers import (
+    extract_industrial_capture,
+    extract_pv_rooftop_share,
+    industrial_capture_kt,
+    pv_rooftop_share,
+)
 from times_pypsa.qa import generate_qa_report
 from times_pypsa.sankey_pages import (
     DEFAULT_PAGE_LEVELS,
@@ -73,7 +79,11 @@ __all__ = [
     "export_sankey_pages",
     "extract_heating_capacities",
     "extract_heating_targets",
+    "extract_industrial_capture",
+    "extract_pv_rooftop_share",
     "extract_road_transport",
+    "industrial_capture_kt",
+    "pv_rooftop_share",
     "generate_qa_report",
     "generate_sankey",
     "heat_group_targets",
