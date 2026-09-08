@@ -23,9 +23,14 @@ trajectory look like". Both parse the same `.vd`.
 
 ```bash
 times-pypsa indicators --vd data/scen_corrige_251129_0112.vd \
-  --out-dir output/indicators --years 2021,2025,2030,2035,2040,2045,2050 \
-  --scenario-label "demande haute"
+  --out-dir output/indicators --scenario-label "demande haute"
 ```
+
+`--years` defaults to **every model year in the `.vd`** (2021, 2022, 2025, 2030,
+2035, 2040, 2045, 2050 for the Walloon scenarios) and is there to narrow that,
+never to complete it. Pass it only to answer a question about specific horizons:
+a trajectory chart drawn on the four years PyPSA steps through has holes at 2035
+and 2045 and no 2021, which is the year §6 reconciles against.
 
 In pypsa-wal the same thing runs as `rule build_times_indicators`
 (`sector.times_indicators.enable`), writing into
@@ -128,6 +133,15 @@ tertiary table has over the bare `COM*` carriers.
 transport total** (`TOTAL_EXCLUDES`): it is an international bunker, and the
 published tables leave it out entirely.
 
+The row is therefore listed in the table's `excluded_rows`, which is what makes
+the report draw it as a hatched grey bar *beside* the transport stack rather
+than in it, and mark it with a `*` in the table. Stacking it was a real defect:
+the bar overshot its own total line by the whole 8.3 TWh bunker, which reads as
+an extraction error. `test_totals_are_the_sum_of_the_stacked_rows` and
+`test_stacked_traces_add_up_to_the_total_line` hold every table and every
+rendered chart to `Σ stacked rows == total`, so a future row that leaves a total
+has to declare itself the same way.
+
 ## 3. Emissions
 
 ```
@@ -226,6 +240,55 @@ turbining, battery discharge and the fuel-tech pass-throughs — all of them mov
 electricity that was already generated. Processes matching no rule are skipped
 with a log line, so a new plant type shows up as a warning rather than silently
 vanishing.
+
+---
+
+## 5c. Chart colours
+
+The palette is the published one, not a look-alike: the swatches were sampled
+from the legends of the December-2025 screenshots in
+`figures_from_demande_haute_04-12-2025/`, and they are Plotly's
+`qualitative.Plotly` for the first ten series of a chart followed by
+`qualitative.D3` for the next ten. `indicator_pages.PALETTE` is that cycle, and
+the total line is `#FF0000`, theirs too. A page of ours can therefore sit beside
+a published one without the pair reading as two different reports.
+
+**One deliberate difference: colours are stable per chart family, not per
+chart.** The Explorer colours each chart independently — it sorts *that chart's*
+series alphabetically and walks the palette — so `Electricity` is purple on the
+industry chart, green on the tertiary one and blue on the residential one, and
+`Industry` is red on the demand page but green on the emissions page. Here the
+walk is done once per family and stored in `SERIES_COLORS[color_domain]`, so a
+label keeps its colour on every chart that can show it.
+
+The families are chosen so each one still reproduces its screenshot exactly: a
+family's label universe *is* the series set of the published chart it comes from.
+That is why the two sector families are separate — `Industry` is the second
+demand sector but the third emitting sector, and both published charts are
+matched. `carrier` reproduces the industry-demand chart swatch for swatch for its
+first fifteen carriers; the four carriers that chart has no row for
+(`Derived gas`, `Natural Gas`, `Kerosene`, `Solar`) take the tail of the cycle.
+
+| `color_domain` | Charts | Universe |
+|---|---|---|
+| `carrier` | the five demand-by-carrier charts | `FUEL_ORDER`, alphabetically |
+| `demand_sector` | *Demande énergétique générale* | `DEMAND_SECTORS`, alphabetically |
+| `emission_sector` | the two emissions charts | `EMISSION_SECTORS`, alphabetically |
+| `heat_technology` | the three heat charts | the published French labels' order |
+| `power_technology` | the two power charts | none — row order into `PALETTE` |
+
+Two rules keep it honest. A label the family does not name takes the first
+unused `PALETTE` colour, so a chart never draws two bands the same colour even
+when the map does not reach; and
+`test_every_series_colour_comes_from_the_reference_palette` /
+`test_published_charts_keep_their_published_swatches` pin both the cycle and the
+three series sets the screenshots fix exactly.
+
+`Cogeneration` is the one place the screenshots cannot be followed. Their
+industry-heat chart has two rows (Chaudière, Cogénération) and gives cogeneration
+the same red that `Direct electric heating` gets in their residential chart; ours
+shows all four rows on the industry chart, so the two cannot share a colour and
+cogeneration takes the next free one.
 
 ---
 

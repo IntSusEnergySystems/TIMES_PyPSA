@@ -10,6 +10,9 @@ import pytest
 from times_pypsa.indicator_pages import (
     DEFAULT_INDEX_NAME,
     GROUPS,
+    PALETTE,
+    SERIES_COLORS,
+    TOTAL_COLOR,
     _assign_colors,
     export_indicator_pages,
     indicator_frames,
@@ -85,12 +88,114 @@ def test_pages_embed_a_chart_per_table_with_matching_years(
     assert seen > 0
 
 
+def test_stacked_traces_add_up_to_the_total_line(tmp_path, times_model, mappings_dir):
+    """A bar taller than the total line drawn on it reads as an extraction bug.
+
+    The transport chart was exactly that: aviation kerosene is reported but is
+    not part of the sector total, and it was stacked anyway. Rows outside the
+    total now carry `excluded` and are drawn beside the stack, so what stacks is
+    what the line says.
+    """
+    artifacts = export_indicator_pages(
+        tmp_path, mappings_dir=mappings_dir, model=times_model
+    )
+    checked = 0
+    for key, _, _ in GROUPS:
+        if key == "catalogue":
+            continue
+        for chart in _charts(artifacts[key].read_text(encoding="utf-8")):
+            if chart["total"] is None:
+                continue
+            stacked = [t for t in chart["traces"] if not t["excluded"]]
+            assert stacked, chart["id"]
+            for i, total in enumerate(chart["total"]):
+                assert sum(t["values"][i] for t in stacked) == pytest.approx(
+                    total, rel=1e-9, abs=1e-6
+                ), f"{chart['id']} {chart['years'][i]}"
+            checked += 1
+    assert checked > 0
+
+
+def test_kerosene_is_drawn_outside_the_transport_stack(
+    tmp_path, times_model, mappings_dir
+):
+    """The one series the report is allowed to draw outside a stack."""
+    artifacts = export_indicator_pages(
+        tmp_path, mappings_dir=mappings_dir, model=times_model
+    )
+    page = artifacts["demand"].read_text(encoding="utf-8")
+    charts = {c["id"]: c for c in _charts(page)}
+    tra = charts.get("demand_tra")
+    if tra is None or not any(t["name"] == "Kerosene" for t in tra["traces"]):
+        pytest.skip("no aviation kerosene in this .vd")
+    assert [t["name"] for t in tra["traces"] if t["excluded"]] == ["Kerosene"]
+    # `base` is what takes the bar out of the stack — see the note in the JS.
+    assert "trace.base = asideBase.slice();" in page
+    assert "hors total" in page
+    # And the table says why the row does not add up with the others.
+    assert "reported but not part of the total" in page
+
+
 def test_colors_are_unique_within_one_chart():
     """`Electricity` is a carrier on one page and a sector on another; without
     the collision fix it shares Industry's blue and the bands merge."""
     labels = ["Agriculture", "Electricity", "Industry", "Residential", "Tertiary"]
-    colors = _assign_colors(labels)
+    colors = _assign_colors(labels, "emission_sector")
     assert len(set(colors.values())) == len(labels)
+
+
+def test_every_series_colour_comes_from_the_reference_palette():
+    """The published pages' cycle, sampled from the December-2025 screenshots.
+
+    Charts of ours are read beside theirs; a colour from outside the cycle is
+    the thing that makes the pair look like two different reports.
+    """
+    for domain, colors in SERIES_COLORS.items():
+        unknown = sorted(set(colors.values()) - set(PALETTE))
+        assert unknown == [], f"{domain}: {unknown}"
+        # Within one family a label must be one colour and a colour one label,
+        # or the collision resolver silently repaints a series per chart.
+        assert len(set(colors.values())) == len(colors), domain
+    assert TOTAL_COLOR in {"#FF0000"}
+
+
+def test_published_charts_keep_their_published_swatches():
+    """The three series sets the screenshots pin exactly, swatch for swatch."""
+    assert _assign_colors(
+        ["Agriculture", "Industry", "Residential", "Tertiary", "Transport"],
+        "demand_sector",
+    ) == {
+        "Agriculture": "#636EFA",
+        "Industry": "#EF553B",
+        "Residential": "#00CC96",
+        "Tertiary": "#AB63FA",
+        "Transport": "#FFA15A",
+    }
+    assert _assign_colors(
+        ["Agriculture", "Electricity", "Industry", "Residential", "Supply",
+         "Tertiary", "Transport"],
+        "emission_sector",
+    ) == {
+        "Agriculture": "#636EFA",
+        "Electricity": "#EF553B",
+        "Industry": "#00CC96",
+        "Residential": "#AB63FA",
+        "Supply": "#FFA15A",
+        "Tertiary": "#19D3F3",
+        "Transport": "#FF6692",
+    }
+    assert _assign_colors(
+        ["Boiler", "Direct electric heating", "Geothermal", "Heat pump",
+         "District heat", "Solar thermal"],
+        "heat_technology",
+    ) == {
+        "Boiler": "#636EFA",
+        "Direct electric heating": "#EF553B",
+        "Geothermal": "#00CC96",
+        "Heat pump": "#AB63FA",
+        "District heat": "#FFA15A",
+        "Solar thermal": "#19D3F3",
+    }
 
 
 def test_csv_tables_are_written_beside_the_pages(tmp_path, times_model, mappings_dir):

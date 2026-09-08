@@ -702,6 +702,17 @@ class IndicatorTable:
     row_label: str
     frame: pd.DataFrame  # index = row label, columns = years
     total: pd.Series | None = None
+    #: Rows of `frame` that are reported but are **not** part of `total`
+    #: (aviation kerosene, an international bunker). The report draws them
+    #: outside the stack, because a stacked bar whose height disagrees with the
+    #: total line drawn on it reads as an extraction bug. Every other row must
+    #: add up to `total` — `test_totals_are_the_sum_of_the_stacked_rows`.
+    excluded_rows: tuple[str, ...] = ()
+
+    #: Which `SERIES_COLORS` family the row labels are drawn from, so one label
+    #: can mean two things across pages ("Electricity" is a carrier on the
+    #: demand pages and a sector on the emissions page).
+    color_domain: str = "technology"
 
     # Facets for the flat, filterable catalogue (see `indicator_catalogue`).
     # Every series is addressed by four facets — categorie / indicateur /
@@ -720,6 +731,12 @@ class IndicatorTable:
     @property
     def years(self) -> list[int]:
         return [int(c) for c in self.frame.columns]
+
+    @property
+    def stacked_rows(self) -> list[str]:
+        """Rows that make up `total`, i.e. the ones the bars stack."""
+        excluded = set(self.excluded_rows)
+        return [r for r in self.frame.index if r not in excluded]
 
     def to_csv_frame(self) -> pd.DataFrame:
         """Wide frame with the total row on top, matching the report tables."""
@@ -777,6 +794,7 @@ def build_indicator_tables(
                 indicateur="Consommation finale d'énergie",
                 row_facet="technologies",
                 other_facet="Tous vecteurs",
+                color_domain="demand_sector",
                 # The sum of the five sector tables; listing it too would double
                 # count every filtered selection.
                 in_catalogue=False,
@@ -798,10 +816,12 @@ def build_indicator_tables(
                 row_label="Vecteur",
                 frame=frame,
                 total=frame.loc[counted_rows].sum(),
+                excluded_rows=tuple(f for f in frame.index if f in TOTAL_EXCLUDES),
                 categorie=CAT_DEMAND,
                 indicateur="Consommation finale d'énergie",
                 row_facet="vecteur",
                 other_facet=name,
+                color_domain="carrier",
             )
         )
 
@@ -828,6 +848,7 @@ def build_indicator_tables(
                 categorie=CAT_EMISSIONS,
                 indicateur="Émissions de gaz à effet de serre",
                 row_facet="technologies",
+                color_domain="emission_sector",
                 other_facet="CO2",
             )
         )
@@ -850,6 +871,7 @@ def build_indicator_tables(
                 indicateur="Quantité de CO2 capturé",
                 row_facet="technologies",
                 other_facet="CO2",
+                color_domain="emission_sector",
             )
         )
 
@@ -886,6 +908,7 @@ def build_indicator_tables(
                 indicateur=f"Production de chaleur — {label}",
                 row_facet="technologies",
                 other_facet="Chaleur",
+                color_domain="heat_technology",
             )
         )
 
@@ -937,6 +960,7 @@ def build_indicator_tables(
                 indicateur=indicateur,
                 row_facet="technologies",
                 other_facet="Électricité",
+                color_domain="power_technology",
             )
         )
 

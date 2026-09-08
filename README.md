@@ -310,13 +310,20 @@ heat production per technology, and the power fleet.
 
 ```bash
 times-pypsa indicators --vd data/scen_corrige_251129_0112.vd \
-  --out-dir output/indicators --years 2021,2025,2030,2035,2040,2045,2050 \
-  --scenario-label "demande haute"
+  --out-dir output/indicators --scenario-label "demande haute"
 ```
 
 Writes one self-contained HTML page per indicator group plus an index, and the
-table behind each chart as CSV (`--no-csv` to skip). Where the numbers are
-measured, and how they reconcile with the December-2025 ICEDD figures, is in
+table behind each chart as CSV (`--no-csv` to skip). `--years` defaults to every
+model year in the `.vd` and is there to narrow that, never to complete it: a
+trajectory drawn on the four PyPSA horizons has holes at 2035 and 2045 and no
+2021, the base year the numbers are reconciled against.
+
+Charts use the published ClimAct Explorer palette, and a row that is reported but
+left out of its total — aviation kerosene, an international bunker — is drawn
+beside the stack rather than in it, so the stacked height always equals the total
+line. Where the numbers are measured, how the colours are assigned, and how it
+all reconciles with the December-2025 ICEDD figures, is in
 [INDICATORS.md](INDICATORS.md).
 
 ### Extraction QA
@@ -608,6 +615,7 @@ One item is left for the pypsa-wal side rather than this repository: `services o
 
 | Date | Change | Evidence | Demand CSV impact |
 |------|--------|----------|-------------------|
+| 2026-09-08 | Indicator pages: every `.vd` year, stacks that match their total, and the published palette. 
 | 2026-08-23 | **New `sankey-pages` command / `export_sankey_pages` API**: one standalone interactive Sankey per (model year × aggregation level) plus an index, for a report or results folder. Reuses the QA link builders unchanged, so the diagrams are identical; what is new is one `.vd` parse and one tagging pass per year shared by every level, and pages that carry their own navigation and provenance. `sankey_page_names()` gives the file list without reading the `.vd`, so a Snakemake rule can declare its outputs; a requested year absent from the `.vd` still gets a page saying so, rather than a missing declared output. Drives pypsa-wal's `build_times_sankey` rule (4 horizons × 2 levels in ~9 s). | `tests/test_sankey_pages.py`, `pypsa-wal/docs/times-sankey.md` | None |
 | 2026-08-23 | **Single-year charts no longer render a dead year slider.** `render_interactive_sankey_section` emits the year as a caption when a chart has one year, and the init JS treats the slider as optional. Also affects `times-pypsa qa --year 2050`, where a range input with `min == max` invited dragging that did nothing. | `test_pages_render_one_year_without_a_dead_slider`, `test_multi_year_report_keeps_its_slider` | None |
 | 2026-08-23 | **New `available_agg_levels(flows)`**: the levels `aggregate_flows` can actually use, i.e. those with a label column on *both* sides. The obvious check — shared columns of the two mapping CSVs — is wrong, because `load_metadata` returns a slimmed commodity frame; that is why level validation now reads the enriched flows and a mistyped `--agg-levels` fails before the `.vd` is parsed instead of mid-render. | `test_unknown_level_fails_fast` | None |

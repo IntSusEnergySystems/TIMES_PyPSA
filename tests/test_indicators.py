@@ -144,6 +144,39 @@ def test_kerosene_is_reported_but_left_out_of_the_transport_total(times_model, r
     assert (tra.frame.loc["Kerosene"] > 0).any()
 
 
+def test_totals_are_the_sum_of_the_stacked_rows(times_model, rules):
+    """The safeguard behind the transport bar being taller than its own total.
+
+    Every chart draws `frame` as a stack and `total` as a line on top of it, so
+    the two have to be the same number. They were not for the demand sectors:
+    aviation kerosene is reported on its own row and left out of the total, and
+    the transport stack overshot its total line by the whole 8.3 TWh bunker.
+    A row may still sit outside the total — it has to say so in `excluded_rows`,
+    which is what makes the report draw it beside the stack instead of in it.
+    """
+    tables = build_indicator_tables(times_model, rules)
+    assert tables
+    for table in tables:
+        if table.total is None:
+            continue
+        assert set(table.excluded_rows) <= set(table.frame.index), table.key
+        stacked = table.frame.loc[table.stacked_rows].sum()
+        pd.testing.assert_series_equal(
+            table.total.reindex(table.frame.columns),
+            stacked.reindex(table.frame.columns),
+            check_names=False,
+            rtol=1e-9,
+            obj=f"total of {table.key}",
+        )
+
+
+def test_only_the_documented_rows_sit_outside_a_total(times_model, rules):
+    """`excluded_rows` is a licence to draw outside the stack; keep it narrow."""
+    tables = build_indicator_tables(times_model, rules)
+    excluded = {r for t in tables for r in t.excluded_rows}
+    assert excluded <= set(TOTAL_EXCLUDES)
+
+
 def test_chp_fuel_is_split_between_heat_and_electricity(times_model, rules):
     shares = chp_heat_shares(times_model, rules)
     if shares.empty:

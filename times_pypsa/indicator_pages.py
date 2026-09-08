@@ -84,49 +84,99 @@ GROUPS: tuple[tuple[str, str, str], ...] = (
 
 _GROUP_TITLES = {key: title for key, title, _ in GROUPS}
 
-#: Stable colours so the same carrier keeps its colour across every page.
-SERIES_COLORS: dict[str, str] = {
-    # carriers
-    "Electricity": "#1f77b4",
-    "Gas mix": "#ff7f0e",
-    "Natural Gas": "#ffbb78",
-    "Natural Gas Transport": "#c49c94",
-    "Derived gas": "#8c6d31",
-    "Oil products": "#d62728",
-    "LPG": "#e377c2",
-    "Kerosene": "#7f7f7f",
-    "Solid fuels": "#4d4d4d",
-    "Black liquor": "#8c564b",
-    "Wood": "#2ca02c",
-    "Biogas": "#98df8a",
-    "Biofuel": "#bcbd22",
-    "Waste": "#9467bd",
-    "Waste Renewable": "#c5b0d5",
-    "Hydrogen": "#17becf",
-    "Heat": "#ff9896",
-    "Geothermal": "#aec7e8",
-    "Solar": "#f7dc6f",
-    # sectors
-    "Agriculture": "#8c564b",
-    "Industry": "#1f77b4",
-    "Residential": "#d62728",
-    "Tertiary": "#2ca02c",
-    "Transport": "#ff7f0e",
-    "Electricity ": "#9467bd",
-    "Supply": "#7f7f7f",
-    # heat technologies
-    "Boiler": "#d62728",
-    "Cogeneration": "#ff7f0e",
-    "Heat pump": "#9467bd",
-    "District heat": "#1f77b4",
-    "Direct electric heating": "#17becf",
-    "Solar thermal": "#f7dc6f",
-}
-
-_FALLBACK_COLORS = (
-    "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd",
-    "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf",
+#: The colour cycle the published ClimAct Explorer pages use: Plotly's
+#: ``qualitative.Plotly`` for the first ten series of a chart, then
+#: ``qualitative.D3`` for the next ten. Read off the legend swatches of the
+#: December-2025 screenshots in ``figures_from_demande_haute_04-12-2025/``
+#: rather than guessed, so a page of ours can sit beside a published one.
+PALETTE: tuple[str, ...] = (
+    "#636EFA", "#EF553B", "#00CC96", "#AB63FA", "#FFA15A",
+    "#19D3F3", "#FF6692", "#B6E880", "#FF97FF", "#FECB52",
+    "#1F77B4", "#FF7F0E", "#2CA02C", "#D62728", "#9467BD",
+    "#8C564B", "#E377C2", "#7F7F7F", "#BCBD22", "#17BECF",
 )
+
+#: The total line drawn on top of every stacked bar, and the catalogue sparkline.
+TOTAL_COLOR = "#FF0000"
+
+#: Preferred colour per row label, per *family* of charts (`color_domain` on
+#: `IndicatorTable`).
+#:
+#: The published pages colour each chart independently — they sort that chart's
+#: series alphabetically and walk `PALETTE` — which gives one carrier four
+#: colours across four charts. Here the walk is done once per family instead, so
+#: a label keeps its colour on every chart that can show it while each family
+#: still reproduces its screenshot: the universe of a family is exactly the
+#: series set of the published chart it comes from. The sector families are
+#: separate for that reason: "Industry" is the second demand sector but the
+#: third emitting sector, and both published charts are matched.
+#:
+#: One label can also mean two things across families — "Electricity" is a
+#: carrier on the demand pages and a sector on the emissions page — which is the
+#: other reason the map is keyed by family.
+SERIES_COLORS: dict[str, dict[str, str]] = {
+    # Carriers, alphabetically over `indicators.FUEL_ORDER`. The first fifteen
+    # are the industry-demand chart of the screenshots, swatch for swatch; the
+    # four carriers that chart has no row for take the tail of the cycle.
+    "carrier": {
+        "Biofuel": "#636EFA",
+        "Biogas": "#EF553B",
+        "Black liquor": "#00CC96",
+        "Electricity": "#AB63FA",
+        "Gas mix": "#FFA15A",
+        "Geothermal": "#19D3F3",
+        "Heat": "#FF6692",
+        "Hydrogen": "#B6E880",
+        "LPG": "#FF97FF",
+        "Natural Gas Transport": "#FECB52",
+        "Oil products": "#1F77B4",
+        "Solid fuels": "#FF7F0E",
+        "Waste": "#2CA02C",
+        "Waste Renewable": "#D62728",
+        "Wood": "#9467BD",
+        "Derived gas": "#8C564B",
+        "Natural Gas": "#E377C2",
+        # Grey on purpose: the one row drawn outside the stack (see
+        # `indicators.TOTAL_EXCLUDES`).
+        "Kerosene": "#7F7F7F",
+        "Solar": "#BCBD22",
+    },
+    # `indicators.DEMAND_SECTORS`, alphabetically.
+    "demand_sector": {
+        "Agriculture": "#636EFA",
+        "Industry": "#EF553B",
+        "Residential": "#00CC96",
+        "Tertiary": "#AB63FA",
+        "Transport": "#FFA15A",
+    },
+    # `indicators.EMISSION_SECTORS`, alphabetically — a longer universe than the
+    # demand one, so the shared names land one slot further along.
+    "emission_sector": {
+        "Agriculture": "#636EFA",
+        "Electricity": "#EF553B",
+        "Industry": "#00CC96",
+        "Residential": "#AB63FA",
+        "Supply": "#FFA15A",
+        "Tertiary": "#19D3F3",
+        "Transport": "#FF6692",
+    },
+    # The published heat charts are labelled in French and were walked in French
+    # alphabetical order; these are the same swatches against the English
+    # labels. `Cogeneration` is the one deliberate departure: the published
+    # industry chart has two rows (Chaudière, Cogénération) and gives
+    # cogeneration the same red as `Direct electric heating` gets in the
+    # residential chart. Ours shows all four rows on the industry chart, so the
+    # two cannot share a colour and cogeneration takes the next free one.
+    "heat_technology": {
+        "Boiler": "#636EFA",
+        "Direct electric heating": "#EF553B",
+        "Geothermal": "#00CC96",
+        "Heat pump": "#AB63FA",
+        "District heat": "#FFA15A",
+        "Solar thermal": "#19D3F3",
+        "Cogeneration": "#FF6692",
+    },
+}
 
 
 def indicator_page_name(group: str) -> str:
@@ -150,23 +200,24 @@ def indicator_page_names(
     return names
 
 
-def _assign_colors(labels: list[str]) -> dict[str, str]:
+def _assign_colors(labels: list[str], domain: str = "technology") -> dict[str, str]:
     """Preferred colour per label, with collisions inside one chart resolved.
 
-    ``SERIES_COLORS`` is keyed by label only, and one label can mean two things
-    across pages — "Electricity" is a carrier on the demand pages and a sector on
-    the emissions page, where it would otherwise be the same blue as "Industry"
-    and make the two stacked bands indistinguishable. Whoever asks first keeps
-    the preferred colour; the rest take the next unused fallback.
+    ``SERIES_COLORS[domain]`` gives the label its colour across every chart of
+    its family; a label the family does not name — a power technology, a carrier
+    a rule table gained after this map was written — takes the first unused
+    ``PALETTE`` colour, so a chart never draws two bands the same colour even
+    when the map does not reach.
     """
+    preferred = SERIES_COLORS.get(domain, {})
     used: set[str] = set()
     out: dict[str, str] = {}
     for label in labels:
-        color = SERIES_COLORS.get(label)
+        color = preferred.get(label)
         if color is None or color in used:
             color = next(
-                (c for c in _FALLBACK_COLORS if c not in used),
-                _FALLBACK_COLORS[len(out) % len(_FALLBACK_COLORS)],
+                (c for c in PALETTE if c not in used),
+                PALETTE[len(out) % len(PALETTE)],
             )
         used.add(color)
         out[label] = color
@@ -174,14 +225,24 @@ def _assign_colors(labels: list[str]) -> dict[str, str]:
 
 
 def _chart_payload(table: IndicatorTable) -> dict:
+    """Chart JSON for one table.
+
+    ``excluded`` marks a row reported by the table but left out of its total —
+    aviation kerosene, an international bunker. Those rows are drawn beside the
+    stack rather than in it, so the stacked height keeps equalling the total line
+    drawn on top of it; a bar that is visibly taller than its own total reads as
+    an extraction bug.
+    """
     years = table.years
+    excluded = set(table.excluded_rows)
     labels = [str(row) for row in table.frame.index]
-    colors = _assign_colors(labels)
+    colors = _assign_colors(labels, table.color_domain)
     traces = [
         {
             "name": label,
             "values": [float(v) for v in table.frame.loc[row].tolist()],
             "color": colors[label],
+            "excluded": row in excluded,
         }
         for label, row in zip(labels, table.frame.index)
     ]
@@ -203,17 +264,29 @@ def _chart_payload(table: IndicatorTable) -> dict:
 
 def _table_html(table: IndicatorTable) -> str:
     frame = table.to_csv_frame()
+    excluded = set(table.excluded_rows)
     head = "".join(f"<th>{y}</th>" for y in table.frame.columns)
     rows = []
     for label, values in frame.iterrows():
         cells = "".join(f"<td>{v:,.2f}</td>" for v in values)
         cls = " class='total-row'" if label == "Total" else ""
-        rows.append(f"<tr{cls}><th>{html.escape(str(label))}</th>{cells}</tr>")
+        text = html.escape(str(label))
+        if label in excluded:
+            cls = " class='excluded-row'"
+            text += " <sup>*</sup>"
+        rows.append(f"<tr{cls}><th>{text}</th>{cells}</tr>")
+    note = (
+        "\n<p class='table-note'>* reported but not part of the total, and drawn "
+        "beside the stack rather than in it.</p>"
+        if excluded
+        else ""
+    )
     return (
         f"<table class='indicator-table'>\n"
         f"<tr><th>{html.escape(table.row_label)} [{html.escape(table.unit)}]</th>{head}</tr>\n"
         + "\n".join(rows)
         + "\n</table>"
+        + note
     )
 
 
@@ -221,15 +294,41 @@ _INTERACTIVE_JS = """
 function timesPypsaIndicatorPlot(chart) {
   const el = document.getElementById("plot-" + chart.id);
   if (!el || typeof Plotly === "undefined") return;
+  // Rows that are not part of the total (aviation kerosene, an international
+  // bunker) are drawn as a narrow bar beside the stack instead of in it, so the
+  // stacked height keeps equalling the total line drawn on top of it.
+  //
+  // `base` is what takes them out of the stack: Plotly.js draws a bar that sets
+  // it in overlay mode, and it is the only lever that does. `offsetgroup` looks
+  // like the right key but is honoured in `barmode: "group"` only — under
+  // `relative` the bar lands back on top of the stack, narrower.
+  const split = chart.traces.some(function (t) { return t.excluded; });
+  const asideBase = chart.years.map(function () { return 0; });
   const traces = chart.traces.map(function (t) {
-    return {
+    const trace = {
       type: "bar",
-      name: t.name,
+      name: t.excluded ? t.name + " (hors total)" : t.name,
       x: chart.years,
       y: t.values,
-      marker: { color: t.color },
+      marker: {
+        color: t.color,
+        pattern: t.excluded ? { shape: "/", size: 4, solidity: 0.35 } : undefined,
+      },
       hovertemplate: "%{fullData.name}<br>%{x}: %{y:,.1f} " + chart.unit + "<extra></extra>",
     };
+    if (split && t.excluded) {
+      // Stack the excluded rows among themselves, from zero, to the right of
+      // the tick. Today there is one; two would otherwise overdraw each other.
+      trace.base = asideBase.slice();
+      trace.width = 0.22;
+      trace.offset = 0.27;
+      t.values.forEach(function (v, i) { asideBase[i] += v; });
+    } else if (split) {
+      // The stack stays centred on the tick so the total line still lands on it.
+      trace.width = 0.5;
+      trace.offset = -0.25;
+    }
+    return trace;
   });
   if (chart.total) {
     traces.push({
@@ -238,7 +337,7 @@ function timesPypsaIndicatorPlot(chart) {
       name: "Total",
       x: chart.years,
       y: chart.total,
-      line: { color: "#b00", width: 2 },
+      line: { color: TIMES_PYPSA_TOTAL_COLOR, width: 2 },
       marker: { size: 6 },
       hovertemplate: "Total<br>%{x}: %{y:,.1f} " + chart.unit + "<extra></extra>",
     });
@@ -276,6 +375,10 @@ _STYLE = """
     table.indicator-table th:first-child { text-align: left; }
     table.indicator-table tr:first-child th { background: #f0f0f0; text-align: center; }
     table.indicator-table tr.total-row { background: #f7f7f7; font-weight: 600; }
+    table.indicator-table tr.excluded-row th, table.indicator-table tr.excluded-row td {
+      color: #666; font-style: italic;
+    }
+    .table-note { font-size: 12px; color: #666; margin: 4px 0 0; }
     table.nav-table { border-collapse: collapse; margin: 16px 0; }
     table.nav-table th, table.nav-table td { border: 1px solid #ccc; padding: 6px 12px; }
     .caveat {
@@ -307,7 +410,8 @@ function timesPypsaSparkline(values, w, h) {
     : "";
   return "<svg class='spark' width='" + w + "' height='" + h + "' viewBox='0 0 " + w +
          " " + h + "' aria-hidden='true'>" + zero +
-         "<path d='" + d + "' fill='none' stroke='#b00' stroke-width='1.5'/></svg>";
+         "<path d='" + d + "' fill='none' stroke='" + TIMES_PYPSA_TOTAL_COLOR +
+         "' stroke-width='1.5'/></svg>";
 }
 
 function timesPypsaFormat(v) {
@@ -565,6 +669,7 @@ def _catalogue_page_html(
         body = _catalogue_body(payload)
         script = (
             "<script>\n"
+            f"const TIMES_PYPSA_TOTAL_COLOR = {json.dumps(TOTAL_COLOR)};\n"
             f"const TIMES_PYPSA_CATALOGUE = {json.dumps(payload, ensure_ascii=False)};\n"
             f"{_CATALOGUE_JS}\n"
             'document.addEventListener("DOMContentLoaded", function () {\n'
@@ -659,6 +764,7 @@ def _page_html(
 {body}
 {_footer(vd_name, scenario_label)}
 <script>
+const TIMES_PYPSA_TOTAL_COLOR = {json.dumps(TOTAL_COLOR)};
 const TIMES_PYPSA_INDICATORS = {json.dumps(charts, ensure_ascii=False)};
 {_INTERACTIVE_JS}
 document.addEventListener("DOMContentLoaded", function () {{
