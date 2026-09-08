@@ -1281,3 +1281,22 @@ CHPINDBGSIOIN00_N,IND,.CHP.,CHP.Autoproducer.Industry.Others_BGS-New 00_N,PJ,GW,
 IMPBIOGZH,SUP,.IMP.IRE.,Import de biogaz épuré,PJ,-,IRE,BIOGZH,ANNUAL,"0,00",Imports,Imports & trade,Imports & trade
 TRAGH2C02_I,SUP,.PRE.,TRAGH2C02_I,PJ,PJ-A,PRE,TRAGH2,DAYNITE,,Fuel Tech - H2,Fuel conversion,Fuel Tech - H2
 TRALH2C02,SUP,.PRE.,Fuel Tech - H2 Delivery from centralized production (COMP+TR+LIQ+LSTORB+RTS+REFLL(large)),PJ,PJ-A,PRE,TRALH2,DAYNITE,,Fuel Tech - H2,Fuel conversion,Fuel Tech - H2
+ECHPP_AED_BGS_N,ELC,.CHP.,New Thermal Public CHP - Anaerobic digestion,PJ,GW,CHP,ECHPP_AED_BGS_N_NRGO,DAYNITE,"1,00",CHP,CHP,CHP
+CHPINDGMXIMLN00_N,IND,.CHP.,CHP.Autoproducer.Industry.FOOD.Milk.GMX-New 00_N,PJ,GW,CHP,CHPINDGMXIMLN00_N_NRGO,DAYNITE,"1,00",Industry,CHP,CHP
+CHPINDGMXIPON00_N,IND,.CHP.,CHP.Autoproducer.Industry.FOOD.IPO.GMX-New 00_N,PJ,GW,CHP,CHPINDGMXIPON00_N_NRGO,DAYNITE,"1,00",Industry,CHP,CHP
+ICHSTMBIO01,IND,.PRE.,ICHSTMBIO01,PJ,PJA,PRE,ICHHTH,ANNUAL,"1,00",Industry,Industry,Industry
+ICHSTMHFO01,IND,.PRE.,ICHSTMHFO01,PJ,GW,PRE,ICHHTH,ANNUAL,"1,00",Industry,Industry,Industry
+ICHSTMLFO01,IND,.PRE.,ICHSTMLFO01,PJ,GW,PRE,ICHHTH,ANNUAL,"1,00",Industry,Industry,Industry
+INMSTMCOK01,IND,.PRE.,INMSTMCOK01,PJ,GW,PRE,INMHTH,ANNUAL,"1,00",Industry,Industry,Industry
+INMSTMHET01,IND,.PRE.,INMSTMHET01,PJ,GW,PRE,INMHTH,ANNUAL,"1,00",Industry,Industry,Industry
+IOIPRCBIO01,IND,.PRE.,IOIPRCBIO01,PJ,GW,PRE,IOIPRC,ANNUAL,"1,00",Industry,Industry,Industry
+CHCSELCHP201,COM,.PRE.,Com Space Heat New heat pump - CS - ELC201,PJ,GW,PRE,CHCS,ANNUAL,"0,00",Commercial Heat pump,Buildings,Commercial Heat pump
+CHNCSELCHP301,COM,.PRE.,Com Space Heat New heat pump - NCS - ELC301,PJ,GW,PRE,CHNCS,ANNUAL,"0,00",Commercial Heat pump,Buildings,Commercial Heat pump
+CHNBPLTH101,COM,.PRE.,Com Space Heat New Heat Exchanger - NBP - HET101,PJ,GW,PRE,CHNBPLTH101_NRGO,ANNUAL,"0,00",Commercial Heat Exchanger,District heating,Commercial Heat Exchanger
+RHN4FHETN1,RSD,.PRE.,District heat exchanger.HeatHotwater-RHN4F-New1,PJ,GW,PRE,RHN4FHETN1_NRGO,ANNUAL,"1,00",District heating,District heating,District heating
+RHNAPHETN1,RSD,.PRE.,District heat exchanger.HeatHotwater-RHNAP-New1,PJ,GW,PRE,RHNAPHETN1_NRGO,ANNUAL,"1,00",District heating,District heating,District heating
+RW2FOILN3,RSD,.PRE.,Oil boiler-RW2F-New3,PJ,GW,PRE,RW2F,ANNUAL,"1,00",Residential urban decentral oil heater,Buildings,Residential urban decentral oil heater
+RW4FOILN3,RSD,.PRE.,Oil boiler-RW4F-New3,PJ,GW,PRE,RW4F,ANNUAL,"1,00",Residential rural oil heater,Buildings,Residential rural oil heater
+RWAPOILN3,RSD,.PRE.,Oil boiler-RWAP-New3,PJ,GW,PRE,RWAP,ANNUAL,"1,00",Residential urban decentral oil heater,Buildings,Residential urban decentral oil heater
+RWN4FPELN3,RSD,.PRE.,Wood pellets boiler water heater-RWN4F-New3,PJ,GW,PRE,RWN4F,ANNUAL,"1,00",Residential rural biomass heater,Buildings,Residential rural biomass heater
+RWNAPPELN3,RSD,.PRE.,Wood pellets boiler water heater-RWNAP-New3,PJ,GW,PRE,RWNAP,ANNUAL,"1,00",Residential urban decentral biomass heater,Buildings,Residential urban decentral biomass heater

@@ -72,6 +72,41 @@ LEAKED_HEAT_PROCESSES = {
     "CHENELC201": "Commercial electrical stove",
 }
 
+#: Second wave, found by ``test_every_local_vd_closes`` when the September-2026
+#: `.vd` files (``scen_central_demande_haute_*``) introduced new vintages the
+#: mapping had never seen: 19 processes with no row at all. Nine of them are
+#: heating devices feeding ``service_output`` rules, so they leaked exactly like
+#: the first wave — up to 1.68 PJ of residential useful heat in 2025. The rest
+#: are industrial steam / cogeneration, invisible rather than leaking: their
+#: labels are read by no exporting rule.
+#:
+#: Pinned the same way as ``LEAKED_HEAT_PROCESSES``: by code, so a mapping
+#: rewrite that drops one fails here instead of silently reopening the hole.
+UNMAPPED_2026_09_PROCESSES = {
+    # --- leaking: service_output (VAR_FOut, carrier Heat) rules read these ---
+    "RW2FOILN3": "Residential urban decentral oil heater",
+    "RW4FOILN3": "Residential rural oil heater",
+    "RWAPOILN3": "Residential urban decentral oil heater",
+    "RWN4FPELN3": "Residential rural biomass heater",
+    "RWNAPPELN3": "Residential urban decentral biomass heater",
+    "RHN4FHETN1": "District heating",
+    "RHNAPHETN1": "District heating",
+    "CHCSELCHP201": "Commercial Heat pump",
+    "CHNCSELCHP301": "Commercial Heat pump",
+    "CHNBPLTH101": "Commercial Heat Exchanger",
+    # --- invisible but not leaking: `Industry` is read only by the ammonia /
+    # --- methanol rules, both `expect: zero`; `CHP` by no rule at all.
+    "ECHPP_AED_BGS_N": "CHP",
+    "CHPINDGMXIMLN00_N": "Industry",
+    "CHPINDGMXIPON00_N": "Industry",
+    "ICHSTMBIO01": "Industry",
+    "ICHSTMHFO01": "Industry",
+    "ICHSTMLFO01": "Industry",
+    "INMSTMCOK01": "Industry",
+    "INMSTMHET01": "Industry",
+    "IOIPRCBIO01": "Industry",
+}
+
 #: Heat-technology labels that no ``service_output`` rule lists **on purpose**,
 #: because the energy is measured somewhere else in the chain. Exporting them too
 #: would double-count. Listed explicitly so a *new* orphan label still fails.
@@ -122,6 +157,28 @@ def test_leaked_heat_processes_are_mapped(process_labels):
     wrong = {
         p: (process_labels[p], want)
         for p, want in LEAKED_HEAT_PROCESSES.items()
+        if process_labels[p] != want
+    }
+    assert not wrong, f"Aggregation Level 2 changed unexpectedly: {wrong}"
+
+
+def test_2026_09_unmapped_processes_are_mapped(process_labels):
+    """The September-2026 `.vd` vintages carry their intended labels.
+
+    Same guard as :func:`test_leaked_heat_processes_are_mapped`, one wave later.
+    The residential and tertiary entries are the ones that actually leaked; the
+    industrial ones are pinned too so the *reason* they are harmless — a label no
+    exporting rule reads — stays a deliberate choice rather than an accident.
+    """
+    missing = [p for p in UNMAPPED_2026_09_PROCESSES if p not in process_labels]
+    assert not missing, (
+        "These processes are absent from mapping_processes.csv again — no "
+        "extraction rule can match them, in any sector, on either side: "
+        f"{sorted(missing)}"
+    )
+    wrong = {
+        p: (process_labels[p], want)
+        for p, want in UNMAPPED_2026_09_PROCESSES.items()
         if process_labels[p] != want
     }
     assert not wrong, f"Aggregation Level 2 changed unexpectedly: {wrong}"
