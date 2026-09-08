@@ -15,6 +15,7 @@ from times_pypsa.pipeline import (
     export_horizon,
     generate_sankey,
 )
+from times_pypsa.indicator_pages import export_indicator_pages
 from times_pypsa.qa import generate_qa_report
 from times_pypsa.sankey_pages import DEFAULT_PAGE_LEVELS, export_sankey_pages
 from times_pypsa.units import DEFAULT_FLOW_THRESHOLD_TWH
@@ -143,6 +144,33 @@ def cmd_sankey_pages(args: argparse.Namespace) -> int:
     )
     if not artifacts:
         logger.error("No Sankey pages written (empty .vd?)")
+        return 1
+    logger.info("Wrote %d file(s) to %s", len(artifacts), args.out_dir)
+    return 0
+
+
+def cmd_indicators(args: argparse.Namespace) -> int:
+    mappings_dir = _resolve_mappings_dir(args)
+    years = _parse_horizons(args.years) if args.years else None
+    # Like `sankey-pages`: unset `--start-year` means "start at the earliest
+    # requested horizon", not the library default of 2021, so asking for 2020
+    # does not silently produce an empty first bar.
+    config = (
+        PipelineConfig(start_year=args.start_year)
+        if args.start_year is not None
+        else None
+    )
+    artifacts = export_indicator_pages(
+        args.out_dir,
+        vd_file=args.vd,
+        mappings_dir=mappings_dir,
+        years=years,
+        scenario_label=args.scenario_label,
+        write_csv=not args.no_csv,
+        config=config,
+    )
+    if not artifacts:
+        logger.error("No indicator pages written (empty .vd?)")
         return 1
     logger.info("Wrote %d file(s) to %s", len(artifacts), args.out_dir)
     return 0
@@ -303,6 +331,40 @@ def build_parser() -> argparse.ArgumentParser:
         help="Scenario name shown in the page heading",
     )
     pages_parser.set_defaults(func=cmd_sankey_pages, start_year=None)
+
+    indicators_parser = subparsers.add_parser(
+        "indicators",
+        help=(
+            "Scenario indicator pages (final energy demand, emissions, heat "
+            "production, power fleet) with the tables they are built from"
+        ),
+    )
+    _add_common_args(indicators_parser)
+    indicators_parser.add_argument(
+        "--out-dir",
+        type=Path,
+        required=True,
+        help="Output directory for the HTML pages and CSV tables",
+    )
+    indicators_parser.add_argument(
+        "--years",
+        default=None,
+        help=(
+            "Years as comma list (2030,2040) or range (2025-2050). "
+            "Default: every year in the .vd file."
+        ),
+    )
+    indicators_parser.add_argument(
+        "--scenario-label",
+        default="",
+        help="Scenario name shown in the page heading",
+    )
+    indicators_parser.add_argument(
+        "--no-csv",
+        action="store_true",
+        help="Write only the HTML pages, not the CSV tables beside them",
+    )
+    indicators_parser.set_defaults(func=cmd_indicators, start_year=None)
 
     qa_parser = subparsers.add_parser(
         "qa",

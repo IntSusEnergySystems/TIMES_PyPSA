@@ -2,7 +2,7 @@
 
 Soft-linking between the TIMES-WAL and PyPSA-WAL models. This repository provides the **`times_pypsa`** Python package to parse TIMES `.vd` output files, extract PyPSA demand categories, generate interactive Sankey energy-flow diagrams, and run multi-view extraction quality assurance.
 
-Related: [SOFTLINKING_ANALYSIS.md](SOFTLINKING_ANALYSIS.md) for architecture, coupling workflow, verification, and open questions. [aggregation.md](aggregation.md) for Sankey aggregation levels and export colouring.
+Related: [SOFTLINKING_ANALYSIS.md](SOFTLINKING_ANALYSIS.md) for architecture, coupling workflow, verification, and open questions. [aggregation.md](aggregation.md) for Sankey aggregation levels and export colouring. [INDICATORS.md](INDICATORS.md) for the scenario indicator tables and pages (demand, emissions, heat, power) read straight from the `.vd`.
 Important note: when testing, and troubleshooting, always use the 'custom' aggregation level.
 
 ### Soft-linking is universal (no ad-hoc flow drops)
@@ -24,7 +24,7 @@ pip install -e .
 
 Dependencies: `pandas`, `plotly` (Python 3.9+).
 
-Bundled mapping files live in `data/` (`mapping_commodities.csv`, `mapping_processes.csv`, `extraction_rules.csv`).
+Bundled mapping files live in `data/` (`mapping_commodities.csv`, `mapping_processes.csv`, `extraction_rules.csv`, and the `indicator_*.csv` rule tables).
 
 For tests, install dev dependencies: `pip install -e ".[dev]"`.
 
@@ -301,6 +301,23 @@ Generated files (synced to the web server by the rsync script):
 - [annual_values_clustered.csv](http://labothap.squoilin.eu/times_pypsa/annual_values_clustered.csv)
 
 ---
+
+### Scenario indicator pages
+
+Trajectory charts and tables straight from the `.vd`, without going through
+PyPSA: final energy demand per sector and carrier, greenhouse-gas emissions,
+heat production per technology, and the power fleet.
+
+```bash
+times-pypsa indicators --vd data/scen_corrige_251129_0112.vd \
+  --out-dir output/indicators --years 2021,2025,2030,2035,2040,2045,2050 \
+  --scenario-label "demande haute"
+```
+
+Writes one self-contained HTML page per indicator group plus an index, and the
+table behind each chart as CSV (`--no-csv` to skip). Where the numbers are
+measured, and how they reconcile with the December-2025 ICEDD figures, is in
+[INDICATORS.md](INDICATORS.md).
 
 ### Extraction QA
 

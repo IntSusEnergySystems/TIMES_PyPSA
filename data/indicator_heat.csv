@@ -1,0 +1,34 @@
+kind,pattern,label,order,note
+# Rules for times_pypsa.indicators.heat_production.
+#
+# `segment` rows match the heat *service commodity* a heating process produces.
+# `technology` rows match the *process code* and decide which bar that output
+# lands in; the first matching pattern in file order wins, so the specific
+# tokens (ELCHP) come before the generic ones (ELC).
+#
+# Patterns are Python regular expressions matched with re.match (anchored at the
+# start), case-sensitive. A commodity that matches no `segment` row is not heat
+# and is skipped, so the segment list is also the scope of the table.
+
+# --- Heat service commodities -> segment -------------------------------------
+# Existing and new (…N…) dwellings, plus the degree-day corrected 2021 series.
+segment,^RHN?(2F|3F|4F|AP)$,Residential space heating,10,Space heat for 2/3/4-facade houses and apartments
+segment,^RHDJ(2F|3F|4F|AP)_,Residential space heating,10,Degree-day corrected space-heat service
+segment,^RWN?(2F|3F|4F|AP)$,Residential water heating,20,Domestic hot water
+segment,^CHN?(BA|BP|CO|CS|EN|SA|DATA)$,Tertiary space heating,30,Com.Space Heat per building type
+segment,^CWN?(BA|BP|CO|CS|EN|SA|DATA)$,Tertiary water heating,40,Com.Water Heat per building type
+# Per-branch industrial steam / process heat. INDHTH is the sector aggregate,
+# not a branch, so it is deliberately not matched here.
+segment,^(IAM|IBO|ICB|ICH|ICL|ICM|IGF|IGH|IIS|ILM|IML|INF|INM|IOF|IOI|IPH|IPO|IPP|ISG|REF)HTH$,Industry process heat,50,Per-branch high-temperature heat
+
+# --- Process code -> heat technology -----------------------------------------
+# Matched on the fuel/technology token inside the process code, which TIMES
+# keeps in a fixed position but suffixes freely (…ELC100, …ELCN1, …ELCHPN4).
+technology,^Retrofit,skip,5,"Building renovation: a Retrofit-* process 'produces' the heat service that insulation no longer needs, from a dummy input. It is avoided demand, not production, and counting it would inflate the boiler bar by up to 4 TWh in 2050."
+technology,^CHP,Cogeneration,10,Industrial autoproducer cogeneration
+technology,.*ELCHP,Heat pump,20,Air/ground heat pump with electric boiler
+technology,.*HET,District heat,30,Heat-exchanger substation on a heat network
+technology,.*GEO,Geothermal,40,
+technology,.*SOL(?!ID),Solar thermal,50,"Negative lookahead: …STMSOLID00 is a solid-fuel boiler, not solar"
+technology,.*ELC,Direct electric heating,60,Resistance heaters and electric water heaters
+technology,.*,Boiler,70,"Everything else: gas, oil, LPG, coal, wood-log, pellet and chip furnaces and stoves"

@@ -1,0 +1,163 @@
+commodity,sector,fuel,measure,chp,note
+# Final-energy carriers per demand sector, for times_pypsa.indicators.energy_demand.
+#
+# One row per TIMES commodity that counts as *final energy delivered to a demand
+# sector*. `sector` is the sector that owns the carrier; the row is attributed to
+# the sector of the process that consumes it, so transport charging on RSDELC /
+# COMELC lands in Transport (see INDICATORS.md).
+#
+# measure:
+#   input       (default) sum VAR_FIn on the commodity
+#   output      sum VAR_FOut on the commodity, attributed to `sector` directly.
+#               For carriers that are produced but never consumed in the .vd
+#               (TRAGAS), VAR_FIn is zero and the fuel would vanish.
+#   passthrough resolve the commodity into its producing process's input mix and
+#               map those inputs to fuels. Used for the transport road fuels,
+#               where the fossil / biofuel split only exists upstream of the
+#               blended carrier.
+#   upstream    a carrier that is only ever a passthrough target; never counted
+#               on its own.
+#   exclude     present in the .vd, deliberately not final energy.
+#
+# chp: how a cogeneration unit consuming this carrier is weighted.
+#   (blank)     default - the fuel is split by the CHP heat share
+#   zero        not counted at all. Heat fed back into a CHP is the unit's own
+#               product recycled; charging it to the sector double-counts the
+#               heat the same unit delivers.
+#
+# Commodity codes are <SECTOR><FUEL>; see data/AllCommodities.csv for descriptions.
+
+# --- Agriculture -------------------------------------------------------------
+AGRBDL,AGR,Biofuel,input,,
+AGRBGS,AGR,Biogas,input,,
+AGRBIO,AGR,Biofuel,input,,
+AGRCOA,AGR,Solid fuels,input,,
+AGRCPS,AGR,Wood,input,,ICEDD's demande_agriculture.csv omits this row (0.02 PJ); see INDICATORS.md
+AGRELC,AGR,Electricity,input,,
+AGRGAS,AGR,Natural Gas,input,,
+AGRGEO,AGR,Geothermal,input,,
+AGRGMX,AGR,Gas mix,input,,
+AGRHET,AGR,Heat,input,zero,
+AGRLPG,AGR,LPG,input,,
+AGROIL,AGR,Oil products,input,,
+AGRSOL,AGR,Solar,input,,
+
+# --- Tertiary / commercial ---------------------------------------------------
+COMAHT,COM,,exclude,,Ambient heat harvested by heat pumps is not final energy
+COMGHT,COM,,exclude,,Ground heat harvested by heat pumps is not final energy
+COMCOO,COM,,exclude,,Cooling agent is a service carrier rather than a fuel
+COMBDL,COM,Biofuel,input,,
+COMBGS,COM,Biogas,input,,
+COMGZH,COM,Biogas,input,,
+COMCOA,COM,Solid fuels,input,,
+COMCPS,COM,Wood,input,,
+COMPEL,COM,Wood,input,,
+COMELC,COM,Electricity,input,,
+COMGAS,COM,Natural Gas,input,,
+COMGEO,COM,Geothermal,input,,
+COMGMX,COM,Gas mix,input,,
+COMGSL,COM,Oil products,input,,
+COMOIL,COM,Oil products,input,,
+COMHET,COM,Heat,input,zero,
+COMHH2,COM,Hydrogen,input,,
+COMLPG,COM,LPG,input,,
+COMSLU,COM,Waste Renewable,input,,
+COMSOL,COM,Solar,input,,
+
+# --- Industry ----------------------------------------------------------------
+INDHTH,IND,,exclude,,Intra-industry high-temperature heat (double counts the boiler fuel)
+INDHWT,IND,,exclude,,Recovered industrial waste heat (chaleur fatale) is not purchased energy
+INDHYD,IND,,exclude,,On-site hydro resource
+INDWIN,IND,,exclude,,On-site wind resource
+INDBDL,IND,Biofuel,input,,
+INDBIO,IND,Biofuel,input,,
+INDBGS,IND,Biogas,input,,
+INDGZH,IND,Biogas,input,,
+INDBLQ,IND,Black liquor,input,,
+INDCOA,IND,Solid fuels,input,,
+INDCOK,IND,Solid fuels,input,,
+INDCOL,IND,Solid fuels,input,,
+INDBFG,IND,Derived gas,input,,
+INDBFT,IND,Derived gas,input,,
+INDCOG,IND,Derived gas,input,,
+INDGASCOG,IND,Derived gas,input,,
+INDIIS,IND,Derived gas,input,,
+INDRFG,IND,Derived gas,input,,
+INDCPS,IND,Wood,input,,
+INDPEL,IND,Wood,input,,
+INDELC,IND,Electricity,input,,
+INDGAS,IND,Natural Gas Transport,input,,High-pressure gas-transport network supply (TIMES keeps it apart from the mixed grid gas)
+INDGMX,IND,Gas mix,input,,
+INDGEO,IND,Geothermal,input,,
+INDHET,IND,Heat,input,zero,
+INDHFO,IND,Oil products,input,,
+INDLFO,IND,Oil products,input,,
+INDHH2,IND,Hydrogen,input,,
+INDLPG,IND,LPG,input,,
+INDSLU,IND,Waste Renewable,input,,
+INDSOL,IND,Solar,input,,
+INDWST,IND,Waste,input,,
+
+# --- Residential -------------------------------------------------------------
+RSDAHT,RSD,,exclude,,Ambient heat harvested by heat pumps is not final energy
+RSDGHT,RSD,,exclude,,Ground heat harvested by heat pumps is not final energy
+RSDBDL,RSD,Biofuel,input,,
+RSDGZH,RSD,Biogas,input,,
+RSDCOA,RSD,Solid fuels,input,,
+RSDCPS,RSD,Wood,input,,
+RSDLOG,RSD,Wood,input,,
+RSDPEL,RSD,Wood,input,,
+RSDELC,RSD,Electricity,input,,
+RSDGAS,RSD,Natural Gas,input,,
+RSDGEO,RSD,Geothermal,input,,
+RSDGMX,RSD,Gas mix,input,,
+RSDGSL,RSD,Oil products,input,,
+RSDOIL,RSD,Oil products,input,,
+RSDHET,RSD,Heat,input,zero,
+RSDHH2,RSD,Hydrogen,input,,
+RSDLPG,RSD,LPG,input,,
+RSDSOL,RSD,Solar,input,,
+
+# --- Transport ---------------------------------------------------------------
+TRADST,TRA,,passthrough,,Blended road diesel: split into Oil products / Biofuel by TRADST00's input mix
+TRAGSL,TRA,,passthrough,,Blended road gasoline: split into Oil products / Biofuel by TRAGSL00's input mix
+TRAETH,TRA,,passthrough,,Ethanol blend: split by TRAETH00's input mix
+TRABDL,TRA,Biofuel,input,,Only reached when a vehicle burns pure biodiesel; the blended share arrives via TRADST
+TRABGS,TRA,Biogas,input,,
+TRAELC,TRA,Electricity,input,,
+TRAGAS,TRA,Natural Gas,output,,Produced by TRAGAS00 but never consumed in the .vd so VAR_FIn is zero
+TRAGMX,TRA,Gas mix,input,,
+TRAGH2,TRA,Hydrogen,input,,
+TRALH2,TRA,Hydrogen,input,,
+TRAHFO,TRA,Oil products,input,,
+TRALPG,TRA,LPG,input,,
+TRAKER,TRA,Kerosene,input,,Aviation bunkers; reported but excluded from the sector total (see total_excludes in indicators.py)
+
+# --- Upstream carriers, only ever reached through a passthrough ---------------
+OILDST,SUP,Oil products,upstream,,
+OILGSL,SUP,Oil products,upstream,,
+OILKER,SUP,Kerosene,upstream,,
+OILLPG,SUP,LPG,upstream,,
+OILHFO,SUP,Oil products,upstream,,
+BIODST,SUP,Biofuel,upstream,,
+BIOETH,SUP,Biofuel,upstream,,
+BIORME,SUP,Biofuel,upstream,,
+BIOGAS,SUP,Biogas,upstream,,
+GASNAT,SUP,Natural Gas,upstream,,
+SUPGMX,SUP,Gas mix,upstream,,
+ELCHIG,SUP,Electricity,upstream,,
+ELCHIGG,SUP,Electricity,upstream,,
+ELCMED,SUP,Electricity,upstream,,
+ELCLOW,SUP,Electricity,upstream,,
+SYNH2CT,SUP,Hydrogen,upstream,,
+
+# --- Electricity-sector carriers burnt by a cogeneration unit whose heat is ---
+# --- attributed to a demand sector (see heat_to_sector in indicator_power.csv) -
+ELCGAS,ELC,Gas mix,chp_fuel,,Commercial gas CHP; the heat share lands in the tertiary gas row
+ELCBGS,ELC,Biogas,chp_fuel,,
+ELCBIO,ELC,Biogas,chp_fuel,,Carrier of the *_BGS_* biogas engines despite the "Biomass (ELC)" description
+ELCCPS,ELC,Wood,chp_fuel,,
+ELCPEL,ELC,Wood,chp_fuel,,
+ELCOIL,ELC,Oil products,chp_fuel,,
+ELCSLU,ELC,Waste Renewable,chp_fuel,,
+ELCWST,ELC,Waste,chp_fuel,,

@@ -1,0 +1,48 @@
+pattern,mode,technology,renewable,order,heat_to_sector,note
+# Rules for times_pypsa.indicators.power_fleet: TIMES process code -> the
+# technology bar its grid electricity and its capacity are reported under.
+#
+# `pattern` is a Python regular expression matched with re.match against the
+# process code; the first match in file order wins, so specific rules come
+# first. `mode` separates cogeneration from power-only plant. `renewable` flags
+# the rows that also feed the renewables-only view.
+#
+# `heat_to_sector` is read by times_pypsa.indicators.energy_demand, not by
+# power_fleet: it names the demand sector that consumes this plant's heat.
+# Commercial cogeneration sits in the TIMES ELC sector and burns ELC* carriers,
+# so the sector-carrier rule never sees it, yet the heat goes to tertiary
+# buildings. Only the heat-allocated share of the fuel is charged there; the
+# electricity share stays with the power sector. The fuel is labelled by the
+# `chp_fuel` rows of indicator_fuels.csv.
+#
+# Only processes that put electricity on a grid bus (ELCHIG / ELCHIGG / ELCMED /
+# ELCLOW) are considered, so grid transformers and pure consumers never appear.
+
+^EVTRANS,skip,Grid transformer,0,1,,Voltage transformation is not generation
+^Transfo_Imp,skip,Import transformer,0,2,,Import interface is not Walloon generation
+^ESTBAT,skip,Battery storage,0,3,,Storage discharge is not generation
+^RSDLIONBAT,skip,Residential battery,0,4,,Storage discharge is not generation
+^ERNW_Hydro_Pompage,skip,Pumped hydro,0,5,,Pumped storage discharge is not generation
+^(AGR|COM|IND|RSD|TRA)ELC00$,skip,Fuel tech,0,6,,"Hands grid electricity to a sector unchanged; listed so the log only reports genuinely unknown processes"
+
+^ECHPP_COM_(WOO|BGS|BIO|CPS|PEL|SLU|WST),chp,Renewable energies,1,10,COM,Commercial biomass / biogas cogeneration; heat serves tertiary buildings
+^ECHPP_COM_GAS,chp,Gas,0,11,COM,Commercial gas cogeneration; heat serves tertiary buildings
+^ECHPP_COM_OIL,chp,Oil products,0,12,COM,Commercial oil cogeneration; heat serves tertiary buildings
+^ECHPP_.*_(WOO|BGS|BIO|CPS|PEL|SLU|WST),chp,Renewable energies,1,13,,Public biomass / biogas / waste cogeneration
+^ECHPP_.*_GAS,chp,Gas,0,14,,
+^ECHPP_.*_OIL,chp,Oil products,0,15,,
+^ECHPP_CHP_WOO,chp,Renewable energies,1,16,,
+^ECHPP_,chp,Gas,0,19,,Fallback for public cogeneration
+^CHPIND,chp,Mix,0,20,,Industrial autoproducer CHP burning a fuel mix
+^C[HW][A-Z]*GMXCHP,chp,Gas,0,21,,"On-site tertiary gas micro-CHP (CHSAGMXCHPN01_N); its heat already reaches the tertiary demand table through the COM-sector CHP weighting"
+
+^ENUC_,power,Nuclear,0,30,,Existing nuclear
+^ETSTP_.*NUC,power,Nuclear,0,31,,New nuclear
+^ETSTP_Tihange,power,Nuclear,0,32,,
+^ETSTP_TVC_WST,power,Waste,0,40,,Waste incineration with electricity recovery
+^ETSTP_.*(BGS|BIO|WOO|CPS|PEL|SLU),power,Renewable energies,1,41,,
+^ETSTP_,power,Gas,0,49,,"Gas turbines, CCGT and CCGT+CCS retrofits"
+^ERNW_,power,Renewable energies,1,50,,"Wind, hydro and utility PV"
+^RSDPV,power,Renewable energies,1,51,,Residential rooftop PV
+^COMPV,power,Renewable energies,1,52,,Commercial rooftop PV
+^INDPV,power,Renewable energies,1,53,,Industrial rooftop PV
